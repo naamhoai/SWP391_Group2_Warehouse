@@ -1,5 +1,5 @@
 create database warehouse_material_management
-use  warehouse_material_management
+use warehouse_material_management
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
