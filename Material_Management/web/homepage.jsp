@@ -5,8 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Material Management System</title>
-   
-    
     <link rel="stylesheet" href="css/homepage.css">
     <link rel="stylesheet" href="css/footer.css">
 </head>
@@ -20,7 +18,7 @@
             <div class="nav-links">
                 <a href="homepage.jsp" class="nav-link">Home</a>
                 <a href="#features" class="nav-link">Features</a>
-                <a href="login.jsp" class="btn btn-primary">Sign In</a>
+                <a href="login.jsp" class="btn btn-primary">Log In</a>
             </div>
         </div>
     </nav>
@@ -30,14 +28,13 @@
         <div class="container">
             <h1 class="hero-title">Transform Your Material Management</h1>
             <p class="hero-subtitle">Streamline your inventory, optimize resources, and boost efficiency with our comprehensive system</p>
-            <a href="login.jsp" class="btn btn-primary btn-lg">Get Started Now</a>
+            <a href="login.jsp" class="btn-cta">Start Your Journey</a>
         </div>
     </section>
 
     <!-- Features Section -->
     <section id="features" class="features-section">
         <div class="container">
-            <h2 class="text-center mb-2">Powerful Features for Your Business</h2>
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon">
@@ -61,7 +58,7 @@
 
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <i class="fas fa-truck"></i>
+                        <i class="fas fa-warehouse"></i>
                     </div>
                     <h3 class="feature-title">Supplier Management</h3>
                     <p class="feature-description">
@@ -71,23 +68,14 @@
 
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <i class="fas fa-mobile-alt"></i>
+                        <i class="fas fa-toolbox"></i>
                     </div>
-                    <h3 class="feature-title">Mobile Access</h3>
+                    <h3 class="feature-title">Product Management</h3>
                     <p class="feature-description">
                         Access your inventory data anywhere, anytime with our mobile-responsive platform.
                     </p>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- Call to Action Section -->
-    <section class="cta-section">
-        <div class="container">
-            <h2 class="cta-title">Ready to Optimize Your Material Management?</h2>
-            <p class="cta-description">Join thousands of businesses already using our platform</p>
-            <a href="login.jsp" class="btn-cta">Start Your Journey</a>
         </div>
     </section>
 

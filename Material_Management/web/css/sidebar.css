@@ -1,0 +1,141 @@
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 250px;
+    background: gray;
+    padding-top: 20px;
+    transition: all 0.3s ease;
+    z-index: 100;
+}
+
+.sidebar.collapsed {
+    width: 60px;
+}
+
+.sidebar-header {
+    padding: 0 20px;
+    margin-bottom: 40px;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.logo-container i {
+    margin-right: 10px;
+}
+
+.sidebar.collapsed .logo-text {
+    display: none;
+}
+
+.sidebar-menu {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.menu-item {
+    margin-bottom: 5px;
+}
+
+.menu-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: #808080;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.menu-text {
+    color: black;
+}
+
+.menu-link:hover, 
+.menu-link.active {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.menu-icon {
+    width: 20px;
+    text-align: center;
+    margin-right: 10px;
+    font-size: 18px;
+    color: black;
+}
+
+.sidebar.collapsed .menu-text {
+    display: none;
+}
+
+.toggle-btn {
+    position: absolute;
+    top: 20px;
+    right: -12px;
+    width: 24px;
+    height: 24px;
+    background: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #000000;
+    border: 2px solid #000000;
+    transition: all 0.3s ease;
+}
+
+.toggle-btn:hover {
+    background: #e0e0e0;
+}
+
+.toggle-btn i {
+    font-size: 12px;
+    transition: all 0.3s ease;
+}
+
+.sidebar.collapsed .toggle-btn i {
+    transform: rotate(180deg);
+}
+
+/* Main content adjustment */
+#main-content {
+    position: relative;
+    min-height: calc(100vh - 200px); /* Adjust based on your footer height */
+    margin-left: 250px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    padding-bottom: 60px; /* Space for footer */
+}
+
+#main-content.expanded {
+    margin-left: 60px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 60px;
+    }
+    
+    .logo-text, .menu-text {
+        display: none;
+    }
+    
+    #main-content {
+        margin-left: 60px;
+    }
+    
+    .toggle-btn {
+        display: none;
+    }
+} 
