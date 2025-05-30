@@ -3,18 +3,19 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/kien3/Desktop/SWP391_Group2_Warehouse/Material_Management/src/java/dao/DAO.java</file>
-            <file>file:/C:/Users/kien3/Desktop/SWP391_Group2_Warehouse/Material_Management/src/java/dao/RoleDAO.java</file>
-            <file>file:/C:/Users/kien3/Desktop/SWP391_Group2_Warehouse/Material_Management/web/editCategory.jsp</file>
-            <file>file:/C:/Users/kien3/Desktop/SWP391_Group2_Warehouse/Material_Management/src/java/controller/Login.java</file>
-            <file>file:/C:/Users/kien3/Desktop/SWP391_Group2_Warehouse/Material_Management/src/java/dao/CategoryDAO.java</file>
-            <file>file:/C:/Users/kien3/Desktop/SWP391_Group2_Warehouse/Material_Management/web/settinglist.jsp</file>
-            <file>file:/C:/Users/kien3/Desktop/SWP391_Group2_Warehouse/Material_Management/src/java/controller/DetailUser.java</file>
-            <file>file:/C:/Users/kien3/Desktop/SWP391_Group2_Warehouse/Material_Management/src/java/controller/SettingList.java</file>
-            <file>file:/C:/Users/kien3/Desktop/SWP391_Group2_Warehouse/Material_Management/src/java/controller/CreateUserServlet.java</file>
-            <file>file:/C:/Users/kien3/Desktop/SWP391_Group2_Warehouse/Material_Management/src/java/model/User.java</file>
-            <file>file:/C:/Users/kien3/Desktop/SWP391_Group2_Warehouse/Material_Management/web/detailuser.jsp</file>
-            <file>file:/C:/Users/kien3/Desktop/SWP391_Group2_Warehouse/Material_Management/src/java/model/Role.java</file>
+            <file>file:/D:/OneDrive/Máy%20tính/SWP/SWP391_Group2_Warehouse/Material_Management/src/java/controller/ResetPassword.java</file>
+            <file>file:/D:/OneDrive/Máy%20tính/SWP/SWP391_Group2_Warehouse/Material_Management/src/java/dal/DBContext.java</file>
+            <file>file:/D:/OneDrive/Máy%20tính/SWP/SWP391_Group2_Warehouse/Material_Management/src/java/controller/ResetService.java</file>
+            <file>file:/D:/OneDrive/Máy%20tính/SWP/SWP391_Group2_Warehouse/Material_Management/src/java/controller/RequestPassword.java</file>
+            <file>file:/D:/OneDrive/Máy%20tính/SWP/SWP391_Group2_Warehouse/Material_Management/web/settinglist.jsp</file>
+            <file>file:/D:/OneDrive/Máy%20tính/SWP/SWP391_Group2_Warehouse/Material_Management/web/login.jsp</file>
+            <file>file:/D:/OneDrive/Máy%20tính/SWP/SWP391_Group2_Warehouse/Material_Management/src/java/model/User.java</file>
+            <file>file:/D:/OneDrive/Máy%20tính/SWP/SWP391_Group2_Warehouse/Material_Management/web/resetpassword.jsp</file>
+            <file>file:/D:/OneDrive/Máy%20tính/SWP/SWP391_Group2_Warehouse/Material_Management/src/java/dao/ResetPasswordDAO.java</file>
+            <file>file:/D:/OneDrive/Máy%20tính/SWP/SWP391_Group2_Warehouse/Material_Management/src/java/dao/TokenForgetDAO.java</file>
+            <file>file:/D:/OneDrive/Máy%20tính/SWP/SWP391_Group2_Warehouse/Material_Management/src/java/controller/Login.java</file>
+            <file>file:/D:/OneDrive/Máy%20tính/SWP/SWP391_Group2_Warehouse/Material_Management/web/requestpassword.jsp</file>
+            <file>file:/D:/OneDrive/Máy%20tính/SWP/SWP391_Group2_Warehouse/Material_Management/web/css/resetpassword.css</file>
         </group>
     </open-files>
 </project-private>

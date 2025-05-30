@@ -35,6 +35,7 @@ public class ResetPassword extends HttpServlet {
 
             User user = daoUser.getUserById(tokenObj.getUser_id());  // sửa
             request.setAttribute("email", user.getEmail());
+            request.setAttribute("username", user.getUsername());
             session.setAttribute("token", token);
             request.getRequestDispatcher("resetpassword.jsp").forward(request, response);
         } else {
