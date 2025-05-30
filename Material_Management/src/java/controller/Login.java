@@ -86,10 +86,12 @@ public class Login extends HttpServlet {
                 if (gmail.equals(user2.getEmail()) && pass.equals(user2.getPassword())) {
                     if (user2.getStatus() != null && user2.getStatus().equals("active")){
                         session.setAttribute("Admin", user2);
+                        session.setAttribute("userId", user2.getUser_id());    
+                        session.setAttribute("roleId", user2.getRole());
                         vali = true;
 //dashboard.jsp
                         if (user2.getRole().getRoleid() == 1) {
-                            response.sendRedirect("settinglist");
+                            response.sendRedirect("dashboard.jsp");
                         } else if (user2.getRole().getRoleid() == 2) {
                             response.sendRedirect("https://www.google.com.vn/");
                         } else if (user2.getRole().getRoleid() == 3) {

@@ -15,6 +15,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -71,6 +73,9 @@ public class UserDetailServlet extends HttpServlet {
         } else {
             userList = userDAO.searchUsersByKeyword(keyword.trim());
         }
+
+        Comparator<User> byUserId = (u1, u2) -> Integer.compare(u1.getUser_id(), u2.getUser_id());
+        Collections.sort(userList, byUserId);
 
         request.setAttribute("userList", userList);
         request.getRequestDispatcher("userdetail.jsp").forward(request, response);

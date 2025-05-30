@@ -73,7 +73,7 @@ public class DAO extends dal.DBContext {
 
     public List<User> userAccount() {
         List<User> account = new ArrayList<>();
-        String sql = "SELECT  u.email,u.password,r.role_id,u.status\n"
+        String sql = "SELECT  u.user_id,u.email,u.password,r.role_id,u.status\n"
                 + "FROM users u \n"
                 + "join roles r on u.role_id = r.role_id;";
         try {
@@ -82,6 +82,7 @@ public class DAO extends dal.DBContext {
             while (rs.next()) {
                 User acc = new User();
                 Role rcc = new Role();
+                acc.setUser_id(rs.getInt("user_id"));
                 acc.setEmail(rs.getString("email"));
                 acc.setPassword(rs.getString("password"));
                 rcc.setRoleid(rs.getInt("role_id"));

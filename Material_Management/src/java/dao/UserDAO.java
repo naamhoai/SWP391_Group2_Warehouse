@@ -58,15 +58,15 @@ public class UserDAO {
             ps.setString(4, user.getPassword());
             ps.setString(5, user.getPhone());
 
-            if (user.getRole().getRoleid() == 0) {
-                ps.setNull(6, Types.INTEGER);
-            } else {
+            if (user.getRole() != null && user.getRole().getRoleid() != 0) {
                 ps.setInt(6, user.getRole().getRoleid());
+            } else {
+                ps.setNull(6, Types.INTEGER); // Nếu không có vai trò, set null
             }
 
             ps.setString(7, user.getStatus());
             ps.setInt(8, user.getPriority());
-            ps.setString(9, user.getImage());
+            ps.setString(9, user.getImage()); // Cập nhật đường dẫn ảnh
             ps.setString(10, user.getGender());
             ps.setString(11, user.getDayofbirth());
             ps.setString(12, user.getDescription());
@@ -81,53 +81,55 @@ public class UserDAO {
 
     // Lấy user theo ID
     public User getUserById(int userId) {
-        String sql = "SELECT user_id, user_name, full_name, email, password, phone, role_id, status, priority, image, gender, dayofbirth, description FROM users WHERE user_id = ?";
+        // Thêm JOIN để lấy thông tin role_name từ bảng 'roles'
+        String sql = "SELECT u.user_id, u.user_name, u.full_name, u.email, u.password, u.phone, u.role_id, r.role_name, u.status, u.priority, u.image, u.gender, u.dayofbirth, u.description "
+                + "FROM users u "
+                + "INNER JOIN roles r ON u.role_id = r.role_id "
+                + // JOIN với bảng roles
+                "WHERE u.user_id = ?";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, userId);
+
             try (ResultSet rs = ps.executeQuery()) {
+                // Kiểm tra nếu có kết quả trả về
                 if (rs.next()) {
                     User user = new User();
-                    Role rcc = new Role();
+                    Role role = new Role();
+
+                    // Thiết lập thông tin cho đối tượng User từ ResultSet
                     user.setUser_id(rs.getInt("user_id"));
                     user.setUsername(rs.getString("user_name"));
                     user.setFullname(rs.getString("full_name"));
                     user.setEmail(rs.getString("email"));
                     user.setPassword(rs.getString("password"));
                     user.setPhone(rs.getString("phone"));
-                    rcc.setRoleid(rs.getInt("role_id"));
-                    rcc.setRolename(rs.getString("role_name"));
-                    user.setRole(rcc);
+
+                    // Cập nhật thông tin vai trò từ bảng roles
+                    role.setRoleid(rs.getInt("role_id"));
+                    role.setRolename(rs.getString("role_name"));  // Lấy tên vai trò từ bảng roles
+                    user.setRole(role);
+
+                    // Cập nhật các thông tin khác của người dùng
                     user.setStatus(rs.getString("status"));
                     user.setPriority(rs.getInt("priority"));
                     user.setImage(rs.getString("image"));
                     user.setGender(rs.getString("gender"));
                     user.setDayofbirth(rs.getString("dayofbirth"));
                     user.setDescription(rs.getString("description"));
+
                     return user;
+                } else {
+                    // Trường hợp không tìm thấy người dùng
+                    System.out.println("No user found with user_id = " + userId);
                 }
             }
         } catch (SQLException e) {
+            // Log chi tiết lỗi nếu có
+            System.err.println("Error fetching user with ID " + userId + ": " + e.getMessage());
             e.printStackTrace();
         }
-        return null;
-    }
-
-    // Lấy tên role theo id
-    public String getRoleNameById(int roleId) {
-        String sql = "SELECT role_name FROM roles WHERE role_id = ?";
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, roleId);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("role_name");
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return null;  // Trả về null nếu không tìm thấy hoặc gặp lỗi
     }
 
     // Mã hóa mật khẩu SHA-256
@@ -252,27 +254,60 @@ public class UserDAO {
 
     public List<User> getUserListSummary() {
         List<User> list = new ArrayList<>();
-        String sql = "SELECT user_name, full_name, email, status FROM users";
+        // Update SQL query to select all user fields and role information (role_id and role_name)
+        String sql = "SELECT u.user_id, u.user_name, u.full_name, u.email, u.password, u.phone, u.status, u.priority, u.image, u.gender, u.dayofbirth, u.description, r.role_id, r.role_name "
+                + "FROM users u "
+                + "JOIN roles r ON u.role_id = r.role_id";  // JOIN roles table to get role information
+
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            // Debugging: check the SQL query result
+            System.out.println("Executing SQL Query: " + sql);
 
             while (rs.next()) {
                 User user = new User();
+
+                // Set user details from the result set
+                user.setUser_id(rs.getInt("user_id"));
                 user.setUsername(rs.getString("user_name"));
                 user.setFullname(rs.getString("full_name"));
                 user.setEmail(rs.getString("email"));
+                user.setPassword(rs.getString("password"));
+                user.setPhone(rs.getString("phone"));
                 user.setStatus(rs.getString("status"));
-                // Các trường khác không set vì ko cần thiết cho danh sách
+                user.setPriority(rs.getInt("priority"));
+                user.setImage(rs.getString("image"));
+                user.setGender(rs.getString("gender"));
+                user.setDayofbirth(rs.getString("dayofbirth"));
+                user.setDescription(rs.getString("description"));
+
+                // Debugging: check user data retrieved
+                System.out.println("User retrieved: " + user);
+
+                // Create a Role object and set the role data from the result set
+                Role role = new Role();
+                role.setRoleid(rs.getInt("role_id"));
+                role.setRolename(rs.getString("role_name"));
+                user.setRole(role);  // Set the role for the user
+
+                // Add the user to the list
                 list.add(user);
             }
+
+            // Debugging: check the final list size
+            System.out.println("Total users retrieved: " + list.size());
+
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace();  // Log any SQL exceptions that occur
         }
-        return list;
+
+        return list;  // Return the list of users with full information
     }
 
     public List<User> searchUsersByKeyword(String keyword) {
         List<User> list = new ArrayList<>();
-        String sql = "SELECT user_name, full_name, email, status FROM users WHERE user_name LIKE ? OR full_name LIKE ?";
+        // Thêm user_id vào câu lệnh SQL
+        String sql = "SELECT user_id, user_name, full_name, email, status FROM users WHERE user_name LIKE ? OR full_name LIKE ?";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             String likeKeyword = "%" + keyword + "%";
@@ -282,6 +317,8 @@ public class UserDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     User user = new User();
+                    // Lấy user_id từ cơ sở dữ liệu
+                    user.setUser_id(rs.getInt("user_id"));  // Cập nhật để lưu user_id
                     user.setUsername(rs.getString("user_name"));
                     user.setFullname(rs.getString("full_name"));
                     user.setEmail(rs.getString("email"));
@@ -298,27 +335,41 @@ public class UserDAO {
     // Test method main
     public static void main(String[] args) {
         UserDAO userDAO = new UserDAO();
-
-        String fullName = "Nguyễn Văn A";
-        String email = userDAO.generateEmail(fullName);
-
         User newUser = new User();
-        Role rcc = new Role();
-        rcc.setRoleid(2);
-        newUser.setUsername(email);
-        newUser.setFullname(fullName);
-        newUser.setEmail(email);
+        newUser.setUsername("testuser123");
+        newUser.setFullname("Nguyen Van A");
+        newUser.setEmail("nguyenvana@example.com");
+        // Mật khẩu phải được mã hóa trước khi lưu (dùng hàm hashPassword)
         newUser.setPassword(userDAO.hashPassword("123456"));
-        newUser.setPhone("0909123456");
-        newUser.setRole(rcc);
+        newUser.setPhone("0123456789");
+
+        Role role = new Role();
+        role.setRoleid(1);
+        newUser.setRole(role);
+
         newUser.setStatus("active");
         newUser.setPriority(1);
-        newUser.setImage(null);
-        newUser.setGender("Men");
+        newUser.setImage("default.png");
+        newUser.setGender("Female");
         newUser.setDayofbirth("1990-01-01");
-        newUser.setDescription("Test user");
+        newUser.setDescription("User created by main");
 
-        boolean success = userDAO.insertUser(newUser);
-        System.out.println(success ? "Thêm user thành công!" : "Thêm user thất bại!");
+        // Gọi hàm insertUser để thêm user vào DB
+        boolean inserted = userDAO.insertUser(newUser);
+
+        if (inserted) {
+            // Nếu thêm thành công thì lấy lại user vừa tạo bằng username
+            User createdUser = userDAO.getUserByUsername(newUser.getUsername());
+
+            System.out.println("User created successfully:");
+            System.out.println("User ID: " + createdUser.getUser_id());
+            System.out.println("Username: " + createdUser.getUsername());
+            System.out.println("Full Name: " + createdUser.getFullname());
+            System.out.println("Email: " + createdUser.getEmail());
+            System.out.println("Status: " + createdUser.getStatus());
+            System.out.println("Role ID: " + createdUser.getRole().getRoleid());
+        } else {
+            System.out.println("Failed to create user.");
+        }
     }
 }

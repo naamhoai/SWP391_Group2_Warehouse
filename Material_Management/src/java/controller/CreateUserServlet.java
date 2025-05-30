@@ -97,7 +97,7 @@ public class CreateUserServlet extends HttpServlet {
         String gender = request.getParameter("gender");
         String dayofbirth = request.getParameter("dayofbirth");
         String description = request.getParameter("description");
-        
+
         String email = null;
         int tries = 0;
         do {
@@ -190,6 +190,12 @@ public class CreateUserServlet extends HttpServlet {
             filePart.write(uploadDir + File.separator + originalFileName);
             imagePath = "/image/" + originalFileName;
         }
+        if (gender == null || gender.trim().isEmpty()) {
+            request.setAttribute("error", "Bạn phải chọn giới tính.");
+            doGet(request, response);
+            return;
+        }
+        
 
         request.setAttribute("dayofbirth", dayofbirth);
 

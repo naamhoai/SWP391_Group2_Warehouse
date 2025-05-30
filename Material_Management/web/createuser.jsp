@@ -17,18 +17,8 @@
             <c:if test="${not empty error}">
                 <div class="alert error">${error}</div>
             </c:if>
-            <c:if test="${not empty success}">
-                <div class="alert success">${success}</div>
-            </c:if>
-            <c:if test="${not empty roleIdError}">
-                <div class="alert error">${roleIdError}</div>
-            </c:if>
-            <c:if test="${not empty emailError}">
-                <div class="alert error">${emailError}</div>
-            </c:if>
-            <c:if test="${not empty roleError}">
-                <div class="alert error">${roleError}</div>
-            </c:if>
+            
+            
 
             <form action="${pageContext.request.contextPath}/CreateUserServlet" method="post" enctype="multipart/form-data">
 
@@ -38,41 +28,51 @@
                 </div>
 
                 <div class="row">
-                    <label for="fullName">Họ và tên</label>
-                    <input type="text" id="fullName" name="fullName" required value="${fn:escapeXml(fullName)}" oninput="generateEmail()" />
-
-                    <label for="username">Tên đăng nhập</label>
-                    <input type="text" id="username" name="username" required value="${fn:escapeXml(username)}" />
+                    <div class="column">
+                        <label for="fullName">Họ và tên</label>
+                        <input type="text" id="fullName" name="fullName" required 
+                               value="${fn:escapeXml(fullName)}" oninput="generateEmail()" />
+                    </div>
+                    <div class="column">
+                        <label for="username">Tên đăng nhập</label>
+                        <input type="text" id="username" name="username" required 
+                               value="${fn:escapeXml(username)}" />
+                    </div>
                 </div>
 
                 <div class="row">
-                    <label for="password">Mật khẩu</label>
-                    <input type="password" id="password" name="password" required />
-
-                    <label for="gender">Giới tính</label>
-                    <select id="gender" name="gender">
-                        <option value="">Chọn giới tính</option>
-                        <option value="Men" <c:if test="${gender == 'Men'}">selected</c:if>>Nam</option>
-                        <option value="Women" <c:if test="${gender == 'Women'}">selected</c:if>>Nữ</option>
-                        <option value="Other" <c:if test="${gender == 'Other'}">selected</c:if>>Khác</option>
-                        </select>
+                    <div class="column">
+                        <label for="password">Mật khẩu</label>
+                        <input type="password" id="password" name="password" required />
+                    </div>
+                    <div class="column">
+                        <label for="gender">Giới tính</label>
+                        <select id="gender" name="gender">
+                            <option value="">Chọn giới tính</option>
+                            <option value="Men" <c:if test="${gender == 'Men'}">selected</c:if>>Nam</option>
+                            <option value="Women" <c:if test="${gender == 'Women'}">selected</c:if>>Nữ</option>
+                            <option value="Other" <c:if test="${gender == 'Other'}">selected</c:if>>Khác</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="row">
-                        <label for="dayofbirth">Ngày sinh</label>
-                        <input type="date" id="dayofbirth" name="dayofbirth" value="${dayofbirth}" />
-
-                    <label for="email">Email (tự tạo từ họ tên)</label>
-                    <input type="text" id="email" name="email" readonly value="${fn:escapeXml(email)}" />
+                        <div class="column">
+                            <label for="dayofbirth">Ngày sinh</label>
+                            <input type="date" id="dayofbirth" name="dayofbirth" value="${dayofbirth}" />
+                    </div>
+                    <div class="column">
+                        <label for="email">Email (tự tạo từ họ tên)</label>
+                        <input type="text" id="email" name="email" readonly value="${fn:escapeXml(email)}" />
+                    </div>
                 </div>
 
-                <div class="inline-row">
-                    <div class="row">
+                <div class="row">
+                    <div class="column">
                         <label for="phone">Số điện thoại</label>
                         <input type="tel" id="phone" name="phone" value="${fn:escapeXml(userPhone)}" />
                     </div>
-
-                    <div class="row">
+                    <div class="column">
                         <label for="roleId">Vai trò</label>
                         <select id="roleId" name="roleId">
                             <option value="">Chọn vai trò</option>
@@ -85,23 +85,29 @@
                     </div>
                 </div>
 
-                <div class="inline-row">
-                    <div class="row">
+                <div class="row">
+                    <div class="column">
                         <label class="status-label">Trạng thái</label>
                         <div class="status-group">
-                            <label><input type="radio" name="status" value="active" <c:if test="${status == 'active' || status == null}">checked</c:if> /> Hoạt động</label>
-                            <label><input type="radio" name="status" value="inactive" <c:if test="${status == 'inactive'}">checked</c:if> /> Không hoạt động</label>
+                            <label>
+                                <input type="radio" name="status" value="active" 
+                                       <c:if test="${status == 'active' || status == null}">checked</c:if> /> Hoạt động
+                                </label>
+                                <label>
+                                    <input type="radio" name="status" value="inactive" 
+                                    <c:if test="${status == 'inactive'}">checked</c:if> /> Không hoạt động
+                                </label>
                             </div>
                         </div>
-
-                        <div class="row">
+                        <div class="column">
                             <label for="priority">Mức ưu tiên</label>
                             <input type="number" id="priority" name="priority" min="0" value="${priority}" />
                     </div>
                 </div>
 
-                <div class="row description">
+                <div class="row full-width">
                     <label for="description">Mô tả</label>
+                    <a href="../src/java/dao/UserDAO.java"></a>
                     <textarea id="description" name="description">${fn:escapeXml(description)}</textarea>
                 </div>
 

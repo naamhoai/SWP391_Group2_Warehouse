@@ -71,36 +71,36 @@ public class UpdateUserProfileServlet extends HttpServlet {
             return;
         }
 
-        int sessionUserId = (Integer) session.getAttribute("userId");
-        int sessionRoleId = (Integer) session.getAttribute("roleId");
-
-        int userIdToEdit;
-
-        if (sessionRoleId == 1) { // admin
-            String paramUserId = request.getParameter("user_id");
-            if (paramUserId != null) {
-                try {
-                    userIdToEdit = Integer.parseInt(paramUserId);
-                } catch (NumberFormatException e) {
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid user_id parameter");
-                    return;
-                }
-            } else {
-                userIdToEdit = sessionUserId; // nếu không truyền thì admin sửa chính mình
-            }
-        } else {
-            // user thường chỉ sửa chính mình
-            userIdToEdit = sessionUserId;
-        }
-
-        User user = userDAO.getUserById(userIdToEdit);
-        if (user == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "User not found");
+        // Lấy tham số user_id từ URL
+        String userIdStr = request.getParameter("user_id");
+        if (userIdStr == null || userIdStr.isEmpty()) {
+            request.setAttribute("error", "User ID not provided.");
+            request.getRequestDispatcher("userdetail.jsp").forward(request, response);
             return;
         }
 
-        request.setAttribute("user", user);
-        request.getRequestDispatcher("updateuserprofile.jsp").forward(request, response);
+        int userId;
+        try {
+            userId = Integer.parseInt(userIdStr);
+        } catch (NumberFormatException e) {
+            request.setAttribute("error", "Invalid User ID format.");
+            request.getRequestDispatcher("userdetail.jsp").forward(request, response);
+            return;
+        }
+
+        // Lấy thông tin người dùng từ cơ sở dữ liệu
+        User user = userDAO.getUserById(userId);
+
+        if (user != null) {
+            // Truyền thông tin người dùng vào request
+            String formattedDOB = user.getDayofbirth() != null ? user.getDayofbirth() : "";
+            request.setAttribute("dob", formattedDOB);
+            request.setAttribute("user", user);
+            request.getRequestDispatcher("updateuserprofile.jsp").forward(request, response);
+        } else {
+            request.setAttribute("error", "User not found.");
+            request.getRequestDispatcher("userdetail.jsp").forward(request, response);
+        }
     }
 
     /**
@@ -120,74 +120,68 @@ public class UpdateUserProfileServlet extends HttpServlet {
             return;
         }
 
-        int sessionUserId = (Integer) session.getAttribute("userId");
-        int sessionRoleId = (Integer) session.getAttribute("roleId");
+        int userIdToEdit = Integer.parseInt(request.getParameter("user_id"));
+        User user = userDAO.getUserById(userIdToEdit);
 
-        int userIdToEdit;
-        if (sessionRoleId == 1) { // admin
-            String paramUserId = request.getParameter("user_id");
-            if (paramUserId != null) {
-                try {
-                    userIdToEdit = Integer.parseInt(paramUserId);
-                } catch (NumberFormatException e) {
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid user_id parameter");
-                    return;
-                }
-            } else {
-                userIdToEdit = sessionUserId; // nếu không truyền thì admin sửa chính mình
-            }
-        } else {
-            // user thường chỉ sửa chính mình
-            userIdToEdit = sessionUserId;
+        if (user == null) {
+            request.setAttribute("error", "User không tồn tại.");
+            request.getRequestDispatcher("updateuserprofile.jsp").forward(request, response);
+            return;
         }
 
+        // Lấy thông tin từ form
         String username = request.getParameter("username");
         String fullname = request.getParameter("fullname");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         String phone = request.getParameter("phone");
-        Part filePart = request.getPart("imageFile");
-        String existingImage = request.getParameter("existingImage");
+        String gender = request.getParameter("gender");
+        String dobInput = request.getParameter("dayofbirth");
+        String description = request.getParameter("description");
 
-        User user = userDAO.getUserById(userIdToEdit);
-        if (user == null) {
-            request.setAttribute("error", "User không tồn tại.");
-            request.getRequestDispatcher("updatesuerprofile.jsp").forward(request, response);
-            return;
-        }
-
-        user.setUsername(username);
-        user.setFullname(fullname);
-        user.setEmail(email);
-        user.setPassword(password);
-        user.setPhone(phone);
-// Xử lý ảnh đại diện
-        if (filePart != null && filePart.getSize() > 0) {
-            // Lấy tên file gốc
-            String originalFileName = Path.of(filePart.getSubmittedFileName()).getFileName().toString();
-            // Tạo thư mục lưu file ảnh
-            String uploadDir = getServletContext().getRealPath("/image");
+        // Lấy ảnh đại diện (nếu có)
+        Part imagePart = request.getPart("imageFile");
+        String imagePath = null;
+        if (imagePart != null && imagePart.getSize() > 0) {
+            // Lưu ảnh vào thư mục server (cập nhật đường dẫn ảnh vào cơ sở dữ liệu)
+            String fileName = Path.of(imagePart.getSubmittedFileName()).getFileName().toString();
+            String uploadDir = getServletContext().getRealPath("/uploads"); // Thư mục lưu ảnh
             File uploadDirFile = new File(uploadDir);
             if (!uploadDirFile.exists()) {
                 uploadDirFile.mkdirs();
             }
-            // Lưu file
-            filePart.write(uploadDir + File.separator + originalFileName);
-            user.setImage("/image/" + originalFileName);
-        } else if (existingImage != null && !existingImage.trim().isEmpty()) {
-            // Nếu không upload file mới mà chọn ảnh có sẵn
-            user.setImage("/" + existingImage);
-        } // else giữ nguyên ảnh cũ
 
-        // Giữ nguyên vai trò, trạng thái, ưu tiên
-        // user.setRole_id(user.getRole_id());
-        // user.setStatus(user.getStatus());
-        // user.setPriority(user.getPriority());
+            // Lưu ảnh vào thư mục
+            imagePath = "/uploads/" + fileName;
+            imagePart.write(uploadDir + File.separator + fileName);
+        }
+
+        // Cập nhật thông tin cho đối tượng user
+        user.setUsername(username);
+        user.setFullname(fullname);
+        user.setEmail(email);
+        user.setPhone(phone);
+        user.setGender(gender);
+        user.setDescription(description);
+
+        if (password != null && !password.trim().isEmpty()) {
+            user.setPassword(password);
+        }
+        if (dobInput != null && !dobInput.trim().isEmpty()) {
+            // Validate hoặc chuyển đổi định dạng nếu cần
+            user.setDayofbirth(dobInput); // vì dayofbirth là String
+        }
+
+        if (imagePath != null) {
+            user.setImage(imagePath); // Cập nhật ảnh đại diện nếu có
+        }
+
+        // Cập nhật thông tin người dùng vào cơ sở dữ liệu
         boolean updated = userDAO.updateUser(user);
         if (updated) {
-            response.sendRedirect(request.getContextPath() + "/userDetailServlet?userId=" + userIdToEdit);
+            response.sendRedirect("UserDetailServlet?user_id=" + user.getUser_id());
         } else {
-            request.setAttribute("error", "Cập nhật thất bại, vui lòng thử lại.");
+            request.setAttribute("error", "Cập nhật thất bại.");
             request.setAttribute("user", user);
             request.getRequestDispatcher("updateuserprofile.jsp").forward(request, response);
         }

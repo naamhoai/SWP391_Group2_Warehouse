@@ -1,68 +1,110 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8" />
-    <title>Cập nhật thông tin cá nhân</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/updateuserprofile.css" />
-</head>
-<body>
-    <div class="container">
-        <h2>Cập nhật thông tin cá nhân</h2>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Cập nhật thông tin cá nhân</title>
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/updateuserprofile.css" />
+    </head>
+    <body>
+        <div class="form-container">
+            <h2>Cập nhật thông tin cá nhân</h2>
 
-        <c:if test="${not empty error}">
-            <div class="alert error">${error}</div>
-        </c:if>
-        <c:if test="${not empty success}">
-            <div class="alert success">${success}</div>
-        </c:if>
+            <!-- Hiển thị thông báo lỗi hoặc thành công -->
+            <c:if test="${not empty error}">
+                <div class="alert error">${error}</div>
+            </c:if>
+            <c:if test="${not empty success}">
+                <div class="alert success">${success}</div>
+            </c:if>
 
-        <form action="${pageContext.request.contextPath}/UpdateUserProfileServlet" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="user_id" value="${user.user_id}" />
+            <!-- Form để cập nhật thông tin người dùng -->
+            <form action="${pageContext.request.contextPath}/UpdateUserProfileServlet" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="user_id" value="${user.user_id}" />
 
-            <div class="current-image">
-                <label>Ảnh đại diện hiện tại:</label><br />
-                <c:choose>
-                    <c:when test="${not empty user.image}">
-                        <img src="${pageContext.request.contextPath}${user.image}" alt="Ảnh đại diện" />
-                        <input type="hidden" name="existingImage" value="${user.image}" />
-                    </c:when>
-                    <c:otherwise>
-                        <span>Chưa có ảnh đại diện</span>
-                    </c:otherwise>
-                </c:choose>
-            </div>
+                <!-- Ảnh đại diện -->
+                <div class="avatar-container">
+                    <c:choose>
+                        <c:when test="${not empty user.image}">
+                            <img src="${pageContext.request.contextPath}${user.image}" alt="Ảnh đại diện" />
+                            <input type="hidden" name="existingImage" value="${user.image}" />
+                        </c:when>
+                        <c:otherwise>
+                            <span>Chưa có ảnh đại diện</span>
+                        </c:otherwise>
+                    </c:choose>
 
-            <label for="imageFile">Thay đổi ảnh đại diện:</label>
-            <input type="file" id="imageFile" name="imageFile" accept="image/*" />
+                    <input type="file" id="imageFile" name="imageFile" accept="image/*" />
+                </div>
 
-            <label for="username">Tên đăng nhập:</label>
-            <input type="text" id="username" name="username" value="${user.username}" required />
 
-            <label for="fullname">Họ và tên:</label>
-            <input type="text" id="fullname" name="fullname" value="${user.fullname}" required />
+                <!-- Họ và tên -->
+                <div class="row full-width">
+                    <label for="fullname">Họ và tên:</label>
+                    <input type="text" id="fullname" name="fullname" value="${user.fullname}" required />
+                </div>
 
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" value="${user.email}" required />
+                <div class="row">
+                    <div class="column">
+                        <label for="username">Tên đăng nhập:</label>
+                        <input type="text" id="username" name="username" value="${user.username}" required />
+                    </div>
+                    <div class="column">
+                        <label for="password">Mật khẩu:</label>
+                        <input type="password" id="password" name="password" value="${user.password}" />
+                    </div>
+                </div>
 
-            <label for="password">Mật khẩu: <small>(Nhập lại để đổi mật khẩu, để trống nếu không đổi)</small></label>
-            <input type="password" id="password" name="password" />
+                <div class="row">
 
-            <label for="phone">Số điện thoại:</label>
-            <input type="tel" id="phone" name="phone" value="${user.phone}" />
+                    <div class="column">
+                        <label for="email">Email:</label>
+                        <input type="text" id="email" name="email" value="${user.email}" readonly />
+                    </div>
 
-            <label for="role_id">Vai trò:</label>
-            <input type="text" id="role_id" name="role_id" value="${user.role_id}" readonly />
+                    <div class="column">
+                        <label for="phone">Số điện thoại:</label>
+                        <input type="tel" id="phone" name="phone" value="${user.phone}" />
+                    </div>
+                </div>
 
-            <label for="status">Trạng thái:</label>
-            <input type="text" id="status" name="status" value="${user.status}" readonly />
+                <div class="row">
+                    <div class="column">
+                        <label for="gender">Giới tính:</label>
+                        <select id="gender" name="gender" required>
+                            <option value="Nam" ${user.gender == 'Men' ? 'selected' : ''}>Nam</option>
+                            <option value="Nữ" ${user.gender == 'Women' ? 'selected' : ''}>Nữ</option>
+                            <option value="Khác" ${user.gender == 'Other' ? 'selected' : ''}>Khác</option>
+                        </select>
+                    </div>
+                    <div class="column">
+                        <label for="dayofbirth">Ngày sinh:</label>
+                        <input type="date" id="dayofbirth" name="dayofbirth" value="${dob}" />
+                    </div>
 
-            <label for="priority">Mức ưu tiên:</label>
-            <input type="text" id="priority" name="priority" value="${user.priority}" readonly />
+                </div>
 
-            <button type="submit">Cập nhật</button>
-        </form>
-    </div>
-</body>
+
+
+
+                <div class="row">
+                    <div class="column">
+                        <label for="role_name">Vai trò:</label>
+                        <input type="text" id="role_name" name="role_name" value="${user.role.rolename}" readonly />
+                    </div>
+                    <div class="column">
+                        <label for="status">Trạng thái:</label>
+                        <input type="text" id="status" name="status" value="${user.status}" readonly />
+                    </div>
+                </div>
+
+
+                <div class="center-button">
+                    <button type="submit">Cập nhật</button>
+                </div>
+            </form>
+        </div>
+    </body>
 </html>
