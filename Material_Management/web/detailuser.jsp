@@ -29,9 +29,9 @@
                     <div>
                         <label>Type Role</label>
                         <select name="role">
-                            
-                                <option value="${user.fullname}">${user.rol}</option>
-                          
+                            <c:forEach var="i" items="${requestScope.lits}">
+                                <option value="${i.roleid}">${i.rolename}</option>
+                            </c:forEach>
                         </select>
                     </div>
                 </div>
@@ -64,7 +64,7 @@
                     </div>
                 </div>
                 <input type="hidden" name="userid" value="${user.user_id}">
-                <input type="hidden" name="roleid" value="${user.role_id}">
+                <input type="hidden" name="roleid" value="${user.role.roleid}">
 
                 <div class="hopbut">
 

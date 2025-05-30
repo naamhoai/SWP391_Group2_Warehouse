@@ -47,6 +47,7 @@ public class DAO extends dal.DBContext {
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
                 User u = new User();
+                Role rcc = new Role();
                 u.setUser_id(rs.getInt("user_id"));
                 u.setFullname(rs.getString("full_name"));
                 u.setPassword(rs.getString("password"));
@@ -54,7 +55,9 @@ public class DAO extends dal.DBContext {
                 u.setPhone(rs.getString("phone"));
                 u.setEmail(rs.getString("email"));
                 u.setPriority(rs.getInt("priority"));
-                u.setRole_id(rs.getInt("role_id"));
+                rcc.setRoleid(rs.getInt("role_id"));
+                rcc.setRolename(rs.getString("role_name"));
+                u.setRole(rcc);
                 u.setStatus(rs.getString("status"));
                 u.setImage(rs.getString("image"));
                 user.add(u);
@@ -78,9 +81,12 @@ public class DAO extends dal.DBContext {
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
                 User acc = new User();
+                Role rcc = new Role();
                 acc.setEmail(rs.getString("email"));
                 acc.setPassword(rs.getString("password"));
-                acc.setRole_id(rs.getInt("role_id"));
+                rcc.setRoleid(rs.getInt("role_id"));
+
+                acc.setRole(rcc);
                 acc.setStatus(rs.getString("status"));
                 account.add(acc);
 
@@ -95,17 +101,20 @@ public class DAO extends dal.DBContext {
 
     public List<User> SettingList() {
         List<User> list = new ArrayList<>();
-        String sql = "select user_id,full_name,role_name,r.role_id,status,priority from roles r join users u on r.role_id = u.role_id;";
+        String sql = "select user_id,full_name,role_name,r.role_id,status,priority,description from roles r join users u on r.role_id = u.role_id;";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
                 User acc = new User();
+                Role rcc = new Role();
                 acc.setUser_id(rs.getInt("user_id"));
-                acc.setUsername(rs.getString("role_name"));
                 acc.setFullname(rs.getString("full_name"));
-                acc.setRole_id(rs.getInt("role_id"));
+                rcc.setRoleid(rs.getInt("role_id"));
+                rcc.setRolename(rs.getString("role_name"));
+                acc.setRole(rcc);
                 acc.setStatus(rs.getString("status"));
+                acc.setDescription(rs.getString("description"));
                 acc.setPriority(rs.getInt("priority"));
                 list.add(acc);
 
@@ -132,14 +141,14 @@ public class DAO extends dal.DBContext {
                 User acc = new User();
                 Role rcc = new Role();
                 acc.setUser_id(rs.getInt("user_id"));
-               
+
                 acc.setFullname(rs.getString("full_name"));
                 acc.setStatus(rs.getString("status"));
                 acc.setPriority(rs.getInt("priority"));
-                
+
                 rcc.setRoleid(rs.getInt("role_id"));
-                rcc.setRolename(rs.getString("role_name"));
-                acc.setRole_id(rcc);
+
+                acc.setRole(rcc);
                 return acc;
             }
 
@@ -167,11 +176,12 @@ public class DAO extends dal.DBContext {
 
     }
 
-    public User userUpdate(String fullname, int priority, String status, int roleid, int userid) {
+    public User userUpdate(String fullname, int priority, String status, String description, int roleid, int userid) {
         String sql = "UPDATE Users \n"
                 + "SET full_name=?, \n"
                 + "priority=?, \n"
                 + "status= ?, \n"
+                + "description= ?, \n"
                 + "role_id=?\n"
                 + "WHERE user_id=?;";
         try {
@@ -179,9 +189,9 @@ public class DAO extends dal.DBContext {
             st.setString(1, fullname);
             st.setInt(2, priority);
             st.setString(3, status);
-            st.setInt(4, roleid);
-            st.setInt(5, userid);
-
+            st.setString(4, description);
+            st.setInt(5, roleid);
+            st.setInt(6, userid);
             st.executeUpdate();
 
         } catch (SQLException e) {
@@ -337,8 +347,15 @@ public class DAO extends dal.DBContext {
 
     public static void main(String[] args) {
         DAO con = new DAO();
-         User l =  con.userID(1, 1);
-        System.out.println(l);
+        String fullname = "Nguyen Van A";   // tên đầy đủ, chuỗi
+        int priority = 1;                   // số nguyên
+        String status = "active";           // trạng thái, chuỗi
+        String description = "New description"; // mô tả, chuỗi
+        int roleid = 4;                    // id vai trò, số nguyên
+        int userid = 9;                    // id người dùng, số nguyên
+
+       User l = con.userUpdate(fullname, priority, status, description, roleid, userid);
+       System.out.println(l);
 
     }
 }

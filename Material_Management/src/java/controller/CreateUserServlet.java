@@ -214,12 +214,14 @@ public class CreateUserServlet extends HttpServlet {
         }
 
         User newUser = new User();
+        Role role = new Role();
+        role.setRoleid(roleId);
         newUser.setUsername(username);
         newUser.setFullname(fullName);
         newUser.setEmail(email);
         newUser.setPassword(userDAO.hashPassword(password));
         newUser.setPhone(phone);
-        newUser.setRole_id(roleId);
+        newUser.setRole(role);
         newUser.setStatus(status);
         newUser.setPriority(priority);
         newUser.setImage(imagePath);

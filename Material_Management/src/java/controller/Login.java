@@ -88,14 +88,14 @@ public class Login extends HttpServlet {
                         session.setAttribute("Admin", user2);
                         vali = true;
 //dashboard.jsp
-                        if (user2.getRole_id() == 1) {
+                        if (user2.getRole().getRoleid() == 1) {
                             response.sendRedirect("settinglist");
-                        } else if (user2.getRole_id() == 2) {
+                        } else if (user2.getRole().getRoleid() == 2) {
                             response.sendRedirect("https://www.google.com.vn/");
-                        } else if (user2.getRole_id() == 3) {
+                        } else if (user2.getRole().getRoleid() == 3) {
                             PrintWriter out = response.getWriter();
                             out.print("day la so 3");
-                        } else if (user2.getRole_id() == 4) {
+                        } else if (user2.getRole().getRoleid() == 4) {
                             PrintWriter out = response.getWriter();
                             out.print("day la nhan vien");
                         }

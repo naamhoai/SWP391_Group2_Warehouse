@@ -7,7 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-public class DAOTokenForget extends DBContext {
+public class TokenForgetDAO extends DBContext {
 
     public boolean insertTokenForget(TokenForgetPassword tokenForget) {
         String sql = "INSERT INTO tokenforgetpassword (token, expiryTime, isUsed, user_id) VALUES (?, ?, ?, ?)";

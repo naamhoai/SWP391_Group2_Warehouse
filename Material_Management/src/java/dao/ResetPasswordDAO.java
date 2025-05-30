@@ -7,7 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import model.Role;
 
-public class DAOUser extends DBContext {
+public class ResetPasswordDAO extends DBContext {
 
     public User getUserByEmail(String email) {
         String sql = "SELECT * FROM `users` WHERE `email` = ?";

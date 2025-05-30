@@ -1,7 +1,7 @@
 package controller;
 
-import dao.DAOTokenForget;
-import dao.DAOUser;
+import dao.TokenForgetDAO;
+import dao.ResetPasswordDAO;
 import model.TokenForgetPassword;
 import model.User;
 import java.io.IOException;
@@ -14,8 +14,8 @@ import jakarta.servlet.http.HttpSession;
 
 @WebServlet(name="resetPassword", urlPatterns={"/resetPassword"})
 public class ResetPassword extends HttpServlet {
-    private final DAOTokenForget daoToken = new DAOTokenForget();
-    private final DAOUser daoUser = new DAOUser();
+    private final TokenForgetDAO daoToken = new TokenForgetDAO();
+    private final ResetPasswordDAO daoUser = new ResetPasswordDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

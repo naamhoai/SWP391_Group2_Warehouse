@@ -87,12 +87,12 @@
                                 </td>
                                 <td>${u.user_id}</td>
                                 <td>${u.fullname}</td>
-                                <td>${u.username}</td>
-                                <td></td>
+                                <td>${u.role.rolename}</td>
+                                <td>${u.description}</td>
                                 <td>${u.priority}</td>
                                 <td>${u.status}</td>
                                 <td class="action">
-                                    <a href="detailuser?roleid=${u.role_id}&userid=${u.user_id}">
+                                    <a href="detailuser?roleid=${u.role.roleid}&userid=${u.user_id}">
                                         <i class="fas fa-edit"></i> Edit
                                     </a>
                                     <a href="Status?sta=${u.user_id}&action=inactive" class="inactive">

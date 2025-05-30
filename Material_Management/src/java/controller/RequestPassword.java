@@ -1,7 +1,7 @@
 package controller;
 
-import dao.DAOTokenForget;
-import dao.DAOUser;
+import dao.TokenForgetDAO;
+import dao.ResetPasswordDAO;
 import model.TokenForgetPassword;
 import model.User;
 import java.io.IOException;
@@ -24,7 +24,7 @@ public class RequestPassword extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String email = request.getParameter("email");
-        DAOUser daoUser = new DAOUser();
+        ResetPasswordDAO daoUser = new ResetPasswordDAO();
         User user = daoUser.getUserByEmail(email);
 
         if (user == null) {
@@ -39,7 +39,7 @@ public class RequestPassword extends HttpServlet {
 
         TokenForgetPassword tokenEntity = new TokenForgetPassword(0, user.getUser_id(), false, token, service.expireDateTime());
 
-        DAOTokenForget daoToken = new DAOTokenForget();
+        TokenForgetDAO daoToken = new TokenForgetDAO();
         if (!daoToken.insertTokenForget(tokenEntity)) {
             request.setAttribute("mess", "Lỗi hệ thống khi lưu token.");
             request.getRequestDispatcher("requestPassword.jsp").forward(request, response);

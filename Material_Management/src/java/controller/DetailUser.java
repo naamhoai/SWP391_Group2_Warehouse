@@ -98,7 +98,6 @@ public class DetailUser extends HttpServlet {
             throws ServletException, IOException {
         HttpSession se = request.getSession();
         String name = request.getParameter("name");
-        String valu = request.getParameter("valu");
         String priority = request.getParameter("priority");
         String status = request.getParameter("status");
         String role = request.getParameter("role");
@@ -109,25 +108,31 @@ public class DetailUser extends HttpServlet {
         String mess = "";
 
         try {
+            List<Role> list = dao.getRoles();
+            request.setAttribute("lits", list);
 
             int id = Integer.parseInt(userid);
             int rid = Integer.parseInt(role);
             int pri = Integer.parseInt(priority);
             if (pri > 0) {
-                dao.userUpdate(name, pri, status, rid, id);
+                dao.userUpdate(name, pri, status, description, rid, id);
+                System.out.println(dao.userUpdate(name, pri, status, description, rid, id));
+                System.out.println(role);
                 mess = "Successfully updated";
                 se.setAttribute("messUpdate", mess);
+
                 response.sendRedirect("settinglist");
             } else {
                 mess = "Priority Invalied!";
                 User usid = dao.userID(id, rid);
-                System.out.println(usid);
+               
                 request.setAttribute("user", usid);
                 request.setAttribute("messkk", mess);
                 request.getRequestDispatcher("detailuser.jsp").forward(request, response);
             }
 
         } catch (NumberFormatException e) {
+             e.printStackTrace();
             mess = "Failed to update.";
             se.setAttribute("messkk", mess);
             response.sendRedirect("detailuser");
