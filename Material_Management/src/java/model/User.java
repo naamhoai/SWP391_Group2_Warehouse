@@ -1,43 +1,42 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model;
 
-/**
- *
- * @author kien3
- */
 public class User {
-
     private int user_id;
-    private String username;
-    private String fullname;
+    private String username;    
+    private String fullname;    
+    private String email;
     private String password;
     private String phone;
-    private String email;
-    private String status;
     private int role_id;
+    private String status;
     private int priority;
     private String image;
-
+    private String gender;
+    private String dayofbirth;
+    private String description;
 
     public User() {
     }
 
-    public User(int user_id, String username, String fullname, String password, String phone, String email, String status, int role_id, int priority, String image) {
+    public User(int user_id, String username, String fullname, String email, String password,
+                String phone, int role_id, String status, int priority, String image,
+                String gender, String dayofbirth, String description) {
         this.user_id = user_id;
         this.username = username;
         this.fullname = fullname;
+        this.email = email;
         this.password = password;
         this.phone = phone;
-        this.email = email;
-        this.status = status;
         this.role_id = role_id;
+        this.status = status;
         this.priority = priority;
         this.image = image;
-  
+        this.gender = gender;
+        this.dayofbirth = dayofbirth;
+        this.description = description;
     }
+
+    // Getter và Setter
 
     public int getUser_id() {
         return user_id;
@@ -63,6 +62,14 @@ public class User {
         this.fullname = fullname;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getPassword() {
         return password;
     }
@@ -79,12 +86,12 @@ public class User {
         this.phone = phone;
     }
 
-    public String getEmail() {
-        return email;
+    public int getRole_id() {
+        return role_id;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setRole_id(int role_id) {
+        this.role_id = role_id;
     }
 
     public String getStatus() {
@@ -93,14 +100,6 @@ public class User {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public int getRole_id() {
-        return role_id;
-    }
-
-    public void setRole_id(int role_id) {
-        this.role_id = role_id;
     }
 
     public int getPriority() {
@@ -119,14 +118,48 @@ public class User {
         this.image = image;
     }
 
-    
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getDayofbirth() {
+        return dayofbirth;
+    }
+
+    public void setDayofbirth(String dayofbirth) {
+        this.dayofbirth = dayofbirth;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    // Optional: override toString() để debug dễ dàng
 
     @Override
     public String toString() {
-        return "User{" + "user_id=" + user_id + ", username=" + username + ", fullname=" + fullname + ", password=" + password + ", phone=" + phone + ", email=" + email + ", status=" + status + ", role_id=" + role_id + ", priority=" + priority + ", image=" + image + '}';
+        return "User{" +
+                "user_id=" + user_id +
+                ", username='" + username + '\'' +
+                ", fullname='" + fullname + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", phone='" + phone + '\'' +
+                ", role_id=" + role_id +
+                ", status='" + status + '\'' +
+                ", priority=" + priority +
+                ", image='" + image + '\'' +
+                ", gender='" + gender + '\'' +
+                ", dayofbirth='" + dayofbirth + '\'' +
+                ", description='" + description + '\'' +
+                '}';
     }
-    
-
-    
-
 }

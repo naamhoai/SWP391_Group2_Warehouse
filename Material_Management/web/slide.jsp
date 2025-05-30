@@ -36,11 +36,13 @@
             </a>
         </li>
         <li class="menu-item">
-            <a href="#" class="menu-link">
+            <a href="${pageContext.request.contextPath}/UserDetailServlet?userId=${u.user_id}" class="menu-link">
                 <i class="fas fa-users menu-icon"></i>
                 <span class="menu-text">Users</span>
             </a>
         </li>
+
+
         <li class="menu-item">
             <a href="#" class="menu-link">
                 <i class="fas fa-cog menu-icon"></i>
@@ -58,20 +60,20 @@
 
 <!-- Sidebar Toggle Script -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const sidebar = document.querySelector('.sidebar');
         const mainContent = document.querySelector('#main-content');
         const toggleBtn = document.querySelector('.toggle-btn');
-        
-        toggleBtn.addEventListener('click', function() {
+
+        toggleBtn.addEventListener('click', function () {
             sidebar.classList.toggle('collapsed');
             mainContent.classList.toggle('expanded');
         });
-        
+
         // Set active menu item
         const menuLinks = document.querySelectorAll('.menu-link');
         menuLinks.forEach(link => {
-            link.addEventListener('click', function() {
+            link.addEventListener('click', function () {
                 menuLinks.forEach(l => l.classList.remove('active'));
                 this.classList.add('active');
             });
