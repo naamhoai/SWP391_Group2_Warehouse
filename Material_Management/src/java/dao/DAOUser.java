@@ -25,7 +25,10 @@ public class DAOUser extends DBContext {
                         rs.getString("status"),
                         rs.getInt("role_id"),
                         rs.getInt("priority"),
-                        rs.getString("image") // thêm dòng này
+                        rs.getString("image"),
+                        rs.getString("gender"),
+                        rs.getString("dayofbirth"),
+                        rs.getString("description")
                 );
             }
         } catch (SQLException e) {
@@ -51,7 +54,10 @@ public class DAOUser extends DBContext {
                         rs.getString("status"),
                         rs.getInt("role_id"),
                         rs.getInt("priority"),
-                        rs.getString("image") // thêm dòng này
+                        rs.getString("image"),
+                        rs.getString("gender"),
+                        rs.getString("dayofbirth"),
+                        rs.getString("description")
                 );
             }
         } catch (SQLException e) {

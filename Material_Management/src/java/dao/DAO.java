@@ -23,7 +23,7 @@ public class DAO extends dal.DBContext {
         List<Role> role = new ArrayList<>();
         String sql = "SELECT * FROM roles";
         try {
-            PreparedStatement st = connection.prepareStatement(sql) ;
+            PreparedStatement st = connection.prepareStatement(sql);
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
                 Role user = new Role();
@@ -119,7 +119,7 @@ public class DAO extends dal.DBContext {
     }
 
     public User userID(int user_ID, int role_id) {
-        String sql = "select u.user_id,r.role_id \n"
+        String sql = "select u.user_id,r.role_id,u.full_name,u.priority,u.status \n"
                 + "from users u join roles r \n"
                 + "on u.role_id = r.role_id\n"
                 + "where u.user_id = ? and r.role_id = ?";
@@ -132,6 +132,10 @@ public class DAO extends dal.DBContext {
                 User acc = new User();
                 acc.setUser_id(rs.getInt("user_id"));
                 acc.setRole_id(rs.getInt("role_id"));
+                acc.setFullname(rs.getString("full_name"));
+                acc.setStatus(rs.getString("status"));
+                acc.setPriority(rs.getInt("priority"));
+
                 return acc;
             }
 
@@ -301,14 +305,37 @@ public class DAO extends dal.DBContext {
 
     }
 
+    public int getcountPage() {
+        String sql = "SELECT COUNT(*) FROM users";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                int total = rs.getInt(1);
+                int countpage = 0;
+                countpage = total / 5;
+                if (total % 5 != 0) {
+                    countpage++;
+                }
+                return countpage;
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return 0;
+
+    }
+
     public void close() {
         super.closeConnection();
     }
 
     public static void main(String[] args) {
         DAO con = new DAO();
-        List<User> l = con.getUser();
-        System.out.println(l);
+
+        int u = con.getcountPage();
+        System.out.println(u);
 
     }
 }

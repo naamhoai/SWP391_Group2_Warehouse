@@ -20,12 +20,14 @@ public class User {
     private int role_id;
     private int priority;
     private String image;
-
+    private String gender;
+    private String dayofbirth;
+    private String description;
 
     public User() {
     }
 
-    public User(int user_id, String username, String fullname, String password, String phone, String email, String status, int role_id, int priority, String image) {
+    public User(int user_id, String username, String fullname, String password, String phone, String email, String status, int role_id, int priority, String image, String gender, String dayofbirth, String description) {
         this.user_id = user_id;
         this.username = username;
         this.fullname = fullname;
@@ -36,7 +38,9 @@ public class User {
         this.role_id = role_id;
         this.priority = priority;
         this.image = image;
-  
+        this.gender = gender;
+        this.dayofbirth = dayofbirth;
+        this.description = description;
     }
 
     public int getUser_id() {
@@ -119,14 +123,36 @@ public class User {
         this.image = image;
     }
 
-    
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getDayofbirth() {
+        return dayofbirth;
+    }
+
+    public void setDayofbirth(String dayofbirth) {
+        this.dayofbirth = dayofbirth;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     @Override
     public String toString() {
-        return "User{" + "user_id=" + user_id + ", username=" + username + ", fullname=" + fullname + ", password=" + password + ", phone=" + phone + ", email=" + email + ", status=" + status + ", role_id=" + role_id + ", priority=" + priority + ", image=" + image + '}';
+        return "User{" + "user_id=" + user_id + ", username=" + username + ", fullname=" + fullname + ", password=" + password + ", phone=" + phone + ", email=" + email + ", status=" + status + ", role_id=" + role_id + ", priority=" + priority + ", image=" + image + ", gender=" + gender + ", dayofbirth=" + dayofbirth + ", description=" + description + '}';
     }
-    
+
+   
 
     
-
 }

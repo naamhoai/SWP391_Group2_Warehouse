@@ -63,12 +63,14 @@ public class SettingList extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         DAO con = new DAO();
-        
+
         List<User> list = con.SettingList();
         List<Role> role = con.getRoles();
+        int pages = con.getcountPage();
         if (list != null && !list.isEmpty() || role != null && !role.isEmpty()) {
             request.setAttribute("listrole", role);
             request.setAttribute("list", list);
+            request.setAttribute("pages", pages);
 
         } else {
             request.setAttribute("mess", "No data");
@@ -99,7 +101,9 @@ public class SettingList extends HttpServlet {
 
         try {
             dao = new DAO();
+            int pages = dao.getcountPage();
             List<Role> role = dao.getRoles();
+            request.setAttribute("pages", pages);
             request.setAttribute("listrole", role);
             Integer pri = null;
 
@@ -107,8 +111,8 @@ public class SettingList extends HttpServlet {
                 try {
                     pri = Integer.parseInt(priority.trim());
                 } catch (NumberFormatException e) {
-                    System.err.println("Lỗi định dạng số cho priority: " + e.getMessage());
-                    request.setAttribute("mess", "Priority phải là một số hợp lệ.");
+
+                    request.setAttribute("mess", "Priority not valid.");
                 }
             }
             List<User> list = null;

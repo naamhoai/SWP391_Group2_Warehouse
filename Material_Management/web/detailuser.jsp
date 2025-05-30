@@ -6,8 +6,8 @@
         <meta charset="UTF-8">
         <title>Setting Details</title>
 
- 
-       
+
+
 
 
         <link rel="stylesheet" href="./css/detailuser.css">
@@ -23,7 +23,7 @@
                 <div class="row">
                     <div>
                         <label>Name*</label>
-                        <input type="text" name="name"  required>
+                        <input type="text" name="name" value="${user.fullname}"required>
 
                     </div>
                     <div>
@@ -46,7 +46,7 @@
                 <div class="row">
                     <div>
                         <label>Priority</label>
-                        <input type="text" name="priority" required>
+                        <input type="text" name="priority" value="${user.priority}"required>
                     </div>
                     <div>
                         <label>Status</label>
@@ -60,7 +60,7 @@
                 <div class="row">
                     <div style="width: 100%;">
                         <label>Description</label>
-                        <textarea rows="3" name="description"></textarea>
+                        <textarea rows="3" name="description" ></textarea>
                     </div>
                 </div>
                 <input type="hidden" name="userid" value="${user.user_id}">
@@ -76,6 +76,6 @@
 
         </div>
 
-        
+
     </body>
 </html>

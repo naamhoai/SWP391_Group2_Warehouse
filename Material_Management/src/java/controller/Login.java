@@ -87,9 +87,9 @@ public class Login extends HttpServlet {
                     if (user2.getStatus() != null && user2.getStatus().equals("active")){
                         session.setAttribute("Admin", user2);
                         vali = true;
-
+//dashboard.jsp
                         if (user2.getRole_id() == 1) {
-                            response.sendRedirect("dashboard.jsp");
+                            response.sendRedirect("settinglist");
                         } else if (user2.getRole_id() == 2) {
                             response.sendRedirect("https://www.google.com.vn/");
                         } else if (user2.getRole_id() == 3) {

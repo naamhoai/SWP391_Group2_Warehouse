@@ -6,14 +6,14 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Setting List</title>
-      
-        <link rel="stylesheet" href="./Css/settinglist.css">
-      
-        
+
+        <link rel="stylesheet" href="./css/settinglist.css">
+
+
     </head>
     <body>
 
-        
+
 
         <div id="main-content">
             <div class="page-header">
@@ -68,12 +68,12 @@
                     <thead>
                         <tr>
 
-                            <th><input type="checkbox"/> </th>
+                            <th> </th>
 
                             <th>Id</th>
                             <th>Name</th>
                             <th>Type</th>
-                            <th>Value</th>
+                            <th>description</th>
                             <th>Priority</th>
                             <th>Status</th>
                             <th>Action</th>
@@ -114,15 +114,13 @@
             </div>
 
             <div class="pagination">
-                <button><i class="fas fa-chevron-left"></i></button>
-                <button class="active">1</button>
-                <button>2</button>
-                <button>3</button>
-                <button>...</button>
-                <button>10</button>
-                <button><i class="fas fa-chevron-right"></i></button>
+
+                <c:forEach begin="1" end="${pages}" var="p">
+                    <button>${p}</button> 
+                </c:forEach>
+
             </div>
 
-           
+
     </body>
 </html>
