@@ -1,24 +1,25 @@
 package dao;
 
-import model.User;
+import model.*;
 import dal.DBContext;
 
 import java.sql.*;
 import java.security.MessageDigest;
 import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDAO {
 
     public UserDAO() {
-        // Không cần làm gì trong constructor
     }
 
     // Thêm user mới
     public boolean insertUser(User user) {
-        String sql = "INSERT INTO users (user_name, full_name, email, password, phone, role_id, status, priority, image) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        String sql = "INSERT INTO users "
+                + "(user_name, full_name, email, password, phone, role_id, status, priority, image, gender, dayofbirth, description) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, user.getUsername());
             ps.setString(2, user.getFullname());
@@ -26,15 +27,18 @@ public class UserDAO {
             ps.setString(4, user.getPassword());
             ps.setString(5, user.getPhone());
 
-            if (user.getRole_id() == 0) {
+            if (user.getRole().getRoleid() == 0) {
                 ps.setNull(6, Types.INTEGER);
             } else {
-                ps.setInt(6, user.getRole_id());
+                ps.setInt(6, user.getRole().getRoleid());
             }
 
             ps.setString(7, user.getStatus());
             ps.setInt(8, user.getPriority());
             ps.setString(9, user.getImage());
+            ps.setString(10, user.getGender());
+            ps.setString(11, user.getDayofbirth());
+            ps.setString(12, user.getDescription());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -45,9 +49,8 @@ public class UserDAO {
 
     // Cập nhật user
     public boolean updateUser(User user) {
-        String sql = "UPDATE users SET user_name=?, full_name=?, email=?, password=?, phone=?, role_id=?, status=?, priority=?, image=? WHERE user_id=?";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        String sql = "UPDATE users SET user_name=?, full_name=?, email=?, password=?, phone=?, role_id=?, status=?, priority=?, image=?, gender=?, dayofbirth=?, description=? WHERE user_id=?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, user.getUsername());
             ps.setString(2, user.getFullname());
@@ -55,16 +58,19 @@ public class UserDAO {
             ps.setString(4, user.getPassword());
             ps.setString(5, user.getPhone());
 
-            if (user.getRole_id() == 0) {
+            if (user.getRole().getRoleid() == 0) {
                 ps.setNull(6, Types.INTEGER);
             } else {
-                ps.setInt(6, user.getRole_id());
+                ps.setInt(6, user.getRole().getRoleid());
             }
 
             ps.setString(7, user.getStatus());
             ps.setInt(8, user.getPriority());
             ps.setString(9, user.getImage());
-            ps.setInt(10, user.getUser_id());
+            ps.setString(10, user.getGender());
+            ps.setString(11, user.getDayofbirth());
+            ps.setString(12, user.getDescription());
+            ps.setInt(13, user.getUser_id());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -75,24 +81,29 @@ public class UserDAO {
 
     // Lấy user theo ID
     public User getUserById(int userId) {
-        String sql = "SELECT user_id, user_name, full_name, email, password, phone, role_id, status, priority, image FROM users WHERE user_id = ?";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        String sql = "SELECT user_id, user_name, full_name, email, password, phone, role_id, status, priority, image, gender, dayofbirth, description FROM users WHERE user_id = ?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     User user = new User();
+                    Role rcc = new Role();
                     user.setUser_id(rs.getInt("user_id"));
                     user.setUsername(rs.getString("user_name"));
                     user.setFullname(rs.getString("full_name"));
                     user.setEmail(rs.getString("email"));
                     user.setPassword(rs.getString("password"));
                     user.setPhone(rs.getString("phone"));
-                    user.setRole_id(rs.getInt("role_id"));
+                    rcc.setRoleid(rs.getInt("role_id"));
+                    rcc.setRolename(rs.getString("role_name"));
+                    user.setRole(rcc);
                     user.setStatus(rs.getString("status"));
                     user.setPriority(rs.getInt("priority"));
                     user.setImage(rs.getString("image"));
+                    user.setGender(rs.getString("gender"));
+                    user.setDayofbirth(rs.getString("dayofbirth"));
+                    user.setDescription(rs.getString("description"));
                     return user;
                 }
             }
@@ -105,8 +116,7 @@ public class UserDAO {
     // Lấy tên role theo id
     public String getRoleNameById(int roleId) {
         String sql = "SELECT role_name FROM roles WHERE role_id = ?";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, roleId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -128,7 +138,9 @@ public class UserDAO {
             StringBuilder hexString = new StringBuilder();
             for (byte b : hash) {
                 String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) hexString.append('0');
+                if (hex.length() == 1) {
+                    hexString.append('0');
+                }
                 hexString.append(hex);
             }
             return hexString.toString();
@@ -139,11 +151,15 @@ public class UserDAO {
 
     // Tạo email tự động
     public String generateEmail(String fullName) {
-        if (fullName == null || fullName.trim().isEmpty()) return null;
+        if (fullName == null || fullName.trim().isEmpty()) {
+            return null;
+        }
 
         fullName = fullName.trim().replaceAll("\\s+", " ");
         String[] parts = fullName.split(" ");
-        if (parts.length < 2) return null;
+        if (parts.length < 2) {
+            return null;
+        }
 
         String lastName = parts[parts.length - 1];
         lastName = removeAccent(lastName);
@@ -163,7 +179,9 @@ public class UserDAO {
 
     // Loại bỏ dấu tiếng Việt
     public String removeAccent(String s) {
-        if (s == null) return null;
+        if (s == null) {
+            return null;
+        }
         s = Normalizer.normalize(s, Normalizer.Form.NFD);
         s = s.replaceAll("\\p{M}", "");
         s = s.replaceAll("[^\\p{ASCII}]", "");
@@ -173,8 +191,7 @@ public class UserDAO {
     // Kiểm tra username đã tồn tại
     public boolean existsUsername(String username) {
         String sql = "SELECT 1 FROM users WHERE user_name = ?";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
@@ -189,8 +206,7 @@ public class UserDAO {
     // Kiểm tra email đã tồn tại
     public boolean existsEmail(String email) {
         String sql = "SELECT 1 FROM users WHERE email = ?";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, email);
             try (ResultSet rs = ps.executeQuery()) {
@@ -202,6 +218,83 @@ public class UserDAO {
         return false;
     }
 
+    public User getUserByUsername(String username) {
+        String sql = "SELECT * FROM users WHERE user_name = ?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    User user = new User();
+                    Role role = new Role();
+                    role.setRoleid(rs.getInt("role_id"));
+                    user.setUser_id(rs.getInt("user_id"));
+                    user.setUsername(rs.getString("user_name"));
+                    user.setFullname(rs.getString("full_name"));
+                    user.setEmail(rs.getString("email"));
+                    user.setPassword(rs.getString("password"));
+                    user.setPhone(rs.getString("phone"));
+                    user.setRole(role);
+                    user.setStatus(rs.getString("status"));
+                    user.setPriority(rs.getInt("priority"));
+                    user.setImage(rs.getString("image"));
+                    user.setGender(rs.getString("gender"));
+                    user.setDayofbirth(rs.getString("dayofbirth"));
+                    user.setDescription(rs.getString("description"));
+                    return user;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<User> getUserListSummary() {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT user_name, full_name, email, status FROM users";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                User user = new User();
+                user.setUsername(rs.getString("user_name"));
+                user.setFullname(rs.getString("full_name"));
+                user.setEmail(rs.getString("email"));
+                user.setStatus(rs.getString("status"));
+                // Các trường khác không set vì ko cần thiết cho danh sách
+                list.add(user);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<User> searchUsersByKeyword(String keyword) {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT user_name, full_name, email, status FROM users WHERE user_name LIKE ? OR full_name LIKE ?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            String likeKeyword = "%" + keyword + "%";
+            ps.setString(1, likeKeyword);
+            ps.setString(2, likeKeyword);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    User user = new User();
+                    user.setUsername(rs.getString("user_name"));
+                    user.setFullname(rs.getString("full_name"));
+                    user.setEmail(rs.getString("email"));
+                    user.setStatus(rs.getString("status"));
+                    list.add(user);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     // Test method main
     public static void main(String[] args) {
         UserDAO userDAO = new UserDAO();
@@ -210,15 +303,20 @@ public class UserDAO {
         String email = userDAO.generateEmail(fullName);
 
         User newUser = new User();
+        Role rcc = new Role();
+        rcc.setRoleid(2);
         newUser.setUsername(email);
         newUser.setFullname(fullName);
         newUser.setEmail(email);
         newUser.setPassword(userDAO.hashPassword("123456"));
         newUser.setPhone("0909123456");
-        newUser.setRole_id(2);
+        newUser.setRole(rcc);
         newUser.setStatus("active");
         newUser.setPriority(1);
         newUser.setImage(null);
+        newUser.setGender("Men");
+        newUser.setDayofbirth("1990-01-01");
+        newUser.setDescription("Test user");
 
         boolean success = userDAO.insertUser(newUser);
         System.out.println(success ? "Thêm user thành công!" : "Thêm user thất bại!");

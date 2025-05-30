@@ -119,7 +119,7 @@ public class DAO extends dal.DBContext {
     }
 
     public User userID(int user_ID, int role_id) {
-        String sql = "select u.user_id,r.role_id,u.full_name,u.priority,u.status \n"
+        String sql = "select u.user_id,r.role_id,u.full_name,u.priority,u.status,r.role_name \n"
                 + "from users u join roles r \n"
                 + "on u.role_id = r.role_id\n"
                 + "where u.user_id = ? and r.role_id = ?";
@@ -130,12 +130,16 @@ public class DAO extends dal.DBContext {
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
                 User acc = new User();
+                Role rcc = new Role();
                 acc.setUser_id(rs.getInt("user_id"));
-                acc.setRole_id(rs.getInt("role_id"));
+               
                 acc.setFullname(rs.getString("full_name"));
                 acc.setStatus(rs.getString("status"));
                 acc.setPriority(rs.getInt("priority"));
-
+                
+                rcc.setRoleid(rs.getInt("role_id"));
+                rcc.setRolename(rs.getString("role_name"));
+                acc.setRole_id(rcc);
                 return acc;
             }
 
@@ -333,9 +337,8 @@ public class DAO extends dal.DBContext {
 
     public static void main(String[] args) {
         DAO con = new DAO();
-
-        int u = con.getcountPage();
-        System.out.println(u);
+         User l =  con.userID(1, 1);
+        System.out.println(l);
 
     }
 }

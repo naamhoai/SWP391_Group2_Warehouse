@@ -86,15 +86,18 @@ public class CreateUserServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String username = request.getParameter("username");
         String fullName = request.getParameter("fullName");
 
-        if (fullName == null || fullName.trim().isEmpty()) {
-            request.setAttribute("error", "Họ và tên không được để trống!");
-            doGet(request, response);
-            return;
-        }
-
-        // Sinh email tránh trùng
+        String password = request.getParameter("password");
+        String phone = request.getParameter("phone");
+        String roleIdStr = request.getParameter("roleId");
+        String status = request.getParameter("status");
+        String priorityStr = request.getParameter("priority");
+        String gender = request.getParameter("gender");
+        String dayofbirth = request.getParameter("dayofbirth");
+        String description = request.getParameter("description");
+        
         String email = null;
         int tries = 0;
         do {
@@ -106,12 +109,6 @@ public class CreateUserServlet extends HttpServlet {
             email = userDAO.generateEmail(fullName);
         } while (userDAO.existsEmail(email));
 
-        String password = request.getParameter("password");
-        String phone = request.getParameter("phone");
-        String roleIdStr = request.getParameter("roleId");
-        String status = request.getParameter("status");
-        String priorityStr = request.getParameter("priority");
-
         int roleId = 0;
         int priority;
 
@@ -121,7 +118,27 @@ public class CreateUserServlet extends HttpServlet {
         request.setAttribute("phone", phone);
         request.setAttribute("status", status);
         request.setAttribute("priority", priorityStr);
+        request.setAttribute("gender", gender);
+        request.setAttribute("dayofbirth", dayofbirth);
+        request.setAttribute("description", description);
+        if (username == null || username.trim().isEmpty()) {
+            request.setAttribute("error", "Bạn phải nhập tên đăng nhập (username).");
+            doGet(request, response);
+            return;
+        }
+        if (userDAO.existsUsername(username)) {
+            request.setAttribute("error", "Tên đăng nhập đã tồn tại, vui lòng chọn tên khác.");
+            doGet(request, response);
+            return;
+        }
 
+        if (fullName == null || fullName.trim().isEmpty()) {
+            request.setAttribute("error", "Họ và tên không được để trống!");
+            doGet(request, response);
+            return;
+        }
+
+        // Sinh email tránh trùng
         if (roleIdStr == null || roleIdStr.trim().isEmpty()) {
             request.setAttribute("roleIdError", "Bạn phải chọn vai trò.");
             doGet(request, response);
@@ -174,8 +191,30 @@ public class CreateUserServlet extends HttpServlet {
             imagePath = "/image/" + originalFileName;
         }
 
+        request.setAttribute("dayofbirth", dayofbirth);
+
+        if (dayofbirth == null || dayofbirth.trim().isEmpty()) {
+            request.setAttribute("error", "Ngày sinh không được để trống!");
+            doGet(request, response);
+            return;
+        }
+
+        try {
+            java.time.LocalDate dob = java.time.LocalDate.parse(dayofbirth);
+            java.time.LocalDate today = java.time.LocalDate.now();
+            if (dob.isAfter(today)) {
+                request.setAttribute("error", "Ngày sinh không được lớn hơn ngày hiện tại!");
+                doGet(request, response);
+                return;
+            }
+        } catch (java.time.format.DateTimeParseException e) {
+            request.setAttribute("error", "Ngày sinh không hợp lệ!");
+            doGet(request, response);
+            return;
+        }
+
         User newUser = new User();
-        newUser.setUsername(email);
+        newUser.setUsername(username);
         newUser.setFullname(fullName);
         newUser.setEmail(email);
         newUser.setPassword(userDAO.hashPassword(password));
@@ -184,11 +223,14 @@ public class CreateUserServlet extends HttpServlet {
         newUser.setStatus(status);
         newUser.setPriority(priority);
         newUser.setImage(imagePath);
+        newUser.setGender(gender);
+        newUser.setDayofbirth(dayofbirth);
+        newUser.setDescription(description);
 
         boolean success = userDAO.insertUser(newUser);
 
         if (success) {
-            response.sendRedirect(request.getContextPath() + "/settinglist");
+            response.sendRedirect(request.getContextPath() + "/UserDetailServlet");
         } else {
             request.setAttribute("error", "Tạo người dùng thất bại. Vui lòng thử lại!");
             List<Role> roleList = roleDAO.getAllRolesExceptAdmin();

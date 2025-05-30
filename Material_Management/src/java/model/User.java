@@ -1,23 +1,15 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model;
 
-/**
- *
- * @author kien3
- */
 public class User {
 
     private int user_id;
     private String username;
     private String fullname;
+    private String email;
     private String password;
     private String phone;
-    private String email;
+    private Role role;
     private String status;
-    private int role_id;
     private int priority;
     private String image;
     private String gender;
@@ -27,15 +19,15 @@ public class User {
     public User() {
     }
 
-    public User(int user_id, String username, String fullname, String password, String phone, String email, String status, int role_id, int priority, String image, String gender, String dayofbirth, String description) {
+    public User(int user_id, String username, String fullname, String email, String password, String phone, Role role, String status, int priority, String image, String gender, String dayofbirth, String description) {
         this.user_id = user_id;
         this.username = username;
         this.fullname = fullname;
+        this.email = email;
         this.password = password;
         this.phone = phone;
-        this.email = email;
+        this.role = role;
         this.status = status;
-        this.role_id = role_id;
         this.priority = priority;
         this.image = image;
         this.gender = gender;
@@ -67,6 +59,14 @@ public class User {
         this.fullname = fullname;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getPassword() {
         return password;
     }
@@ -83,12 +83,12 @@ public class User {
         this.phone = phone;
     }
 
-    public String getEmail() {
-        return email;
+    public Role getRole() {
+        return role;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public String getStatus() {
@@ -97,14 +97,6 @@ public class User {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public int getRole_id() {
-        return role_id;
-    }
-
-    public void setRole_id(int role_id) {
-        this.role_id = role_id;
     }
 
     public int getPriority() {
@@ -147,12 +139,27 @@ public class User {
         this.description = description;
     }
 
+    
+   
+    
+ 
     @Override
     public String toString() {
-        return "User{" + "user_id=" + user_id + ", username=" + username + ", fullname=" + fullname + ", password=" + password + ", phone=" + phone + ", email=" + email + ", status=" + status + ", role_id=" + role_id + ", priority=" + priority + ", image=" + image + ", gender=" + gender + ", dayofbirth=" + dayofbirth + ", description=" + description + '}';
+        return "User{"
+                + "user_id=" + user_id
+                + ", username='" + username + '\''
+                + ", fullname='" + fullname + '\''
+                + ", email='" + email + '\''
+                + ", password='" + password + '\''
+                + ", phone='" + phone + '\''
+                + ", role_id=" + role
+                + ", status='" + status + '\''
+                + ", priority=" + priority
+                + ", image='" + image + '\''
+                + ", gender='" + gender + '\''
+                + ", dayofbirth='" + dayofbirth + '\''
+                + ", description='" + description + '\''
+                + '}';
     }
 
-   
-
-    
 }

@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.List;
 
 /**
  *
@@ -24,7 +25,6 @@ import jakarta.servlet.http.HttpSession;
 public class UserDetailServlet extends HttpServlet {
 
     private UserDAO userDAO = new UserDAO();
-    private RoleDAO roleDAO = new RoleDAO();
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -62,56 +62,17 @@ public class UserDetailServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String keyword = request.getParameter("search");
+        List<User> userList;
 
-        HttpSession session = request.getSession(false);
-        if (session == null) {
-            response.sendRedirect("login.jsp");
-            return;
-        }
-
-        Integer sessionUserId = (Integer) session.getAttribute("userId");
-        Integer sessionRoleId = (Integer) session.getAttribute("roleId");
-
-        if (sessionUserId == null || sessionRoleId == null) {
-            response.sendRedirect("login.jsp");
-            return;
-        }
-
-        int userIdToView;
-
-        if (sessionRoleId == 1) {
-            // admin có thể xem info user khác nếu truyền param userId
-            String paramUserId = request.getParameter("userId");
-            if (paramUserId != null) {
-                try {
-                    userIdToView = Integer.parseInt(paramUserId);
-                } catch (NumberFormatException e) {
-                    showErrorPage(response, "Invalid userId parameter");
-                    return;
-                }
-            } else {
-                // nếu không truyền param thì xem info chính admin
-                userIdToView = sessionUserId;
-            }
+        if (keyword == null || keyword.trim().isEmpty()) {
+            userList = userDAO.getUserListSummary();
         } else {
-            // user thường chỉ xem info của chính mình
-            userIdToView = sessionUserId;
+            userList = userDAO.searchUsersByKeyword(keyword.trim());
         }
 
-        System.out.println("DEBUG: userIdToView = " + userIdToView);
-
-        User user = userDAO.getUserById(userIdToView);
-
-        String roleName = null;
-        if (user.getRole_id() != 0) {
-            roleName = userDAO.getRoleNameById(user.getRole_id());
-        }
-
-        request.setAttribute("user", user);
-        request.setAttribute("roleName", roleName);
-
+        request.setAttribute("userList", userList);
         request.getRequestDispatcher("userdetail.jsp").forward(request, response);
     }
 
@@ -123,16 +84,6 @@ public class UserDetailServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    private void showErrorPage(HttpServletResponse response, String message) throws IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            out.println("<html><head><title>Error</title></head><body>");
-            out.println("<h2 style='color:red;'>Lỗi: " + message + "</h2>");
-            out.println("<a href='login.jsp'>Quay lại đăng nhập</a>");
-            out.println("</body></html>");
-        }
-    }
-
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

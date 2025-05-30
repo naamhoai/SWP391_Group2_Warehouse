@@ -5,6 +5,7 @@ import dal.DBContext;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import model.Role;
 
 public class DAOUser extends DBContext {
 
@@ -14,16 +15,19 @@ public class DAOUser extends DBContext {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
+            Role r = new Role();
+            r.setRoleid(rs.getInt("role_id"));
+            r.setRolename(rs.getString("role_name"));
             if (rs.next()) {
                 return new User(
                         rs.getInt("user_id"),
                         rs.getString("user_name"),
                         rs.getString("full_name"),
+                        rs.getString("email"),
                         rs.getString("password"),
                         rs.getString("phone"),
-                        rs.getString("email"),
+                        r,
                         rs.getString("status"),
-                        rs.getInt("role_id"),
                         rs.getInt("priority"),
                         rs.getString("image"),
                         rs.getString("gender"),
@@ -43,16 +47,19 @@ public class DAOUser extends DBContext {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
+            Role r = new Role();
+            r.setRoleid(rs.getInt("role_id"));
+            r.setRolename(rs.getString("role_name"));
             if (rs.next()) {
                 return new User(
                         rs.getInt("user_id"),
                         rs.getString("user_name"),
                         rs.getString("full_name"),
+                        rs.getString("email"),
                         rs.getString("password"),
                         rs.getString("phone"),
-                        rs.getString("email"),
+                        r,
                         rs.getString("status"),
-                        rs.getInt("role_id"),
                         rs.getInt("priority"),
                         rs.getString("image"),
                         rs.getString("gender"),

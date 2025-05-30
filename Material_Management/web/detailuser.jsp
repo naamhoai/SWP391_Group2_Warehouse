@@ -29,9 +29,9 @@
                     <div>
                         <label>Type Role</label>
                         <select name="role">
-                            <c:forEach var="r" items="${lits}">
-                                <option value="${r.roleid}">${r.rolename}</option>
-                            </c:forEach>
+                            
+                                <option value="${user.fullname}">${user.rol}</option>
+                          
                         </select>
                     </div>
                 </div>
