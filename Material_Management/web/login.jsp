@@ -40,7 +40,7 @@
                 </form>
                 <div class="imgsp">
                     <a href="#"><img src="./image/customer-support-1714.png" alt="Customer Support"/></a>
-                    <span class="hotline">Hotline: 1800-123-456</span>
+                    
                 </div>
 
                 <div class="back-to-home">

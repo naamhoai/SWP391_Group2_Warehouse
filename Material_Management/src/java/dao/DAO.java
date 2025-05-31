@@ -86,7 +86,6 @@ public class DAO extends dal.DBContext {
                 acc.setEmail(rs.getString("email"));
                 acc.setPassword(rs.getString("password"));
                 rcc.setRoleid(rs.getInt("role_id"));
-
                 acc.setRole(rcc);
                 acc.setStatus(rs.getString("status"));
                 account.add(acc);
@@ -100,11 +99,14 @@ public class DAO extends dal.DBContext {
         return account;
     }
 
-    public List<User> SettingList() {
+    public List<User> SettingList(int pages) {
         List<User> list = new ArrayList<>();
-        String sql = "select user_id,full_name,role_name,r.role_id,status,priority,description from roles r join users u on r.role_id = u.role_id;";
+        String sql = "select user_id,full_name,r.role_name,r.role_id,status,priority,description from roles r join users u on r.role_id = u.role_id\n"
+                + "ORDER BY user_id \n"
+                + "LIMIT 5 offset ?";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, (pages - 1) * 5);
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
                 User acc = new User();
@@ -122,14 +124,14 @@ public class DAO extends dal.DBContext {
             }
 
         } catch (SQLException e) {
-            System.out.println(e);
+            System.out.println(e.getMessage());
         }
 
         return list;
     }
 
     public User userID(int user_ID, int role_id) {
-        String sql = "select u.user_id,r.role_id,u.full_name,u.priority,u.status,r.role_name \n"
+        String sql = "select u.user_id,r.role_id,u.full_name,u.priority,u.description \n"
                 + "from users u join roles r \n"
                 + "on u.role_id = r.role_id\n"
                 + "where u.user_id = ? and r.role_id = ?";
@@ -142,13 +144,11 @@ public class DAO extends dal.DBContext {
                 User acc = new User();
                 Role rcc = new Role();
                 acc.setUser_id(rs.getInt("user_id"));
-
-                acc.setFullname(rs.getString("full_name"));
-                acc.setStatus(rs.getString("status"));
-                acc.setPriority(rs.getInt("priority"));
-
                 rcc.setRoleid(rs.getInt("role_id"));
-
+                acc.setFullname(rs.getString("full_name"));
+                acc.setPriority(rs.getInt("priority"));
+                acc.setDescription(rs.getString("description"));
+               
                 acc.setRole(rcc);
                 return acc;
             }
@@ -228,10 +228,10 @@ public class DAO extends dal.DBContext {
 
     }
 
-    public List<User> getFilter(String status, String role_name, int priority, String full_name) {
+    public List<User> getFilter(String status, String role_name, int priority, String full_name, int pages) {
         List<User> list = new ArrayList<>();
         List<Object> param = new ArrayList<>();
-        String sql = "SELECT u.user_id,u.full_name,r.role_name,u.priority,u.status \n"
+        String sql = "SELECT u.user_id,u.full_name,r.role_name,r.role_id,u.priority,u.status,u.description \n"
                 + "FROM users u \n"
                 + "join roles r on u.role_id = r.role_id\n"
                 + "where 1 = 1";
@@ -253,6 +253,9 @@ public class DAO extends dal.DBContext {
             sql += " and u.full_name like ?";
             param.add("%" + full_name.trim() + "%");
         }
+        sql += (" ORDER BY u.user_id LIMIT 5 OFFSET ?");
+
+        param.add((pages - 1) * 5);
 
         try {
             PreparedStatement st = connection.prepareStatement(sql);
@@ -262,9 +265,13 @@ public class DAO extends dal.DBContext {
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
                 User u = new User();
+                Role rcc = new Role();
+                rcc.setRolename(rs.getString("role_name"));
+                rcc.setRoleid(rs.getInt("role_id"));
                 u.setUser_id(rs.getInt("user_id"));
                 u.setStatus(rs.getString("status"));
-                u.setUsername(rs.getString("role_name"));
+                u.setRole(rcc);
+                u.setDescription(rs.getString("description"));
                 u.setPriority(rs.getInt("priority"));
                 u.setFullname(rs.getString("full_name"));
 
@@ -279,34 +286,38 @@ public class DAO extends dal.DBContext {
 
     }
 
-    public List<User> getSort(String sort) {
+    public List<User> getSort(String sort, int page) {
         String sqlsecon = "";
         List<User> list = new ArrayList<>();
 
         if (sort != null && sort.equalsIgnoreCase("idasc")) {
             sqlsecon += " ORDER BY user_id asc";
         } else if (sort.equalsIgnoreCase("iddesc")) {
-            sqlsecon += " ORDER BY user_id desc;";
+            sqlsecon += " ORDER BY user_id desc";
         } else if (sort.equalsIgnoreCase("nameasc")) {
-            sqlsecon += " ORDER BY full_name asc;";
+            sqlsecon += " ORDER BY full_name asc";
         } else if (sort.equalsIgnoreCase("namedesc")) {
-            sqlsecon += " ORDER BY full_name desc;";
+            sqlsecon += " ORDER BY full_name desc";
         } else if (sort.equalsIgnoreCase("priorityasc")) {
-            sqlsecon += " ORDER BY priority asc;";
+            sqlsecon += " ORDER BY priority asc";
         } else if (sort.equalsIgnoreCase("prioritydesc")) {
-            sqlsecon += " ORDER BY priority desc;";
+            sqlsecon += " ORDER BY priority desc";
         }
+
         try {
             String sql = "select u.user_id,r.role_name,u.full_name,u.status,u.priority \n"
                     + "from users u join roles r \n"
-                    + "on u.role_id = r.role_id " + sqlsecon.trim();
+                    + "on u.role_id = r.role_id " + sqlsecon.trim() + " LIMIT 5 OFFSET ?";
             PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, (page - 1) * 5);
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
                 User u = new User();
+                Role rcc = new Role();
                 u.setUser_id(rs.getInt("user_id"));
                 u.setStatus(rs.getString("status"));
-                u.setUsername(rs.getString("role_name"));
+                rcc.setRolename(rs.getString("role_name"));
+                u.setRole(rcc);
                 u.setPriority(rs.getInt("priority"));
                 u.setFullname(rs.getString("full_name"));
 
@@ -347,16 +358,8 @@ public class DAO extends dal.DBContext {
     }
 
     public static void main(String[] args) {
-        DAO con = new DAO();
-        String fullname = "Nguyen Van A";   // tên đầy đủ, chuỗi
-        int priority = 1;                   // số nguyên
-        String status = "active";           // trạng thái, chuỗi
-        String description = "New description"; // mô tả, chuỗi
-        int roleid = 4;                    // id vai trò, số nguyên
-        int userid = 9;                    // id người dùng, số nguyên
-
-       User l = con.userUpdate(fullname, priority, status, description, roleid, userid);
-       System.out.println(l);
-
+        DAO dao = new DAO();
+        List<User> i = dao.SettingList(1);
+        System.out.println(i);
     }
 }

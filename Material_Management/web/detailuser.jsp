@@ -35,14 +35,6 @@
                         </select>
                     </div>
                 </div>
-
-                <div class="row">
-                    <div style="width: 100%;">
-                        <label>Value</label>
-                        <input type="text" name="valu" required>
-                    </div>
-                </div>
-
                 <div class="row">
                     <div>
                         <label>Priority</label>
@@ -60,7 +52,7 @@
                 <div class="row">
                     <div style="width: 100%;">
                         <label>Description</label>
-                        <textarea rows="3" name="description" ></textarea>
+                        <textarea rows="3" name="description">${user.description}</textarea>
                     </div>
                 </div>
                 <input type="hidden" name="userid" value="${user.user_id}">

@@ -62,18 +62,67 @@ public class SettingList extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        DAO con = new DAO();
+        DAO dao = new DAO();
+        String page = request.getParameter("page");
+        if (page == null) {
+            page = "1";
+        }
+        String sta = request.getParameter("sta");
+        String action = request.getParameter("action");
+        String status = request.getParameter("status");
+        String type = request.getParameter("type");
+        String priority = request.getParameter("priority");
+        String searchname = request.getParameter("searchname");
+        String sortby = request.getParameter("sortBy");
+        String sumbit = request.getParameter("save");
 
-        List<User> list = con.SettingList();
-        List<Role> role = con.getRoles();
-        int pages = con.getcountPage();
-        if (list != null && !list.isEmpty() || role != null && !role.isEmpty()) {
+        try {
+            if (sta != null && action != null) {
+
+                int stas = Integer.parseInt(sta);
+                System.out.println("sta" + sta);
+                System.out.println("action" + action);
+                if ("active".equalsIgnoreCase(action) || "inactive".equalsIgnoreCase(action)) {
+                    dao.updateSt(action, stas);
+                    request.setAttribute("messUpdate", "Status has been updated! ");
+                }
+            }
+            int pagesCount = dao.getcountPage();
+            int pages = Integer.parseInt(page);
+            List<Role> role = dao.getRoles();
+            request.setAttribute("pages", pagesCount);
             request.setAttribute("listrole", role);
-            request.setAttribute("list", list);
-            request.setAttribute("pages", pages);
+            Integer pri = null;
+            if (priority != null && !priority.trim().isEmpty()) {
+                try {
+                    pri = Integer.parseInt(priority.trim());
+                } catch (NumberFormatException e) {
+                    System.out.println(e.getMessage());
+                    request.setAttribute("mess", "Priority not valid.");
+                }
+            }
+            List<User> list = dao.SettingList(pages);
+            
+            if ("filter".equalsIgnoreCase(sumbit)) {
+                list = dao.getFilter(status, type, (pri == null ? -1 : pri), searchname, pages);
+                System.out.println("fl  "  + list);
+            }
+            if ("sort".equalsIgnoreCase(sumbit)) {
+                list = dao.getSort(sortby, pages);
+                 System.out.println("sr  "  + list);
+            }
 
-        } else {
-            request.setAttribute("mess", "No data");
+            if (list != null && !list.isEmpty()) {
+                request.setAttribute("list", list);
+            } else {
+                request.setAttribute("mess", "No data");
+            }
+        } catch (NumberFormatException e) {
+            System.out.println(e.getMessage());
+            request.setAttribute("mess", "Invalid page number.");
+
+        } finally {
+            dao.close();
         }
 
         request.getRequestDispatcher("settinglist.jsp").forward(request, response);
@@ -91,53 +140,6 @@ public class SettingList extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String status = request.getParameter("status");
-        String type = request.getParameter("type");
-        String priority = request.getParameter("priority");
-        String searchname = request.getParameter("searchname");
-        String sortby = request.getParameter("sortBy");
-        String sumbit = request.getParameter("save");
-        DAO dao = null;
-
-        try {
-            dao = new DAO();
-            int pages = dao.getcountPage();
-            List<Role> role = dao.getRoles();
-            request.setAttribute("pages", pages);
-            request.setAttribute("listrole", role);
-            Integer pri = null;
-
-            if (priority != null && !priority.trim().isEmpty()) {
-                try {
-                    pri = Integer.parseInt(priority.trim());
-                } catch (NumberFormatException e) {
-
-                    request.setAttribute("mess", "Priority not valid.");
-                }
-            }
-            List<User> list = null;
-            if ("filter".equalsIgnoreCase(sumbit)) {
-                list = dao.getFilter(status, type, (pri == null ? -1 : pri), searchname);
-                System.out.println(list);
-            }
-            if ("sort".equalsIgnoreCase(sumbit)) {
-                list = dao.getSort(sortby);
-                System.out.println(list);
-            }
-
-            if (list != null && !list.isEmpty()) {
-                request.setAttribute("list", list);
-            } else {
-                request.setAttribute("mess", "No data");
-            }
-
-        } finally {
-            if (dao != null) {
-                dao.close();
-            }
-        }
-
-        request.getRequestDispatcher("settinglist.jsp").forward(request, response);
     }
 
     /**

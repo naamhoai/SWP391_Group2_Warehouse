@@ -44,7 +44,7 @@
 
 
         <li class="menu-item">
-            <a href="settinglist" class="menu-link">
+            <a href="#" class="menu-link">
                 <i class="fas fa-cog menu-icon"></i>
                 <span class="menu-text">Settings</span>
             </a>

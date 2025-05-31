@@ -6,24 +6,24 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Setting List</title>
-
+        <link rel="stylesheet" href="css/sidebar.css">
         <link rel="stylesheet" href="./css/settinglist.css">
 
 
     </head>
     <body>
 
-
+        <jsp:include page="slide.jsp" />
 
         <div id="main-content">
             <div class="page-header">
-                <h2>Setting List</h2>
+                <h2>List User</h2>
                 <c:if test="${not empty messUpdate}">
                     <div class="success-message">${messUpdate}</div>
                 </c:if>
             </div>
 
-            <form action="settinglist" method="post">
+            <form action="settinglist" method="get">
                 <div class="filter-section">
                     <select name="type">
                         <option value="all">All Types</option>
@@ -32,9 +32,9 @@
                         </c:forEach>
                     </select>
                     <select name="status">
-                        <option value="all">All Statuses</option>
+                        <option value="All">All Statuses</option>
                         <option value="active">Active</option>
-                        <option value="inactive">Deactive</option>
+                        <option value="inactive">Inactive</option>
                     </select>
                     <input type="text" placeholder="Enter number to search" name="priority">
                     <input type="text" placeholder="Enter keyword(s) to search" name="searchname">
@@ -42,6 +42,7 @@
                     </select>
 
                     <button type="submit" value="filter"name="save">
+                        
                         <i class="fas fa-search"></i> Search
                     </button>
                     <select name="sortBy">
@@ -53,23 +54,18 @@
                         <option value="priorityasc">Priority (Low-High)</option>
                         <option value="prioritydesc">Priority (High-Low)</option>
                     </select>
+
                     <button type="submit" value="sort"name="save">
                         Sort
                     </button>
                 </div>
             </form>
 
-            <div class="top-right">
-                <a href="#"><i class="fas fa-plus"></i> New User</a>
-            </div>
-
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
-
                             <th> </th>
-
                             <th>Id</th>
                             <th>Name</th>
                             <th>Type</th>
@@ -87,7 +83,7 @@
                                 </td>
                                 <td>${u.user_id}</td>
                                 <td>${u.fullname}</td>
-                                <td>${u.role.rolename}</td>
+                                <td>${u.role.roleid}</td>
                                 <td>${u.description}</td>
                                 <td>${u.priority}</td>
                                 <td>${u.status}</td>
@@ -95,10 +91,10 @@
                                     <a href="detailuser?roleid=${u.role.roleid}&userid=${u.user_id}">
                                         <i class="fas fa-edit"></i> Edit
                                     </a>
-                                    <a href="Status?sta=${u.user_id}&action=inactive" class="inactive">
+                                    <a href="settinglist?sta=${u.user_id}&action=inactive" class="inactive">
                                         <i class="fas fa-ban"></i> Inactive
                                     </a>
-                                    <a href="Status?sta=${u.user_id}&action=active" class="active">
+                                    <a href="settinglist?sta=${u.user_id}&action=active" class="active">
                                         <i class="fas fa-check"></i> Active
                                     </a>
                                 </td>
@@ -114,11 +110,19 @@
             </div>
 
             <div class="pagination">
-
                 <c:forEach begin="1" end="${pages}" var="p">
-                    <button>${p}</button> 
-                </c:forEach>
+                    <form method="get" action="settinglist" style="display:inline;">
+                        <input type="hidden" name="page" value="${p}" />
+                        <input type="hidden" name="status" value="${param.status}" />
+                        <input type="hidden" name="type" value="${param.type}" />
+                        <input type="hidden" name="priority" value="${param.priority}" />
+                        <input type="hidden" name="searchname" value="${param.searchname}" />
+                        <input type="hidden" name="sortBy" value="${param.sortBy}" />
+                        <input type="hidden" name="save" value="${param.save}" />
 
+                        <button type="submit">${p}</button>
+                    </form>
+                </c:forEach>
             </div>
 
 

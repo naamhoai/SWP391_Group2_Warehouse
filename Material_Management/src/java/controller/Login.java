@@ -89,17 +89,18 @@ public class Login extends HttpServlet {
                         session.setAttribute("userId", user2.getUser_id());    
                         session.setAttribute("roleId", user2.getRole());
                         vali = true;
-//dashboard.jsp
+                                                    //dashboard.jsp
                         if (user2.getRole().getRoleid() == 1) {
                             response.sendRedirect("dashboard.jsp");
                         } else if (user2.getRole().getRoleid() == 2) {
-                            response.sendRedirect("https://www.google.com.vn/");
+                            PrintWriter out = response.getWriter();
+                            out.print("day la so 2");
                         } else if (user2.getRole().getRoleid() == 3) {
                             PrintWriter out = response.getWriter();
                             out.print("day la so 3");
                         } else if (user2.getRole().getRoleid() == 4) {
                             PrintWriter out = response.getWriter();
-                            out.print("day la nhan vien");
+                            out.print("4");
                         }
 
                     } else {

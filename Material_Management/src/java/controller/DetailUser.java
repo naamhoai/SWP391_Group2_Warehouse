@@ -66,14 +66,17 @@ public class DetailUser extends HttpServlet {
         String userid = request.getParameter("userid");
         String roleid = request.getParameter("roleid");
         List<Role> list = dao.getRoles();
+        System.out.println("userid " +  userid);
+        System.out.println("roleid " +  roleid);
 
         try {
             if (list != null && !list.isEmpty() && userid != null && roleid != null) {
-
                 int id = Integer.parseInt(userid);
                 int rid = Integer.parseInt(roleid);
+
                 User usid = dao.userID(id, rid);
-                System.out.println(usid);
+                
+                System.out.println("usid" + usid);
                 request.setAttribute("user", usid);
                 request.setAttribute("lits", list);
 
@@ -125,14 +128,14 @@ public class DetailUser extends HttpServlet {
             } else {
                 mess = "Priority Invalied!";
                 User usid = dao.userID(id, rid);
-               
+
                 request.setAttribute("user", usid);
                 request.setAttribute("messkk", mess);
                 request.getRequestDispatcher("detailuser.jsp").forward(request, response);
             }
 
         } catch (NumberFormatException e) {
-             e.printStackTrace();
+            e.printStackTrace();
             mess = "Failed to update.";
             se.setAttribute("messkk", mess);
             response.sendRedirect("detailuser");
