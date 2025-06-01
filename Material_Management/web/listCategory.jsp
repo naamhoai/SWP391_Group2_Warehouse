@@ -11,7 +11,7 @@
     }
 %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Category List</title>
@@ -79,14 +79,14 @@
 
             <div class="sort-buttons">
                 <button type="submit" name="sortBy" value="name" class="btn sort-btn <%= "name".equals(currentSortBy) ? "active" : "" %>">
-                    Sắp xếp theo tên <%= "name".equals(currentSortBy) ? "✓" : "" %>
+                    Sort by Name <%= "name".equals(currentSortBy) ? "✓" : "" %>
                 </button>
                 <button type="submit" name="sortBy" value="id" class="btn sort-btn <%= "id".equals(currentSortBy) ? "active" : "" %>">
-                    Sắp xếp theo ID <%= "id".equals(currentSortBy) ? "✓" : "" %>
+                    Sort by ID <%= "id".equals(currentSortBy) ? "✓" : "" %>
                 </button>
             </div>
 
-            <button type="submit" class="btn filter-btn">Tìm kiếm</button>
+            <button type="submit" class="btn filter-btn">Search</button>
         </form>
 
         <table class="category-table">
@@ -120,7 +120,7 @@
                         <a href="categories?action=edit&id=<%= c.getCategoryId() %>" class="btn btn-edit">Edit</a>
                         <a href="categories?action=delete&id=<%= c.getCategoryId() %>"
                            class="btn btn-delete"
-                           onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này không?');">Delete</a>
+                           onclick="return confirm('Are you sure you want to delete this category?');">Delete</a>
                     </td>
                 </tr>
                 <%

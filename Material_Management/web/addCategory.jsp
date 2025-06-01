@@ -31,19 +31,59 @@
             color: #2e7d32;
             border: 1px solid #a5d6a7;
         }
+        .form-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input[type="text"],
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            color: white;
+        }
+        .btn-submit {
+            background-color: #4CAF50;
+        }
+        .btn-submit:hover {
+            background-color: #45a049;
+        }
+        .btn-cancel {
+            background-color: #f44336;
+        }
+        .btn-cancel:hover {
+            background-color: #da190b;
+        }
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <div class="logo">Warehouse</div>
-        <a href="#">Dashboard</a>
-        <a href="#">Inventory</a>
-        <a href="#">Orders</a>
-        <a href="#">Suppliers</a>
-        <a href="#">Reports</a>
-        <a href="#">Settings</a>
-    </div>
-
     <div class="main-content">
         <div class="form-container">
             <h1 class="form-title">Add New Category</h1>

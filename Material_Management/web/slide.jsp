@@ -18,6 +18,12 @@
             </a>
         </li>
         <li class="menu-item">
+            <a href="${pageContext.request.contextPath}/categories" class="menu-link">
+                <i class="fas fa-tags menu-icon"></i>
+                <span class="menu-text">Categories</span>
+            </a>
+        </li>
+        <li class="menu-item">
             <a href="#" class="menu-link">
                 <i class="fas fa-boxes menu-icon"></i>
                 <span class="menu-text">Inventory</span>
