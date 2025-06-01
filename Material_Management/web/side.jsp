@@ -41,13 +41,27 @@
                 <span class="menu-text">Deliveries</span>
             </a>
         </li>
-        <li class="menu-item">
-            <a href="${pageContext.request.contextPath}/UserDetailServlet?userId=${u.user_id}" class="menu-link">
+        <li class="menu-item has-submenu">
+            <a href="#" class="menu-link">
                 <i class="fas fa-users menu-icon"></i>
                 <span class="menu-text">Users</span>
+                <i class="fas fa-chevron-down submenu-icon"></i>
             </a>
+            <ul class="submenu">
+                <li>
+                    <a href="${pageContext.request.contextPath}/UserDetailServlet?userId=${u.user_id}" class="submenu-link">
+                        <i class="fas fa-user menu-icon"></i>
+                        <span class="menu-text">User List</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="${pageContext.request.contextPath}/user-permission.jsp" class="submenu-link">
+                        <i class="fas fa-user-lock menu-icon"></i>
+                        <span class="menu-text">User Permissions</span>
+                    </a>
+                </li>
+            </ul>
         </li>
-
 
         <li class="menu-item">
             <a href="settinglist" class="menu-link">
@@ -70,6 +84,7 @@
         const sidebar = document.querySelector('.sidebar');
         const mainContent = document.querySelector('#main-content');
         const toggleBtn = document.querySelector('.toggle-btn');
+        const menuItemsWithSubmenu = document.querySelectorAll('.has-submenu');
 
         toggleBtn.addEventListener('click', function () {
             sidebar.classList.toggle('collapsed');
@@ -84,5 +99,58 @@
                 this.classList.add('active');
             });
         });
+
+        // Handle submenu toggle
+        menuItemsWithSubmenu.forEach(item => {
+            const link = item.querySelector('.menu-link');
+            const submenu = item.querySelector('.submenu');
+            
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                item.classList.toggle('open');
+                submenu.style.maxHeight = item.classList.contains('open') ? submenu.scrollHeight + "px" : "0";
+            });
+        });
     });
-</script> 
+</script>
+
+<style>
+    /* Add these styles for submenu */
+    .has-submenu .submenu {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+        padding-left: 20px;
+    }
+
+    .has-submenu.open .submenu {
+        max-height: 500px; /* Adjust this value based on your needs */
+    }
+
+    .submenu-icon {
+        margin-left: auto;
+        transition: transform 0.3s ease;
+    }
+
+    .has-submenu.open .submenu-icon {
+        transform: rotate(180deg);
+    }
+
+    .submenu-link {
+        padding: 8px 15px;
+        display: flex;
+        align-items: center;
+        color: inherit;
+        text-decoration: none;
+        transition: background-color 0.3s;
+    }
+
+    .submenu-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .submenu .menu-icon {
+        font-size: 0.9em;
+        margin-right: 10px;
+    }
+</style> 

@@ -13,7 +13,7 @@
     </head>
     <body>
 
-        <jsp:include page="slide.jsp" />
+        <jsp:include page="side.jsp" />
 
         <div id="main-content">
             <div class="page-header">
@@ -39,10 +39,9 @@
                     <input type="text" placeholder="Enter number to search" name="priority">
                     <input type="text" placeholder="Enter keyword(s) to search" name="searchname">
 
-                    </select>
 
-                    <button type="submit" value="filter"name="save">
-                        
+                    <button type="submit" value="filter" name="save">
+
                         <i class="fas fa-search"></i> Search
                     </button>
                     <select name="sortBy">
@@ -55,7 +54,7 @@
                         <option value="prioritydesc">Priority (High-Low)</option>
                     </select>
 
-                    <button type="submit" value="sort"name="save">
+                    <button type="submit" value="sort" name="save">
                         Sort
                     </button>
                 </div>
@@ -126,5 +125,5 @@
             </div>
 
 
-    </body>
+    </body> 
 </html>

@@ -7,10 +7,6 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Dashboard - Warehouse Management System</title>
-<<<<<<< HEAD
-=======
-        
->>>>>>> 995880510c037e6f9817a954db5e6a665698c33c
         <link rel="stylesheet" href="css/footer.css">
         <link rel="stylesheet" href="css/dashboard.css">
         <link rel="stylesheet" href="css/sidebar.css">
@@ -19,7 +15,7 @@
     </head>
     <body>
         <!-- Include Sidebar -->
-        <jsp:include page="slide.jsp" />
+        <jsp:include page="side.jsp" />
 
         <div id="main-content">
             <div class="dashboard-header">
