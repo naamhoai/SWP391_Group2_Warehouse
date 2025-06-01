@@ -51,7 +51,7 @@
                 <li>
                     <a href="${pageContext.request.contextPath}/UserDetailServlet?userId=${u.user_id}" class="submenu-link">
                         <i class="fas fa-user menu-icon"></i>
-                        <span class="menu-text">User List</span>
+                        <span class="menu-text">User Information</span>
                     </a>
                 </li>
                 <li>
@@ -63,7 +63,7 @@
                 <li class="menu-item">
                     <a href="settinglist" class="submenu-link">
                         <i class="fas fa-user-lock menu-icon"></i>
-                        <span class="menu-text">List User</span>
+                        <span class="menu-text">User List</span>
                     </a>
                 </li>
             </ul>

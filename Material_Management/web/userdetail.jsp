@@ -5,7 +5,7 @@
 <html lang="vi">
     <head>
         <meta charset="UTF-8" />
-        <title>Information User</title>
+        <title>User Information</title>
 
         <!-- Stylesheets -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/userdetail.css" />
@@ -23,7 +23,7 @@
 
             <div class="main-content">
                 <div class="page-header">
-                    <h2>Information User</h2>
+                    <h2>User Information</h2>
 
                     <!-- Search form -->
                     <form method="get" action="UserDetailServlet">
