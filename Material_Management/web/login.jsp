@@ -39,6 +39,7 @@
                     <button type="submit" class="login-btn">Sign In</button>
                 </form>
                 <div class="imgsp">
+                    <span class="hotline">Support</span>
                     <a href="#"><img src="./image/customer-support-1714.png" alt="Customer Support"/></a>
                     
                 </div>

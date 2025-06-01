@@ -60,6 +60,12 @@
                         <span class="menu-text">User Permissions</span>
                     </a>
                 </li>
+                <li class="menu-item">
+                    <a href="settinglist" class="submenu-link">
+                        <i class="fas fa-user-lock menu-icon"></i>
+                        <span class="menu-text">List User</span>
+                    </a>
+                </li>
             </ul>
         </li>
 
@@ -104,7 +110,7 @@
         menuItemsWithSubmenu.forEach(item => {
             const link = item.querySelector('.menu-link');
             const submenu = item.querySelector('.submenu');
-            
+
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 item.classList.toggle('open');
