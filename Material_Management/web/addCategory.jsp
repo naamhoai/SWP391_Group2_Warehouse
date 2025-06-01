@@ -3,6 +3,11 @@
 <%@page import="model.Category"%>
 <%
     List<Category> parentCategories = (List<Category>) request.getAttribute("parentCategories");
+    String error = (String) request.getAttribute("error");
+    String message = (String) session.getAttribute("message");
+    if (message != null) {
+        session.removeAttribute("message");
+    }
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -10,6 +15,23 @@
     <meta charset="UTF-8">
     <title>Add Category</title>
     <link rel="stylesheet" href="css/category.css">
+    <style>
+        .message {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+        .success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+    </style>
 </head>
 <body>
     <div class="sidebar">
@@ -25,6 +47,18 @@
     <div class="main-content">
         <div class="form-container">
             <h1 class="form-title">Add New Category</h1>
+
+            <% if (error != null) { %>
+                <div class="message error">
+                    <%= error %>
+                </div>
+            <% } %>
+            
+            <% if (message != null) { %>
+                <div class="message success">
+                    <%= message %>
+                </div>
+            <% } %>
 
             <form action="categories" method="post" class="category-form">
                 <input type="hidden" name="action" value="add" />

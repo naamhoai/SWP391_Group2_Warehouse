@@ -4,23 +4,36 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.WebServlet;
 import model.Category;
-import dal.CategoryDAO;
+import dao.CategoryDAO;
 
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet("/categories")
-public class CategoryController extends HttpServlet {
+@WebServlet(name="CategoryServlet", urlPatterns={"/categories"})
+public class CategoryServlet extends HttpServlet {
     private CategoryDAO categoryDAO;
 
     @Override
-    public void init() {
-        categoryDAO = new CategoryDAO();
+    public void init() throws ServletException {
+        try {
+            categoryDAO = new CategoryDAO();
+        } catch (Exception e) {
+            throw new ServletException("Không thể khởi tạo CategoryDAO: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void destroy() {
+        super.destroy();
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html; charset=UTF-8");
+        
         String action = request.getParameter("action");
         if (action == null) action = "list";
 
@@ -41,13 +54,17 @@ public class CategoryController extends HttpServlet {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error: " + e.getMessage());
+            response.sendError(500, "Error: " + e.getMessage());
         }
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html; charset=UTF-8");
+        
         String action = request.getParameter("action");
         if (action == null) {
             response.sendRedirect("categories");
@@ -59,7 +76,7 @@ public class CategoryController extends HttpServlet {
                 case "add":
                     addCategory(request, response);
                     break;
-                case "edit": // sửa lại đúng với editCategory.jsp
+                case "edit":
                     updateCategory(request, response);
                     break;
                 default:
@@ -68,7 +85,7 @@ public class CategoryController extends HttpServlet {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error: " + e.getMessage());
+            response.sendError(500, "Error: " + e.getMessage());
         }
     }
 
@@ -78,10 +95,13 @@ public class CategoryController extends HttpServlet {
         String parentIdParam = request.getParameter("parentId");
         String sortBy = request.getParameter("sortBy");
 
+        // Clean up keyword
         if (keyword != null) {
-            keyword = keyword.trim().toLowerCase();
+            keyword = keyword.trim();
+            if (keyword.isEmpty()) keyword = null;
         }
 
+        // Parse parentId
         Integer parentId = null;
         if (parentIdParam != null && !parentIdParam.trim().isEmpty()) {
             try {
@@ -92,10 +112,11 @@ public class CategoryController extends HttpServlet {
         List<Category> categories = categoryDAO.getFilteredCategories(keyword, parentId, sortBy);
         List<Category> parentCategories = categoryDAO.getParentCategories();
 
+        // Set all attributes
         request.setAttribute("categories", categories);
         request.setAttribute("parentCategories", parentCategories);
         request.setAttribute("keyword", keyword);
-        request.setAttribute("parentId", parentId);
+        request.setAttribute("parentId", parentIdParam);
         request.setAttribute("sortBy", sortBy);
 
         request.getRequestDispatcher("listCategory.jsp").forward(request, response);
@@ -103,7 +124,7 @@ public class CategoryController extends HttpServlet {
 
     private void showAddForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<Category> parentCategories = categoryDAO.getParentCategories();
+        List<Category> parentCategories = categoryDAO.getAvailableParentCategories(null);
         request.setAttribute("parentCategories", parentCategories);
         request.getRequestDispatcher("addCategory.jsp").forward(request, response);
     }
@@ -119,7 +140,7 @@ public class CategoryController extends HttpServlet {
                 return;
             }
 
-            List<Category> parentCategories = categoryDAO.getParentCategories();
+            List<Category> parentCategories = categoryDAO.getAvailableParentCategories(id);
             request.setAttribute("category", category);
             request.setAttribute("parentCategories", parentCategories);
             request.getRequestDispatcher("editCategory.jsp").forward(request, response);
@@ -130,12 +151,13 @@ public class CategoryController extends HttpServlet {
     }
 
     private void addCategory(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+            throws IOException, ServletException {
         String name = request.getParameter("name");
         String parentIdParam = request.getParameter("parentId");
 
         if (name == null || name.trim().isEmpty()) {
-            response.sendRedirect("categories");
+            request.setAttribute("error", "Tên danh mục không được để trống");
+            showAddForm(request, response);
             return;
         }
 
@@ -143,22 +165,34 @@ public class CategoryController extends HttpServlet {
         if (parentIdParam != null && !parentIdParam.trim().isEmpty()) {
             try {
                 parentId = Integer.parseInt(parentIdParam);
-            } catch (NumberFormatException ignored) {}
+            } catch (NumberFormatException e) {
+                request.setAttribute("error", "ID danh mục cha không hợp lệ");
+                showAddForm(request, response);
+                return;
+            }
         }
 
-        categoryDAO.addCategory(name.trim(), parentId);
-        response.sendRedirect("categories");
+        boolean success = categoryDAO.addCategory(name.trim(), parentId);
+        
+        if (success) {
+            request.getSession().setAttribute("message", "Thêm danh mục thành công");
+            response.sendRedirect("categories");
+        } else {
+            request.setAttribute("error", "Có lỗi xảy ra khi thêm danh mục. Vui lòng kiểm tra lại danh mục cha.");
+            showAddForm(request, response);
+        }
     }
 
     private void updateCategory(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+            throws IOException, ServletException {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
             String name = request.getParameter("name");
             String parentIdParam = request.getParameter("parentId");
 
             if (name == null || name.trim().isEmpty()) {
-                response.sendRedirect("categories");
+                request.setAttribute("error", "Tên danh mục không được để trống");
+                showEditForm(request, response);
                 return;
             }
 
@@ -166,24 +200,43 @@ public class CategoryController extends HttpServlet {
             if (parentIdParam != null && !parentIdParam.trim().isEmpty()) {
                 try {
                     parentId = Integer.parseInt(parentIdParam);
-                } catch (NumberFormatException ignored) {}
+                } catch (NumberFormatException e) {
+                    request.setAttribute("error", "ID danh mục cha không hợp lệ");
+                    showEditForm(request, response);
+                    return;
+                }
             }
 
-            categoryDAO.updateCategory(id, name.trim(), parentId);
+            boolean success = categoryDAO.updateCategory(id, name.trim(), parentId);
+            if (success) {
+                request.getSession().setAttribute("message", "Cập nhật danh mục thành công");
+                response.sendRedirect("categories");
+            } else {
+                request.setAttribute("error", "Không thể cập nhật danh mục. Vui lòng kiểm tra lại danh mục cha hoặc xem danh mục này có chứa danh mục con không.");
+                showEditForm(request, response);
+            }
         } catch (Exception e) {
             e.printStackTrace();
+            request.setAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            showEditForm(request, response);
         }
-        response.sendRedirect("categories");
     }
 
     private void deleteCategory(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+            throws IOException, ServletException {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
-            categoryDAO.deleteCategory(id);
+            boolean success = categoryDAO.deleteCategory(id);
+            
+            if (success) {
+                request.getSession().setAttribute("message", "Xóa danh mục thành công");
+            } else {
+                request.getSession().setAttribute("error", "Không thể xóa danh mục. Vui lòng kiểm tra xem danh mục có chứa danh mục con không.");
+            }
         } catch (Exception e) {
             e.printStackTrace();
+            request.getSession().setAttribute("error", "Có lỗi xảy ra khi xóa danh mục: " + e.getMessage());
         }
         response.sendRedirect("categories");
     }
-}
+} 

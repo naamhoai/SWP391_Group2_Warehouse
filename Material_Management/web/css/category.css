@@ -257,3 +257,75 @@ button:hover {
 .btn-cancel:hover {
     background-color: #5a6268;
 }
+
+/* Filter form styling */
+.filter-form {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filter-form select,
+.filter-form input[type="text"] {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    min-width: 150px;
+    font-size: 14px;
+}
+
+.filter-form .filter-btn {
+    padding: 8px 16px;
+    background-color: #1e90ff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.filter-form .filter-btn:hover {
+    background-color: #1c86ee;
+}
+
+/* Sort buttons styling */
+.sort-buttons {
+    display: flex;
+    gap: 8px;
+    margin: 10px 0;
+    flex-wrap: wrap;
+}
+
+.sort-btn {
+    padding: 8px 16px;
+    background-color: #f8f9fa;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    min-width: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.sort-btn:hover {
+    background-color: #e9ecef;
+    border-color: #ccc;
+}
+
+.sort-btn.active {
+    background-color: #1e90ff;
+    color: white;
+    border-color: #1e90ff;
+}
+
+.sort-btn.active:hover {
+    background-color: #187bcd;
+}

@@ -1,57 +1,92 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="java.util.*, model.Category"%>
-
+<%@page import="java.util.*, model.Category, dao.CategoryDAO"%>
+<%
+    String error = (String) session.getAttribute("error");
+    String message = (String) session.getAttribute("message");
+    if (error != null) {
+        session.removeAttribute("error");
+    }
+    if (message != null) {
+        session.removeAttribute("message");
+    }
+%>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>Category List</title>
     <link rel="stylesheet" href="css/category.css">
+    <style>
+        .message {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+        .success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+    </style>
 </head>
 <body>
-    <div class="sidebar">
-        <div class="logo">Logo</div>
-        <a href="#">Dashboard</a>
-        <a href="#">Inventory</a>
-        <a href="#">Orders</a>
-        <a href="#">Suppliers</a>
-        <a href="#">Reports</a>
-        <a href="#">Settings</a>
-    </div>
-
     <div class="main-content">
         <div class="content-header">
             <h1>Category List</h1>
-            <a href="addCategory.jsp" class="btn-new">+ New Category</a>
+            <a href="categories?action=add" class="btn-new">+ New Category</a>
         </div>
 
+        <% if (error != null) { %>
+            <div class="message error">
+                <%= error %>
+            </div>
+        <% } %>
+        
+        <% if (message != null) { %>
+            <div class="message success">
+                <%= message %>
+            </div>
+        <% } %>
+
         <form action="categories" method="get" class="filter-form">
+            <%
+                String currentKeyword = (String) request.getAttribute("keyword");
+                String currentParentId = (String) request.getAttribute("parentId");
+                String currentSortBy = (String) request.getAttribute("sortBy");
+            %>
             <select name="parentId">
                 <option value="">All Parent Categories</option>
                 <%
                     List<Category> parentCategories = (List<Category>) request.getAttribute("parentCategories");
-                    String selectedParentId = request.getParameter("parentId");
                     if (parentCategories != null) {
                         for (Category p : parentCategories) {
-                            String selected = (selectedParentId != null && selectedParentId.equals(p.getCategoryId().toString())) ? "selected" : "";
+                            String selected = (currentParentId != null && currentParentId.equals(p.getCategoryId().toString())) ? "selected" : "";
                 %>
                     <option value="<%= p.getCategoryId() %>" <%= selected %>><%= p.getName() %></option>
-                <% 
+                <%
                         }
-                    } 
+                    }
                 %>
             </select>
 
             <input type="text" name="keyword" placeholder="Search by name"
-                   value="<%= request.getAttribute("keyword") != null ? request.getAttribute("keyword") : "" %>">
+                   value="<%= currentKeyword != null ? currentKeyword : "" %>">
 
-            <select name="sortBy">
-                <option value="">Sort By</option>
-                <option value="name" <%= "name".equals(request.getParameter("sortBy")) ? "selected" : "" %>>Name A-Z</option>
-                <option value="id" <%= "id".equals(request.getParameter("sortBy")) ? "selected" : "" %>>ID</option>
-            </select>
+            <div class="sort-buttons">
+                <button type="submit" name="sortBy" value="name" class="btn sort-btn <%= "name".equals(currentSortBy) ? "active" : "" %>">
+                    Sắp xếp theo tên <%= "name".equals(currentSortBy) ? "✓" : "" %>
+                </button>
+                <button type="submit" name="sortBy" value="id" class="btn sort-btn <%= "id".equals(currentSortBy) ? "active" : "" %>">
+                    Sắp xếp theo ID <%= "id".equals(currentSortBy) ? "✓" : "" %>
+                </button>
+            </div>
 
-            <button type="submit" class="btn filter-btn">Search</button>
+            <button type="submit" class="btn filter-btn">Tìm kiếm</button>
         </form>
 
         <table class="category-table">
@@ -59,23 +94,21 @@
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
-                    <th>Parent</th>
+                    <th>Parent Category</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <%
                     List<Category> categories = (List<Category>) request.getAttribute("categories");
+                    CategoryDAO categoryDAO = new CategoryDAO();
                     if (categories != null && !categories.isEmpty()) {
                         for (Category c : categories) {
-                            Integer pid = c.getParentId();
                             String parentName = "-";
-                            if (pid != null && parentCategories != null) {
-                                for (Category p : parentCategories) {
-                                    if (p.getCategoryId() != null && p.getCategoryId().equals(pid)) {
-                                        parentName = p.getName();
-                                        break;
-                                    }
+                            if (c.getParentId() != null) {
+                                String pName = categoryDAO.getCategoryNameById(c.getParentId());
+                                if (pName != null) {
+                                    parentName = pName;
                                 }
                             }
                 %>
@@ -85,9 +118,9 @@
                     <td><%= parentName %></td>
                     <td>
                         <a href="categories?action=edit&id=<%= c.getCategoryId() %>" class="btn btn-edit">Edit</a>
-                        <a href="categories?action=delete&id=<%= c.getCategoryId() %>" 
-                           class="btn btn-delete" 
-                           onclick="return confirm('Are you sure you want to delete this category?');">Delete</a>
+                        <a href="categories?action=delete&id=<%= c.getCategoryId() %>"
+                           class="btn btn-delete"
+                           onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này không?');">Delete</a>
                     </td>
                 </tr>
                 <%
