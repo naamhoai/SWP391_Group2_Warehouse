@@ -3,61 +3,92 @@
 
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8" />
-    <title>Danh sách người dùng</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/userdetail.css" />
-</head>
-<body>
-    <div class="user-list-container">
-        <h2>Danh sách người dùng</h2>
-        
-        <div class="search-container">
-            <form method="get" action="UserDetailServlet">
-                <input type="text" name="search" placeholder="Tìm theo username hoặc họ và tên" 
-                       value="${param.search != null ? param.search : ''}" />
-                <button type="submit">Tìm kiếm</button>
-            </form>
-        </div>
-        
-        <div class="top-right">
-            <a href="${pageContext.request.contextPath}/CreateUserServlet">Tạo người dùng mới</a>
-        </div>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Information User</title>
 
-        <!-- Bảng danh sách người dùng -->
-        <table>
-            <thead>
-                <tr>
-                    <th>User ID</th>
-                    <th>Họ và tên</th>
-                    <th>Email</th>
-                    <th>Vai trò</th>
-                    <th>Trạng thái</th>
-                    <th>Hành động</th>
-                </tr>
-            </thead>
-            <tbody>
-                
-                <c:forEach var="user" items="${userList}">
-                    <tr>
-                        
-                        <td><c:out value="${user.user_id}" /></td>
-                        <td><c:out value="${user.fullname}" /></td>
-                        <td><c:out value="${user.email}" /></td>
-                        <td><c:out value="${user.role.rolename}" /></td>
-                        <td><c:out value="${user.status}" /></td>
-                        <td><a href="${pageContext.request.contextPath}/UpdateUserProfileServlet?user_id=${user.user_id}">[Xem chi tiết]</a></td>
-                    </tr>
-                </c:forEach>
+        <!-- Stylesheets -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/userdetail.css" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/footer.css" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/dashboard.css" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css" />
 
-                
-                <c:if test="${empty userList}">
-                    <tr>
-                        <td colspan="7" style="text-align:center;">Không có dữ liệu người dùng</td>
-                    </tr>
-                </c:if>
-            </tbody>
-        </table>
-    </div>
-</body>
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    </head>
+    <body>
+        <div class="layout">
+            <!-- Include Sidebar -->
+            <jsp:include page="side.jsp" />
+
+            <div class="main-content">
+                <div class="page-header">
+                    <h2>Information User</h2>
+
+                    <!-- Search form -->
+                    <form method="get" action="UserDetailServlet">
+                        <div class="filter-section">
+                            <input 
+                                type="text" 
+                                name="search" 
+                                placeholder="search by username or fullname" 
+                                value="${param.search != null ? param.search : ''}" 
+                                />
+                            <button type="submit">Search</button>
+                        </div>
+                    </form>
+
+                    <!-- Create new user link -->
+                    <div class="top-right">
+                        <a href="${pageContext.request.contextPath}/CreateUserServlet">Create User</a>
+                    </div>
+
+                    <!-- User list table -->
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Full Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <c:forEach var="user" items="${userList}">
+                                    <tr>
+                                        <td><c:out value="${user.user_id}" /></td>
+                                        <td><c:out value="${user.fullname}" /></td>
+                                        <td><c:out value="${user.email}" /></td>
+                                        <td><c:out value="${user.role.rolename}" /></td>
+                                        <td><c:out value="${user.status}" /></td>
+                                        <td class="action">
+                                            <a href="${pageContext.request.contextPath}/UpdateUserProfileServlet?user_id=${user.user_id}">[See details]</a>
+                                        </td>
+                                    </tr>
+                                </c:forEach>
+
+                                <c:if test="${empty userList}">
+                                    <tr>
+                                        <td colspan="6" style="text-align:center;">No user data</td>
+                                    </tr>
+                                </c:if>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination">
+                        <c:forEach begin="1" end="${pages}" var="p">
+                            <a href="UserDetailServlet?page=${p}&search=${param.search != null ? param.search : ''}"
+                               class="${p == currentPage ? 'active' : ''}">${p}</a>
+                        </c:forEach>
+                    </div>
+
+                </div>
+            </div> <!-- END main-content -->
+        </div>
+    </body>
 </html>

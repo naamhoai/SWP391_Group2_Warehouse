@@ -1,34 +1,87 @@
+/* Reset và Base Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f0f4f8;
     margin: 0;
     padding: 0;
     color: #333;
+    overflow-x: hidden;
 }
 
-.form-container {
-    max-width: 600px;
-    width: 90%;
-    min-width: 320px;
-    margin: 40px auto;
-    padding: 25px;
-    background-color: #fff;
+/* Layout chính */
+.layout {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background: #2c3e50;
+    color: white;
+    height: 100vh;
+    position: fixed;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.sidebar.collapsed {
+    width: 70px;
+}
+
+/* Nội dung chính */
+.main-content {
+    margin-left: 250px;
+    padding: 20px;
+    width: calc(100vw - 250px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 100vh;
+}
+
+.sidebar.collapsed ~ .main-content {
+    margin-left: 70px;
+    width: calc(100vw - 70px);
+}
+
+/* Form wrapper */
+.form-wrapper {
+    background-color: #ffffff;
     border-radius: 10px;
-    border: 1px solid #ccc;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    margin: 20px auto;
+    max-width: 900px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
 }
 
-h2 {
+/* Form container */
+.page-header {
+    background: transparent;
+    padding: 0;
+}
+
+.form-title {
     text-align: center;
     font-size: 2rem;
     margin-bottom: 30px;
-    color: #1a237e; /* màu xanh đậm */
+    color: #1a237e;
 }
 
+/* Avatar upload */
 .avatar-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
 .avatar-container img {
@@ -48,6 +101,7 @@ h2 {
     font-weight: 600;
 }
 
+/* Form layout */
 .row {
     display: flex;
     justify-content: space-between;
@@ -65,22 +119,32 @@ h2 {
     flex-direction: column;
 }
 
+/* Form elements */
 label {
     margin-bottom: 6px;
     font-weight: 600;
     color: #3949ab;
 }
 
-input, select, textarea {
-    padding: 8px 10px;
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="tel"],
+input[type="date"],
+input[type="number"],
+select,
+textarea {
+    padding: 10px 12px;
     border-radius: 5px;
     border: 1.5px solid #ccc;
     font-family: inherit;
     font-size: 1rem;
-    transition: border-color 0.3s ease;
+    transition: all 0.3s ease;
 }
 
-input:focus, select:focus, textarea:focus {
+input:focus,
+select:focus,
+textarea:focus {
     border-color: #1a237e;
     outline: none;
     background-color: #f7f8fc;
@@ -91,32 +155,11 @@ input[readonly] {
     cursor: not-allowed;
 }
 
-textarea {
-    resize: vertical;
-    min-height: 80px;
-}
-
-.status-group {
-    display: flex;
-    gap: 15px;
-    margin-top: 6px;
-}
-
-.status-group label {
-    font-weight: normal;
-    cursor: pointer;
-    color: #3949ab;
-}
-
-.status-group input[type="radio"] {
-    margin-right: 6px;
-    cursor: pointer;
-}
-
+/* Alert messages */
 .alert {
     padding: 12px 15px;
     border-radius: 5px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     font-weight: 600;
 }
 
@@ -132,9 +175,10 @@ textarea {
     border: 1px solid #2e7d32;
 }
 
-.center-button, .buttons {
+/* Buttons */
+.center-button {
     text-align: center;
-    margin-top: 20px;
+    margin-top: 25px;
 }
 
 button[type="submit"] {
@@ -145,7 +189,6 @@ button[type="submit"] {
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    user-select: none;
     transition: background-color 0.3s ease;
 }
 
@@ -153,12 +196,51 @@ button[type="submit"]:hover {
     background-color: #303f9f;
 }
 
-@media (max-width: 600px) {
+/* Responsive */
+@media (max-width: 992px) {
+    .form-wrapper {
+        padding: 25px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0 !important;
+        width: 100vw !important;
+        padding: 15px;
+    }
+    
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.collapsed {
+        transform: translateX(0);
+        width: 70px;
+    }
+    
     .row {
         flex-direction: column;
         gap: 15px;
     }
+    
     .column {
         width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .form-wrapper {
+        padding: 20px;
+        margin: 15px auto;
+    }
+    
+    .form-title {
+        font-size: 1.75rem;
+    }
+    
+    button[type="submit"] {
+        padding: 8px 16px;
+        font-size: 15px;
     }
 }

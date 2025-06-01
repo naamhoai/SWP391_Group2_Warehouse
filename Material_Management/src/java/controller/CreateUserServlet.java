@@ -15,7 +15,6 @@ import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import java.io.File;
 import java.nio.file.Path;
@@ -225,7 +224,7 @@ public class CreateUserServlet extends HttpServlet {
         newUser.setUsername(username);
         newUser.setFullname(fullName);
         newUser.setEmail(email);
-        newUser.setPassword(userDAO.hashPassword(password));
+        newUser.setPassword(password);
         newUser.setPhone(phone);
         newUser.setRole(role);
         newUser.setStatus(status);

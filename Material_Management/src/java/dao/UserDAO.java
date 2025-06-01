@@ -4,7 +4,6 @@ import model.*;
 import dal.DBContext;
 
 import java.sql.*;
-import java.security.MessageDigest;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
@@ -130,25 +129,6 @@ public class UserDAO {
             e.printStackTrace();
         }
         return null;  // Trả về null nếu không tìm thấy hoặc gặp lỗi
-    }
-
-    // Mã hóa mật khẩu SHA-256
-    public String hashPassword(String password) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(password.getBytes("UTF-8"));
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hash) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) {
-                    hexString.append('0');
-                }
-                hexString.append(hex);
-            }
-            return hexString.toString();
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
     }
 
     // Tạo email tự động
@@ -306,8 +286,10 @@ public class UserDAO {
 
     public List<User> searchUsersByKeyword(String keyword) {
         List<User> list = new ArrayList<>();
-        // Thêm user_id vào câu lệnh SQL
-        String sql = "SELECT user_id, user_name, full_name, email, status FROM users WHERE user_name LIKE ? OR full_name LIKE ?";
+        String sql = "SELECT u.user_id, u.user_name, u.full_name, u.email, u.status,u.role_id, r.role_name "
+                + "FROM users u LEFT JOIN roles r ON u.role_id = r.role_id "
+                + "WHERE u.user_name LIKE ? OR u.full_name LIKE ?";
+
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             String likeKeyword = "%" + keyword + "%";
@@ -317,12 +299,17 @@ public class UserDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     User user = new User();
-                    // Lấy user_id từ cơ sở dữ liệu
-                    user.setUser_id(rs.getInt("user_id"));  // Cập nhật để lưu user_id
+
+                    user.setUser_id(rs.getInt("user_id"));
                     user.setUsername(rs.getString("user_name"));
                     user.setFullname(rs.getString("full_name"));
                     user.setEmail(rs.getString("email"));
                     user.setStatus(rs.getString("status"));
+
+                    Role role = new Role();
+                    role.setRoleid(rs.getInt("role_id"));
+                    role.setRolename(rs.getString("role_name"));
+                    user.setRole(role);
                     list.add(user);
                 }
             }
@@ -332,44 +319,6 @@ public class UserDAO {
         return list;
     }
 
-    // Test method main
-    public static void main(String[] args) {
-        UserDAO userDAO = new UserDAO();
-        User newUser = new User();
-        newUser.setUsername("testuser123");
-        newUser.setFullname("Nguyen Van A");
-        newUser.setEmail("nguyenvana@example.com");
-        // Mật khẩu phải được mã hóa trước khi lưu (dùng hàm hashPassword)
-        newUser.setPassword(userDAO.hashPassword("123456"));
-        newUser.setPhone("0123456789");
+    
 
-        Role role = new Role();
-        role.setRoleid(1);
-        newUser.setRole(role);
-
-        newUser.setStatus("active");
-        newUser.setPriority(1);
-        newUser.setImage("default.png");
-        newUser.setGender("Female");
-        newUser.setDayofbirth("1990-01-01");
-        newUser.setDescription("User created by main");
-
-        // Gọi hàm insertUser để thêm user vào DB
-        boolean inserted = userDAO.insertUser(newUser);
-
-        if (inserted) {
-            // Nếu thêm thành công thì lấy lại user vừa tạo bằng username
-            User createdUser = userDAO.getUserByUsername(newUser.getUsername());
-
-            System.out.println("User created successfully:");
-            System.out.println("User ID: " + createdUser.getUser_id());
-            System.out.println("Username: " + createdUser.getUsername());
-            System.out.println("Full Name: " + createdUser.getFullname());
-            System.out.println("Email: " + createdUser.getEmail());
-            System.out.println("Status: " + createdUser.getStatus());
-            System.out.println("Role ID: " + createdUser.getRole().getRoleid());
-        } else {
-            System.out.println("Failed to create user.");
-        }
-    }
 }
