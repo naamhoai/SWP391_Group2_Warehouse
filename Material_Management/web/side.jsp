@@ -30,6 +30,12 @@
             </a>
         </li>
         <li class="menu-item">
+            <a href="materiallist.jsp" class="menu-link">
+                <i class="fas fa-list menu-icon"></i>
+                <span class="menu-text">Product List</span>
+            </a>
+        </li>
+        <li class="menu-item">
             <a href="#" class="menu-link">
                 <i class="fas fa-shopping-cart menu-icon"></i>
                 <span class="menu-text">Orders</span>

@@ -1,3 +1,32 @@
+/* Layout styles for sidebar integration */
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    background-color: #f3f3f3;
+    font-family: Arial, sans-serif;
+}
+
+#main-content {
+    flex: 1;
+    padding: 20px;
+    margin-left: 250px; /* Width of the sidebar */
+    transition: margin-left 0.3s ease;
+}
+
+#main-content.expanded {
+    margin-left: 70px; /* Width of the collapsed sidebar */
+}
+
+.container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: none;
+}
+
 /* Reset CSS */
 * {
     margin: 0;
@@ -12,15 +41,6 @@ body {
     padding: 30px 0;
     display: flex;
     justify-content: center;
-}
-
-.container {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    width: 90%;
-    max-width: 1100px;
 }
 
 .page-title {
