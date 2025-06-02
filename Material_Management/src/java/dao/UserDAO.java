@@ -200,38 +200,6 @@ public class UserDAO {
         return false;
     }
 
-    public User getUserByUsername(String username) {
-        String sql = "SELECT * FROM users WHERE user_name = ?";
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, username);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    User user = new User();
-                    Role role = new Role();
-                    role.setRoleid(rs.getInt("role_id"));
-                    user.setUser_id(rs.getInt("user_id"));
-                    user.setUsername(rs.getString("user_name"));
-                    user.setFullname(rs.getString("full_name"));
-                    user.setEmail(rs.getString("email"));
-                    user.setPassword(rs.getString("password"));
-                    user.setPhone(rs.getString("phone"));
-                    user.setRole(role);
-                    user.setStatus(rs.getString("status"));
-                    user.setPriority(rs.getInt("priority"));
-                    user.setImage(rs.getString("image"));
-                    user.setGender(rs.getString("gender"));
-                    user.setDayofbirth(rs.getString("dayofbirth"));
-                    user.setDescription(rs.getString("description"));
-                    return user;
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public List<User> getUserListSummary() {
         List<User> list = new ArrayList<>();
         // Update SQL query to select all user fields and role information (role_id and role_name)

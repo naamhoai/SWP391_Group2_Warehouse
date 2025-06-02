@@ -68,7 +68,7 @@ public class UserDetailServlet extends HttpServlet {
         String keyword = request.getParameter("search");
         String pageParam = request.getParameter("page");
         int page = 1; // trang hiện tại mặc định
-        int pageSize = 10; // số bản ghi trên mỗi trang
+        int pageSize = 5; // số bản ghi trên mỗi trang
 
         try {
             if (pageParam != null) {
@@ -89,7 +89,7 @@ public class UserDetailServlet extends HttpServlet {
             fullList = userDAO.getUserListSummary(); // lấy tất cả user
         } else {
             keyword = keyword.trim();
-            fullList = userDAO.searchUsersByKeyword(keyword); // lấy tất cả user theo keyword (ko phân trang)
+            fullList = userDAO.searchUsersByKeyword(keyword); // lấy tất cả user theo keyword 
         }
         totalRecords = fullList.size();
 

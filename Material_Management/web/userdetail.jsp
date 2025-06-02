@@ -17,6 +17,7 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     </head>
     <body>
+
         <div class="layout">
             <!-- Include Sidebar -->
             <jsp:include page="side.jsp" />
@@ -79,13 +80,44 @@
                         </table>
                     </div>
 
-                    <!-- Pagination -->
                     <div class="pagination">
-                        <c:forEach begin="1" end="${pages}" var="p">
-                            <a href="UserDetailServlet?page=${p}&search=${param.search != null ? param.search : ''}"
-                               class="${p == currentPage ? 'active' : ''}">${p}</a>
+                        <!-- Nút trang trước -->
+                        <c:if test="${currentPage > 1}">
+                            <a href="UserDetailServlet?page=${currentPage - 1}&search=${param.search != null ? param.search : ''}">&lt;</a>
+                        </c:if>
+
+                        <!-- Luôn hiện trang 1 -->
+                        <a href="UserDetailServlet?page=1&search=${param.search != null ? param.search : ''}" class="${currentPage == 1 ? 'active' : ''}">1</a>
+
+                        <!-- Hiện dấu ... nếu trang hiện tại cách trang 1 hơn 2 -->
+                        <c:if test="${currentPage > 3}">
+                            <span>...</span>
+                        </c:if>
+
+                        <!-- Hiển thị trang xung quanh currentPage (trang trước và sau) -->
+                        <c:forEach begin="${currentPage - 1 < 2 ? 2 : currentPage - 1}" end="${currentPage + 1 > pages - 1 ? pages - 1 : currentPage + 1}" var="p">
+                            <a href="UserDetailServlet?page=${p}&search=${param.search != null ? param.search : ''}" class="${p == currentPage ? 'active' : ''}">${p}</a>
                         </c:forEach>
+
+                        <!-- Hiện dấu ... nếu trang hiện tại cách trang cuối hơn 2 -->
+                        <c:if test="${currentPage < pages - 2}">
+                            <span>...</span>
+                        </c:if>
+
+                        <!-- Luôn hiện trang cuối nếu pages > 1 -->
+                        <c:if test="${pages > 1}">
+                            <a href="UserDetailServlet?page=${pages}&search=${param.search != null ? param.search : ''}" class="${currentPage == pages ? 'active' : ''}">${pages}</a>
+                        </c:if>
+
+                        <!-- Nút trang sau -->
+                        <c:if test="${currentPage < pages}">
+                            <a href="UserDetailServlet?page=${currentPage + 1}&search=${param.search != null ? param.search : ''}">&gt;</a>
+                        </c:if>
                     </div>
+
+
+
+
 
                 </div>
             </div> <!-- END main-content -->
