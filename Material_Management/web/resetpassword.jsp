@@ -28,7 +28,7 @@
             </div>
             <button type="submit" class="btn-submit">Reset Password</button>
             <div class="back-link-container">
-                <a href="home.jsp" class="back-link">← Back to Home</a>
+                <a href=".jsp" class="back-link">← Back to Home</a>
             </div>
             <p class="text-danger">${mess}</p>
         </form>

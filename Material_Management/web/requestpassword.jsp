@@ -16,7 +16,7 @@
                 </div>
                 <button type="submit" class="btn-submit">Reset Password</button>
             </form>
-            <a href="home.jsp" class="back-link">← Back to Login</a>
+            <a href="login.jsp" class="back-link">← Back to Login</a>
             <p class="text-danger">${mess}</p>
         </div>
     </body>

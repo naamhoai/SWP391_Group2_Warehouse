@@ -34,13 +34,6 @@ public class RequestPassword extends HttpServlet {
             return;
         }
 
-        // Check if username matches
-        if (!user.getUsername().equals(username)) {
-            request.setAttribute("mess", "Username không khớp.");
-            request.getRequestDispatcher("requestpassword.jsp").forward(request, response);
-            return;
-        }
-
         ResetService service = new ResetService();
         String token = service.generateToken();
         String resetLink = "http://localhost:8080/Material_Management/resetPassword?token=" + token;
