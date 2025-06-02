@@ -1,12 +1,6 @@
-package servlet;
+package dao;
 
 import dal.DBContext;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,47 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@WebServlet(name = "DashboardServlet", urlPatterns = {"/dashboard"})
-public class DashboardServlet extends HttpServlet {
-
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        
-        try {
-            String timeFilter = request.getParameter("timeFilter");
-            if (timeFilter == null) {
-                timeFilter = "month"; // Default filter
-            }
-
-            // Get stats based on time filter
-            Map<String, Integer> stats = getFilteredStats(timeFilter);
-            
-            // Get inventory statistics
-            Map<String, Integer> inventoryStats = getInventoryStats();
-            
-            // Get low stock items details
-            List<Map<String, Object>> lowStockItemsList = getLowStockItemsList();
-            
-            // Set attributes for JSP
-            request.setAttribute("timeFilter", timeFilter);
-            request.setAttribute("totalItems", stats.get("totalItems"));
-            request.setAttribute("monthlyOrders", stats.get("monthlyOrders"));
-            request.setAttribute("lowStockItems", stats.get("lowStockItems"));
-            request.setAttribute("pendingDeliveries", stats.get("pendingDeliveries"));
-            
-            request.setAttribute("inventoryStats", inventoryStats);
-            request.setAttribute("lowStockItemsList", lowStockItemsList);
-            
-            request.getRequestDispatcher("dashboard.jsp").forward(request, response);
-            
-        } catch (SQLException e) {
-            e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    private Map<String, Integer> getFilteredStats(String timeFilter) throws SQLException {
+public class DashboardDAO {
+    
+    public Map<String, Integer> getFilteredStats(String timeFilter) throws SQLException {
         Map<String, Integer> stats = new HashMap<>();
         
         String dateCondition;
@@ -116,7 +72,7 @@ public class DashboardServlet extends HttpServlet {
         return stats;
     }
 
-    private Map<String, Integer> getInventoryStats() throws SQLException {
+    public Map<String, Integer> getInventoryStats() throws SQLException {
         Map<String, Integer> stats = new HashMap<>();
         try (Connection conn = new DBContext().getConnection()) {
             String sql = "SELECT " +
@@ -136,7 +92,7 @@ public class DashboardServlet extends HttpServlet {
         return stats;
     }
 
-    private List<Map<String, Object>> getLowStockItemsList() throws SQLException {
+    public List<Map<String, Object>> getLowStockItemsList() throws SQLException {
         List<Map<String, Object>> items = new ArrayList<>();
         try (Connection conn = new DBContext().getConnection()) {
             String sql = "SELECT m.name, i.quantity, 10 as min_stock, " +
@@ -163,15 +119,5 @@ public class DashboardServlet extends HttpServlet {
             }
         }
         return items;
-    }
-
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
-    }
-
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
     }
 } 

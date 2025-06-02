@@ -1,16 +1,17 @@
 package controller;
 
-import dal.DBContext;
+import dao.UserPermissionDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @WebServlet("/savePermissions")
 public class SavePermissionServlet extends HttpServlet {
@@ -25,8 +26,10 @@ public class SavePermissionServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String userIdStr = request.getParameter("userId");
+        String fullName = request.getParameter("fullName");
+        
         if (userIdStr == null || userIdStr.trim().isEmpty()) {
-            request.setAttribute("error", "Invalid user ID.");
+            request.setAttribute("error", "L'ID de l'utilisateur est requis.");
             request.getRequestDispatcher("/user-permission.jsp").forward(request, response);
             return;
         }
@@ -35,59 +38,45 @@ public class SavePermissionServlet extends HttpServlet {
         try {
             userId = Integer.parseInt(userIdStr);
         } catch (NumberFormatException e) {
-            request.setAttribute("error", "Invalid user ID format.");
+            request.setAttribute("error", "Format d'ID utilisateur invalide.");
             request.getRequestDispatcher("/user-permission.jsp").forward(request, response);
             return;
         }
 
-        Connection conn = null;
         try {
-            DBContext db = new DBContext();
-            conn = db.getConnection();
-            conn.setAutoCommit(false); // Start transaction
+            UserPermissionDAO userPermissionDAO = new UserPermissionDAO();
+            
+            // Verify user exists
+            List<Map<String, Object>> users = userPermissionDAO.searchUser(String.valueOf(userId));
+            if (users.isEmpty()) {
+                request.setAttribute("error", "L'utilisateur avec l'ID " + userId + " n'existe pas.");
+                request.getRequestDispatcher("/user-permission.jsp").forward(request, response);
+                return;
+            }
 
-            // Delete existing user permissions
-            PreparedStatement deleteStmt = conn.prepareStatement(
-                "DELETE FROM user_permissions WHERE user_id = ?");
-            deleteStmt.setInt(1, userId);
-            deleteStmt.executeUpdate();
-
-            // Insert new permissions
-            PreparedStatement insertStmt = conn.prepareStatement(
-                "INSERT INTO user_permissions (user_id, permission_id) " +
-                "SELECT ?, permission_id FROM permissions WHERE permission_name = ?");
-            insertStmt.setInt(1, userId);
+            // Collect all checked permissions
+            List<String> selectedPermissions = new ArrayList<>();
             for (String perm : VALID_PERMISSIONS) {
-                if (request.getParameter(perm) != null) { // Checkbox checked
-                    insertStmt.setString(2, perm);
-                    insertStmt.executeUpdate();
+                if (request.getParameter(perm) != null) {
+                    selectedPermissions.add(perm);
                 }
             }
+            
+            // Update permissions
+            userPermissionDAO.updateUserPermissions(userId, selectedPermissions);
+            request.setAttribute("success", "Les permissions ont été mises à jour avec succès.");
 
-            conn.commit(); // Commit transaction
-            request.setAttribute("success", "Permissions updated successfully.");
-
-        } catch (Exception e) {
-            try {
-                if (conn != null) conn.rollback(); // Rollback on error
-            } catch (Exception rollbackEx) {
-                rollbackEx.printStackTrace();
-            }
+            // Redirect back to user-permission with the userId to avoid ambiguity
+            response.sendRedirect("user-permissions?keyword=" + userId);
+            
+        } catch (SQLException e) {
             e.printStackTrace();
-            request.setAttribute("error", "Failed to update permissions: " + e.getMessage());
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+            request.setAttribute("error", "Échec de la mise à jour des permissions : " + e.getMessage());
+            request.getRequestDispatcher("/user-permission.jsp").forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Une erreur inattendue s'est produite : " + e.getMessage());
+            request.getRequestDispatcher("/user-permission.jsp").forward(request, response);
         }
-
-        // Redirect back to user-permission with the same user
-        String fullName = request.getParameter("fullName"); // Pass fullName from form
-        response.sendRedirect("user-permission?keyword=" + java.net.URLEncoder.encode(fullName, "UTF-8"));
     }
 }
