@@ -106,6 +106,7 @@ public class Login extends HttpServlet {
                     } else {
                         String mess = "Account Invalid!";
                         request.setAttribute("mess", mess);
+                        request.getRequestDispatcher("login.jsp").forward(request, response);
                     }
                 }
             }

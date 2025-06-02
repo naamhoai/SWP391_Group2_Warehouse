@@ -6,35 +6,47 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>User Permission Management</title>
-        <!--     Google Fonts 
-            <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-             Font Awesome 
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">-->
-        <!-- Custom CSS -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
         <link rel="stylesheet" href="css/sidebar.css">
         <link rel="stylesheet" href="css/user-permission.css">
         <link rel="stylesheet" href="css/footer.css">
-        
     </head>
+
     <body>
-        <!-- Sidebar -->
         <jsp:include page="side.jsp" />
 
-        <!-- Main Content -->
         <div class="main-content">
             <div class="permission-container">
-                <h2 class="page-title">Manager Assign User Permission</h2>
+                <h2 class="page-title">User Permission Management</h2>
 
                 <div class="search-box">
-                    <input type="text" id="searchUser" placeholder="Enter Username: ">
-                    <button onclick="searchUsers()">
-                        <i class="fas fa-search"></i>
-                        Search
+                    <input type="text" id="searchUser" placeholder="Enter Username or ID" value="${param.keyword}">
+                    <button id="searchBtn">
+                        <i class="fas fa-search"></i> Search
                     </button>
                 </div>
 
-                <div class="user-permissions">
+                <c:if test="${not empty error}">
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> ${error}
+                    </div>
+                </c:if>
+                <c:if test="${not empty success}">
+                    <div class="success-message">
+                        <i class="fas fa-check-circle"></i> ${success}
+                    </div>
+                </c:if>
+
+                <c:if test="${not empty fullName}">
+                    <div class="user-info">
+                        <h3><i class="fas fa-user"></i> User: ${fullName}</h3>
+                        <p><i class="fas fa-shield-alt"></i> Role: ${roleName}</p>
+                    </div>
+
                     <form id="permissionForm" action="savePermissions" method="POST">
+                        <input type="hidden" name="userId" value="${userId}">
+                        <input type="hidden" name="fullName" value="${fullName}">
                         <table class="permission-table">
                             <thead>
                                 <tr>
@@ -46,54 +58,37 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Manager Category</td>
-                                    <td class="checkbox-wrapper"><input type="checkbox" name="category_view"></td>
-                                    <td class="checkbox-wrapper"><input type="checkbox" name="category_add"></td>
-                                    <td class="checkbox-wrapper"><input type="checkbox" name="category_edit"></td>
-                                    <td class="checkbox-wrapper"><input type="checkbox" name="category_delete"></td>
-                                </tr>
-                                <tr>
-                                    <td>Manager Warehouse</td>
-                                    <td class="checkbox-wrapper"><input type="checkbox" name="inventory_view"></td>
-                                    <td class="checkbox-wrapper"><input type="checkbox" name="inventory_add"></td>
-                                    <td class="checkbox-wrapper"><input type="checkbox" name="inventory_edit"></td>
-                                    <td class="checkbox-wrapper"><input type="checkbox" name="inventory_delete"></td>
-                                </tr>
-                                <tr>
-                                    <td>Manager Order</td>
-                                    <td class="checkbox-wrapper"><input type="checkbox" name="order_view"></td>
-                                    <td class="checkbox-wrapper"><input type="checkbox" name="order_add"></td>
-                                    <td class="checkbox-wrapper"><input type="checkbox" name="order_edit"></td>
-                                    <td class="checkbox-wrapper"><input type="checkbox" name="order_delete"></td>
-                                </tr>
-                                <tr>
-                                    <td>Manager Delivery</td>
-                                    <td class="checkbox-wrapper"><input type="checkbox" name="delivery_view"></td>
-                                    <td class="checkbox-wrapper"><input type="checkbox" name="delivery_add"></td>
-                                    <td class="checkbox-wrapper"><input type="checkbox" name="delivery_edit"></td>
-                                    <td class="checkbox-wrapper"><input type="checkbox" name="delivery_delete"></td>
-                                </tr>
-                                <tr>
-                                    <td>Manager Users</td>
-                                    <td class="checkbox-wrapper"><input type="checkbox" name="user_view"></td>
-                                    <td class="checkbox-wrapper"><input type="checkbox" name="user_add"></td>
-                                    <td class="checkbox-wrapper"><input type="checkbox" name="user_edit"></td>
-                                    <td class="checkbox-wrapper"><input type="checkbox" name="user_delete"></td>
-                                </tr>
+                                <c:forEach items="${['category','inventory','order','delivery','user']}" var="module">
+                                    <tr>
+                                        <td>Manage ${module == 'category' ? 'Categories' : module == 'inventory' ? 'Inventory' : module == 'order' ? 'Orders' : module == 'delivery' ? 'Deliveries' : 'Users'}</td>
+                                        <c:forEach items="${['view','add','edit','delete']}" var="action">
+                                            <c:set var="permissionKey" value="${module}_${action}" />
+                                            <td>
+                                                <input type="checkbox" name="${permissionKey}"
+                                                       ${empty rolePermissions || empty rolePermissions[permissionKey] ? 'disabled' : ''}
+                                                       ${not empty userPermissions && userPermissions.contains(permissionKey) ? 'checked' : ''}>
+                                            </td>
+                                        </c:forEach>
+                                    </tr>
+                                </c:forEach>
                             </tbody>
                         </table>
-                        <button type="submit" class="save-btn">
-                            <i class="fas fa-save"></i>
-                            Save Permission.
+                        <button type="submit" class="save-btn" id="saveBtn">
+                            <i class="fas fa-save"></i> Save Permissions
                         </button>
                     </form>
-                </div>
+                </c:if>
             </div>
         </div>
 
-        <!-- Footer -->
-        <jsp:include page="footer.jsp" />
+        <div class="loading" id="loadingOverlay">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i> Processing...
+            </div>
+        </div>
 
+        <script src="js/user-permission.js"></script>
+
+        <jsp:include page="footer.jsp" />
     </body>
-</html> 
+</html>

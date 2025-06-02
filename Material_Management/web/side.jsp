@@ -30,7 +30,7 @@
             </a>
         </li>
         <li class="menu-item">
-            <a href="materiallist.jsp" class="menu-link">
+            <a href="${pageContext.request.contextPath}/materiallist.jsp" class="menu-link">
                 <i class="fas fa-list menu-icon"></i>
                 <span class="menu-text">Product List</span>
             </a>
@@ -76,13 +76,13 @@
         </li>
 
         <li class="menu-item">
-            <a href="settinglist" class="menu-link">
+            <a href="#" class="menu-link">
                 <i class="fas fa-cog menu-icon"></i>
                 <span class="menu-text">Settings</span>
             </a>
         </li>
         <li class="menu-item">
-            <a href="logout" class="menu-link">
+            <a href="homepage.jsp" class="menu-link">
                 <i class="fas fa-sign-out-alt menu-icon"></i>
                 <span class="menu-text">Logout</span>
             </a>

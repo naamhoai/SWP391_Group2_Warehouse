@@ -1,189 +1,103 @@
 package controller;
 
-
 import dal.DBContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-
-@WebServlet(name = "UserPermissionServlet", urlPatterns = {"/searchUsers", "/savePermissions"})
+@WebServlet("/user-permission")
 public class UserPermissionServlet extends HttpServlet {
-
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        String pathInfo = request.getServletPath();
-        
-        if ("/searchUsers".equals(pathInfo)) {
-            searchUsers(request, response);
-        }
-    }
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String keyword = request.getParameter("keyword");
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        String pathInfo = request.getServletPath();
-        
-        if ("/savePermissions".equals(pathInfo)) {
-            savePermissions(request, response);
+        // Validate input
+        if (keyword == null || keyword.trim().isEmpty()) {
+            request.setAttribute("error", "Please enter a username or ID to search.");
+            request.getRequestDispatcher("/user-permission.jsp").forward(request, response);
+            return;
         }
-    }
 
-    private void searchUsers(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("application");
-        response.setCharacterEncoding("UTF-8");
-        
-        String searchTerm = request.getParameter("term");
-        StringBuilder jsonResponse = new StringBuilder();
-        
-        try (Connection conn = new DBContext().getConnection()) {
-            String sql = "SELECT u.*, p.* FROM Users u " +
-                        "LEFT JOIN Permissions p ON u.user_id = p.user_id " +
-                        "WHERE u.username LIKE ? OR u.full_name LIKE ?";
-            
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, "%" + searchTerm + "%");
-                stmt.setString(2, "%" + searchTerm + "%");
-                
-                try (ResultSet rs = stmt.executeQuery()) {
-                    if (rs.next()) {
-                        jsonResponse.append("{");
-                        jsonResponse.append("\"userId\":").append(rs.getInt("user_id")).append(",");
-                        jsonResponse.append("\"username\":\"").append(rs.getString("username")).append("\",");
-                        jsonResponse.append("\"fullName\":\"").append(rs.getString("full_name")).append("\",");
-                        
-                        // Add permissions object
-                        jsonResponse.append("\"permissions\":{");
-                        
-                        // Category permissions
-                        jsonResponse.append("\"category_view\":").append(rs.getBoolean("category_view")).append(",");
-                        jsonResponse.append("\"category_add\":").append(rs.getBoolean("category_add")).append(",");
-                        jsonResponse.append("\"category_edit\":").append(rs.getBoolean("category_edit")).append(",");
-                        jsonResponse.append("\"category_delete\":").append(rs.getBoolean("category_delete")).append(",");
-                        
-                        // Inventory permissions
-                        jsonResponse.append("\"inventory_view\":").append(rs.getBoolean("inventory_view")).append(",");
-                        jsonResponse.append("\"inventory_add\":").append(rs.getBoolean("inventory_add")).append(",");
-                        jsonResponse.append("\"inventory_edit\":").append(rs.getBoolean("inventory_edit")).append(",");
-                        jsonResponse.append("\"inventory_delete\":").append(rs.getBoolean("inventory_delete")).append(",");
-                        
-                        // Order permissions
-                        jsonResponse.append("\"order_view\":").append(rs.getBoolean("order_view")).append(",");
-                        jsonResponse.append("\"order_add\":").append(rs.getBoolean("order_add")).append(",");
-                        jsonResponse.append("\"order_edit\":").append(rs.getBoolean("order_edit")).append(",");
-                        jsonResponse.append("\"order_delete\":").append(rs.getBoolean("order_delete")).append(",");
-                        
-                        // Delivery permissions
-                        jsonResponse.append("\"delivery_view\":").append(rs.getBoolean("delivery_view")).append(",");
-                        jsonResponse.append("\"delivery_add\":").append(rs.getBoolean("delivery_add")).append(",");
-                        jsonResponse.append("\"delivery_edit\":").append(rs.getBoolean("delivery_edit")).append(",");
-                        jsonResponse.append("\"delivery_delete\":").append(rs.getBoolean("delivery_delete")).append(",");
-                        
-                        // User permissions
-                        jsonResponse.append("\"user_view\":").append(rs.getBoolean("user_view")).append(",");
-                        jsonResponse.append("\"user_add\":").append(rs.getBoolean("user_add")).append(",");
-                        jsonResponse.append("\"user_edit\":").append(rs.getBoolean("user_edit")).append(",");
-                        jsonResponse.append("\"user_delete\":").append(rs.getBoolean("user_delete"));
-                        
-                        jsonResponse.append("}}");
-                    } else {
-                        jsonResponse.append("{}");
-                    }
+        Connection conn = null;
+        try {
+            DBContext db = new DBContext();
+            conn = db.getConnection();
+
+            // Search user by full_name or user_id
+            PreparedStatement userStmt = conn.prepareStatement(
+                "SELECT u.user_id, u.full_name, u.role_id, r.role_name " +
+                "FROM users u JOIN roles r ON u.role_id = r.role_id " +
+                "WHERE u.full_name LIKE ? OR u.user_id = ?");
+            userStmt.setString(1, "%" + keyword + "%");
+            try {
+                userStmt.setInt(2, Integer.parseInt(keyword));
+            } catch (NumberFormatException e) {
+                userStmt.setInt(2, -1); // Invalid ID, won't match any user_id
+            }
+            ResultSet userRs = userStmt.executeQuery();
+
+            if (userRs.next()) {
+                // User found, set attributes
+                request.setAttribute("userId", userRs.getInt("user_id"));
+                request.setAttribute("fullName", userRs.getString("full_name"));
+                request.setAttribute("roleId", userRs.getInt("role_id"));
+                request.setAttribute("roleName", userRs.getString("role_name"));
+
+                // Get role permissions
+                PreparedStatement rolePermStmt = conn.prepareStatement(
+                    "SELECT p.permission_name FROM role_permissions rp " +
+                    "JOIN permissions p ON rp.permission_id = p.permission_id " +
+                    "WHERE rp.role_id = ?");
+                rolePermStmt.setInt(1, userRs.getInt("role_id"));
+                ResultSet rolePermRs = rolePermStmt.executeQuery();
+                Map<String, Boolean> rolePermissions = new HashMap<>();
+                while (rolePermRs.next()) {
+                    rolePermissions.put(rolePermRs.getString("permission_name"), true);
+                }
+                request.setAttribute("rolePermissions", rolePermissions);
+
+                // Get user permissions
+                PreparedStatement userPermStmt = conn.prepareStatement(
+                    "SELECT p.permission_name FROM user_permissions up " +
+                    "JOIN permissions p ON up.permission_id = p.permission_id " +
+                    "WHERE up.user_id = ?");
+                userPermStmt.setInt(1, userRs.getInt("user_id"));
+                ResultSet userPermRs = userPermStmt.executeQuery();
+                List<String> userPermissions = new ArrayList<>();
+                while (userPermRs.next()) {
+                    userPermissions.add(userPermRs.getString("permission_name"));
+                }
+                request.setAttribute("userPermissions", userPermissions);
+            } else {
+                request.setAttribute("error", "No user found with name or ID: " + keyword);
+            }
+
+            request.getRequestDispatcher("/user-permission.jsp").forward(request, response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "System error: " + e.getMessage());
+            request.getRequestDispatcher("/user-permission.jsp").forward(request, response);
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
-            
-            try (PrintWriter out = response.getWriter()) {
-                out.print(jsonResponse.toString());
-            }
-            
-        } catch (SQLException e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            try (PrintWriter out = response.getWriter()) {
-                out.print("{\"error\":\"Database error: " + escapeJsonString(e.getMessage()) + "\"}");
-            }
         }
     }
-
-    private String escapeJsonString(String input) {
-        if (input == null) {
-            return "";
-        }
-        StringBuilder escaped = new StringBuilder();
-        for (char c : input.toCharArray()) {
-            switch (c) {
-                case '"':
-                    escaped.append("\\\"");
-                    break;
-                case '\\':
-                    escaped.append("\\\\");
-                    break;
-                case '\b':
-                    escaped.append("\\b");
-                    break;
-                case '\f':
-                    escaped.append("\\f");
-                    break;
-                case '\n':
-                    escaped.append("\\n");
-                    break;
-                case '\r':
-                    escaped.append("\\r");
-                    break;
-                case '\t':
-                    escaped.append("\\t");
-                    break;
-                default:
-                    escaped.append(c);
-            }
-        }
-        return escaped.toString();
-    }
-
-    private void savePermissions(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        int userId = Integer.parseInt(request.getParameter("userId"));
-        
-        try (Connection conn = new DBContext().getConnection()) {
-            String sql = "UPDATE Permissions SET " +
-                        "category_view=?, category_add=?, category_edit=?, category_delete=?, " +
-                        "inventory_view=?, inventory_add=?, inventory_edit=?, inventory_delete=?, " +
-                        "order_view=?, order_add=?, order_edit=?, order_delete=?, " +
-                        "delivery_view=?, delivery_add=?, delivery_edit=?, delivery_delete=?, " +
-                        "user_view=?, user_add=?, user_edit=?, user_delete=? " +
-                        "WHERE user_id=?";
-            
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                int paramIndex = 1;
-                String[] permissions = {
-                    "category_view", "category_add", "category_edit", "category_delete",
-                    "inventory_view", "inventory_add", "inventory_edit", "inventory_delete",
-                    "order_view", "order_add", "order_edit", "order_delete",
-                    "delivery_view", "delivery_add", "delivery_edit", "delivery_delete",
-                    "user_view", "user_add", "user_edit", "user_delete"
-                };
-                
-                for (String permission : permissions) {
-                    stmt.setBoolean(paramIndex++, request.getParameter(permission) != null);
-                }
-                stmt.setInt(paramIndex, userId);
-                
-                stmt.executeUpdate();
-                
-                response.sendRedirect("user-permission.jsp?success=true");
-            }
-            
-        } catch (SQLException e) {
-            response.sendRedirect("user-permission.jsp?error=" + e.getMessage());
-        }
-    }
-} 
+}
