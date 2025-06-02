@@ -12,7 +12,7 @@
             <form action="requestPassword" method="POST">
                 <div class="form-group">
                     <label for="email">Email Address</label>
-                    <input type="email" name="email" id="email" required placeholder="Enter your email">
+                    <input type="email" name="email" id="email" class="form-control" required placeholder="Enter your email">
                 </div>
                 <button type="submit" class="btn-submit">Reset Password</button>
             </form>

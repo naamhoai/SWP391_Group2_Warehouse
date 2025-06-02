@@ -24,11 +24,19 @@ public class RequestPassword extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String email = request.getParameter("email");
+        String username = request.getParameter("username");
         ResetPasswordDAO daoUser = new ResetPasswordDAO();
         User user = daoUser.getUserByEmail(email);
 
         if (user == null) {
             request.setAttribute("mess", "Email không tồn tại.");
+            request.getRequestDispatcher("requestpassword.jsp").forward(request, response);
+            return;
+        }
+
+        // Check if username matches
+        if (!user.getUsername().equals(username)) {
+            request.setAttribute("mess", "Username không khớp.");
             request.getRequestDispatcher("requestpassword.jsp").forward(request, response);
             return;
         }

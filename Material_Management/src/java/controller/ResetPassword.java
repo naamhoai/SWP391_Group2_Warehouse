@@ -33,7 +33,7 @@ public class ResetPassword extends HttpServlet {
                 return;
             }
 
-            User user = daoUser.getUserById(tokenObj.getUser_id());  // sửa
+            User user = daoUser.getUserById(tokenObj.getUser_id());
             request.setAttribute("email", user.getEmail());
             request.setAttribute("username", user.getUsername());
             session.setAttribute("token", token);
@@ -47,12 +47,14 @@ public class ResetPassword extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String email = request.getParameter("email");
+        String username = request.getParameter("username");
         String password = request.getParameter("password");
         String confirmPassword = request.getParameter("confirm_password");
 
         if (!password.equals(confirmPassword)) {
             request.setAttribute("mess", "Mật khẩu xác nhận không khớp.");
             request.setAttribute("email", email);
+            request.setAttribute("username", username);
             request.getRequestDispatcher("resetpassword.jsp").forward(request, response);
             return;
         }
@@ -68,8 +70,16 @@ public class ResetPassword extends HttpServlet {
             return;
         }
 
-        daoUser.updatePassword(email, password);
-        tokenObj.setUsed(true); // sửa tên hàm setter
+        // Update both username and password
+        if (!daoUser.updateUsernameAndPassword(email, username, password)) {
+            request.setAttribute("mess", "Không thể cập nhật thông tin. Username có thể đã tồn tại.");
+            request.setAttribute("email", email);
+            request.setAttribute("username", username);
+            request.getRequestDispatcher("resetpassword.jsp").forward(request, response);
+            return;
+        }
+
+        tokenObj.setUsed(true);
         daoToken.updateStatus(tokenObj);
 
         request.getRequestDispatcher("dashboard.jsp").forward(request, response);
