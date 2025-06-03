@@ -100,7 +100,7 @@ public class Login extends HttpServlet {
                             out.print("day la so 3");
                         } else if (user2.getRole().getRoleid() == 4) {
                             PrintWriter out = response.getWriter();
-                            out.print("4");
+                            out.print("day la so 4");
                         }
 
                     } else {

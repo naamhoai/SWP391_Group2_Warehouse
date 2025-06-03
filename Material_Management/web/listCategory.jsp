@@ -18,10 +18,8 @@
     <title>Category List</title>
     <link rel="stylesheet" href="css/footer.css">
     <link rel="stylesheet" href="css/category.css">
-    <link rel="stylesheet" href="css/sidebar.css">
 </head>
 <body>
-     <jsp:include page="side.jsp" />
     <div class="main-content">
         <div class="page-content">
             <div class="content-header">

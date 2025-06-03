@@ -29,7 +29,7 @@ public class SavePermissionServlet extends HttpServlet {
         String fullName = request.getParameter("fullName");
         
         if (userIdStr == null || userIdStr.trim().isEmpty()) {
-            request.setAttribute("error", "L'ID de l'utilisateur est requis.");
+            request.setAttribute("error", "User ID is required: ");
             request.getRequestDispatcher("/user-permission.jsp").forward(request, response);
             return;
         }
@@ -38,7 +38,7 @@ public class SavePermissionServlet extends HttpServlet {
         try {
             userId = Integer.parseInt(userIdStr);
         } catch (NumberFormatException e) {
-            request.setAttribute("error", "Format d'ID utilisateur invalide.");
+            request.setAttribute("error", "Invalid user ID format: ");
             request.getRequestDispatcher("/user-permission.jsp").forward(request, response);
             return;
         }
@@ -49,7 +49,7 @@ public class SavePermissionServlet extends HttpServlet {
             // Verify user exists
             List<Map<String, Object>> users = userPermissionDAO.searchUser(String.valueOf(userId));
             if (users.isEmpty()) {
-                request.setAttribute("error", "L'utilisateur avec l'ID " + userId + " n'existe pas.");
+                request.setAttribute("error", "The user with ID " + userId + " does not exist.");
                 request.getRequestDispatcher("/user-permission.jsp").forward(request, response);
                 return;
             }
@@ -64,18 +64,18 @@ public class SavePermissionServlet extends HttpServlet {
             
             // Update permissions
             userPermissionDAO.updateUserPermissions(userId, selectedPermissions);
-            request.setAttribute("success", "Les permissions ont été mises à jour avec succès.");
+            request.setAttribute("success", "The permissions were updated successfully.");
 
             // Redirect back to user-permission with the userId to avoid ambiguity
             response.sendRedirect("user-permissions?keyword=" + userId);
             
         } catch (SQLException e) {
             e.printStackTrace();
-            request.setAttribute("error", "Échec de la mise à jour des permissions : " + e.getMessage());
+            request.setAttribute("error", "Failed to update permissions: " + e.getMessage());
             request.getRequestDispatcher("/user-permission.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("error", "Une erreur inattendue s'est produite : " + e.getMessage());
+            request.setAttribute("error", "An unexpected error has occurred: " + e.getMessage());
             request.getRequestDispatcher("/user-permission.jsp").forward(request, response);
         }
     }

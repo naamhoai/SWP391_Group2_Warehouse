@@ -69,7 +69,7 @@
                 <li class="menu-item">
                     <a href="settinglist" class="submenu-link">
                         <i class="fas fa-user-lock menu-icon"></i>
-                        <span class="menu-text">User List</span>
+                        <span class="menu-text">Manager User</span>
                     </a>
                 </li>
             </ul>

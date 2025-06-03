@@ -30,11 +30,11 @@ public class UserPermissionServlet extends HttpServlet {
                 // Search users by keyword
                 users = userPermissionDAO.searchUser(keyword);
                 if (users.isEmpty()) {
-                    request.setAttribute("error", "Aucun utilisateur trouvé pour le mot-clé : " + keyword);
+                    request.setAttribute("error", "No user found for the keyword. : " + keyword);
                 } else if (users.size() > 1) {
                     // Multiple users found, let user choose by userId
                     request.setAttribute("multipleUsers", users);
-                    request.setAttribute("message", "Plusieurs utilisateurs trouvés avec le nom '" + keyword + "'. Veuillez sélectionner un utilisateur par ID.");
+                    request.setAttribute("message",  "Multiple users found with the name '" + keyword + "'. Please select a user by ID.");
                 } else {
                     // Single user found
                     request.setAttribute("users", users);
@@ -58,11 +58,11 @@ public class UserPermissionServlet extends HttpServlet {
             
         } catch (SQLException e) {
             e.printStackTrace();
-            request.setAttribute("error", "Erreur de base de données : " + e.getMessage());
+            request.setAttribute("error", "Database error: " + e.getMessage());
             request.getRequestDispatcher("user-permission.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("error", "Une erreur inattendue s'est produite : " + e.getMessage());
+            request.setAttribute("error", "An unexpected error has occurred: " + e.getMessage());
             request.getRequestDispatcher("user-permission.jsp").forward(request, response);
         }
     }

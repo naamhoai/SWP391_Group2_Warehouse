@@ -18,7 +18,7 @@
 
         <div id="main-content">
             <div class="page-header">
-                <h2>List User</h2>
+                <h2>Manager User</h2>
                 <c:if test="${not empty messUpdate}">
                     <div class="success-message">${messUpdate}</div>
                 </c:if>
@@ -83,7 +83,7 @@
                                 </td>
                                 <td>${u.user_id}</td>
                                 <td>${u.fullname}</td>
-                                <td>${u.role.roleid}</td>
+                                <td>${u.role.rolename}</td>
                                 <td>${u.description}</td>
                                 <td>${u.priority}</td>
                                 <td>${u.status}</td>
