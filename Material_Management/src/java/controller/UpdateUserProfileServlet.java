@@ -66,37 +66,23 @@ public class UpdateUserProfileServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("userId") == null || session.getAttribute("roleId") == null) {
-            response.sendRedirect("login.jsp");
+
+        // Kiểm tra xem session có tồn tại và người dùng đã đăng nhập chưa
+        if (session == null || session.getAttribute("userId") == null) {
+            response.sendRedirect("login.jsp");  // Nếu chưa đăng nhập thì chuyển hướng tới trang đăng nhập
             return;
         }
 
-        // Lấy tham số user_id từ URL
-        String userIdStr = request.getParameter("user_id");
-        if (userIdStr == null || userIdStr.isEmpty()) {
-            request.setAttribute("error", "User ID not provided.");
-            request.getRequestDispatcher("userdetail.jsp").forward(request, response);
-            return;
-        }
-
-        int userId;
-        try {
-            userId = Integer.parseInt(userIdStr);
-        } catch (NumberFormatException e) {
-            request.setAttribute("error", "Invalid User ID format.");
-            request.getRequestDispatcher("userdetail.jsp").forward(request, response);
-            return;
-        }
+        // Lấy userId từ session
+        int userId = (int) session.getAttribute("userId");
 
         // Lấy thông tin người dùng từ cơ sở dữ liệu
         User user = userDAO.getUserById(userId);
 
         if (user != null) {
             // Truyền thông tin người dùng vào request
-            String formattedDOB = user.getDayofbirth() != null ? user.getDayofbirth() : "";
-            request.setAttribute("dob", formattedDOB);
             request.setAttribute("user", user);
-            request.getRequestDispatcher("updateuserprofile.jsp").forward(request, response);
+            request.getRequestDispatcher("updateuserprofile.jsp").forward(request, response);  // Chuyển hướng tới trang chỉnh sửa
         } else {
             request.setAttribute("error", "User not found.");
             request.getRequestDispatcher("userdetail.jsp").forward(request, response);
@@ -132,56 +118,36 @@ public class UpdateUserProfileServlet extends HttpServlet {
         // Lấy thông tin từ form
         String username = request.getParameter("username");
         String fullname = request.getParameter("fullname");
-        String email = request.getParameter("email");
-        String password = request.getParameter("password");
         String phone = request.getParameter("phone");
         String gender = request.getParameter("gender");
         String dobInput = request.getParameter("dayofbirth");
-        String description = request.getParameter("description");
-
-        // Lấy ảnh đại diện (nếu có)
-        Part imagePart = request.getPart("imageFile");
-        String imagePath = null;
-        if (imagePart != null && imagePart.getSize() > 0) {
-            // Lưu ảnh vào thư mục server (cập nhật đường dẫn ảnh vào cơ sở dữ liệu)
-            String fileName = Path.of(imagePart.getSubmittedFileName()).getFileName().toString();
-            String uploadDir = getServletContext().getRealPath("/uploads"); // Thư mục lưu ảnh
-            File uploadDirFile = new File(uploadDir);
-            if (!uploadDirFile.exists()) {
-                uploadDirFile.mkdirs();
-            }
-
-            // Lưu ảnh vào thư mục
-            imagePath = "/uploads/" + fileName;
-            imagePart.write(uploadDir + File.separator + fileName);
-        }
+        String password = request.getParameter("password");
 
         // Cập nhật thông tin cho đối tượng user
         user.setUsername(username);
         user.setFullname(fullname);
-        user.setEmail(email);
         user.setPhone(phone);
         user.setGender(gender);
-        user.setDescription(description);
+        user.setDayofbirth(dobInput);
 
         if (password != null && !password.trim().isEmpty()) {
-            user.setPassword(password);
-        }
-        if (dobInput != null && !dobInput.trim().isEmpty()) {
-            // Validate hoặc chuyển đổi định dạng nếu cần
-            user.setDayofbirth(dobInput); // vì dayofbirth là String
+            user.setPassword(password); // Cập nhật mật khẩu nếu có
         }
 
-        if (imagePath != null) {
-            user.setImage(imagePath); // Cập nhật ảnh đại diện nếu có
+        // Cập nhật ảnh đại diện nếu có
+        Part imagePart = request.getPart("imageFile");
+        if (imagePart != null && imagePart.getSize() > 0) {
+            String imagePath = "/uploads/" + Path.of(imagePart.getSubmittedFileName()).getFileName().toString();
+            imagePart.write(getServletContext().getRealPath(imagePath));
+            user.setImage(imagePath);
         }
 
-        // Cập nhật thông tin người dùng vào cơ sở dữ liệu
+        // Cập nhật vào cơ sở dữ liệu
         boolean updated = userDAO.updateUser(user);
         if (updated) {
             response.sendRedirect("UserDetailServlet?user_id=" + user.getUser_id());
         } else {
-            request.setAttribute("error", "Cập nhật thất bại.");
+            request.setAttribute("error", "Update failed.");
             request.setAttribute("user", user);
             request.getRequestDispatcher("updateuserprofile.jsp").forward(request, response);
         }

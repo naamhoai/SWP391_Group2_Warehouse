@@ -5,122 +5,102 @@
 <html lang="vi">
     <head>
         <meta charset="UTF-8" />
-        <title>User Information</title>
-
-        <!-- Stylesheets -->
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/userdetail.css" />
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/footer.css" />
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/dashboard.css" />
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css" />
-
+        <title>View User Information</title>
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/updateuserprofile.css" />
+        <link rel="stylesheet" href="css/footer.css">
+        <link rel="stylesheet" href="css/dashboard.css">
+        <link rel="stylesheet" href="css/sidebar.css">
         <!-- Font Awesome -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     </head>
     <body>
-
         <div class="layout">
             <!-- Include Sidebar -->
             <jsp:include page="side.jsp" />
-
             <div class="main-content">
-                <div class="page-header">
-                    <h2>User Information</h2>
+                <div class="form-wrapper">
+                    <div class="page-header">
+                        <h2 class="form-title">User Information</h2>
 
-                    <!-- Search form -->
-                    <form method="get" action="UserDetailServlet">
-                        <div class="filter-section">
-                            <input 
-                                type="text" 
-                                name="search" 
-                                placeholder="search by username or fullname" 
-                                value="${param.search != null ? param.search : ''}" 
-                                />
-                            <button type="submit">Search</button>
-                        </div>
-                    </form>
+                        <c:if test="${not empty error}">
+                            <div class="alert error">${error}</div>
+                        </c:if>
+                        <c:if test="${not empty success}">
+                            <div class="alert success">${success}</div>
+                        </c:if>
 
-                    <!-- Create new user link -->
-                    <div class="top-right">
-                        <a href="${pageContext.request.contextPath}/CreateUserServlet">Create User</a>
+                        <form action="${pageContext.request.contextPath}/UpdateUserProfileServlet" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="user_id" value="${user.user_id}" />
+
+                            <div class="avatar-container">
+                                <c:choose>
+                                    <c:when test="${not empty user.image}">
+                                        <img src="${pageContext.request.contextPath}${user.image}" alt="Avatar" />
+                                        <input type="hidden" name="existingImage" value="${user.image}" />
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span>No avatar yet</span>
+                                    </c:otherwise>
+                                </c:choose>
+                                <!-- Disabled file input as it shouldn't be editable -->
+                                <input type="file" id="imageFile" name="imageFile" accept="image/*" disabled />
+                            </div>
+
+                            <!-- Full Name -->
+                            <div class="row full-width">
+                                <label for="fullname">Full Name:</label>
+                                <input type="text" id="fullname" name="fullname" value="${user.fullname}" readonly />
+                            </div>
+
+                            <div class="row">
+                                <div class="column">
+                                    <label for="username">User Name:</label>
+                                    <input type="text" id="username" name="username" value="${user.username}" readonly />
+                                </div>
+                                <div class="column">
+                                    <label for="password">Password:</label>
+                                    <input type="password" id="password" name="password" value="${user.password}" readonly />
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="column">
+                                    <label for="email">Email:</label>
+                                    <input type="text" id="email" name="email" value="${user.email}" readonly />
+                                </div>
+                                <div class="column">
+                                    <label for="phone">Phone Number:</label>
+                                    <input type="tel" id="phone" name="phone" value="${user.phone}" readonly />
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="column">
+                                    <label for="gender">Gender:</label>
+                                    <input type="text" id="gender" name="gender" value="${user.gender}" readonly />
+                                </div>
+                                <div class="column">
+                                    <label for="dayofbirth">Day Of Birth:</label>
+                                    <input type="date" id="dayofbirth" name="dayofbirth" value="${user.dayofbirth}" readonly />
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="column">
+                                    <label for="role_name">Role:</label>
+                                    <input type="text" id="role_name" name="role_name" value="${user.role.rolename}" readonly />
+                                </div>
+                                <div class="column">
+                                    <label for="status">Status:</label>
+                                    <input type="text" id="status" name="status" value="${user.status}" readonly />
+                                </div>
+                            </div>
+
+                            <a href="${pageContext.request.contextPath}/UpdateUserProfileServlet">Edit</a>
+                        </form>
                     </div>
-
-                    <!-- User list table -->
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>User ID</th>
-                                    <th>Full Name</th>
-                                    <th>Email</th>
-                                    <th>Role</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach var="user" items="${userList}">
-                                    <tr>
-                                        <td><c:out value="${user.user_id}" /></td>
-                                        <td><c:out value="${user.fullname}" /></td>
-                                        <td><c:out value="${user.email}" /></td>
-                                        <td><c:out value="${user.role.rolename}" /></td>
-                                        <td><c:out value="${user.status}" /></td>
-                                        <td class="action">
-                                            <a href="${pageContext.request.contextPath}/UpdateUserProfileServlet?user_id=${user.user_id}">[See details]</a>
-                                        </td>
-                                    </tr>
-                                </c:forEach>
-
-                                <c:if test="${empty userList}">
-                                    <tr>
-                                        <td colspan="6" style="text-align:center;">No user data</td>
-                                    </tr>
-                                </c:if>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="pagination">
-                        <!-- Nút trang trước -->
-                        <c:if test="${currentPage > 1}">
-                            <a href="UserDetailServlet?page=${currentPage - 1}&search=${param.search != null ? param.search : ''}">&lt;</a>
-                        </c:if>
-
-                        <!-- Luôn hiện trang 1 -->
-                        <a href="UserDetailServlet?page=1&search=${param.search != null ? param.search : ''}" class="${currentPage == 1 ? 'active' : ''}">1</a>
-
-                        <!-- Hiện dấu ... nếu trang hiện tại cách trang 1 hơn 2 -->
-                        <c:if test="${currentPage > 3}">
-                            <span>...</span>
-                        </c:if>
-
-                        <!-- Hiển thị trang xung quanh currentPage (trang trước và sau) -->
-                        <c:forEach begin="${currentPage - 1 < 2 ? 2 : currentPage - 1}" end="${currentPage + 1 > pages - 1 ? pages - 1 : currentPage + 1}" var="p">
-                            <a href="UserDetailServlet?page=${p}&search=${param.search != null ? param.search : ''}" class="${p == currentPage ? 'active' : ''}">${p}</a>
-                        </c:forEach>
-
-                        <!-- Hiện dấu ... nếu trang hiện tại cách trang cuối hơn 2 -->
-                        <c:if test="${currentPage < pages - 2}">
-                            <span>...</span>
-                        </c:if>
-
-                        <!-- Luôn hiện trang cuối nếu pages > 1 -->
-                        <c:if test="${pages > 1}">
-                            <a href="UserDetailServlet?page=${pages}&search=${param.search != null ? param.search : ''}" class="${currentPage == pages ? 'active' : ''}">${pages}</a>
-                        </c:if>
-
-                        <!-- Nút trang sau -->
-                        <c:if test="${currentPage < pages}">
-                            <a href="UserDetailServlet?page=${currentPage + 1}&search=${param.search != null ? param.search : ''}">&gt;</a>
-                        </c:if>
-                    </div>
-
-
-
-
-
                 </div>
-            </div> <!-- END main-content -->
+            </div>
         </div>
     </body>
 </html>

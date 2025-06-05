@@ -22,7 +22,6 @@
                     <div class="page-header">
                         <h2 class="form-title">Update User Information</h2>
 
-                        
                         <c:if test="${not empty error}">
                             <div class="alert error">${error}</div>
                         </c:if>
@@ -30,11 +29,9 @@
                             <div class="alert success">${success}</div>
                         </c:if>
 
-                        
                         <form action="${pageContext.request.contextPath}/UpdateUserProfileServlet" method="post" enctype="multipart/form-data">
                             <input type="hidden" name="user_id" value="${user.user_id}" />
 
-                            
                             <div class="avatar-container">
                                 <c:choose>
                                     <c:when test="${not empty user.image}">
@@ -42,15 +39,11 @@
                                         <input type="hidden" name="existingImage" value="${user.image}" />
                                     </c:when>
                                     <c:otherwise>
-                                        <span>No avatar yet
-
-</span>
+                                        <span>No avatar yet</span>
                                     </c:otherwise>
                                 </c:choose>
-
                                 <input type="file" id="imageFile" name="imageFile" accept="image/*" />
                             </div>
-
 
                             <!-- Họ và tên -->
                             <div class="row full-width">
@@ -70,7 +63,6 @@
                             </div>
 
                             <div class="row">
-
                                 <div class="column">
                                     <label for="email">Email:</label>
                                     <input type="text" id="email" name="email" value="${user.email}" readonly />
@@ -86,20 +78,16 @@
                                 <div class="column">
                                     <label for="gender">Gender:</label>
                                     <select id="gender" name="gender" required>
-                                        <option value="Nam" ${user.gender == 'Men' ? 'selected' : ''}>Men</option>
-                                        <option value="Nữ" ${user.gender == 'Women' ? 'selected' : ''}>Women</option>
-                                        <option value="Khác" ${user.gender == 'Other' ? 'selected' : ''}>Other</option>
+                                        <option value="Men" ${user.gender == 'Men' ? 'selected' : ''}>Men</option>
+                                        <option value="Women" ${user.gender == 'Women' ? 'selected' : ''}>Women</option>
+                                        <option value="Other" ${user.gender == 'Other' ? 'selected' : ''}>Other</option>
                                     </select>
                                 </div>
                                 <div class="column">
                                     <label for="dayofbirth">Day Of Birth:</label>
-                                    <input type="date" id="dayofbirth" name="dayofbirth" value="${dob}" />
+                                    <input type="date" id="dayofbirth" name="dayofbirth" value="${user.dayofbirth}" />
                                 </div>
-
                             </div>
-
-
-
 
                             <div class="row">
                                 <div class="column">
@@ -111,7 +99,6 @@
                                     <input type="text" id="status" name="status" value="${user.status}" readonly />
                                 </div>
                             </div>
-
 
                             <div class="center-button">
                                 <button type="submit">Update</button>

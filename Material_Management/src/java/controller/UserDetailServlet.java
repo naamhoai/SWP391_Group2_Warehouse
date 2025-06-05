@@ -14,6 +14,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -64,56 +65,32 @@ public class UserDetailServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String keyword = request.getParameter("search");
-        String pageParam = request.getParameter("page");
-        int page = 1; // trang hiện tại mặc định
-        int pageSize = 5; // số bản ghi trên mỗi trang
-
-        try {
-            if (pageParam != null) {
-                page = Integer.parseInt(pageParam);
-                if (page < 1) {
-                    page = 1; // tránh trang âm
-                }
-            }
-        } catch (NumberFormatException e) {
-            page = 1;
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("userId") == null) {
+            response.sendRedirect("login.jsp");
+            return;
         }
 
-        List<User> fullList;
-        List<User> userList;
-        int totalRecords;
+        // Get userId from the session
+        int userId = (int) session.getAttribute("userId");
 
-        if (keyword == null || keyword.trim().isEmpty()) {
-            fullList = userDAO.getUserListSummary(); // lấy tất cả user
+        // Fetch user data from the database using the userId
+        User user = userDAO.getUserById(userId);
+
+        if (user != null) {
+            // Set user information as a request attribute
+            request.setAttribute("user", user);
+            String formattedDOB = user.getDayofbirth() != null ? user.getDayofbirth() : "";
+            request.setAttribute("dob", formattedDOB);
+
+            // Forward to the update user profile page
+            request.getRequestDispatcher("userdetail.jsp").forward(request, response);
         } else {
-            keyword = keyword.trim();
-            fullList = userDAO.searchUsersByKeyword(keyword); // lấy tất cả user theo keyword 
+            request.setAttribute("error", "User not found.");
+            request.getRequestDispatcher("userdetail.jsp").forward(request, response);
         }
-        totalRecords = fullList.size();
-
-        // Sắp xếp toàn bộ danh sách theo user_id trước
-        fullList.sort(Comparator.comparingInt(User::getUser_id));
-
-        // Tính toán cắt danh sách cho phân trang
-        int fromIndex = (page - 1) * pageSize;
-        int toIndex = Math.min(fromIndex + pageSize, totalRecords);
-
-        if (fromIndex >= totalRecords) {
-            userList = Collections.emptyList(); // không có dữ liệu trang này
-        } else {
-            userList = fullList.subList(fromIndex, toIndex);
-        }
-
-        int pages = (int) Math.ceil((double) totalRecords / pageSize);
-
-        // Đẩy dữ liệu xuống JSP
-        request.setAttribute("userList", userList);
-        request.setAttribute("pages", pages);
-        request.setAttribute("currentPage", page);
-        request.setAttribute("searchKeyword", keyword); // để giữ giá trị tìm kiếm trên UI nếu có
-        request.getRequestDispatcher("userdetail.jsp").forward(request, response);
     }
 
     /**

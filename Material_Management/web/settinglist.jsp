@@ -24,7 +24,7 @@
                 </c:if>
             </div>
             <div>
-                <button><a href="#">Add User</a></button>
+                <button><a href="${pageContext.request.contextPath}/CreateUserServlet">Add User</a></button>
             </div>
 
             <form action="settinglist" method="get">
