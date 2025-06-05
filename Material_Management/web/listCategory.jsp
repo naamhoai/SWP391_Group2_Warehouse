@@ -16,10 +16,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Category List</title>
-    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/sidebar.css">
     <link rel="stylesheet" href="css/category.css">
+    <link rel="stylesheet" href="css/footer.css">
 </head>
 <body>
+     <jsp:include page="side.jsp" />
     <div class="main-content">
         <div class="page-content">
             <div class="content-header">
@@ -89,21 +91,22 @@
                         <%
                             List<Category> categories = (List<Category>) request.getAttribute("categories");
                             CategoryDAO categoryDAO = new CategoryDAO();
+                            boolean hasCategories = false;
                             if (categories != null && !categories.isEmpty()) {
                                 for (Category c : categories) {
-                                    String parentName = "-";
+                                    // Chỉ hiển thị các danh mục không phải là danh mục cha (có parentId)
                                     if (c.getParentId() != null) {
-                                        String pName = categoryDAO.getCategoryNameById(c.getParentId());
-                                        if (pName != null) {
-                                            parentName = pName;
+                                        hasCategories = true;
+                                        String parentName = categoryDAO.getCategoryNameById(c.getParentId());
+                                        if (parentName == null) {
+                                            parentName = "-";
                                         }
-                                    }
                         %>
                         <tr>
                             <td><%= c.getCategoryId() %></td>
                             <td><%= c.getName() %></td>
                             <td><%= parentName %></td>
-                            <td>
+                            <td class="action-buttons">
                                 <a href="categories?action=edit&id=<%= c.getCategoryId() %>" class="btn-edit">Edit</a>
                                 <a href="categories?action=delete&id=<%= c.getCategoryId() %>"
                                    class="btn-delete"
@@ -111,11 +114,13 @@
                             </td>
                         </tr>
                         <%
+                                    }
                                 }
-                            } else {
+                            }
+                            if (!hasCategories) {
                         %>
                         <tr>
-                            <td colspan="4">No categories found.</td>
+                            <td colspan="4" class="no-data">No categories found.</td>
                         </tr>
                         <%
                             }

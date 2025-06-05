@@ -17,22 +17,37 @@
                 <span class="menu-text">Dashboard</span>
             </a>
         </li>
-        <li class="menu-item">
-            <a href="${pageContext.request.contextPath}/categories" class="menu-link">
+        <li class="menu-item has-submenu">
+            <a href="#" class="menu-link">
                 <i class="fas fa-tags menu-icon"></i>
-                <span class="menu-text">Categories</span>
+                <span class="menu-text">Category List</span>
+                <i class="fas fa-chevron-down submenu-icon"></i>
             </a>
+            <ul class="submenu">
+                <li>
+                    <a href="${pageContext.request.contextPath}/categories" class="submenu-link">
+                        <i class="fas fa-list menu-icon"></i>
+                        <span class="menu-text">Category List</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="${pageContext.request.contextPath}/settinglist" class="submenu-link">
+                        <i class="fas fa-users menu-icon"></i>
+                        <span class="menu-text">User Management</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="${pageContext.request.contextPath}/supplier-list" class="submenu-link">
+                        <i class="fas fa-truck menu-icon"></i>
+                        <span class="menu-text">Supplier Management</span>
+                    </a>
+                </li>
+            </ul>
         </li>
         <li class="menu-item">
             <a href="#" class="menu-link">
                 <i class="fas fa-boxes menu-icon"></i>
                 <span class="menu-text">Inventory</span>
-            </a>
-        </li>
-        <li class="menu-item">
-            <a href="${pageContext.request.contextPath}/materiallist.jsp" class="menu-link">
-                <i class="fas fa-list menu-icon"></i>
-                <span class="menu-text">Product List</span>
             </a>
         </li>
         <li class="menu-item">
@@ -64,12 +79,6 @@
                     <a href="${pageContext.request.contextPath}/user-permission.jsp" class="submenu-link">
                         <i class="fas fa-user-lock menu-icon"></i>
                         <span class="menu-text">User Permissions</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="settinglist" class="submenu-link">
-                        <i class="fas fa-user-lock menu-icon"></i>
-                        <span class="menu-text">Manager User</span>
                     </a>
                 </li>
             </ul>

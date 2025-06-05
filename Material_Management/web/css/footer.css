@@ -34,6 +34,7 @@
     margin-bottom: 25px;
     position: relative;
     padding-bottom: 10px;
+    font-weight: 600;
 }
 
 .footer-section h4::after {
@@ -50,6 +51,7 @@
     line-height: 1.6;
     color: #333333;
     margin-bottom: 20px;
+    font-size: 14px;
 }
 
 .footer-section ul {
@@ -72,6 +74,11 @@
     text-decoration: none;
     transition: color 0.3s ease;
     display: inline-block;
+    font-size: 14px;
+}
+
+.footer-section ul li a:hover {
+    color: #000000;
 }
 
 .footer-section ul li i {
@@ -89,13 +96,13 @@
 
 .social-links a {
     color: #333333;
-    font-size: 20px;
-    transition: color 0.3s ease;
+    font-size: 18px;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background-color: rgba(0, 0, 0, 0.05);
 }
@@ -103,6 +110,7 @@
 .social-links a:hover {
     color: #000000;
     background-color: rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
 }
 
 .footer-bottom {
@@ -136,6 +144,7 @@
     .footer-content {
         grid-template-columns: 1fr;
         gap: 25px;
+        margin-left: 0;
     }
     
     .footer-section {

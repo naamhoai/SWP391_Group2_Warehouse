@@ -239,19 +239,23 @@
                                     <td>${numberFormat.format(material.price)}</td>
                                     <td>${material.quantity}</td>
                                     <td>${material.categoryName}</td>
-                                    <td class="${material.quantity > 0 ? 'status-in-stock' : 'status-out-of-stock'}">
-                                        ${material.quantity > 0 ? 'In Stock' : 'Out of Stock'}
+                                    <td>
+                                        <span class="${material.quantity > 0 ? 'status-in-stock' : 'status-out-of-stock'}">
+                                            ${material.quantity > 0 ? 'In Stock' : 'Out of Stock'}
+                                        </span>
                                     </td>
-                                    <td class="action-buttons">
-                                        <a href="editProduct.jsp?id=${material.materialId}" 
-                                           class="table-button edit-button">Edit</a>
-                                        <form method="post" action="deleteProduct" class="delete-form">
-                                            <input type="hidden" name="id" value="${material.materialId}">
-                                            <button type="submit" class="table-button delete-button" 
-                                                    onclick="return confirm('Are you sure you want to delete this product?')">
-                                                Delete
-                                            </button>
-                                        </form>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a href="editProduct.jsp?id=${material.materialId}" 
+                                               class="table-button edit-button">Edit</a>
+                                            <form method="post" action="deleteProduct" class="delete-form" style="display: inline;">
+                                                <input type="hidden" name="id" value="${material.materialId}">
+                                                <button type="submit" class="table-button delete-button" 
+                                                        onclick="return confirm('Are you sure you want to delete this product?')">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             </c:forEach>

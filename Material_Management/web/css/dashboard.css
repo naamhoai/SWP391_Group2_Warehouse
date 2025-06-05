@@ -1,113 +1,96 @@
-.dashboard-container {
+/* Reset và font chung */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-family);
+    background-color: #f4f6f8;
+    color: #333;
+    min-height: 100vh;
     display: flex;
-    min-height: 100vh;
-    background-color: #f5f6fa;
+    flex-direction: column;
 }
 
-.sidebar {
-    width: 250px;
-    background-color: var(--primary-color);
-    color: white;
-    padding: 1.5rem;
-    position: fixed;
-    height: 100vh;
-    left: 0;
-    top: 0;
-    z-index: 1000;
+.dashboard-container {
+    padding: 20px;
+    background-color: var(--main-bg);
+    width: 100%;
 }
 
-#main-content {
-    flex: 1;
-    padding: 2rem 2.5rem;
-    margin-left: 250px;
-    min-height: 100vh;
-    transition: all 0.3s ease;
-}
-
+/* Dashboard content styles */
 .dashboard-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
     background: white;
-    padding: 1.5rem 2rem;
-    border-radius: 12px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .dashboard-header h1 {
-    color: #2c3e50;
     margin: 0;
     font-size: 1.75rem;
+    color: #333;
 }
 
 .date-filter {
     display: flex;
-    gap: 12px;
+    gap: 0.5rem;
 }
 
 .filter-form {
     display: flex;
-    gap: 12px;
+    gap: 0.5rem;
 }
 
 .filter-btn {
-    padding: 0.75rem 1.5rem;
-    border: 1px solid #e1e1e1;
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
     background: white;
-    border-radius: 8px;
+    color: #666;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #666;
 }
 
 .filter-btn:hover {
-    background: #f8f9fa;
-    border-color: #d1d1d1;
+    border-color: #69b9ff;
+    color: #69b9ff;
 }
 
 .filter-btn.active {
-    background: #007bff;
+    background: #69b9ff;
+    border-color: #69b9ff;
     color: white;
-    border-color: #0056b3;
-    box-shadow: 0 2px 4px rgba(0,123,255,0.2);
 }
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 1.5rem;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
 }
 
 .stat-card {
     background: white;
-    border-radius: 12px;
-    padding: 1.75rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
-    gap: 1.5rem;
-    transition: all 0.3s ease;
-}
-
-.stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    gap: 1rem;
 }
 
 .stat-icon {
     width: 64px;
     height: 64px;
-    border-radius: 16px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
     font-size: 24px;
-    flex-shrink: 0;
+    color: white;
 }
 
 .stat-info {
@@ -115,29 +98,24 @@
 }
 
 .stat-info h3 {
-    margin: 0;
-    color: #666;
+    margin: 0 0 0.5rem 0;
     font-size: 0.875rem;
-    font-weight: 500;
-    margin-bottom: 0.5rem;
+    color: #666;
 }
 
 .stat-number {
     margin: 0;
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 600;
-    color: #2c3e50;
-    line-height: 1.2;
-    margin-bottom: 0.5rem;
+    color: #333;
 }
 
 .stat-change {
-    margin: 0;
+    margin: 0.5rem 0 0 0;
     font-size: 0.875rem;
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-weight: 500;
+    gap: 0.25rem;
 }
 
 .stat-change.positive {
@@ -179,205 +157,157 @@
 
 .table-card {
     background: white;
-    border-radius: 12px;
-    padding: 1.75rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    margin-bottom: 2.5rem;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
 }
 
 .table-card h3 {
-    color: #2c3e50;
     margin: 0 0 1.5rem 0;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #eee;
-    font-size: 1.25rem;
+    color: #333;
 }
 
 table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
+    border-collapse: collapse;
 }
 
 th, td {
-    padding: 1.25rem 1rem;
+    padding: 1rem;
     text-align: left;
     border-bottom: 1px solid #eee;
 }
 
 th {
-    color: #666;
     font-weight: 600;
-    font-size: 0.875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    color: #666;
+    background: #f8f9fa;
 }
 
 td {
-    color: #2c3e50;
-    font-size: 0.9375rem;
+    color: #333;
 }
 
 .status-badge {
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
     font-size: 0.875rem;
     font-weight: 500;
-    display: inline-block;
+}
+
+.status-badge.danger {
+    background: #ffe5e5;
+    color: #e74c3c;
 }
 
 .status-badge.warning {
     background: #fff3cd;
-    color: #856404;
-}
-
-.status-badge.danger {
-    background: #f8d7da;
-    color: #721c24;
+    color: #f1c40f;
 }
 
 /* Inventory Summary */
 .inventory-summary {
     background: white;
-    border-radius: 12px;
-    padding: 1.75rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
 }
 
 .inventory-summary h3 {
-    color: #2c3e50;
     margin: 0 0 1.5rem 0;
-    font-size: 1.25rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #eee;
+    color: #333;
 }
 
 .inventory-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
 }
 
 .inventory-stat {
     padding: 1.5rem;
+    border-radius: 8px;
     background: #f8f9fa;
-    border-radius: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: all 0.3s ease;
-}
-
-.inventory-stat:hover {
-    background: #f1f3f5;
+    text-align: center;
 }
 
 .inventory-stat .label {
+    display: block;
+    margin-bottom: 0.5rem;
     color: #666;
-    font-weight: 500;
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
 }
 
 .inventory-stat .value {
-    color: #2c3e50;
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     font-weight: 600;
+    color: #333;
 }
 
 /* Main Content */
+#main-content {
+    margin-left: 250px;
+    padding: 2rem;
+    min-height: calc(100vh - 80px); /* Adjust for footer */
+    flex: 1;
+    transition: margin-left 0.3s ease;
+}
+
 #main-content.expanded {
-    margin-left: 60px;
+    margin-left: 70px;
 }
 
 /* Responsive Design */
 @media (max-width: 1200px) {
     .stats-grid {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
 @media (max-width: 768px) {
     #main-content {
         margin-left: 0;
-        padding: 1.5rem;
+        padding: 1rem;
     }
-    
+
     .dashboard-header {
         flex-direction: column;
-        gap: 1.25rem;
-        padding: 1.25rem;
+        gap: 1rem;
     }
-    
-    .date-filter,
-    .filter-form {
+
+    .date-filter {
         width: 100%;
-        flex-wrap: wrap;
     }
-    
+
+    .filter-form {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
     .filter-btn {
         flex: 1;
-        text-align: center;
-        min-width: calc(50% - 6px);
+        min-width: calc(50% - 0.5rem);
     }
-    
+
     .stats-grid {
         grid-template-columns: 1fr;
-        gap: 1.25rem;
     }
-    
-    .stat-card {
-        padding: 1.5rem;
-    }
-    
-    .table-card,
-    .inventory-summary {
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-    
+
     .inventory-stats {
         grid-template-columns: 1fr;
-        gap: 1rem;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
     }
 }
 
 @media (max-width: 576px) {
-    #main-content {
-        padding: 1rem;
-    }
-    
-    .dashboard-header {
-        padding: 1rem;
-    }
-    
     .filter-btn {
         min-width: 100%;
-    }
-    
-    .stat-card {
-        padding: 1.25rem;
-    }
-    
-    .stat-icon {
-        width: 56px;
-        height: 56px;
-        font-size: 20px;
-    }
-    
-    .stat-number {
-        font-size: 1.5rem;
-    }
-    
-    th, td {
-        padding: 1rem 0.75rem;
-        font-size: 0.875rem;
-    }
-    
-    .inventory-stat {
-        padding: 1.25rem;
-    }
-    
-    .inventory-stat .value {
-        font-size: 1.125rem;
     }
 } 
