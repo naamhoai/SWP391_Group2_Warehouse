@@ -18,10 +18,13 @@
 
         <div id="main-content">
             <div class="page-header">
-                <h2>Manager User</h2>
+                <h2>User Management</h2>
                 <c:if test="${not empty messUpdate}">
                     <div class="success-message">${messUpdate}</div>
                 </c:if>
+            </div>
+            <div>
+                <button><a href="#">Add User</a></button>
             </div>
 
             <form action="settinglist" method="get">

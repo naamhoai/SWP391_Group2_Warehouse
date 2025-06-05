@@ -106,6 +106,8 @@ public class DetailUser extends HttpServlet {
         String role = request.getParameter("role");
         String description = request.getParameter("description");
         String userid = request.getParameter("userid");
+        String pass = request.getParameter("pass");
+        String email = request.getParameter("email");
 
         DAO dao = new DAO();
         String mess = "";
@@ -118,8 +120,8 @@ public class DetailUser extends HttpServlet {
             int rid = Integer.parseInt(role);
             int pri = Integer.parseInt(priority);
             if (pri > 0) {
-                dao.userUpdate(name, pri, status, description, rid, id);
-                System.out.println(dao.userUpdate(name, pri, status, description, rid, id));
+                dao.userUpdate(name, pri, status, description, email, pass, rid, id);
+                System.out.println(dao.userUpdate(name, pri, status, description, email, pass, rid, id));
                 System.out.println(role);
                 mess = "Successfully updated";
                 se.setAttribute("messUpdate", mess);

@@ -35,6 +35,15 @@
                         </select>
                     </div>
                 </div>
+                <div>
+                    <label>Email</label>
+                    <input type="text" name="email" value="${user.email}"required>
+                </div>
+                <div>
+                    <label>Password</label>
+                    <input type="password" name="pass" value="${user.password}"readonly>
+                </div>
+
                 <div class="row">
                     <div>
                         <label>Priority</label>

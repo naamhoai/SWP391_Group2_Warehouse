@@ -131,7 +131,7 @@ public class DAO extends dal.DBContext {
     }
 
     public User userID(int user_ID, int role_id) {
-        String sql = "select u.user_id,r.role_id,u.full_name,u.priority,u.description \n"
+        String sql = "select u.user_id,r.role_id,u.full_name,u.priority,u.description,u.email,u.password \n"
                 + "from users u join roles r \n"
                 + "on u.role_id = r.role_id\n"
                 + "where u.user_id = ? and r.role_id = ?";
@@ -148,7 +148,8 @@ public class DAO extends dal.DBContext {
                 acc.setFullname(rs.getString("full_name"));
                 acc.setPriority(rs.getInt("priority"));
                 acc.setDescription(rs.getString("description"));
-               
+                acc.setEmail(rs.getString("email"));
+                acc.setPassword(rs.getString("password"));
                 acc.setRole(rcc);
                 return acc;
             }
@@ -177,12 +178,14 @@ public class DAO extends dal.DBContext {
 
     }
 
-    public User userUpdate(String fullname, int priority, String status, String description, int roleid, int userid) {
+    public User userUpdate(String fullname, int priority, String status, String description, String email, String pass, int roleid, int userid) {
         String sql = "UPDATE Users \n"
                 + "SET full_name=?, \n"
                 + "priority=?, \n"
                 + "status= ?, \n"
-                + "description= ?, \n"
+                + "description= ?,\n"
+                + "email= ?, \n"
+                + "password= ?, \n"
                 + "role_id=?\n"
                 + "WHERE user_id=?;";
         try {
@@ -191,8 +194,10 @@ public class DAO extends dal.DBContext {
             st.setInt(2, priority);
             st.setString(3, status);
             st.setString(4, description);
-            st.setInt(5, roleid);
-            st.setInt(6, userid);
+            st.setString(5, email);
+            st.setString(6, pass);
+            st.setInt(7, roleid);
+            st.setInt(8, userid);
             st.executeUpdate();
 
         } catch (SQLException e) {
@@ -359,7 +364,7 @@ public class DAO extends dal.DBContext {
 
     public static void main(String[] args) {
         DAO dao = new DAO();
-        List<User> i = dao.SettingList(1);
+        User i = dao.userID(1, 1);
         System.out.println(i);
     }
 }
