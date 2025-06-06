@@ -39,7 +39,7 @@ public class SavePermissionServlet extends HttpServlet {
             userId = Integer.parseInt(userIdStr);
         } catch (NumberFormatException e) {
             request.setAttribute("error", "Invalid user ID format: ");
-            request.getRequestDispatcher("/user-permission.jsp").forward(request, response);
+            request.getRequestDispatcher("/userPermission.jsp").forward(request, response);
             return;
         }
 
@@ -50,7 +50,7 @@ public class SavePermissionServlet extends HttpServlet {
             List<Map<String, Object>> users = userPermissionDAO.searchUser(String.valueOf(userId));
             if (users.isEmpty()) {
                 request.setAttribute("error", "The user with ID " + userId + " does not exist.");
-                request.getRequestDispatcher("/user-permission.jsp").forward(request, response);
+                request.getRequestDispatcher("/userPermission.jsp").forward(request, response);
                 return;
             }
 
@@ -72,11 +72,11 @@ public class SavePermissionServlet extends HttpServlet {
         } catch (SQLException e) {
             e.printStackTrace();
             request.setAttribute("error", "Failed to update permissions: " + e.getMessage());
-            request.getRequestDispatcher("/user-permission.jsp").forward(request, response);
+            request.getRequestDispatcher("/userPermission.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "An unexpected error has occurred: " + e.getMessage());
-            request.getRequestDispatcher("/user-permission.jsp").forward(request, response);
+            request.getRequestDispatcher("/userPermission.jsp").forward(request, response);
         }
     }
 }

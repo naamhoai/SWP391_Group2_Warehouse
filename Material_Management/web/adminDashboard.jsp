@@ -8,14 +8,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Dashboard - Warehouse Management System</title>
         <link rel="stylesheet" href="css/footer.css">
-        <link rel="stylesheet" href="css/dashboard.css">
+        <link rel="stylesheet" href="css/adminDashboard.css">
         <link rel="stylesheet" href="css/sidebar.css">
         <!-- Font Awesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     </head>
     <body>
         <!-- Include Sidebar -->
-        <jsp:include page="side.jsp" />
+        <jsp:include page="sidebar.jsp" />
 
         <div id="main-content">
             <div class="dashboard-header">

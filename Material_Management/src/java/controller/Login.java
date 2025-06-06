@@ -91,10 +91,9 @@ public class Login extends HttpServlet {
                         vali = true;
                                                     //dashboard.jsp
                         if (user2.getRole().getRoleid() == 1) {
-                            response.sendRedirect("dashboard.jsp");
+                            response.sendRedirect("adminDashboard.jsp");
                         } else if (user2.getRole().getRoleid() == 2) {
-                            PrintWriter out = response.getWriter();
-                            out.print("day la so 2");
+                            response.sendRedirect("view/directorDashboard.jsp");
                         } else if (user2.getRole().getRoleid() == 3) {
                             PrintWriter out = response.getWriter();
                             out.print("day la so 3");

@@ -54,16 +54,16 @@ public class UserPermissionServlet extends HttpServlet {
             List<Map<String, Object>> permissions = userPermissionDAO.getAllPermissions();
             request.setAttribute("permissions", permissions);
             
-            request.getRequestDispatcher("user-permission.jsp").forward(request, response);
+            request.getRequestDispatcher("userPermission.jsp").forward(request, response);
             
         } catch (SQLException e) {
             e.printStackTrace();
             request.setAttribute("error", "Database error: " + e.getMessage());
-            request.getRequestDispatcher("user-permission.jsp").forward(request, response);
+            request.getRequestDispatcher("userPermission.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "An unexpected error has occurred: " + e.getMessage());
-            request.getRequestDispatcher("user-permission.jsp").forward(request, response);
+            request.getRequestDispatcher("userPermission.jsp").forward(request, response);
         }
     }
 

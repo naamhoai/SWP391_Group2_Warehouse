@@ -9,13 +9,13 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
         <link rel="stylesheet" href="css/sidebar.css">
-        <link rel="stylesheet" href="css/user-permission.css">
+        <link rel="stylesheet" href="css/userPermission.css">
         <link rel="stylesheet" href="css/footer.css">
 
     </head>
 
     <body>
-        <jsp:include page="side.jsp" />
+        <jsp:include page="sidebar.jsp" />
 
         <div class="main-content">
             <div class="permission-container">

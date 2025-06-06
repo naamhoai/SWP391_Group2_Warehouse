@@ -4,6 +4,7 @@
     <div class="sidebar-header">
         <div class="logo-container">
             <i class="fas fa-warehouse"></i>
+            <a href="userPermission.jsp"></a>
             <span class="logo-text">WMS</span>
         </div>
         <div class="toggle-btn">

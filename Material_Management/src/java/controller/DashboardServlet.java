@@ -46,7 +46,7 @@ public class DashboardServlet extends HttpServlet {
             request.setAttribute("inventoryStats", inventoryStats);
             request.setAttribute("lowStockItemsList", lowStockItemsList);
             
-            request.getRequestDispatcher("dashboard.jsp").forward(request, response);
+            request.getRequestDispatcher("adminDashboard.jsp").forward(request, response);
             
         } catch (SQLException e) {
             e.printStackTrace();
