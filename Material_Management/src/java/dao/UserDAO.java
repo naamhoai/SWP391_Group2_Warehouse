@@ -7,6 +7,7 @@ import java.sql.*;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class UserDAO {
 
@@ -285,6 +286,21 @@ public class UserDAO {
             e.printStackTrace();
         }
         return list;
+    }
+    public boolean isValidPassword(String password) {
+        // Kiểm tra độ dài mật khẩu (ít nhất 8 ký tự)
+        if (password.length() < 8) {
+            return false;
+        }
+
+        // Kiểm tra có ít nhất một ký tự hoa, ký tự thường, số và ký tự đặc biệt
+        String regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
+        return password.matches(regex);
+    }
+
+    // Mã hóa mật khẩu
+    public String hashPassword(String password) {
+        return BCrypt.hashpw(password, BCrypt.gensalt());
     }
 
     

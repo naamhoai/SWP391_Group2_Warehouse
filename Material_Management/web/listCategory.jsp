@@ -21,12 +21,15 @@
     <link rel="stylesheet" href="css/footer.css">
 </head>
 <body>
-     <jsp:include page="sidebar.jsp" />
+    <jsp:include page="sidebar.jsp" />
     <div class="main-content">
         <div class="page-content">
             <div class="content-header">
-                <h1>Category List</h1>
-                <a href="categories?action=add" class="btn-new">+ New Category</a>
+                <h1>Material List</h1>
+                <div class="header-actions">
+                    <a href="categories?action=add" class="btn-add">+ Add New Category</a>
+                    <a href="materiallist.jsp" class="btn-new">Material Detail List</a>
+                </div>
             </div>
 
             <% if (error != null) { %>
@@ -47,7 +50,7 @@
                     String currentParentId = (String) request.getAttribute("parentId");
                     String currentSortBy = (String) request.getAttribute("sortBy");
                 %>
-                <select name="parentId">
+                <select name="parentId" class="filter-select">
                     <option value="">All Parent Categories</option>
                     <%
                         List<Category> parentCategories = (List<Category>) request.getAttribute("parentCategories");
@@ -63,18 +66,17 @@
                 </select>
 
                 <input type="text" name="keyword" placeholder="Search by name"
-                       value="<%= currentKeyword != null ? currentKeyword : "" %>">
+                       value="<%= currentKeyword != null ? currentKeyword : "" %>" class="filter-input">
 
-                <div class="sort-buttons">
-                    <button type="submit" name="sortBy" value="name" class="sort-btn <%= "name".equals(currentSortBy) ? "active" : "" %>">
-                        Sort by Name <%= "name".equals(currentSortBy) ? "✓" : "" %>
-                    </button>
-                    <button type="submit" name="sortBy" value="id" class="sort-btn <%= "id".equals(currentSortBy) ? "active" : "" %>">
-                        Sort by ID <%= "id".equals(currentSortBy) ? "✓" : "" %>
-                    </button>
-                </div>
+                <button type="submit" name="sortBy" value="name" class="sort-btn <%= "name".equals(currentSortBy) ? "active" : "" %>">
+                    Sort by Name
+                </button>
 
-                <button type="submit" class="filter-btn">Search</button>
+                <button type="submit" name="sortBy" value="id" class="sort-btn <%= "id".equals(currentSortBy) ? "active" : "" %>">
+                    Sort by ID
+                </button>
+
+                <button type="submit" class="search-btn">Search</button>
             </form>
 
             <div class="table-container">
@@ -94,7 +96,6 @@
                             boolean hasCategories = false;
                             if (categories != null && !categories.isEmpty()) {
                                 for (Category c : categories) {
-                                    // Chỉ hiển thị các danh mục không phải là danh mục cha (có parentId)
                                     if (c.getParentId() != null) {
                                         hasCategories = true;
                                         String parentName = categoryDAO.getCategoryNameById(c.getParentId());

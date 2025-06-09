@@ -135,7 +135,7 @@ public class SubmitRequestServlet extends HttpServlet {
 
                 // Create UnitConversion object
                 UnitConversion unitConversion = new UnitConversion();
-                unitConversion.setConversionId(Integer.parseInt(units[i]));
+                
 
                 // Create Request object
                 
