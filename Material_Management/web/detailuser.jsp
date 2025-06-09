@@ -6,11 +6,7 @@
         <meta charset="UTF-8">
         <title>Setting Details</title>
 
-
-
-
-
-        <link rel="stylesheet" href="./css/detailuser.css">
+        <link rel="stylesheet" href="./css/detailUser.css">
 
     </head>
     <body>
