@@ -17,7 +17,7 @@ public class RequestPassword extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("requestpassword.jsp").forward(request, response);
+        request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
     }
 
     @Override
@@ -30,7 +30,7 @@ public class RequestPassword extends HttpServlet {
 
         if (user == null) {
             request.setAttribute("mess", "Email không tồn tại.");
-            request.getRequestDispatcher("requestpassword.jsp").forward(request, response);
+            request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
             return;
         }
 
@@ -49,11 +49,11 @@ public class RequestPassword extends HttpServlet {
 
         if (!service.sendEmail(email, resetLink, user.getUsername())) {
             request.setAttribute("mess", "Không thể gửi email.");
-            request.getRequestDispatcher("requestpassword.jsp").forward(request, response);
+            request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
             return;
         }
 
         request.setAttribute("mess", "Đã gửi email đặt lại mật khẩu.");
-        request.getRequestDispatcher("requestpassword.jsp").forward(request, response);
+        request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
     }
 }

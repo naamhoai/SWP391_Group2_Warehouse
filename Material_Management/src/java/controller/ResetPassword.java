@@ -29,7 +29,7 @@ public class ResetPassword extends HttpServlet {
 
             if (tokenObj == null || tokenObj.isUsed() || service.isExpired(tokenObj.getExpiryTime())) {
                 request.setAttribute("mess", "Token is invalid or expired.");
-                request.getRequestDispatcher("requestpassword.jsp").forward(request, response);
+                request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
                 return;
             }
 
@@ -37,9 +37,9 @@ public class ResetPassword extends HttpServlet {
             request.setAttribute("email", user.getEmail());
             request.setAttribute("username", user.getUsername());
             session.setAttribute("token", token);
-            request.getRequestDispatcher("resetpassword.jsp").forward(request, response);
+            request.getRequestDispatcher("resetPassword.jsp").forward(request, response);
         } else {
-            request.getRequestDispatcher("requestpassword.jsp").forward(request, response);
+            request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
         }
     }
 
@@ -55,7 +55,7 @@ public class ResetPassword extends HttpServlet {
             request.setAttribute("mess", "Mật khẩu xác nhận không khớp.");
             request.setAttribute("email", email);
             request.setAttribute("username", username);
-            request.getRequestDispatcher("resetpassword.jsp").forward(request, response);
+            request.getRequestDispatcher("resetPassword.jsp").forward(request, response);
             return;
         }
 
@@ -66,7 +66,7 @@ public class ResetPassword extends HttpServlet {
         ResetService service = new ResetService();
         if (tokenObj == null || tokenObj.isUsed() || service.isExpired(tokenObj.getExpiryTime())) {
             request.setAttribute("mess", "Token không hợp lệ hoặc đã hết hạn.");
-            request.getRequestDispatcher("requestpassword.jsp").forward(request, response);
+            request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
             return;
         }
 
@@ -75,7 +75,7 @@ public class ResetPassword extends HttpServlet {
             request.setAttribute("mess", "Không thể cập nhật thông tin. Username có thể đã tồn tại.");
             request.setAttribute("email", email);
             request.setAttribute("username", username);
-            request.getRequestDispatcher("resetpassword.jsp").forward(request, response);
+            request.getRequestDispatcher("resetPassword.jsp").forward(request, response);
             return;
         }
 
