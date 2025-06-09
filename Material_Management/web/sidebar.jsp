@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!-- Sidebar -->
 <div class="sidebar">
     <div class="sidebar-header">
@@ -13,7 +14,7 @@
     </div>
     <ul class="sidebar-menu">
         <li class="menu-item">
-            <a href="dashboard.jsp" class="menu-link active">
+            <a href="adminDashboard.jsp" class="menu-link active">
                 <i class="fas fa-tachometer-alt menu-icon"></i>
                 <span class="menu-text">Dashboard</span>
             </a>
@@ -51,18 +52,14 @@
                 <span class="menu-text">Inventory</span>
             </a>
         </li>
-        <li class="menu-item">
-            <a href="#" class="menu-link">
-                <i class="fas fa-shopping-cart menu-icon"></i>
-                <span class="menu-text">Orders</span>
-            </a>
-        </li>
-        <li class="menu-item">
-            <a href="#" class="menu-link">
-                <i class="fas fa-truck menu-icon"></i>
-                <span class="menu-text">Deliveries</span>
-            </a>
-        </li>
+        <c:if test="${sessionScope.permissions.contains('delivery_view')}">
+            <li class="menu-item">
+                <a href="${pageContext.request.contextPath}/delivery" class="menu-link">
+                    <i class="fas fa-truck menu-icon"></i>
+                    <span class="menu-text">Deliveries</span>
+                </a>
+            </li>
+        </c:if>
         <li class="menu-item has-submenu">
             <a href="#" class="menu-link">
                 <i class="fas fa-users menu-icon"></i>
@@ -71,20 +68,19 @@
             </a>
             <ul class="submenu">
                 <li>
-                    <a href="${pageContext.request.contextPath}/UserDetailServlet?userId=${u.user_id}" class="submenu-link">
+                    <a href="${pageContext.request.contextPath}/UserDetailServlet?userId=${sessionScope.user.user_id}" class="submenu-link">
                         <i class="fas fa-user menu-icon"></i>
                         <span class="menu-text">User Information</span>
                     </a>
                 </li>
                 <li>
-                    <a href="${pageContext.request.contextPath}/user-permission.jsp" class="submenu-link">
+                    <a href="${pageContext.request.contextPath}/userPermission.jsp" class="submenu-link">
                         <i class="fas fa-user-lock menu-icon"></i>
                         <span class="menu-text">User Permissions</span>
                     </a>
                 </li>
             </ul>
         </li>
-
         <li class="menu-item">
             <a href="#" class="menu-link">
                 <i class="fas fa-cog menu-icon"></i>
@@ -133,46 +129,13 @@
                 submenu.style.maxHeight = item.classList.contains('open') ? submenu.scrollHeight + "px" : "0";
             });
         });
+
+        // Highlight active page
+        const currentPath = window.location.pathname;
+        menuLinks.forEach(link => {
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+            }
+        });
     });
 </script>
-
-<style>
-    /* Add these styles for submenu */
-    .has-submenu .submenu {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease-out;
-        padding-left: 20px;
-    }
-
-    .has-submenu.open .submenu {
-        max-height: 500px; /* Adjust this value based on your needs */
-    }
-
-    .submenu-icon {
-        margin-left: auto;
-        transition: transform 0.3s ease;
-    }
-
-    .has-submenu.open .submenu-icon {
-        transform: rotate(180deg);
-    }
-
-    .submenu-link {
-        padding: 8px 15px;
-        display: flex;
-        align-items: center;
-        color: inherit;
-        text-decoration: none;
-        transition: background-color 0.3s;
-    }
-
-    .submenu-link:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    .submenu .menu-icon {
-        font-size: 0.9em;
-        margin-right: 10px;
-    }
-</style> 

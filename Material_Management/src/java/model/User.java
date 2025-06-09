@@ -139,10 +139,6 @@ public class User {
         this.description = description;
     }
 
-    
-   
-    
- 
     @Override
     public String toString() {
         return "User{"

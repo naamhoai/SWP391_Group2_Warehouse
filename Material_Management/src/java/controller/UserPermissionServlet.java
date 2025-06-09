@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-@WebServlet(name = "UserPermissionServlet", urlPatterns = {"/user-permissions"})
+@WebServlet(name = "UserPermissionServlet", urlPatterns = {"/userPermission"})
 public class UserPermissionServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)

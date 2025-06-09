@@ -30,7 +30,7 @@ public class SavePermissionServlet extends HttpServlet {
         
         if (userIdStr == null || userIdStr.trim().isEmpty()) {
             request.setAttribute("error", "User ID is required: ");
-            request.getRequestDispatcher("/user-permission.jsp").forward(request, response);
+            request.getRequestDispatcher("userPermission.jsp").forward(request, response);
             return;
         }
 
@@ -66,17 +66,17 @@ public class SavePermissionServlet extends HttpServlet {
             userPermissionDAO.updateUserPermissions(userId, selectedPermissions);
             request.setAttribute("success", "The permissions were updated successfully.");
 
-            // Redirect back to user-permission with the userId to avoid ambiguity
-            response.sendRedirect("user-permissions?keyword=" + userId);
+            // Redirect back to userPermission with the userId to avoid ambiguity
+            response.sendRedirect("userPermission?keyword=" + userId);
             
         } catch (SQLException e) {
             e.printStackTrace();
             request.setAttribute("error", "Failed to update permissions: " + e.getMessage());
-            request.getRequestDispatcher("/userPermission.jsp").forward(request, response);
+            request.getRequestDispatcher("userPermission.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "An unexpected error has occurred: " + e.getMessage());
-            request.getRequestDispatcher("/userPermission.jsp").forward(request, response);
+            request.getRequestDispatcher("userPermission.jsp").forward(request, response);
         }
     }
 }

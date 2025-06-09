@@ -16,7 +16,7 @@
     <body>
         <div class="layout">
             <!-- Include Sidebar -->
-            <jsp:include page="side.jsp" />
+            <jsp:include page="sidebar.jsp" />
             <div class="main-content">
                 <div class="form-wrapper">
                     <div class="page-header">

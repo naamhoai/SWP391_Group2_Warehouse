@@ -11,7 +11,6 @@
         <link rel="stylesheet" href="css/sidebar.css">
         <link rel="stylesheet" href="css/userPermission.css">
         <link rel="stylesheet" href="css/footer.css">
-
     </head>
 
     <body>
@@ -22,14 +21,15 @@
                 <h2 class="page-title">User Permission Management</h2>
 
                 <div class="search-box">
-                    <form action="user-permissions" method="get">
-                        <input type="text" id="searchUser" name="keyword" placeholder="Enter Username or ID" value="${param.keyword}">
-                        <button type="submit" id="searchBtn" aria-label="Search for user">
-                            <i class="fas fa-search"></i> Search
-                        </button>
+                    <form action="userPermission" method="get" class="search-form">
+                        <div class="input-group">
+                            <input type="text" id="searchUser" name="keyword" placeholder="Enter Username or ID" value="${param.keyword}" aria-label="Search Username or ID">
+                            <button type="submit" id="searchBtn" aria-label="Search for user">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
                     </form>
                 </div>
-
 
                 <c:if test="${not empty success}">
                     <div class="message-box success-message">
@@ -57,13 +57,13 @@
                                     <td>${user.fullName}</td>
                                     <td>${user.roleName}</td>
                                     <td>
-                                        <a href="user-permissions?keyword=${user.userId}">Select</a>
+                                        <a href="userPermission?keyword=${user.userId}" class="action-link">Select</a>
                                     </td>
                                 </tr>
                             </c:forEach>
                         </tbody>
                     </table>
-                    <a href="user-permissions" class="back-btn" aria-label="Back to initial page">
+                    <a href="userPermission" class="back-btn" aria-label="Back to initial page">
                         <i class="fas fa-arrow-left"></i> Back
                     </a>
                 </c:if>
@@ -74,7 +74,7 @@
                         <p><i class="fas fa-shield-alt"></i> Role: ${roleName}</p>
                     </div>
 
-                    <form id="permissionForm" action="savePermissions" method="POST">
+                    <form id="permissionForm" action="savePermissions" method="POST" class="permission-form">
                         <input type="hidden" name="userId" value="${userId}">
                         <input type="hidden" name="fullName" value="${fullName}">
                         <table class="permission-table">
@@ -98,19 +98,19 @@
                                                        ${empty rolePermissions || empty rolePermissions[permissionKey] ? 'disabled' : ''}
                                                        ${not empty userPermissions && userPermissions.contains(permissionKey) ? 'checked' : ''}>
                                             </td>
-                                           
                                         </c:forEach>
                                     </tr>
                                 </c:forEach>
                             </tbody>
                         </table>
-                        <button type="submit" class="save-btn" id="saveBtn">
-                            <i class="fas fa-save"></i> Save Permissions
-                        </button>
-
-                        <a href="user-permissions" class="back-btn" aria-label="Back to initial page">
-                            <i class="fas fa-arrow-left"></i> Back
-                        </a>
+                        <div class="form-actions">
+                            <button type="submit" class="save-btn" id="saveBtn">
+                                <i class="fas fa-save"></i> Save Permissions
+                            </button>
+                            <a href="userPermission" class="back-btn" aria-label="Back to initial page">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </a>
+                        </div>
                     </form>
                 </c:if>
             </div>

@@ -17,7 +17,6 @@
             </a>
             <div class="nav-links">
                 <a href="homepage.jsp" class="nav-link">Home</a>
-                <a href="#features" class="nav-link">Features</a>
                 <a href="login.jsp" class="btn btn-primary">Log In</a>
             </div>
         </div>

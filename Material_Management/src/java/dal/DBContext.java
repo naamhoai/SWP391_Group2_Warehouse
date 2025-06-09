@@ -10,7 +10,7 @@ public class DBContext {
 
     public DBContext() {
         try {
-            String url = "jdbc:mysql://localhost:3306/warehouse_material_management";
+            String url = "jdbc:mysql://localhost:3306/material_system";
             String user = "root";
             String password = "12345";
             Class.forName("com.mysql.cj.jdbc.Driver");

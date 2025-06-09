@@ -100,7 +100,7 @@
 </head>
 <body>
     <!-- Include the sidebar -->
-    <jsp:include page="side.jsp" />
+    <jsp:include page="sidebar.jsp" />
 
     <div id="main-content">
         <div class="container">

@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="css/footer.css">
 </head>
 <body>
-     <jsp:include page="side.jsp" />
+     <jsp:include page="sidebar.jsp" />
     <div class="main-content">
         <div class="page-content">
             <div class="content-header">
