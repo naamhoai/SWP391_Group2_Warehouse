@@ -15,8 +15,8 @@ import model.*;
  */
 public class unitConversionDao extends dal.DBContext {
 
-    public List<unitConversion> getAll() {
-        List<unitConversion> list = new ArrayList<>();
+    public List<UnitConversion> getAll() {
+        List<UnitConversion> list = new ArrayList<>();
         String sql = "SELECT \n"
                 + "    u.category_id,\n"
                 + "    c.name AS category_name,\n"
@@ -43,7 +43,7 @@ public class unitConversionDao extends dal.DBContext {
                 Category cate = new Category();
 
                 Material mate = new Material();
-                unitConversion uni = new unitConversion();
+                UnitConversion uni = new UnitConversion();
 
                 cate.setName(sm.getString("category_name"));
                 mate.setName(sm.getString("material_name"));
@@ -85,14 +85,14 @@ public class unitConversionDao extends dal.DBContext {
 
     }
 
-    public List<unitConversion> getAllunit() {
-        List<unitConversion> list = new ArrayList<>();
+    public List<UnitConversion> getAllunit() {
+        List<UnitConversion> list = new ArrayList<>();
         String sql = "SELECT DISTINCT base_unit FROM unit_conversion;";
         try {
             PreparedStatement ca = connection.prepareStatement(sql);
             ResultSet st = ca.executeQuery();
             while (st.next()) {
-                unitConversion uni = new unitConversion();
+                UnitConversion uni = new UnitConversion();
                 uni.setBaseunit(st.getString("base_unit"));
 
                 list.add(uni);
@@ -105,8 +105,8 @@ public class unitConversionDao extends dal.DBContext {
         return list;
     }
 
-    public List<unitConversion> getFilter(String device, String stunit, String name) {
-        List<unitConversion> list = new ArrayList<>();
+    public List<UnitConversion> getFilter(String device, String stunit, String name) {
+        List<UnitConversion> list = new ArrayList<>();
         List<Object> param = new ArrayList<>();
         String sql = "SELECT \n"
                 + "    u.category_id,\n"
@@ -153,7 +153,7 @@ public class unitConversionDao extends dal.DBContext {
                Category cate = new Category();
 
                 Material mate = new Material();
-                unitConversion uni = new unitConversion();
+                UnitConversion uni = new UnitConversion();
 
                 cate.setName(sm.getString("category_name"));
                 mate.setName(sm.getString("material_name"));
@@ -185,7 +185,7 @@ public class unitConversionDao extends dal.DBContext {
         System.out.println("Device (parent): " + a);
         System.out.println("Material name: " + c);
 
-        List<unitConversion> l = n.getFilter(a, uni, c);
+        List<UnitConversion> l = n.getFilter(a, uni, c);
 
         System.out.println(l);
 

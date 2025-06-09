@@ -8,7 +8,7 @@ package model;
  *
  * @author kien3
  */
-public class unitConversion {
+public class UnitConversion {
 
     private Category category;
 
@@ -19,10 +19,10 @@ public class unitConversion {
     private String note;
     private String categorypar;
 
-    public unitConversion() {
+    public UnitConversion() {
     }
 
-    public unitConversion(Category category, Material material, String baseunit, String convertedunit, String conversionfactor, String note,String categorypar) {
+    public UnitConversion(Category category, Material material, String baseunit, String convertedunit, String conversionfactor, String note,String categorypar) {
         this.category = category;
 
         this.material = material;

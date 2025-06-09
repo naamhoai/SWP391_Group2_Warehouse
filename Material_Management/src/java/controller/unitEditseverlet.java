@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import model.Category;
-import model.unitConversion;
+import model.UnitConversion;
 
 /**
  *
@@ -62,8 +62,8 @@ public class unitEditseverlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         unitConversionDao n = new unitConversionDao();
-        List<unitConversion> list = n.getAll();
-        List<unitConversion> listunit = n.getAllunit();
+        List<UnitConversion> list = n.getAll();
+        List<UnitConversion> listunit = n.getAllunit();
         List<Category> listcat = n.getAllpre();
         if (list != null) {
             request.setAttribute("list", list);

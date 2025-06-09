@@ -62,8 +62,8 @@ public class unitConversionSeverlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         unitConversionDao n = new unitConversionDao();
-        List<unitConversion> list = n.getAll();
-        List<unitConversion> listunit = n.getAllunit();
+        List<UnitConversion> list = n.getAll();
+        List<UnitConversion> listunit = n.getAllunit();
         List<Category> listcat = n.getAllpre();
         if (list != null) {
             request.setAttribute("list", list);
@@ -92,9 +92,9 @@ public class unitConversionSeverlet extends HttpServlet {
         unitConversionDao n = new unitConversionDao();
 
         List<Category> listcat = n.getAllpre();
-        List<unitConversion> listunit = n.getAllunit();
-        List<unitConversion> list = n.getAll();
-        List<unitConversion> newlist = n.getFilter(choiceDevice, choiceUnit, search);
+        List<UnitConversion> listunit = n.getAllunit();
+        List<UnitConversion> list = n.getAll();
+        List<UnitConversion> newlist = n.getFilter(choiceDevice, choiceUnit, search);
         System.out.println("Base unit: " + choiceUnit);
         System.out.println("Device (parent): " + choiceDevice);
         System.out.println("Material name: " + search);
