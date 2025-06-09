@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
+import org.mindrot.jbcrypt.BCrypt;
 
 /**
  *
@@ -78,44 +79,87 @@ public class Login extends HttpServlet {
         HttpSession session = request.getSession();
         String gmail = request.getParameter("gmail");
         String pass = request.getParameter("pass");
+
         DAO dao = new DAO();
         List<User> list = dao.userAccount();
         Boolean vali = false;
+
         if (list != null && !list.isEmpty()) {
             for (User user2 : list) {
-                if (gmail.equals(user2.getEmail()) && pass.equals(user2.getPassword())) {
-                    if (user2.getStatus() != null && user2.getStatus().equals("active")){
-                        session.setAttribute("Admin", user2);
-                        session.setAttribute("userId", user2.getUser_id());    
-                        session.setAttribute("roleId", user2.getRole());
-                        vali = true;
-                                                    //dashboard.jsp
-                        if (user2.getRole().getRoleid() == 1) {
-                            response.sendRedirect("adminDashboard.jsp");
-                        } else if (user2.getRole().getRoleid() == 2) {
-                            response.sendRedirect("view/directorDashboard.jsp");
-                        } else if (user2.getRole().getRoleid() == 3) {
-                            PrintWriter out = response.getWriter();
-                            out.print("day la so 3");
-                        } else if (user2.getRole().getRoleid() == 4) {
-                            PrintWriter out = response.getWriter();
-                            out.print("day la so 4");
-                        }
 
+                // Kiểm tra email
+                if (gmail.equals(user2.getEmail())) {
+                    // Kiểm tra nếu mật khẩu chưa được mã hóa
+                    if (user2.getPassword() != null && !user2.getPassword().startsWith("$2a$")) { // Kiểm tra mật khẩu chưa mã hóa
+                        // Nếu mật khẩu chưa mã hóa, kiểm tra trực tiếp và đăng nhập
+                        if (pass.equals(user2.getPassword())) {
+
+                            // Tiến hành đăng nhập
+                            session.setAttribute("Admin", user2);
+                            session.setAttribute("userId", user2.getUser_id());
+                            session.setAttribute("roleId", user2.getRole());
+
+                            vali = true;
+
+                            // Điều hướng người dùng theo vai trò
+                            if (user2.getRole().getRoleid() == 1) {
+                                response.sendRedirect("dashboard.jsp");
+                            } else if (user2.getRole().getRoleid() == 2) {
+                                PrintWriter out = response.getWriter();
+                                out.print("day la so 2");
+                            } else if (user2.getRole().getRoleid() == 3) {
+                                PrintWriter out = response.getWriter();
+                                out.print("day la so 3");
+
+                            } else if (user2.getRole().getRoleid() == 4) {
+                                PrintWriter out = response.getWriter();
+                                out.print("day la so 4");
+                            }
+                            break;
+                        }
                     } else {
-                        String mess = "Account Invalid!";
-                        request.setAttribute("mess", mess);
-                        request.getRequestDispatcher("login.jsp").forward(request, response);
+                        // Nếu mật khẩu đã được mã hóa, kiểm tra với BCrypt
+                        if (BCrypt.checkpw(pass, user2.getPassword())) {
+                            // Kiểm tra xem tài khoản có đang kích hoạt hay không
+                            if (user2.getStatus() != null && user2.getStatus().equals("active")) {
+                                session.setAttribute("Admin", user2);
+                                session.setAttribute("userId", user2.getUser_id());
+                                session.setAttribute("roleId", user2.getRole());
+
+                                vali = true;
+
+                                if (user2.getRole().getRoleid() == 1) {
+                                    response.sendRedirect("dashboard.jsp");
+                                } else if (user2.getRole().getRoleid() == 2) {
+                                    PrintWriter out = response.getWriter();
+                                    out.print("day la so 2");
+                                } else if (user2.getRole().getRoleid() == 3) {
+//                                    PrintWriter out = response.getWriter();
+//                                    out.print("day la so 3");
+                                    response.sendRedirect("requestMaterial.jsp");
+                                } else if (user2.getRole().getRoleid() == 4) {
+                                    PrintWriter out = response.getWriter();
+                                    out.print("day la so 4");
+
+                                }
+                                break;
+                            } else {
+                                String mess = "Account Invalid!";
+                                request.setAttribute("mess", mess);
+                                request.getRequestDispatcher("login.jsp").forward(request, response);
+                            }
+                        }
                     }
                 }
             }
         }
+
+        // Nếu đăng nhập không thành công
         if (!vali) {
             String mess = "Incorrect account or password";
             request.setAttribute("mess", mess);
             request.getRequestDispatcher("login.jsp").forward(request, response);
         }
-
     }
 
     /**

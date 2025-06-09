@@ -6,7 +6,7 @@
     <head>
         <meta charset="UTF-8" />
         <title>View User Information</title>
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/updateuserprofile.css" />
+        <link rel="stylesheet" href="css/updateUserProfile.css" />
         <link rel="stylesheet" href="css/footer.css">
         <link rel="stylesheet" href="css/dashboard.css">
         <link rel="stylesheet" href="css/sidebar.css">
@@ -46,16 +46,11 @@
                                 <input type="file" id="imageFile" name="imageFile" accept="image/*" disabled />
                             </div>
 
-                            <!-- Full Name -->
-                            <div class="row full-width">
-                                <label for="fullname">Full Name:</label>
-                                <input type="text" id="fullname" name="fullname" value="${user.fullname}" readonly />
-                            </div>
 
                             <div class="row">
                                 <div class="column">
-                                    <label for="username">User Name:</label>
-                                    <input type="text" id="username" name="username" value="${user.username}" readonly />
+                                    <label for="fullname">Full Name:</label>
+                                    <input type="text" id="fullname" name="fullname" value="${user.fullname}" readonly />
                                 </div>
                                 <div class="column">
                                     <label for="password">Password:</label>

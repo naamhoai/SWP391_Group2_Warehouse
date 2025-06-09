@@ -41,11 +41,7 @@
                                     <input type="text" id="fullName" name="fullName" required 
                                            value="${fn:escapeXml(fullName)}" oninput="generateEmail()" />
                                 </div>
-                                <div class="column">
-                                    <label for="username">User Name:</label>
-                                    <input type="text" id="username" name="username" required 
-                                           value="${fn:escapeXml(username)}" />
-                                </div>
+                                
                             </div>
 
                             <div class="row">

@@ -86,10 +86,10 @@ public class UserDetailServlet extends HttpServlet {
             request.setAttribute("dob", formattedDOB);
 
             // Forward to the update user profile page
-            request.getRequestDispatcher("userdetail.jsp").forward(request, response);
+            request.getRequestDispatcher("userDetail.jsp").forward(request, response);
         } else {
             request.setAttribute("error", "User not found.");
-            request.getRequestDispatcher("userdetail.jsp").forward(request, response);
+            request.getRequestDispatcher("userDetail.jsp").forward(request, response);
         }
     }
 

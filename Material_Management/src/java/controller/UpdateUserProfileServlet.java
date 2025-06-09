@@ -82,10 +82,10 @@ public class UpdateUserProfileServlet extends HttpServlet {
         if (user != null) {
             // Truyền thông tin người dùng vào request
             request.setAttribute("user", user);
-            request.getRequestDispatcher("updateuserprofile.jsp").forward(request, response);  // Chuyển hướng tới trang chỉnh sửa
+            request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);  // Chuyển hướng tới trang chỉnh sửa
         } else {
             request.setAttribute("error", "User not found.");
-            request.getRequestDispatcher("userdetail.jsp").forward(request, response);
+            request.getRequestDispatcher("userDetail.jsp").forward(request, response);
         }
     }
 
@@ -116,7 +116,6 @@ public class UpdateUserProfileServlet extends HttpServlet {
         }
 
         // Lấy thông tin từ form
-        String username = request.getParameter("username");
         String fullname = request.getParameter("fullname");
         String phone = request.getParameter("phone");
         String gender = request.getParameter("gender");
@@ -124,20 +123,22 @@ public class UpdateUserProfileServlet extends HttpServlet {
         String password = request.getParameter("password");
 
         // Cập nhật thông tin cho đối tượng user
-        user.setUsername(username);
         user.setFullname(fullname);
         user.setPhone(phone);
         user.setGender(gender);
         user.setDayofbirth(dobInput);
 
+        // Nếu có thay đổi mật khẩu, mã hóa mật khẩu mới và cập nhật
         if (password != null && !password.trim().isEmpty()) {
-            user.setPassword(password); // Cập nhật mật khẩu nếu có
+            // Mã hóa mật khẩu mới
+            String hashedPassword = userDAO.hashPassword(password);
+            user.setPassword(hashedPassword); // Cập nhật mật khẩu đã mã hóa
         }
 
         // Cập nhật ảnh đại diện nếu có
         Part imagePart = request.getPart("imageFile");
         if (imagePart != null && imagePart.getSize() > 0) {
-            String imagePath = "/uploads/" + Path.of(imagePart.getSubmittedFileName()).getFileName().toString();
+            String imagePath = "/image/" + Path.of(imagePart.getSubmittedFileName()).getFileName().toString();
             imagePart.write(getServletContext().getRealPath(imagePath));
             user.setImage(imagePath);
         }
@@ -149,7 +150,7 @@ public class UpdateUserProfileServlet extends HttpServlet {
         } else {
             request.setAttribute("error", "Update failed.");
             request.setAttribute("user", user);
-            request.getRequestDispatcher("updateuserprofile.jsp").forward(request, response);
+            request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);
         }
     }
 

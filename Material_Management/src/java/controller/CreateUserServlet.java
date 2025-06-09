@@ -71,7 +71,7 @@ public class CreateUserServlet extends HttpServlet {
             throws ServletException, IOException {
         List<Role> roleList = roleDAO.getAllRolesExceptAdmin();
         request.setAttribute("roleList", roleList);
-        request.getRequestDispatcher("createuser.jsp").forward(request, response);
+        request.getRequestDispatcher("createUser.jsp").forward(request, response);
     }
 
     /**
@@ -85,7 +85,6 @@ public class CreateUserServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String username = request.getParameter("username");
         String fullName = request.getParameter("fullName");
 
         String password = request.getParameter("password");
@@ -120,17 +119,7 @@ public class CreateUserServlet extends HttpServlet {
         request.setAttribute("gender", gender);
         request.setAttribute("dayofbirth", dayofbirth);
         request.setAttribute("description", description);
-        if (username == null || username.trim().isEmpty()) {
-            request.setAttribute("error", "Bạn phải nhập tên đăng nhập (username).");
-            doGet(request, response);
-            return;
-        }
-        if (userDAO.existsUsername(username)) {
-            request.setAttribute("error", "Tên đăng nhập đã tồn tại, vui lòng chọn tên khác.");
-            doGet(request, response);
-            return;
-        }
-
+       
         if (fullName == null || fullName.trim().isEmpty()) {
             request.setAttribute("error", "Họ và tên không được để trống!");
             doGet(request, response);
@@ -194,7 +183,6 @@ public class CreateUserServlet extends HttpServlet {
             doGet(request, response);
             return;
         }
-        
 
         request.setAttribute("dayofbirth", dayofbirth);
 
@@ -218,13 +206,19 @@ public class CreateUserServlet extends HttpServlet {
             return;
         }
 
+        if (!userDAO.isValidPassword(password)) {
+            request.setAttribute("error", "Mật khẩu không hợp lệ! Cần có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.");
+            doGet(request, response);
+            return;
+        }
+        String hashedPassword = userDAO.hashPassword(password);
+
         User newUser = new User();
         Role role = new Role();
         role.setRoleid(roleId);
-        newUser.setUsername(username);
         newUser.setFullname(fullName);
         newUser.setEmail(email);
-        newUser.setPassword(password);
+        newUser.setPassword(hashedPassword);
         newUser.setPhone(phone);
         newUser.setRole(role);
         newUser.setStatus(status);
@@ -237,7 +231,7 @@ public class CreateUserServlet extends HttpServlet {
         boolean success = userDAO.insertUser(newUser);
 
         if (success) {
-            response.sendRedirect(request.getContextPath() + "/UserDetailServlet");
+            response.sendRedirect(request.getContextPath() + "/settinglist");
         } else {
             request.setAttribute("error", "Tạo người dùng thất bại. Vui lòng thử lại!");
             List<Role> roleList = roleDAO.getAllRolesExceptAdmin();
