@@ -13,7 +13,7 @@
     </div>
     <ul class="sidebar-menu">
         <li class="menu-item">
-            <a href="dashboard.jsp" class="menu-link active">
+            <a href="admindashboard.jsp" class="menu-link active">
                 <i class="fas fa-tachometer-alt menu-icon"></i>
                 <span class="menu-text">Dashboard</span>
             </a>
@@ -38,7 +38,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="${pageContext.request.contextPath}/supplier-list" class="submenu-link">
+                    <a href="${pageContext.request.contextPath}/suppliers" class="submenu-link">
                         <i class="fas fa-truck menu-icon"></i>
                         <span class="menu-text">Supplier Management</span>
                     </a>

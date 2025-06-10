@@ -17,9 +17,8 @@ public class Supplier {
     }
 
     // Constructor đầy đủ tham số
-    public Supplier(int supplierId, String supplierName, String contactPerson, 
-            String supplierPhone, String address, String status, 
-            Timestamp createdAt, Timestamp updatedAt) {
+    public Supplier(int supplierId, String supplierName, String contactPerson, String supplierPhone, 
+            String address, String status, Timestamp createdAt, Timestamp updatedAt) {
         this.supplierId = supplierId;
         this.supplierName = supplierName;
         this.contactPerson = contactPerson;
@@ -31,8 +30,8 @@ public class Supplier {
     }
 
     // Constructor không có timestamps
-    public Supplier(int supplierId, String supplierName, String contactPerson, 
-            String supplierPhone, String address, String status) {
+    public Supplier(int supplierId, String supplierName, String contactPerson, String supplierPhone, 
+            String address, String status) {
         this.supplierId = supplierId;
         this.supplierName = supplierName;
         this.contactPerson = contactPerson;
@@ -113,15 +112,8 @@ public class Supplier {
 
     @Override
     public String toString() {
-        return "Supplier{" +
-                "supplierId=" + supplierId +
-                ", supplierName='" + supplierName + '\'' +
-                ", contactPerson='" + contactPerson + '\'' +
-                ", supplierPhone='" + supplierPhone + '\'' +
-                ", address='" + address + '\'' +
-                ", status='" + status + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
+        return "Supplier{" + "supplierId=" + supplierId + ", supplierName=" + supplierName + 
+                ", contactPerson=" + contactPerson + ", supplierPhone=" + supplierPhone + 
+                ", address=" + address + ", status=" + status + '}';
     }
 } 
