@@ -22,7 +22,7 @@ import org.mindrot.jbcrypt.BCrypt;
  * @author kien3
  */
 @WebServlet(name = "login", urlPatterns = {"/login"})
-public class Login extends HttpServlet {
+public class LoginSeverlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -87,21 +87,20 @@ public class Login extends HttpServlet {
         if (list != null && !list.isEmpty()) {
             for (User user2 : list) {
 
-                // Kiểm tra email
+            
                 if (gmail.equals(user2.getEmail())) {
-                    // Kiểm tra nếu mật khẩu chưa được mã hóa
-                    if (user2.getPassword() != null && !user2.getPassword().startsWith("$2a$")) { // Kiểm tra mật khẩu chưa mã hóa
-                        // Nếu mật khẩu chưa mã hóa, kiểm tra trực tiếp và đăng nhập
+                  
+                    if (user2.getPassword() != null && !user2.getPassword().startsWith("$2a$")) { 
                         if (pass.equals(user2.getPassword())) {
 
-                            // Tiến hành đăng nhập
+                         
                             session.setAttribute("Admin", user2);
                             session.setAttribute("userId", user2.getUser_id());
                             session.setAttribute("roleId", user2.getRole());
 
                             vali = true;
 
-                            // Điều hướng người dùng theo vai trò
+                       
                             if (user2.getRole().getRoleid() == 1) {
                                 response.sendRedirect("dashboard.jsp");
                             } else if (user2.getRole().getRoleid() == 2) {
@@ -118,9 +117,9 @@ public class Login extends HttpServlet {
                             break;
                         }
                     } else {
-                        // Nếu mật khẩu đã được mã hóa, kiểm tra với BCrypt
+                     
                         if (BCrypt.checkpw(pass, user2.getPassword())) {
-                            // Kiểm tra xem tài khoản có đang kích hoạt hay không
+                        
                             if (user2.getStatus() != null && user2.getStatus().equals("active")) {
                                 session.setAttribute("Admin", user2);
                                 session.setAttribute("userId", user2.getUser_id());
@@ -154,7 +153,7 @@ public class Login extends HttpServlet {
             }
         }
 
-        // Nếu đăng nhập không thành công
+
         if (!vali) {
             String mess = "Incorrect account or password";
             request.setAttribute("mess", mess);

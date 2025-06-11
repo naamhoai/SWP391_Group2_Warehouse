@@ -13,7 +13,7 @@ import model.*;
  *
  * @author kien3
  */
-public class unitConversionDao extends dal.DBContext {
+public class UnitConversionDao extends dal.DBContext {
 
     public List<UnitConversion> getAll() {
         List<UnitConversion> list = new ArrayList<>();
@@ -177,7 +177,7 @@ public class unitConversionDao extends dal.DBContext {
     }
 
     public static void main(String[] args) {
-        unitConversionDao n = new unitConversionDao();
+        UnitConversionDao n = new UnitConversionDao();
         String a ="Thiết bị điện";
         String uni ="";
         String c ="";

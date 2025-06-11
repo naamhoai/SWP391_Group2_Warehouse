@@ -4,7 +4,7 @@
  */
 package controller;
 
-import dao.unitConversionDao;
+import dao.UnitConversionDao;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -21,7 +21,7 @@ import model.*;
  * @author kien3
  */
 @WebServlet(name = "unitConversionSeverlet", urlPatterns = {"/unitConversionSeverlet"})
-public class unitConversionSeverlet extends HttpServlet {
+public class UnitConversionSeverlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -61,7 +61,7 @@ public class unitConversionSeverlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        unitConversionDao n = new unitConversionDao();
+        UnitConversionDao n = new UnitConversionDao();
         List<UnitConversion> list = n.getAll();
         List<UnitConversion> listunit = n.getAllunit();
         List<Category> listcat = n.getAllpre();
@@ -89,7 +89,7 @@ public class unitConversionSeverlet extends HttpServlet {
         String choiceDevice = request.getParameter("choiceDevice");
         String choiceUnit = request.getParameter("choiceUnit");
         String search = request.getParameter("search");
-        unitConversionDao n = new unitConversionDao();
+        UnitConversionDao n = new UnitConversionDao();
 
         List<Category> listcat = n.getAllpre();
         List<UnitConversion> listunit = n.getAllunit();
