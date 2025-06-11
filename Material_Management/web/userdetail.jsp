@@ -6,9 +6,9 @@
     <head>
         <meta charset="UTF-8" />
         <title>View User Information</title>
-        <link rel="stylesheet" href="css/updateUserProfile.css" />
+        <link rel="stylesheet" href="css/updateuserprofile.css />
         <link rel="stylesheet" href="css/footer.css">
-        <link rel="stylesheet" href="css/dashboard.css">
+        <link rel="stylesheet" href="css/createUser.css">
         <link rel="stylesheet" href="css/sidebar.css">
         <!-- Font Awesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">

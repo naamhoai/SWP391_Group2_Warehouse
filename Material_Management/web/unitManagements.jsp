@@ -50,7 +50,7 @@
                     </button>
                 </div>
                 <div class="add-button">
-                        <i class="fas fa-plus"></i><a href="UnitEditseverlet"> Edit </a>
+                        <i class="fas fa-plus"></i><a href="unitEditseverlet"> Edit </a>
                 </div>
                 
             </div>

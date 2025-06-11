@@ -12,16 +12,16 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.List;
-import model.Category;
-import model.UnitConversion;
+import model.*;
 
 /**
  *
  * @author kien3
  */
-@WebServlet(name = "UnitEditseverlet", urlPatterns = {"/UitEditseverlet"})
-public class UnitEditseverlet extends HttpServlet {
+@WebServlet(name = "unitConversionSeverlet", urlPatterns = {"/unitConversionSeverlet"})
+public class UnitConversionServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -40,10 +40,10 @@ public class UnitEditseverlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet unitEditseverlet</title>");
+            out.println("<title>Servlet unitConversionSeverlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet unitEditseverlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet unitConversionSeverlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -69,9 +69,10 @@ public class UnitEditseverlet extends HttpServlet {
             request.setAttribute("list", list);
             request.setAttribute("listcat", listcat);
             request.setAttribute("listunit", listunit);
-
+           
         }
-        request.getRequestDispatcher("editUnit.jsp").forward(request, response);
+        
+        request.getRequestDispatcher("unitManagements.jsp").forward(request, response);
     }
 
     /**
@@ -85,17 +86,24 @@ public class UnitEditseverlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String caterpp = request.getParameter("caterpp");
-        String type = request.getParameter("type");
-        String originalUnit = request.getParameter("originalUnit");
-        String standardUnit = request.getParameter("standardUnit");
-        String unit1 = request.getParameter("unit1");
-        String unit2 = request.getParameter("unit2");
-        String note = request.getParameter("note");
-        
-        
-        
+        String choiceDevice = request.getParameter("choiceDevice");
+        String choiceUnit = request.getParameter("choiceUnit");
+        String search = request.getParameter("search");
+        UnitConversionDao n = new UnitConversionDao();
 
+        List<Category> listcat = n.getAllpre();
+        List<UnitConversion> listunit = n.getAllunit();
+        List<UnitConversion> list = n.getAll();
+        List<UnitConversion> newlist = n.getFilter(choiceDevice, choiceUnit, search);
+        System.out.println("Base unit: " + choiceUnit);
+        System.out.println("Device (parent): " + choiceDevice);
+        System.out.println("Material name: " + search);
+        
+        request.setAttribute("list", list);
+        request.setAttribute("listcat", listcat);
+        request.setAttribute("listunit", listunit);
+        request.setAttribute("list", newlist);
+        request.getRequestDispatcher("unitManagements.jsp").forward(request, response);
     }
 
     /**

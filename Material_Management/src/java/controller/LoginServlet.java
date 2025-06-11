@@ -22,7 +22,7 @@ import org.mindrot.jbcrypt.BCrypt;
  * @author kien3
  */
 @WebServlet(name = "login", urlPatterns = {"/login"})
-public class LoginSeverlet extends HttpServlet {
+public class LoginServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -102,7 +102,7 @@ public class LoginSeverlet extends HttpServlet {
 
                        
                             if (user2.getRole().getRoleid() == 1) {
-                                response.sendRedirect("dashboard.jsp");
+                                response.sendRedirect("adminDashboard.jsp");
                             } else if (user2.getRole().getRoleid() == 2) {
                                 PrintWriter out = response.getWriter();
                                 out.print("day la so 2");
@@ -128,7 +128,7 @@ public class LoginSeverlet extends HttpServlet {
                                 vali = true;
 
                                 if (user2.getRole().getRoleid() == 1) {
-                                    response.sendRedirect("dashboard.jsp");
+                                    response.sendRedirect("adminDashboard.jsp");
                                 } else if (user2.getRole().getRoleid() == 2) {
                                     PrintWriter out = response.getWriter();
                                     out.print("day la so 2");

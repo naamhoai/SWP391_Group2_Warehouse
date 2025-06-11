@@ -21,7 +21,7 @@ import model.UnitConversion;
  * @author kien3
  */
 @WebServlet(name = "unitEditseverlet", urlPatterns = {"/unitEditseverlet"})
-public class UnitEditseverlet extends HttpServlet {
+public class UnitEditServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
