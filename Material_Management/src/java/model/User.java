@@ -3,7 +3,6 @@ package model;
 public class User {
 
     private int user_id;
-    private String username;
     private String fullname;
     private String email;
     private String password;
@@ -19,9 +18,8 @@ public class User {
     public User() {
     }
 
-    public User(int user_id, String username, String fullname, String email, String password, String phone, Role role, String status, int priority, String image, String gender, String dayofbirth, String description) {
+    public User(int user_id, String fullname, String email, String password, String phone, Role role, String status, int priority, String image, String gender, String dayofbirth, String description) {
         this.user_id = user_id;
-        this.username = username;
         this.fullname = fullname;
         this.email = email;
         this.password = password;
@@ -41,14 +39,6 @@ public class User {
 
     public void setUser_id(int user_id) {
         this.user_id = user_id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getFullname() {
@@ -141,21 +131,7 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{"
-                + "user_id=" + user_id
-                + ", username='" + username + '\''
-                + ", fullname='" + fullname + '\''
-                + ", email='" + email + '\''
-                + ", password='" + password + '\''
-                + ", phone='" + phone + '\''
-                + ", role_id=" + role
-                + ", status='" + status + '\''
-                + ", priority=" + priority
-                + ", image='" + image + '\''
-                + ", gender='" + gender + '\''
-                + ", dayofbirth='" + dayofbirth + '\''
-                + ", description='" + description + '\''
-                + '}';
+        return "User{" + "user_id=" + user_id + ", fullname=" + fullname + ", email=" + email + ", password=" + password + ", phone=" + phone + ", role=" + role + ", status=" + status + ", priority=" + priority + ", image=" + image + ", gender=" + gender + ", dayofbirth=" + dayofbirth + ", description=" + description + '}';
     }
 
 }

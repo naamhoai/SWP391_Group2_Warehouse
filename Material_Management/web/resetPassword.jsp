@@ -11,10 +11,6 @@
         <h2>Reset Password</h2>
         <form action="resetPassword" method="POST">
             <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" name="username" id="username" value="${username}" required placeholder="Enter your username">
-            </div>
-            <div class="form-group">
                 <label for="email">Email Address</label>
                 <input type="email" name="email" id="email" value="${email}" required placeholder="Enter your email">
             </div>

@@ -11,7 +11,7 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-public class ResetService {
+public class ResetServiceServlet {
     private final int LIMIT_MINUTES = 10;
     static final String FROM = "ezminh216@gmail.com";
     static final String PASSWORD = "bqaw bzvt weej pxpn";

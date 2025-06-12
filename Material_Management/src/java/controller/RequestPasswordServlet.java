@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet(name="requestPassword", urlPatterns={"/requestPassword"})
-public class RequestPassword extends HttpServlet {
+public class RequestPasswordServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -24,7 +24,6 @@ public class RequestPassword extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String email = request.getParameter("email");
-        String username = request.getParameter("username");
         ResetPasswordDAO daoUser = new ResetPasswordDAO();
         User user = daoUser.getUserByEmail(email);
 
@@ -34,7 +33,7 @@ public class RequestPassword extends HttpServlet {
             return;
         }
 
-        ResetService service = new ResetService();
+        ResetServiceServlet service = new ResetServiceServlet();
         String token = service.generateToken();
         String resetLink = "http://localhost:8080/Material_Management/resetPassword?token=" + token;
 
@@ -47,7 +46,7 @@ public class RequestPassword extends HttpServlet {
             return;
         }
 
-        if (!service.sendEmail(email, resetLink, user.getUsername())) {
+        if (!service.sendEmail(email, resetLink, user.getFullname())) {
             request.setAttribute("mess", "Không thể gửi email.");
             request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
             return;

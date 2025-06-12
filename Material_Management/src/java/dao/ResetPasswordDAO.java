@@ -21,7 +21,6 @@ public class ResetPasswordDAO extends DBContext {
                 r.setRolename(rs.getString("role_name"));
                 return new User(
                         rs.getInt("user_id"),
-                        rs.getString("user_name"),
                         rs.getString("full_name"),
                         rs.getString("email"),
                         rs.getString("password"),
@@ -53,7 +52,6 @@ public class ResetPasswordDAO extends DBContext {
                 r.setRolename(rs.getString("role_name"));
                 return new User(
                         rs.getInt("user_id"),
-                        rs.getString("user_name"),
                         rs.getString("full_name"),
                         rs.getString("email"),
                         rs.getString("password"),
@@ -82,37 +80,6 @@ public class ResetPasswordDAO extends DBContext {
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-    }
-
-    public boolean updateUsernameAndPassword(String email, String username, String password) {
-        // First check if the username already exists for a different email
-        String checkSql = "SELECT COUNT(*) FROM users WHERE user_name = ? AND email != ?";
-        try {
-            PreparedStatement checkPs = connection.prepareStatement(checkSql);
-            checkPs.setString(1, username);
-            checkPs.setString(2, email);
-            ResultSet rs = checkPs.executeQuery();
-            if (rs.next() && rs.getInt(1) > 0) {
-                return false; // Username already exists
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        // If username is unique, proceed with update
-        String sql = "UPDATE users SET user_name = ?, password = ? WHERE email = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, username);
-            ps.setString(2, password);
-            ps.setString(3, email);
-            int rowsAffected = ps.executeUpdate();
-            return rowsAffected > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
         }
     }
 }

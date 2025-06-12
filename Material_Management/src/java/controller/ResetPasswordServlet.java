@@ -13,7 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 @WebServlet(name="resetPassword", urlPatterns={"/resetPassword"})
-public class ResetPassword extends HttpServlet {
+public class ResetPasswordServlet extends HttpServlet {
     private final TokenForgetDAO daoToken = new TokenForgetDAO();
     private final ResetPasswordDAO daoUser = new ResetPasswordDAO();
 
@@ -25,7 +25,7 @@ public class ResetPassword extends HttpServlet {
 
         if (token != null) {
             TokenForgetPassword tokenObj = daoToken.getTokenPassword(token);
-            ResetService service = new ResetService();
+            ResetServiceServlet service = new ResetServiceServlet();
 
             if (tokenObj == null || tokenObj.isUsed() || service.isExpired(tokenObj.getExpiryTime())) {
                 request.setAttribute("mess", "Token is invalid or expired.");
@@ -35,7 +35,6 @@ public class ResetPassword extends HttpServlet {
 
             User user = daoUser.getUserById(tokenObj.getUser_id());
             request.setAttribute("email", user.getEmail());
-            request.setAttribute("username", user.getUsername());
             session.setAttribute("token", token);
             request.getRequestDispatcher("resetPassword.jsp").forward(request, response);
         } else {
@@ -47,14 +46,12 @@ public class ResetPassword extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String email = request.getParameter("email");
-        String username = request.getParameter("username");
         String password = request.getParameter("password");
         String confirmPassword = request.getParameter("confirm_password");
 
         if (!password.equals(confirmPassword)) {
             request.setAttribute("mess", "Mật khẩu xác nhận không khớp.");
             request.setAttribute("email", email);
-            request.setAttribute("username", username);
             request.getRequestDispatcher("resetPassword.jsp").forward(request, response);
             return;
         }
@@ -63,21 +60,15 @@ public class ResetPassword extends HttpServlet {
         String token = (String) session.getAttribute("token");
         TokenForgetPassword tokenObj = daoToken.getTokenPassword(token);
 
-        ResetService service = new ResetService();
+        ResetServiceServlet service = new ResetServiceServlet();
         if (tokenObj == null || tokenObj.isUsed() || service.isExpired(tokenObj.getExpiryTime())) {
             request.setAttribute("mess", "Token không hợp lệ hoặc đã hết hạn.");
             request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
             return;
         }
 
-        // Update both username and password
-        if (!daoUser.updateUsernameAndPassword(email, username, password)) {
-            request.setAttribute("mess", "Không thể cập nhật thông tin. Username có thể đã tồn tại.");
-            request.setAttribute("email", email);
-            request.setAttribute("username", username);
-            request.getRequestDispatcher("resetPassword.jsp").forward(request, response);
-            return;
-        }
+        // Chỉ update password theo email
+        daoUser.updatePassword(email, password);
 
         tokenObj.setUsed(true);
         daoToken.updateStatus(tokenObj);
