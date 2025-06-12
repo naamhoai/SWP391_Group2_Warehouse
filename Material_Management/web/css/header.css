@@ -1,0 +1,45 @@
+/* Welcome Header Styles */
+.welcome-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.welcome-text {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 500;
+}
+
+.welcome-text strong {
+    color: var(--primary-color);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+    font-weight: 600;
+    font-size: 1.25rem;
+    text-transform: uppercase;
+}
+
+/* Dark Mode Adjustments */
+.dark-mode .welcome-text {
+    color: var(--text-primary);
+}
+
+.dark-mode .user-avatar {
+    background: var(--secondary-color);
+}
