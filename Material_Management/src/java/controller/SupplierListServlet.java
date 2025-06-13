@@ -60,8 +60,8 @@ public class SupplierListServlet extends HttpServlet {
                         showEditForm(request, response);
                     }
                     break;
-                case "delete":
-                    deleteSupplier(request, response);
+                case "view":
+                    viewSupplier(request, response);
                     break;
                 default:
                     listSuppliers(request, response);
@@ -136,21 +136,58 @@ public class SupplierListServlet extends HttpServlet {
     private void addSupplier(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
+            String supplierName = request.getParameter("supplierName");
+            String contactPerson = request.getParameter("contactPerson");
+            String supplierPhone = request.getParameter("supplierPhone");
+            String address = request.getParameter("address");
+            String status = request.getParameter("status");
+
+            // Validate input
+            if (supplierName == null || supplierName.trim().length() < 2) {
+                request.getSession().setAttribute("error", "Tên nhà cung cấp phải có ít nhất 2 ký tự");
+                response.sendRedirect(request.getContextPath() + "/suppliers?action=add");
+                return;
+            }
+
+            if (contactPerson == null || contactPerson.trim().length() < 2) {
+                request.getSession().setAttribute("error", "Tên người liên hệ phải có ít nhất 2 ký tự");
+                response.sendRedirect(request.getContextPath() + "/suppliers?action=add");
+                return;
+            }
+
+            if (supplierPhone == null || !supplierPhone.matches("^[0-9]{10,11}$")) {
+                request.getSession().setAttribute("error", "Số điện thoại phải có 10-11 chữ số");
+                response.sendRedirect(request.getContextPath() + "/suppliers?action=add");
+                return;
+            }
+
+            if (address == null || address.trim().length() < 5) {
+                request.getSession().setAttribute("error", "Địa chỉ phải có ít nhất 5 ký tự");
+                response.sendRedirect(request.getContextPath() + "/suppliers?action=add");
+                return;
+            }
+
+            if (status == null || (!status.equals("active") && !status.equals("inactive"))) {
+                request.getSession().setAttribute("error", "Trạng thái không hợp lệ");
+                response.sendRedirect(request.getContextPath() + "/suppliers?action=add");
+                return;
+            }
+
             Supplier supplier = new Supplier();
-            supplier.setSupplierName(request.getParameter("name"));
-            supplier.setContactPerson(request.getParameter("contact"));
-            supplier.setSupplierPhone(request.getParameter("phone"));
-            supplier.setAddress(request.getParameter("address"));
-            supplier.setStatus(request.getParameter("status"));
+            supplier.setSupplierName(supplierName.trim());
+            supplier.setContactPerson(contactPerson.trim());
+            supplier.setSupplierPhone(supplierPhone.trim());
+            supplier.setAddress(address.trim());
+            supplier.setStatus(status);
 
             if (supplierDAO.addSupplier(supplier)) {
-                request.getSession().setAttribute("message", "Supplier added successfully");
+                request.getSession().setAttribute("message", "Thêm nhà cung cấp thành công");
             } else {
-                request.getSession().setAttribute("error", "Failed to add supplier");
+                request.getSession().setAttribute("error", "Không thể thêm nhà cung cấp");
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error in addSupplier: {0}", e.getMessage());
-            request.getSession().setAttribute("error", "Error adding supplier");
+            request.getSession().setAttribute("error", "Lỗi khi thêm nhà cung cấp: " + e.getMessage());
         }
         response.sendRedirect(request.getContextPath() + "/suppliers");
     }
@@ -158,39 +195,102 @@ public class SupplierListServlet extends HttpServlet {
     private void updateSupplier(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            Supplier supplier = new Supplier();
-            supplier.setSupplierId(Integer.parseInt(request.getParameter("id")));
-            supplier.setSupplierName(request.getParameter("name"));
-            supplier.setContactPerson(request.getParameter("contact"));
-            supplier.setSupplierPhone(request.getParameter("phone"));
-            supplier.setAddress(request.getParameter("address"));
-            supplier.setStatus(request.getParameter("status"));
+            // Get parameters
+            int supplierId = Integer.parseInt(request.getParameter("supplierId"));
+            String supplierName = request.getParameter("supplierName");
+            String contactPerson = request.getParameter("contactPerson");
+            String supplierPhone = request.getParameter("supplierPhone");
+            String address = request.getParameter("address");
+            String status = request.getParameter("status");
 
-            if (supplierDAO.updateSupplier(supplier)) {
-                request.getSession().setAttribute("message", "Supplier updated successfully");
-            } else {
-                request.getSession().setAttribute("error", "Failed to update supplier");
+            LOGGER.log(Level.INFO, "Nhận được request cập nhật supplier - ID: {0}, Name: {1}, Status: {2}",
+                new Object[]{supplierId, supplierName, status});
+
+            // Validate input
+            if (supplierName == null || supplierName.trim().length() < 2) {
+                request.getSession().setAttribute("error", "Tên nhà cung cấp phải có ít nhất 2 ký tự");
+                response.sendRedirect(request.getContextPath() + "/suppliers?action=edit&id=" + supplierId);
+                return;
             }
+
+            if (contactPerson == null || contactPerson.trim().length() < 2) {
+                request.getSession().setAttribute("error", "Tên người liên hệ phải có ít nhất 2 ký tự");
+                response.sendRedirect(request.getContextPath() + "/suppliers?action=edit&id=" + supplierId);
+                return;
+            }
+
+            if (supplierPhone == null || !supplierPhone.matches("^[0-9]{10,11}$")) {
+                request.getSession().setAttribute("error", "Số điện thoại phải có 10-11 chữ số");
+                response.sendRedirect(request.getContextPath() + "/suppliers?action=edit&id=" + supplierId);
+                return;
+            }
+
+            if (address == null || address.trim().length() < 5) {
+                request.getSession().setAttribute("error", "Địa chỉ phải có ít nhất 5 ký tự");
+                response.sendRedirect(request.getContextPath() + "/suppliers?action=edit&id=" + supplierId);
+                return;
+            }
+
+            if (status == null || (!status.equals("active") && !status.equals("inactive"))) {
+                request.getSession().setAttribute("error", "Trạng thái không hợp lệ");
+                response.sendRedirect(request.getContextPath() + "/suppliers?action=edit&id=" + supplierId);
+                return;
+            }
+
+            // Create supplier object
+            Supplier supplier = new Supplier();
+            supplier.setSupplierId(supplierId);
+            supplier.setSupplierName(supplierName.trim());
+            supplier.setContactPerson(contactPerson.trim());
+            supplier.setSupplierPhone(supplierPhone.trim());
+            supplier.setAddress(address.trim());
+            supplier.setStatus(status);
+
+            LOGGER.log(Level.INFO, "Đang gửi request cập nhật đến DAO - ID: {0}", supplierId);
+
+            // Update supplier
+            if (supplierDAO.updateSupplier(supplier)) {
+                LOGGER.log(Level.INFO, "Cập nhật thành công supplier - ID: {0}", supplierId);
+                request.getSession().setAttribute("message", "Cập nhật nhà cung cấp thành công");
+                response.sendRedirect(request.getContextPath() + "/suppliers");
+            } else {
+                LOGGER.log(Level.WARNING, "Không thể cập nhật supplier - ID: {0}", supplierId);
+                request.getSession().setAttribute("error", "Không thể cập nhật nhà cung cấp");
+                response.sendRedirect(request.getContextPath() + "/suppliers?action=edit&id=" + supplierId);
+            }
+        } catch (NumberFormatException e) {
+            LOGGER.log(Level.SEVERE, "Lỗi định dạng ID nhà cung cấp: {0}", e.getMessage());
+            request.getSession().setAttribute("error", "ID nhà cung cấp không hợp lệ");
+            response.sendRedirect(request.getContextPath() + "/suppliers");
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error in updateSupplier: {0}", e.getMessage());
-            request.getSession().setAttribute("error", "Error updating supplier");
+            LOGGER.log(Level.SEVERE, "Lỗi khi cập nhật nhà cung cấp: {0}", e.getMessage());
+            e.printStackTrace(); // In stack trace để debug
+            request.getSession().setAttribute("error", "Có lỗi xảy ra khi cập nhật nhà cung cấp");
+            response.sendRedirect(request.getContextPath() + "/suppliers");
         }
-        response.sendRedirect(request.getContextPath() + "/suppliers");
     }
 
-    private void deleteSupplier(HttpServletRequest request, HttpServletResponse response)
+    private void viewSupplier(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
-            if (supplierDAO.deleteSupplier(id)) {
-                request.getSession().setAttribute("message", "Supplier deleted successfully");
+            Supplier supplier = supplierDAO.getSupplierById(id);
+            
+            if (supplier != null) {
+                request.setAttribute("supplier", supplier);
+                request.getRequestDispatcher("/viewSupplier.jsp").forward(request, response);
             } else {
-                request.getSession().setAttribute("error", "Failed to delete supplier");
+                request.getSession().setAttribute("error", "Không tìm thấy nhà cung cấp");
+                response.sendRedirect(request.getContextPath() + "/suppliers");
             }
         } catch (NumberFormatException e) {
-            LOGGER.log(Level.SEVERE, "Invalid supplier ID format: {0}", e.getMessage());
-            request.getSession().setAttribute("error", "Invalid supplier ID");
+            LOGGER.log(Level.SEVERE, "ID nhà cung cấp không hợp lệ: {0}", e.getMessage());
+            request.getSession().setAttribute("error", "ID nhà cung cấp không hợp lệ");
+            response.sendRedirect(request.getContextPath() + "/suppliers");
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Lỗi khi xem chi tiết nhà cung cấp: {0}", e.getMessage());
+            request.getSession().setAttribute("error", "Có lỗi xảy ra khi xem chi tiết nhà cung cấp");
+            response.sendRedirect(request.getContextPath() + "/suppliers");
         }
-        response.sendRedirect(request.getContextPath() + "/suppliers");
     }
 } 

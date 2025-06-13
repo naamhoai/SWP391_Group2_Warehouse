@@ -94,6 +94,7 @@ public class CategoryServlet extends HttpServlet {
         String keyword = request.getParameter("keyword");
         String parentIdParam = request.getParameter("parentId");
         String sortBy = request.getParameter("sortBy");
+        String pageStr = request.getParameter("page");
 
         // Clean up keyword
         if (keyword != null) {
@@ -109,15 +110,53 @@ public class CategoryServlet extends HttpServlet {
             } catch (NumberFormatException ignored) {}
         }
 
-        List<Category> categories = categoryDAO.getFilteredCategories(keyword, parentId, sortBy);
+        // Xử lý phân trang
+        int currentPage = 1;
+        final int PAGE_SIZE = 10; // Số items mỗi trang
+
+        try {
+            if (pageStr != null) {
+                currentPage = Math.max(1, Integer.parseInt(pageStr));
+            }
+        } catch (NumberFormatException e) {
+            currentPage = 1;
+        }
+
+        // Lấy tổng số trang (chỉ đếm các danh mục con)
+        int totalPages = categoryDAO.getTotalPages(keyword, parentId, PAGE_SIZE);
+        if (currentPage > totalPages && totalPages > 0) {
+            currentPage = totalPages;
+        }
+
+        // Lấy danh sách category cho trang hiện tại (chỉ lấy danh mục con)
+        List<Category> categories = categoryDAO.getFilteredCategoriesWithPaging(keyword, parentId, sortBy, currentPage, PAGE_SIZE);
+        
+        // Lấy danh sách danh mục vật tư cho dropdown filter
         List<Category> parentCategories = categoryDAO.getParentCategories();
+        
+        // Tạo map chứa tên danh mục vật tư
+        java.util.Map<Integer, String> parentNames = new java.util.HashMap<>();
+        for (Category category : categories) {
+            if (category.getParentId() != null) {
+                parentNames.put(category.getParentId(), categoryDAO.getCategoryNameById(category.getParentId()));
+            }
+        }
+
+        // Tính toán phạm vi trang hiển thị
+        int startPage = Math.max(1, currentPage - 2);
+        int endPage = Math.min(totalPages, currentPage + 2);
 
         // Set all attributes
         request.setAttribute("categories", categories);
         request.setAttribute("parentCategories", parentCategories);
+        request.setAttribute("parentNames", parentNames);
         request.setAttribute("keyword", keyword);
         request.setAttribute("parentId", parentIdParam);
         request.setAttribute("sortBy", sortBy);
+        request.setAttribute("currentPage", currentPage);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("startPage", startPage);
+        request.setAttribute("endPage", endPage);
 
         request.getRequestDispatcher("listCategory.jsp").forward(request, response);
     }

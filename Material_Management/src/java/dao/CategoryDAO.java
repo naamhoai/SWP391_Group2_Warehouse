@@ -40,7 +40,7 @@ public class CategoryDAO extends DBContext {
         return list;
     }
 
-    // Lấy danh mục cha (parent_id IS NULL)
+    // Lấy danh mục vật tư (parent_id IS NULL)
     public List<Category> getParentCategories() {
         List<Category> list = new ArrayList<>();
         String sql = "SELECT * FROM categories WHERE parent_id IS NULL ORDER BY name ASC";
@@ -58,7 +58,7 @@ public class CategoryDAO extends DBContext {
             }
 
         } catch (SQLException e) {
-            System.err.println("Lỗi khi lấy danh sách danh mục cha: " + e.getMessage());
+            System.err.println("Lỗi khi lấy danh sách danh mục vật tư: " + e.getMessage());
             e.printStackTrace();
         } finally {
             try {
@@ -420,5 +420,119 @@ public class CategoryDAO extends DBContext {
         }
 
         return null;
+    }
+
+    public List<Category> getFilteredCategoriesWithPaging(String keyword, Integer parentId, String sortBy, int page, int pageSize) {
+        List<Category> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM categories WHERE parent_id IS NOT NULL");
+        List<Object> params = new ArrayList<>();
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND LOWER(name) LIKE LOWER(?)");
+            params.add("%" + keyword.trim() + "%");
+        }
+
+        if (parentId != null) {
+            sql.append(" AND parent_id = ?");
+            params.add(parentId);
+        }
+
+        // Xử lý sort
+        if (sortBy != null) {
+            switch (sortBy.toLowerCase()) {
+                case "name":
+                    sql.append(" ORDER BY name ASC");
+                    break;
+                case "id":
+                default:
+                    sql.append(" ORDER BY category_id ASC");
+                    break;
+            }
+        } else {
+            sql.append(" ORDER BY category_id ASC");
+        }
+
+        // Thêm LIMIT và OFFSET cho phân trang
+        sql.append(" LIMIT ? OFFSET ?");
+        params.add(pageSize);
+        params.add((page - 1) * pageSize);
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = getConnection();
+            stmt = conn.prepareStatement(sql.toString());
+
+            for (int i = 0; i < params.size(); i++) {
+                stmt.setObject(i + 1, params.get(i));
+            }
+
+            rs = stmt.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSetToCategory(rs));
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi truy vấn danh mục: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                System.err.println("Lỗi đóng kết nối: " + e.getMessage());
+            }
+        }
+
+        return list;
+    }
+
+    public int getTotalPages(String keyword, Integer parentId, int pageSize) {
+        int totalRecords = 0;
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) as total FROM categories WHERE parent_id IS NOT NULL");
+        List<Object> params = new ArrayList<>();
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND LOWER(name) LIKE LOWER(?)");
+            params.add("%" + keyword.trim() + "%");
+        }
+
+        if (parentId != null) {
+            sql.append(" AND parent_id = ?");
+            params.add(parentId);
+        }
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = getConnection();
+            stmt = conn.prepareStatement(sql.toString());
+
+            for (int i = 0; i < params.size(); i++) {
+                stmt.setObject(i + 1, params.get(i));
+            }
+
+            rs = stmt.executeQuery();
+            if (rs.next()) {
+                totalRecords = rs.getInt("total");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi đếm tổng số danh mục: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                System.err.println("Lỗi đóng kết nối: " + e.getMessage());
+            }
+        }
+
+        return (int) Math.ceil((double) totalRecords / pageSize);
     }
 } 

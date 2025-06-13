@@ -11,7 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.Supplier;
 
-public class SupplierDAO {
+public class SupplierDAO extends DBContext {
     private static final Logger LOGGER = Logger.getLogger(SupplierDAO.class.getName());
     private Connection conn = null;
     private PreparedStatement ps = null;
@@ -60,7 +60,7 @@ public class SupplierDAO {
         }
         return list;
     }
-
+    
     public Supplier getSupplierById(int id) {
         String query = "SELECT * FROM supplier WHERE supplier_id = ?";
         try {
@@ -87,17 +87,71 @@ public class SupplierDAO {
         }
         return null;
     }
-
-    public boolean addSupplier(Supplier supplier) {
-        String query = "INSERT INTO supplier (supplier_name, contact_person, supplier_phone, address, status) VALUES (?, ?, ?, ?, ?)";
+    
+    public boolean updateSupplier(Supplier supplier) {
+        String query = "UPDATE supplier SET supplier_name=?, contact_person=?, supplier_phone=?, address=?, status=? WHERE supplier_id=?";
         try {
             conn = new DBContext().getConnection();
+            if (conn == null) {
+                LOGGER.log(Level.SEVERE, "Không thể kết nối đến database");
+                return false;
+            }
+
+            LOGGER.log(Level.INFO, "Chuẩn bị cập nhật supplier với ID: {0}", supplier.getSupplierId());
+            
+            // Validate status
+            String status = supplier.getStatus();
+            if (status == null || (!status.equals("active") && !status.equals("inactive"))) {
+                LOGGER.log(Level.WARNING, "Status không hợp lệ: {0}. Sử dụng giá trị mặc định 'active'", status);
+                status = "active";
+            }
+
             ps = conn.prepareStatement(query);
             ps.setString(1, supplier.getSupplierName());
             ps.setString(2, supplier.getContactPerson());
             ps.setString(3, supplier.getSupplierPhone());
             ps.setString(4, supplier.getAddress());
-            ps.setString(5, supplier.getStatus());
+            ps.setString(5, status);
+            ps.setInt(6, supplier.getSupplierId());
+            
+            LOGGER.log(Level.INFO, "Executing query: {0}", query);
+            int rowsAffected = ps.executeUpdate();
+            
+            if (rowsAffected > 0) {
+                LOGGER.log(Level.INFO, "Cập nhật thành công supplier với ID: {0}", supplier.getSupplierId());
+                return true;
+            } else {
+                LOGGER.log(Level.WARNING, "Không có dòng nào được cập nhật cho supplier ID: {0}", supplier.getSupplierId());
+                return false;
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Lỗi SQL khi cập nhật supplier: {0}", e.getMessage());
+            e.printStackTrace();
+            return false;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Lỗi không mong đợi khi cập nhật supplier: {0}", e.getMessage());
+            e.printStackTrace();
+            return false;
+        } finally {
+            closeResources();
+        }
+    }
+
+    public boolean addSupplier(Supplier supplier) {
+        String query = "INSERT INTO supplier (supplier_name, contact_person, supplier_phone, address, status) VALUES (?, ?, ?, ?, ?)";
+        try {
+            conn = getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setString(1, supplier.getSupplierName());
+            ps.setString(2, supplier.getContactPerson());
+            ps.setString(3, supplier.getSupplierPhone());
+            ps.setString(4, supplier.getAddress());
+            // Đảm bảo status luôn là "active" hoặc "inactive"
+            String status = supplier.getStatus();
+            if (status == null || (!status.equals("active") && !status.equals("inactive"))) {
+                status = "active"; // Giá trị mặc định
+            }
+            ps.setString(5, status);
             
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
@@ -109,32 +163,10 @@ public class SupplierDAO {
         }
     }
 
-    public boolean updateSupplier(Supplier supplier) {
-        String query = "UPDATE supplier SET supplier_name=?, contact_person=?, supplier_phone=?, address=?, status=? WHERE supplier_id=?";
-        try {
-            conn = new DBContext().getConnection();
-            ps = conn.prepareStatement(query);
-            ps.setString(1, supplier.getSupplierName());
-            ps.setString(2, supplier.getContactPerson());
-            ps.setString(3, supplier.getSupplierPhone());
-            ps.setString(4, supplier.getAddress());
-            ps.setString(5, supplier.getStatus());
-            ps.setInt(6, supplier.getSupplierId());
-            
-            int rowsAffected = ps.executeUpdate();
-            return rowsAffected > 0;
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error in updateSupplier: {0}", e.getMessage());
-            return false;
-        } finally {
-            closeResources();
-        }
-    }
-
     public boolean deleteSupplier(int id) {
         String query = "DELETE FROM supplier WHERE supplier_id=?";
         try {
-            conn = new DBContext().getConnection();
+            conn = getConnection();
             ps = conn.prepareStatement(query);
             ps.setInt(1, id);
             
@@ -152,7 +184,7 @@ public class SupplierDAO {
         List<Supplier> list = new ArrayList<>();
         String query = "SELECT * FROM supplier WHERE supplier_name LIKE ? OR contact_person LIKE ? OR supplier_phone LIKE ? OR address LIKE ? ORDER BY created_at DESC";
         try {
-            conn = new DBContext().getConnection();
+            conn = getConnection();
             ps = conn.prepareStatement(query);
             String searchPattern = "%" + keyword + "%";
             ps.setString(1, searchPattern);
@@ -181,5 +213,25 @@ public class SupplierDAO {
             closeResources();
         }
         return list;
+    }
+
+    public boolean isSupplierInUse(int supplierId) {
+        String query = "SELECT COUNT(*) FROM material WHERE supplier_id = ?";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, supplierId);
+            rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+            return false;
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Lỗi khi kiểm tra nhà cung cấp đang sử dụng: {0}", e.getMessage());
+            return true; // Trả về true để đảm bảo an toàn
+        } finally {
+            closeResources();
+        }
     }
 } 

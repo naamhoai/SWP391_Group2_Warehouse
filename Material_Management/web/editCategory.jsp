@@ -1,108 +1,85 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="java.util.List"%>
-<%@page import="model.Category"%>
-<%
-    Category category = (Category) request.getAttribute("category");
-    List<Category> parentCategories = (List<Category>) request.getAttribute("parentCategories");
-    String error = (String) request.getAttribute("error");
-%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Category</title>
-    <link rel="stylesheet" href="css/category.css">
-</head>
-<body>
-    <div class="main-content">
-        <div class="category-form-container">
-            <h2>Edit Category</h2>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Chỉnh sửa danh mục</title>
+        <link rel="stylesheet" href="css/category.css">
+    </head>
+    <body>
+        <div class="container">
+            <div class="form-container">
+                <h2>Chỉnh sửa danh mục</h2>
 
-            <% if (error != null) { %>
-                <div class="message error">
-                    <%= error %>
-                </div>
-            <% } %>
+                <c:if test="${not empty sessionScope.error}">
+                    <div class="message error">
+                        ${sessionScope.error}
+                    </div>
+                    <% session.removeAttribute("error"); %>
+                </c:if>
 
-            <div class="required-field-text">
-                <span>*</span> Required fields
-            </div>
-
-            <% if (category != null) { %>
-                <form action="categories" method="post">
+                <form action="${pageContext.request.contextPath}/categories" method="post" class="category-form" onsubmit="return validateForm()">
                     <input type="hidden" name="action" value="edit">
-                    <input type="hidden" name="id" value="<%= category.getCategoryId() %>">
-                    
-                    <div class="form-group">
-                        <label for="name">Category Name</label>
-                        <input type="text" id="name" name="name" 
-                               value="<%= category.getName() %>" 
-                               required 
-                               minlength="2" 
-                               maxlength="100"
-                               placeholder="Enter category name">
-                        <div class="error-message">Please enter a valid category name (2-100 characters)</div>
+                    <input type="hidden" name="categoryId" value="${category.categoryId}">
+
+                    <div class="form-field">
+                        <label for="name">Tên danh mục <span class="required">*</span></label>
+                        <input type="text" id="name" name="name" value="${category.name}"
+                               placeholder="Nhập tên danh mục" maxlength="255">
+                        <span class="error-message" id="nameError"></span>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="parentId">Parent Category</label>
+
+                    <div class="form-field">
+                        <label for="parentId">Danh mục vật tư <span class="required">*</span></label>
                         <select id="parentId" name="parentId">
-                            <option value="">Select parent category (optional)</option>
-                            <% if (parentCategories != null) {
-                                for (Category parent : parentCategories) {
-                                    if (!parent.getCategoryId().equals(category.getCategoryId())) {
-                                        boolean isSelected = category.getParentId() != null && 
-                                                        category.getParentId().equals(parent.getCategoryId());
-                            %>
-                            <option value="<%= parent.getCategoryId() %>" <%= isSelected ? "selected" : "" %>>
-                                <%= parent.getName() %>
-                            </option>
-                            <%      }
-                                }
-                            } %>
+                            <option value="">Chọn danh mục vật tư</option>
+                            <c:forEach items="${parentCategories}" var="parent">
+                                <option value="${parent.categoryId}" ${parent.categoryId == category.parentId ? 'selected' : ''}>
+                                    ${parent.name}
+                                </option>
+                            </c:forEach>
                         </select>
+                        <span class="error-message" id="parentError"></span>
                     </div>
-                    
+
                     <div class="form-actions">
-                        <button type="submit" class="btn-submit">
-                            <i class="fas fa-save"></i> Save Changes
-                        </button>
-                        <a href="categories" class="btn-cancel">
-                            <i class="fas fa-times"></i> Cancel
-                        </a>
+                        <a href="${pageContext.request.contextPath}/categories" class="btn-cancel">Hủy</a>
+                        <button type="submit" class="btn-submit">Lưu thay đổi</button>
                     </div>
                 </form>
-            <% } else { %>
-                <div class="message error">Category not found.</div>
-                <div class="form-actions">
-                    <a href="categories" class="btn-cancel">
-                        <i class="fas fa-arrow-left"></i> Back to List
-                    </a>
-                </div>
-            <% } %>
+            </div>
         </div>
-    </div>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <script>
-        // Form validation
-        document.querySelector('form')?.addEventListener('submit', function(e) {
-            const nameInput = document.getElementById('name');
-            const formGroup = nameInput.closest('.form-group');
-            
-            if (!nameInput.checkValidity()) {
-                e.preventDefault();
-                formGroup.classList.add('has-error');
-            } else {
-                formGroup.classList.remove('has-error');
-            }
-        });
 
-        // Clear error on input
-        document.getElementById('name')?.addEventListener('input', function() {
-            this.closest('.form-group').classList.remove('has-error');
-        });
-    </script>
-</body>
+        <script>
+            function validateForm() {
+                let isValid = true;
+                const nameInput = document.getElementById('name');
+                const parentInput = document.getElementById('parentId');
+                const nameError = document.getElementById('nameError');
+                const parentError = document.getElementById('parentError');
+                
+                // Reset error messages
+                nameError.textContent = '';
+                parentError.textContent = '';
+                
+                // Validate name
+                if (!nameInput.value.trim()) {
+                    nameError.textContent = 'Vui lòng nhập tên danh mục';
+                    isValid = false;
+                } else if (nameInput.value.trim().length < 2) {
+                    nameError.textContent = 'Tên danh mục phải có ít nhất 2 ký tự';
+                    isValid = false;
+                }
+                
+                // Validate parent category
+                if (!parentInput.value) {
+                    parentError.textContent = 'Vui lòng chọn danh mục vật tư';
+                    isValid = false;
+                }
+                
+                return isValid;
+            }
+        </script>
+    </body>
 </html>

@@ -13,43 +13,23 @@
     </div>
     <ul class="sidebar-menu">
         <li class="menu-item">
-            <a href="admindashboard.jsp" class="menu-link active">
+            <a href="adminDashboard.jsp" class="menu-link active">
                 <i class="fas fa-tachometer-alt menu-icon"></i>
                 <span class="menu-text">Dashboard</span>
             </a>
         </li>
-        <li class="menu-item has-submenu">
-            <a href="#" class="menu-link">
-                <i class="fas fa-tags menu-icon"></i>
-                <span class="menu-text">Category List</span>
-                <i class="fas fa-chevron-down submenu-icon"></i>
+       
+        <li class="menu-item">
+            <a href="${pageContext.request.contextPath}/categories" class="menu-link">
+                <i class="fas fa-list menu-icon"></i>
+                <span class="menu-text">Material List</span>
             </a>
-            <ul class="submenu">
-                <li>
-                    <a href="${pageContext.request.contextPath}/categories" class="submenu-link">
-                        <i class="fas fa-list menu-icon"></i>
-                        <span class="menu-text">Material List</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="${pageContext.request.contextPath}/settinglist" class="submenu-link">
-                        <i class="fas fa-users menu-icon"></i>
-                        <span class="menu-text">User Management</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="${pageContext.request.contextPath}/suppliers" class="submenu-link">
-                        <i class="fas fa-truck menu-icon"></i>
-                        <span class="menu-text">Supplier Management</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="${pageContext.request.contextPath}/suppliers" class="submenu-link">
-                        <i class="fas fa-truck menu-icon"></i>
-                        <span class="menu-text">List Permission</span>
-                    </a>
-                </li>
-            </ul>
+        </li>
+        <li class="menu-item">
+            <a href="${pageContext.request.contextPath}/suppliers" class="menu-link">
+                <i class="fas fa-truck menu-icon"></i>
+                <span class="menu-text">Supplier List</span>
+            </a>
         </li>
         <li class="menu-item">
             <a href="#" class="menu-link">
