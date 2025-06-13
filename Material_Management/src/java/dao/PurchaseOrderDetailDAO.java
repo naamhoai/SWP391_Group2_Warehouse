@@ -1,5 +1,6 @@
 package dao;
 
+import dal.DBContext;
 import model.PurchaseOrderDetail;
 import java.sql.*;
 import java.util.ArrayList;
@@ -8,6 +9,10 @@ import java.util.List;
 public class PurchaseOrderDetailDAO {
 
     private Connection connection;
+
+    public PurchaseOrderDetailDAO() {
+        this.connection = new DBContext().getConnection();
+    }
 
     public PurchaseOrderDetailDAO(Connection connection) {
         this.connection = connection;
@@ -55,6 +60,31 @@ public class PurchaseOrderDetailDAO {
                 detail.setTotalPrice(totalPrice);
                 detail.setMaterialCondition(materialCondition);
 
+                details.add(detail);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return details;
+    }
+
+    // Lấy danh sách chi tiết đơn mua theo purchase_order_id
+    public List<PurchaseOrderDetail> getPurchaseOrderDetailsByOrderId(int purchaseOrderId) {
+        List<PurchaseOrderDetail> details = new ArrayList<>();
+        String sql = "SELECT * FROM purchase_order_details WHERE purchase_order_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, purchaseOrderId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                PurchaseOrderDetail detail = new PurchaseOrderDetail();
+                detail.setPurchaseOrderId(purchaseOrderId);
+                detail.setCategory(rs.getString("category"));
+                detail.setMaterialName(rs.getString("material_name"));
+                detail.setQuantity(rs.getInt("quantity"));
+                detail.setUnit(rs.getString("unit"));
+                detail.setUnitPrice(rs.getDouble("unit_price"));
+                detail.setTotalPrice(rs.getDouble("total_price"));
+                detail.setDescribe(rs.getString("describe"));
                 details.add(detail);
             }
         } catch (SQLException e) {

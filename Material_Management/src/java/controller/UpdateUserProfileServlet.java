@@ -111,7 +111,7 @@ public class UpdateUserProfileServlet extends HttpServlet {
 
         if (user == null) {
             request.setAttribute("error", "User không tồn tại.");
-            request.getRequestDispatcher("updateuserprofile.jsp").forward(request, response);
+            request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);
             return;
         }
 

@@ -1,71 +1,123 @@
 package dao;
 
+import dal.DBContext;
 import model.PurchaseOrder;
 import java.sql.*;
+import java.util.List;
+import java.util.ArrayList;
 
 public class PurchaseOrderDAO {
+
     private Connection connection;
+
+    public PurchaseOrderDAO() {
+        this.connection = new DBContext().getConnection();
+    }
 
     public PurchaseOrderDAO(Connection connection) {
         this.connection = connection;
     }
 
-    // Lưu thông tin đơn mua vào cơ sở dữ liệu
-    public void save(PurchaseOrder purchaseOrder) {
-        String sql = "INSERT INTO purchase_orders (supplier_id, user_id, total_amount, status) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            statement.setInt(1, purchaseOrder.getSupplierId());
-            statement.setInt(2, purchaseOrder.getUserId());
-            statement.setDouble(3, purchaseOrder.getTotalAmount());
-            statement.setString(4, purchaseOrder.getStatus());
-            int affectedRows = statement.executeUpdate();
+    // Thêm đơn mua mới vào bảng purchase_orders
+    public void addPurchaseOrder(PurchaseOrder order) throws SQLException {
+        String sql = "INSERT INTO purchase_orders (supplier_id, user_id, order_date, total_amount, status, request_status) VALUES (?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setInt(1, order.getSupplierId());
+            stmt.setInt(2, order.getUserId());
+            stmt.setTimestamp(3, order.getOrderDate());
+            stmt.setDouble(4, order.getTotalAmount());
+            stmt.setString(5, order.getStatus());
+            stmt.setString(6, order.getApprovalStatus());
+            stmt.executeUpdate();
 
-            if (affectedRows > 0) {
-                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        purchaseOrder.setPurchaseOrderId(generatedKeys.getInt(1)); // Set the generated ID
-                    }
+            // Get the auto-generated purchase_order_id
+            ResultSet rs = stmt.getGeneratedKeys();
+            if (rs.next()) {
+                order.setPurchaseOrderId(rs.getInt(1));  // Set the generated purchaseOrderId
+            }
+        }
+    }
+
+    // Tạo yêu cầu duyệt đơn mua vật tư
+    public void createRequestForApproval(int userId, int purchaseOrderId, String reason) throws SQLException {
+        String sql = "INSERT INTO requests (request_type, purchase_order_id, user_id, reason, request_status) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, "Mua Vật Tư");
+            stmt.setInt(2, purchaseOrderId);
+            stmt.setInt(3, userId);
+            stmt.setString(4, reason);
+            stmt.setString(5, "Pending");  // Trạng thái yêu cầu ban đầu là Pending
+            stmt.executeUpdate();
+        }
+    }
+
+    // Lấy danh sách đơn mua theo trạng thái
+    public List<PurchaseOrder> getPurchaseOrdersByStatus(String status) throws SQLException {
+        List<PurchaseOrder> orders = new ArrayList<>();
+        String sql = "SELECT * FROM purchase_orders WHERE status = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, status);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    PurchaseOrder order = new PurchaseOrder(
+                            rs.getInt("supplier_id"),
+                            rs.getInt("user_id"),
+                            rs.getDouble("total_amount")
+                    );
+                    order.setPurchaseOrderId(rs.getInt("purchase_order_id"));
+                    order.setOrderDate(rs.getTimestamp("order_date"));
+                    order.setStatus(rs.getString("status"));
+                    order.setApprovalStatus(rs.getString("request_status"));
+                    orders.add(order);
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        }
+        return orders;
+    }
+
+    // Cập nhật trạng thái yêu cầu duyệt trong bảng requests
+    public void updateRequestStatus(int requestId, String status) throws SQLException {
+        String sql = "UPDATE requests SET request_status = ? WHERE request_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, status);
+            stmt.setInt(2, requestId);
+            stmt.executeUpdate();
         }
     }
 
-    // Cập nhật trạng thái duyệt đơn hàng
-    public void updateApprovalStatus(PurchaseOrder purchaseOrder) {
-        String sql = "UPDATE purchase_orders SET status = ?, approval_status = ?, approved_by = ? WHERE purchase_order_id = ?";
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, purchaseOrder.getStatus());
-            statement.setString(2, purchaseOrder.getApprovalStatus());
-            statement.setInt(3, purchaseOrder.getApprovedBy());
-            statement.setInt(4, purchaseOrder.getPurchaseOrderId());
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
+    // Cập nhật đơn mua
+    public boolean updatePurchaseOrder(PurchaseOrder order) throws SQLException {
+        String sql = "UPDATE purchase_orders SET total_amount = ?, status = ? WHERE purchase_order_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            // Gán giá trị cho các tham số trong câu truy vấn
+            stmt.setDouble(1, order.getTotalAmount());  // Tổng giá trị đơn hàng
+            stmt.setString(2, order.getStatus());       // Trạng thái đơn hàng
+            stmt.setInt(3, order.getPurchaseOrderId()); // ID đơn hàng
+
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0; // Trả về true nếu cập nhật thành công
         }
     }
 
-    // Lấy đơn hàng theo ID
-    public PurchaseOrder getById(int purchaseOrderId) {
+    // Lấy PurchaseOrder theo purchase_order_id
+    public PurchaseOrder getPurchaseOrderById(int purchaseOrderId) throws SQLException {
         String sql = "SELECT * FROM purchase_orders WHERE purchase_order_id = ?";
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, purchaseOrderId);
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                PurchaseOrder purchaseOrder = new PurchaseOrder(
-                        resultSet.getInt("supplier_id"),
-                        resultSet.getInt("user_id"),
-                        resultSet.getDouble("total_amount")
-                );
-                purchaseOrder.setPurchaseOrderId(resultSet.getInt("purchase_order_id"));
-                purchaseOrder.setStatus(resultSet.getString("status"));
-                purchaseOrder.setApprovalStatus(resultSet.getString("approval_status"));
-                purchaseOrder.setApprovedBy(resultSet.getInt("approved_by"));
-                return purchaseOrder;
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, purchaseOrderId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    PurchaseOrder order = new PurchaseOrder(
+                        rs.getInt("supplier_id"),
+                        rs.getInt("user_id"),
+                        rs.getDouble("total_amount")
+                    );
+                    order.setPurchaseOrderId(rs.getInt("purchase_order_id"));
+                    order.setOrderDate(rs.getTimestamp("order_date"));
+                    order.setStatus(rs.getString("status"));
+                    order.setApprovalStatus(rs.getString("request_status"));
+                    return order;
+                }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
         return null;
     }

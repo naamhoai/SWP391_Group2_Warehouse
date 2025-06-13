@@ -21,7 +21,7 @@ public class PurchaseOrder {
         this.userId = userId;
         this.totalAmount = totalAmount;
         this.status = "Pending";
-        this.approvalStatus = "Not Approved";
+        this.approvalStatus = "Pending"; // Đúng ENUM trong DB
     }
 
     // Getters and Setters

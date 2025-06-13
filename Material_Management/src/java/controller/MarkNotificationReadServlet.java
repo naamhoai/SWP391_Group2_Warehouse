@@ -1,12 +1,10 @@
-package controller;
-
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-import dao.DAO;
-import model.User;
-import dao.UserDAO;
+package controller;
+
+import dao.NotificationDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -14,20 +12,13 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 /**
  *
  * @author kimoa
  */
-@WebServlet(urlPatterns = {"/UserDetailServlet"})
-public class UserDetailServlet extends HttpServlet {
-
-    private UserDAO userDAO = new UserDAO();
-    private DAO dao = new DAO();
+@WebServlet(name = "MarkNotificationReadServlet", urlPatterns = {"/markNotificationRead"})
+public class MarkNotificationReadServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -46,10 +37,10 @@ public class UserDetailServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet UserDetailServlet</title>");
+            out.println("<title>Servlet MarkNotificationReadServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet UserDetailServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet MarkNotificationReadServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -67,41 +58,19 @@ public class UserDetailServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("userId") == null) {
-            response.sendRedirect("login.jsp");
-            return;
-        }
-
-        // Ưu tiên lấy userId từ request parameter
-        String userIdParam = request.getParameter("userId");
-        int userId;
-        if (userIdParam != null) {
-            try {
-                userId = Integer.parseInt(userIdParam);
-            } catch (NumberFormatException e) {
-                request.setAttribute("error", "Invalid user ID.");
-                request.getRequestDispatcher("userDetail.jsp").forward(request, response);
-                return;
-            }
-        } else {
-            userId = (int) session.getAttribute("userId");
-        }
-
-        // Fetch user data from the database using the userId
-        User user = userDAO.getUserById(userId);
-
-        if (user != null) {
-            // Set user information as a request attribute
-            request.setAttribute("user", user);
-            String formattedDOB = user.getDayofbirth() != null ? user.getDayofbirth() : "";
-            request.setAttribute("dob", formattedDOB);
-
-            // Forward to the update user profile page
-            request.getRequestDispatcher("userDetail.jsp").forward(request, response);
-        } else {
-            request.setAttribute("error", "User not found.");
-            request.getRequestDispatcher("userDetail.jsp").forward(request, response);
+        try {
+            int notificationId = Integer.parseInt(request.getParameter("notificationId"));
+            int requestId = Integer.parseInt(request.getParameter("requestId"));
+            
+            // Đánh dấu thông báo đã đọc
+            NotificationDAO notificationDAO = new NotificationDAO();
+            notificationDAO.markAsRead(notificationId);
+            
+            // Chuyển đến trang chi tiết yêu cầu
+            response.sendRedirect("viewRequestDetail?requestId=" + requestId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi khi đánh dấu đã đọc: " + e.getMessage());
         }
     }
 
@@ -114,9 +83,9 @@ public class UserDetailServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        processRequest(request, response);
+        doGet(request, response);
     }
 
     /**
