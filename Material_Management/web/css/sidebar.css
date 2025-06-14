@@ -83,10 +83,11 @@ body {
     transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
     z-index: 1000;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(59, 130, 246, 0.4);
+    transform: translateX(0); /* Đảm bảo sidebar hiển thị mặc định */
 }
 
 .sidebar.collapsed {
-    transform: translateX(-100%);
+    transform: translateX(-100%); /* Ẩn sidebar khi có class 'collapsed' */
 }
 
 /* Sidebar header */

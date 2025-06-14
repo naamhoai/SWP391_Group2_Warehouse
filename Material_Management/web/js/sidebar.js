@@ -6,17 +6,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const menuItemsWithSubmenu = document.querySelectorAll('.has-submenu');
     const menuLinks = document.querySelectorAll('.menu-link');
 
-    // Ensure sidebar is open by default on page load
+    // Ensure sidebar is open by default on page load, overriding localStorage temporarily
     if (sidebar) {
         sidebar.classList.remove('collapsed');
         if (mainContent) {
             mainContent.classList.remove('expanded');
         }
     }
-
+    
     // Restore sidebar state from localStorage
-    const sidebarCollapsed = localStorage.getItem('sidebarCollapsed'); // Get raw value
-    if (sidebarCollapsed === 'true' && sidebar) { // Only collapse if explicitly true in localStorage
+    const sidebarCollapsed = localStorage.getItem('sidebarCollapsed'); 
+    if (sidebarCollapsed === 'true' && sidebar) { 
         sidebar.classList.add('collapsed');
         if (mainContent) {
             mainContent.classList.add('expanded');

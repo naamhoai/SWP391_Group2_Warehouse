@@ -66,17 +66,6 @@ body {
     flex-direction: column;
 }
 
-.sidebar {
-    background: linear-gradient(195deg, #1e3a8a, #3b82f6);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(59, 130, 246, 0.4);
-    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-    transform: translateX(-100%);
-}
-
-.sidebar.active {
-    transform: translateX(0);
-}
-
 main, footer {
     transition: all 0.3s ease;
 }

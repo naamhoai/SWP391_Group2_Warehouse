@@ -17,6 +17,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
         <!-- Chart.js CDN -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="js/sidebar.js"></script>
     </head>
     <body>
         <!-- Include Sidebar -->
