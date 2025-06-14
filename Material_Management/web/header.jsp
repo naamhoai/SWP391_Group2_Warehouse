@@ -7,8 +7,9 @@
         Xin chào, <strong>${sessionScope.user.fullName != null ? sessionScope.user.fullName : 'Admin'}</strong>!
     </div>
     <div class="user-info">
+        <i class="fas fa-bell notification-icon"></i>
         <div class="user-avatar">
             ${sessionScope.user.fullName != null ? sessionScope.user.fullName.charAt(0) : 'A'}
         </div>
     </div>
-</div> 
+</div>  

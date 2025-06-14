@@ -51,7 +51,6 @@ public class DAO extends dal.DBContext {
                 u.setUser_id(rs.getInt("user_id"));
                 u.setFullname(rs.getString("full_name"));
                 u.setPassword(rs.getString("password"));
-                u.setUsername(rs.getString("user_name"));
                 u.setPhone(rs.getString("phone"));
                 u.setEmail(rs.getString("email"));
                 u.setPriority(rs.getInt("priority"));
