@@ -7,27 +7,36 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Bảng Điều Khiển - Hệ Thống Quản Lý Kho</title>
-        <link rel="stylesheet" href="css/footer.css">
-        <link rel="stylesheet" href="css/adminDashboard.css">
+        <link rel="stylesheet" href="css/dashboard.css">
         <link rel="stylesheet" href="css/sidebar.css">
         <link rel="stylesheet" href="css/header.css"/>
+        <link rel="stylesheet" href="css/footer.css"/>
         <!-- Font Awesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
         <!-- Google Fonts - Roboto -->
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
         <!-- Chart.js CDN -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="js/sidebar.js"></script>
+        <!-- Flatpickr CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+        <!-- Flatpickr JS -->
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <!-- Flatpickr Vietnamese -->
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vi.js"></script>
     </head>
     <body>
         <!-- Include Sidebar -->
         <jsp:include page="sidebar.jsp" />
         
-        <!-- Header -->
+        <!-- Main Content -->
         <div id="main-content">
             <%@include file="header.jsp" %>
+            
+            <!-- Dashboard Header -->
             <div class="dashboard-header">
-                <h1>Bảng Điều Khiển</h1>
+                <div class="header-left">
+                    <h1>Bảng Điều Khiển</h1>
+                </div>
                 <div class="date-filter">
                     <form action="dashboard" method="get" class="filter-form">
                         <button type="submit" name="timeFilter" value="today" 
@@ -42,6 +51,7 @@
                 </div>
             </div>
 
+            <!-- Stats Grid -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon" style="background-color: #6dbdf2;">
@@ -102,6 +112,53 @@
                 </div>
             </div>
 
+            <!-- Charts Grid -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>Phân Bổ Yêu Cầu</h3>
+                    <canvas id="requestDistributionChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Xu Hướng Chi Phí</h3>
+                    <canvas id="costTrendChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Phân Bổ Vật Tư Theo Danh Mục</h3>
+                    <canvas id="materialCategoryChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Xu Hướng Tồn Kho</h3>
+                    <canvas id="inventoryTrendChart"></canvas>
+                </div>
+                <div class="calendar-card">
+                    <h3>Lịch</h3>
+                    <div class="calendar-container">
+                        <div class="calendar-header">
+                            <span class="month-year">
+                                <span class="month" id="currentMonth"></span>
+                                <span class="year" id="currentYear"></span>
+                            </span>
+                        </div>
+                        <table class="calendar-table" id="calendarTable">
+                            <thead>
+                                <tr>
+                                    <th>Su</th>
+                                    <th>Mo</th>
+                                    <th>Tu</th>
+                                    <th>We</th>
+                                    <th>Th</th>
+                                    <th>Fr</th>
+                                    <th>Sa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Low Stock Items Table -->
             <div class="table-card">
                 <h3>Vật Tư Sắp Hết</h3>
                 <table>
@@ -130,37 +187,7 @@
                 </table>
             </div>
 
-            <div class="inventory-summary">
-                <h3>Tổng Quan Kho</h3>
-                <div class="inventory-stats">
-                    <div class="inventory-stat">
-                        <span class="label">Còn Hàng:</span>
-                        <span class="value">${inventoryStats.inStock}</span>
-                    </div>
-                    <div class="inventory-stat">
-                        <span class="label">Sắp Hết:</span>
-                        <span class="value">${inventoryStats.lowStock}</span>
-                    </div>
-                    <div class="inventory-stat">
-                        <span class="label">Hết Hàng:</span>
-                        <span class="value">${inventoryStats.outOfStock}</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- New: Charts Grid -->
-            <div class="charts-grid">
-                <div class="chart-card">
-                    <h3>Phân Bổ Vật Tư Theo Danh Mục</h3>
-                    <canvas id="materialCategoryChart"></canvas>
-                </div>
-                <div class="chart-card">
-                    <h3>Xu Hướng Tồn Kho</h3>
-                    <canvas id="inventoryTrendChart"></canvas>
-                </div>
-            </div>
-
-            <!-- New: Data Table -->
+            <!-- Recent Transactions Table -->
             <div class="table-card">
                 <h3>Các Giao Dịch Gần Đây</h3>
                 <table>
@@ -174,7 +201,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <%-- Example data, replace with actual JSTL loop --%>
                         <c:forEach var="transaction" items="${recentTransactions}">
                             <tr>
                                 <td>${transaction.id}</td>
@@ -195,22 +221,26 @@
 
             <!-- Include Footer -->
             <jsp:include page="footer.jsp" />
-            
         </div>
 
-        <!-- Hidden data for charts -->
-        <div id="chartData"
-             data-category-labels='[<c:forEach var="item" items="${categoryStats}" varStatus="loop">"${item.categoryName}"<c:if test="${!loop.last}">,</c:if></c:forEach>]'
-             data-category-data='[<c:forEach var="item" items="${categoryStats}" varStatus="loop">${item.itemCount}<c:if test="${!loop.last}">,</c:if></c:forEach>]'
-             data-inventory-labels='[<c:forEach var="label" items="${inventoryTrendLabels}" varStatus="loop">"${label}"<c:if test="${!loop.last}">,</c:if></c:forEach>]'
-             data-inventory-data='[<c:forEach var="value" items="${inventoryTrend}" varStatus="loop">${value}<c:if test="${!loop.last}">,</c:if></c:forEach>]'
-             data-request-labels='["Mua Vật Tư", "Xuất Kho", "Sửa Chữa"]'
-             data-request-data='[${requestStats.purchaseCount}, ${requestStats.outgoingCount}, ${requestStats.repairCount}]'
-             data-cost-labels='["01/06", "04/06", "08/06", "12/06"]'
-             data-cost-data='[${costTrend[0]}, ${costTrend[1]}, ${costTrend[2]}, ${costTrend[3]}]'>
-        </div>
+        <!-- Chart Data -->
+        <script>
+            var requestLabels = ["Mua Vật Tư", "Xuất Kho", "Sửa Chữa"];
+            var requestData = [<c:out value="${requestStats.purchaseCount}" default="0"/>, 
+                             <c:out value="${requestStats.outgoingCount}" default="0"/>, 
+                             <c:out value="${requestStats.repairCount}" default="0"/>];
+            var costLabels = ["01/06", "04/06", "08/06", "12/06"];
+            var costData = [<c:out value="${costTrend[0]}" default="0"/>, 
+                          <c:out value="${costTrend[1]}" default="0"/>, 
+                          <c:out value="${costTrend[2]}" default="0"/>, 
+                          <c:out value="${costTrend[3]}" default="0"/>];
+            var categoryLabels = [<c:forEach var="item" items="${categoryStats}" varStatus="loop">"${item.categoryName}"<c:if test="${!loop.last}">,</c:if></c:forEach>];
+            var categoryData = [<c:forEach var="item" items="${categoryStats}" varStatus="loop">${item.itemCount}<c:if test="${!loop.last}">,</c:if></c:forEach>];
+            var inventoryTrendLabels = [<c:forEach var="label" items="${inventoryTrendLabels}" varStatus="loop">"${label}"<c:if test="${!loop.last}">,</c:if></c:forEach>];
+            var inventoryTrendData = [<c:forEach var="value" items="${inventoryTrend}" varStatus="loop">${value}<c:if test="${!loop.last}">,</c:if></c:forEach>];
+        </script>
 
         <script src="js/adminDashboard.js"></script>
-
+        <script src="js/sidebar.js"></script>
     </body>
 </html>
