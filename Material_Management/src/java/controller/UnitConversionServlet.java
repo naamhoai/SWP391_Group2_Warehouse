@@ -63,15 +63,17 @@ public class UnitConversionServlet extends HttpServlet {
             throws ServletException, IOException {
         UnitConversionDao n = new UnitConversionDao();
         List<UnitConversion> list = n.getAll();
-        List<UnitConversion> listunit = n.getAllunit();
+        List<UnitConversion> listconverted = n.getAllunitconverted();
+        List<UnitConversion> listbase = n.getAllunitbase();
         List<Category> listcat = n.getAllpre();
         if (list != null) {
             request.setAttribute("list", list);
             request.setAttribute("listcat", listcat);
-            request.setAttribute("listunit", listunit);
-           
+          request.setAttribute("listbase", listbase);
+        request.setAttribute("listconverted", listconverted);
+
         }
-        
+
         request.getRequestDispatcher("unitManagements.jsp").forward(request, response);
     }
 
@@ -86,22 +88,27 @@ public class UnitConversionServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String choiceDevice = request.getParameter("choiceDevice");
-        String choiceUnit = request.getParameter("choiceUnit");
+        String baseunit = request.getParameter("baseunit");
+        String convertedunit = request.getParameter("convertedunit");
         String search = request.getParameter("search");
+        
+        
         UnitConversionDao n = new UnitConversionDao();
 
         List<Category> listcat = n.getAllpre();
-        List<UnitConversion> listunit = n.getAllunit();
+        List<UnitConversion> listconverted = n.getAllunitconverted();
+        List<UnitConversion> listbase = n.getAllunitbase();
         List<UnitConversion> list = n.getAll();
-        List<UnitConversion> newlist = n.getFilter(choiceDevice, choiceUnit, search);
-        System.out.println("Base unit: " + choiceUnit);
-        System.out.println("Device (parent): " + choiceDevice);
+        List<UnitConversion> newlist = n.getFilter(baseunit, convertedunit, search);
+        System.out.println("Base unit: " + baseunit);
+        System.out.println("Device (parent): " + convertedunit);
         System.out.println("Material name: " + search);
-        
+
         request.setAttribute("list", list);
         request.setAttribute("listcat", listcat);
-        request.setAttribute("listunit", listunit);
+        request.setAttribute("listbase", listbase);
+        request.setAttribute("listconverted", listconverted);
+        
         request.setAttribute("list", newlist);
         request.getRequestDispatcher("unitManagements.jsp").forward(request, response);
     }

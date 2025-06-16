@@ -13,33 +13,24 @@
             <div class="edit-card">
                 <div class="card-header">
                     <h2>Chỉnh sửa đơn vị</h2>
-                    <p class="unit-info">Thiết bị: <b></b></p>
+                    <h3>${requestScope.messss}</h3>
+
                 </div>
-                <select name="caterpp">
-                    <c:forEach var="c" items="${requestScope.listcat}">
-                        <option value="${c.name}">${c.name}</option>
-                    </c:forEach>
-                </select>
-                <form class="edit-form">
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="type">Loại</label>
 
-                            <select id="type" name="type">
-                                <c:forEach var="ls" items="${requestScope.list}">
-                                    <option value="${ls.category.name}">${ls.category.name}</option>
-                                </c:forEach> 
-                            </select>
-
-                        </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="type">Tên vật tư</label>
+                        <input type="type" name="name" value="${requestScope.materialname}" readonly>
                     </div>
-
+                </div>
+                <form class="edit-form" action="unitEditseverlet" method="post">
                     <div class="form-row">
                         <div class="form-group">
+
                             <label for="originalUnit">Đơn vị gốc</label>
                             <select name="baseunit">
-                                <c:forEach var="l" items="${requestScope.listunit}">
+                                <c:forEach var="l" items="${requestScope.listbase}">
                                     <option value="${l.baseunit}">${l.baseunit}</option>
                                 </c:forEach> 
                             </select>
@@ -47,8 +38,8 @@
 
                         <div class="form-group">
                             <label for="standardUnit">Đơn vị chuyển đổi</label>
-                            <select id="standardUnit" name="convertedunit">
-                                <c:forEach var="v" items="${requestScope.list}">
+                            <select name="convertedunit">
+                                <c:forEach var="v" items="${requestScope.listconverted}">
                                     <option value="${v.convertedunit}">${v.convertedunit}</option>
                                 </c:forEach> 
                             </select>
@@ -56,6 +47,7 @@
                     </div>
 
                     <div class="form-group">
+                        <h3 style="color: red">${requestScope.mess}</h3>
                         <label for="ratio">Tỷ lệ quy đổi</label>
                         <div class="ratio-input">
                             <input type="text" id="ratio" required min="1" step="1" name="unit1">
@@ -68,7 +60,8 @@
                         <label for="note">Ghi chú</label>
                         <textarea id="note" rows="3" placeholder="Nhập ghi chú..." name="note"></textarea>
                     </div>
-                       
+                        <input type="hidden" name="baseunitid" value="${requestScope.baseunitid}"/>
+                         <input type="hidden" name="materialid" value="${requestScope.materialid}"/>
                     <div>
                         <a href="unitConversionSeverlet">BACK</a>
                         <button type="submit">

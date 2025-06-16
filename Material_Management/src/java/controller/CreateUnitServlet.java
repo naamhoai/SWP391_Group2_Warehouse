@@ -13,15 +13,14 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
-import model.Category;
-import model.UnitConversion;
+import model.*;
 
 /**
  *
  * @author kien3
  */
-@WebServlet(name = "unitEditseverlet", urlPatterns = {"/unitEditseverlet"})
-public class UnitEditServlet extends HttpServlet {
+@WebServlet(name = "CreateUnitServlet", urlPatterns = {"/CreateUnitServlet"})
+public class CreateUnitServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -40,39 +39,21 @@ public class UnitEditServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet unitEditseverlet</title>");
+            out.println("<title>Servlet CreateUnitServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet unitEditseverlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet CreateUnitServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
     }
 
-    private void data(HttpServletRequest request) {
-        String baseunitid = request.getParameter("baseunitid");
-        String materialid = request.getParameter("materialid");
-        String materialname = request.getParameter("materialname");
-        
-        
-        request.setAttribute("baseunitid", baseunitid);
-        request.setAttribute("materialid", materialid);
-        UnitConversionDao n = new UnitConversionDao();
-        List<UnitConversion> list = n.getAll();
-        List<UnitConversion> listconverted = n.getAllunitconverted();
-        List<UnitConversion> listbase = n.getAllunitbase();
-        List<Category> listcat = n.getAllpre();
-        if (list != null) {
-            request.setAttribute("list", list);
-            request.setAttribute("listcat", listcat);
-            request.setAttribute("listbase", listbase);
-            request.setAttribute("listconverted", listconverted);
-            request.setAttribute("baseunitid", baseunitid);
-            request.setAttribute("materialid", materialid);
-            request.setAttribute("materialname", materialname);
-
-        }
-
+    private void Data(HttpServletRequest request) {
+        UnitConversionDao dao = new UnitConversionDao();
+        List<Category> cate = dao.getname();
+        List<Material> loai = dao.getMaterial();
+        request.setAttribute("cateList", cate);
+        request.setAttribute("list", loai);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -87,8 +68,8 @@ public class UnitEditServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        data(request);
-        request.getRequestDispatcher("editUnit.jsp").forward(request, response);
+        Data(request);
+        request.getRequestDispatcher("createUnit.jsp").forward(request, response);
     }
 
     /**
@@ -103,59 +84,70 @@ public class UnitEditServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         UnitConversionDao dao = new UnitConversionDao();
-        String baseunitid = request.getParameter("baseunitid");
-        String materialid = request.getParameter("materialid");
-        
-        
+        String unitName = request.getParameter("unitName");
+        String note = request.getParameter("note");
+        String materialids = request.getParameter("materialid");
         String baseunit = request.getParameter("baseunit");
-        String convertedunit = request.getParameter("convertedunit");
         String unit1 = request.getParameter("unit1");
         String unit2 = request.getParameter("unit2");
-        String note = request.getParameter("note");
-        String mess = "";
-      
-        System.out.println("baseunitids" + baseunitid);
-        System.out.println("materialid" + materialid);
-        
-        
-        try {
-            int baseunitids = Integer.parseInt(baseunitid);
-            int materialidids = Integer.parseInt(materialid);
 
-            Double a = Double.parseDouble(unit1);
-            Double b = Double.parseDouble(unit2);
-            boolean validate = true;
+        System.out.println("unitName" + unitName);
+        System.out.println("note" + note);
+        System.out.println("materialids" + materialids);
+        System.out.println("baseunit" + baseunit);
+
+        String mess = "";
+        List<UnitConversion> listid = dao.getAll();
+        try {
+
+            int materialid = Integer.parseInt(materialids);
             if (!unit1.matches("\\d+") || !unit2.matches("\\d+")) {
                 mess = "đơn vị nhập vào phải là số!";
-                validate = false;
-                data(request);
-                request.setAttribute("messss", mess);
-                request.getRequestDispatcher("editUnit.jsp").forward(request, response);
+                Data(request);
+                request.setAttribute("messs", mess);
+                request.getRequestDispatcher("createUnit.jsp").forward(request, response);
+                return;
+            }
+            Double ratio1 = Double.parseDouble(unit1);
+            Double ratio2 = Double.parseDouble(unit2);
+            Double result = ratio1 * ratio2;
+            System.out.println("unit1" + ratio1);
+            System.out.println("unit2" + ratio2);
+            String convertUnit = request.getParameter("convertedunit");
+            System.out.println("convertedunit" + convertUnit);
 
+            Boolean validate = true;
+            for (UnitConversion unitConversion : listid) {
+
+//                if (unitConversion.getMaterialid() == materialid) {
+//                    System.out.println("unitConversion"  + unitConversion.getMaterialid());
+                     System.out.println("materialids" + materialids);
+                      System.out.println("materialids" + materialid);
+                    mess = "Vật tư này đã tồn tại!";
+                    request.setAttribute("messs", mess);
+                    validate = false;
+                    Data(request);
+                    break;
+//                }
             }
 
-            double result = a * b;
             if (result <= 0) {
-                mess = "Đơn vị chuyển đổi phải > 0!";
+                mess = "tỉ lệ chuyển đổi phải > 0";
+                request.setAttribute("messs", mess);
+                Data(request);
                 validate = false;
-                data(request);
-                request.setAttribute("messss", mess);
-                request.getRequestDispatcher("editUnit.jsp").forward(request, response);
-
+                request.getRequestDispatcher("createUnit.jsp").forward(request, response);
+                return;
             }
             if (validate) {
-                String results = String.valueOf(result);
-                dao.Update(materialidids, baseunit, convertedunit, results, note, baseunitids);
-                
-                request.getRequestDispatcher("/unitConversionSeverlet").forward(request, response);
-
+             dao.unitCreate2(baseunit, convertUnit, note, result, materialid);
+             request.getRequestDispatcher("/unitConversionSeverlet").forward(request, response);
             }
 
         } catch (NumberFormatException e) {
             System.out.println(e.getMessage());
-
         }
-        request.getRequestDispatcher("editUnit.jsp").forward(request, response);
+        request.getRequestDispatcher("createUnit.jsp").forward(request, response);
 
     }
 

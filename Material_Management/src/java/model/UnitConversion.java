@@ -18,6 +18,8 @@ public class UnitConversion {
     private String conversionfactor;
     private String note;
     private String categorypar;
+//     private int conversionid;
+//    private int materialid;
 
     public UnitConversion() {
     }
