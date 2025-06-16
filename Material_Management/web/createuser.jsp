@@ -10,8 +10,7 @@
         <title>Add New User</title>
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/createUser.css" />
         <link rel="stylesheet" href="css/sidebar.css">
-        <!-- Font Awesome -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        
     </head>
     <body>
         <div class="layout">
@@ -116,7 +115,7 @@
                             </div>
 
                             <div class="buttons">
-                                <a href="${pageContext.request.contextPath}/UserDetailServlet" class="btn back-btn">Back</a>
+                                <a href="${pageContext.request.contextPath}/settinglist" class="btn back-btn">Back</a>
                                 <button type="submit" class="btn save-btn">Add User</button>
                             </div>
 

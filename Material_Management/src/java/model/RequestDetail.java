@@ -13,6 +13,22 @@ public class RequestDetail {
     private String unitName;
     private String parentCategoryName;
     private String categoryName;
+    private String materialCondition;
+
+    public RequestDetail(int requestDetailId, int requestId, Integer materialId, String materialName, Integer categoryId, int quantity, String description, Integer parentCategoryId, String unitName, String parentCategoryName, String categoryName, String materialCondition) {
+        this.requestDetailId = requestDetailId;
+        this.requestId = requestId;
+        this.materialId = materialId;
+        this.materialName = materialName;
+        this.categoryId = categoryId;
+        this.quantity = quantity;
+        this.description = description;
+        this.parentCategoryId = parentCategoryId;
+        this.unitName = unitName;
+        this.parentCategoryName = parentCategoryName;
+        this.categoryName = categoryName;
+        this.materialCondition = materialCondition;
+    }
 
     // Constructors
     public RequestDetail() {
@@ -116,4 +132,13 @@ public class RequestDetail {
     public void setCategoryName(String name) {
         this.categoryName = name;
     }
+
+    public String getMaterialCondition() {
+        return materialCondition;
+    }
+
+    public void setMaterialCondition(String materialCondition) {
+        this.materialCondition = materialCondition;
+    }
+    
 }

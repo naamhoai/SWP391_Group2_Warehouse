@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -37,6 +38,7 @@
                                 <th>Số lượng</th>
                                 <th>Đơn vị</th>
                                 <th>Mô tả</th>
+                                <th>Tình trạng</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -49,7 +51,6 @@
                                             <option value="${cat.categoryId}">${cat.name}</option>
                                         </c:forEach>
                                     </select>
-
                                 </td>
                                 <td>
                                     <select id="subCategory" name="categoryId">
@@ -60,7 +61,6 @@
                                     </select>
                                 </td>
                                 <td><input type="text" name="materialName" class="form-control" required></td>
-
                                 <td><input type="number" name="quantity" class="form-control" required min="1"></td>
                                 <td>
                                     <select name="unit" class="form-select unit-select" required>
@@ -71,6 +71,13 @@
                                     </select>
                                 </td>
                                 <td><input type="text" name="description" class="form-control"></td>
+                                <td>
+                                    <select name="materialCondition" class="form-select" required>
+                                        <option value="Mới">Mới</option>
+                                        <option value="Cũ">Cũ</option>
+                                        <option value="Hỏng">Hỏng</option>
+                                    </select>
+                                </td>
                                 <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Xóa</button></td>
                             </tr>
                         </tbody>
@@ -86,6 +93,7 @@
                 const tbody = document.getElementById('itemsBody');
                 const newRow = tbody.rows[0].cloneNode(true);
                 newRow.querySelectorAll('input').forEach(input => input.value = '');
+                newRow.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
                 tbody.appendChild(newRow);
                 document.getElementById('itemCount').value = tbody.rows.length;
             }
@@ -101,7 +109,7 @@
                 var subCatSelect = document.getElementById('subCategory');
                 for (var i = 0; i < subCatSelect.options.length; i++) {
                     var opt = subCatSelect.options[i];
-                    if (!opt.value) { // option "Chọn danh mục con"
+                    if (!opt.value) {
                         opt.style.display = '';
                         continue;
                     }
@@ -113,8 +121,6 @@
                 }
                 subCatSelect.value = '';
             });
-
-
         </script>
     </body>
 </html>
