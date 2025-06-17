@@ -71,212 +71,177 @@ body {
     flex-direction: column;
 }
 
-/* Sidebar container */
+/* Sidebar Styles */
 .sidebar {
     position: fixed;
-    left: 0;
     top: 0;
+    left: 0;
     height: 100vh;
-    width: var(--sidebar-width);
-    background: linear-gradient(195deg, #1e3a8a, #3b82f6);
-    color: var(--text-color);
-    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+    width: 250px;
+    background: #1e3a8a; /* Dark blue background */
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
     z-index: 1000;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(59, 130, 246, 0.4);
-    transform: translateX(0); /* Đảm bảo sidebar hiển thị mặc định */
 }
 
 .sidebar.collapsed {
-    transform: translateX(-100%); /* Ẩn sidebar khi có class 'collapsed' */
+    width: 70px;
 }
 
-/* Sidebar header */
 .sidebar-header {
-    height: var(--header-height);
-    display: flex;
-    align-items: center;
-    padding: 0 20px;
-    background-color: rgba(0, 0, 0, 0.1);
+    padding: 20px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .logo-container {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
     cursor: pointer;
-    padding: 10px;
-    border-radius: 8px;
-    transition: background-color var(--transition-speed);
-    width: 100%; /* Make it fill the space to be easily clickable */
 }
 
-.logo-container:hover {
-    background-color: var(--hover-color);
-}
-
-.logo-container i {
-    font-size: 1.5rem;
-    color: var(--primary-color);
+.menu-icon {
+    font-size: 20px;
+    color: #fff;
 }
 
 .logo-text {
-    font-size: 1.25rem;
+    font-size: 18px;
     font-weight: 600;
-    color: var(--text-color);
-    letter-spacing: 0.5px;
+    color: #fff;
     white-space: nowrap;
     overflow: hidden;
 }
 
-.sidebar.collapsed .logo-text {
-    display: none;
-}
-
-.menu {
-    padding: 25px 0 20px 0; /* Increased top padding */
-    overflow-y: auto;
-    height: calc(100vh - var(--header-height));
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
 .menu-item {
-    padding: 0 15px;
-    margin-bottom: 8px; /* Increased for more vertical spacing */
+    margin: 5px 0;
 }
 
 .menu-link {
     display: flex;
     align-items: center;
-    padding: 12px 15px;
-    color: var(--text-color);
+    padding: 12px 20px;
+    color: #fff;
     text-decoration: none;
-    border-radius: 8px;
-    transition: all var(--transition-speed);
-    gap: 20px; /* Aligned with logo-container gap and made more spacious */
+    transition: all 0.3s ease;
+    gap: 15px;
 }
 
 .menu-link:hover {
-    background-color: var(--hover-color);
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
 }
 
 .menu-link.active {
-    background-color: var(--primary-color);
+    background-color: #3b82f6;
+    color: #fff;
 }
 
-.menu-icon {
-    font-size: 1rem; /* Adjusted for balance with menu-text */
-    min-width: 24px;
-    text-align: center;
+.menu-link.active .menu-icon {
+    color: #fff;
 }
 
 .menu-text {
-    font-size: 1rem; /* Adjusted for balance with menu-icon */
+    font-size: 14px;
+    font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
 }
 
-.sidebar.collapsed .menu-text {
-    display: none;
-}
-
-.sidebar.collapsed .menu-link {
-    padding: 12px 0;
-    justify-content: center;
-}
-
-.has-submenu .menu-link {
+.has-submenu {
     position: relative;
 }
 
-.has-submenu .menu-link::after {
-    position: absolute;
-    right: 15px;
-    transition: transform var(--transition-speed);
-    content: none;
-}
-
-.has-submenu.open .menu-link::after {
-    transform: rotate(180deg);
-}
-
 .submenu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
     max-height: 0;
     overflow: hidden;
-    transition: max-height var(--transition-speed) ease;
+    transition: max-height 0.3s ease;
     background-color: rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    margin: 5px 0;
 }
 
 .submenu-link {
     display: flex;
     align-items: center;
-    padding: 10px 15px 10px 45px;
-    color: var(--text-color);
+    padding: 10px 20px 10px 55px;
+    color: #fff;
     text-decoration: none;
-    font-size: 0.9rem;
-    transition: background-color var(--transition-speed);
-    gap: 10px; /* Added gap for spacing between icon and text */
+    transition: all 0.3s ease;
+    gap: 15px;
 }
 
 .submenu-link:hover {
-    background-color: var(--hover-color);
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
 }
 
-.sidebar.collapsed .submenu {
+.fa-submenu-icon {
+    margin-left: auto;
+    transition: transform 0.3s ease;
+    color: #fff;
+}
+
+.has-submenu.open .fa-submenu-icon {
+    transform: rotate(180deg);
+}
+
+/* Collapsed State */
+.sidebar.collapsed .logo-text,
+.sidebar.collapsed .menu-text,
+.sidebar.collapsed .fa-submenu-icon {
     display: none;
 }
 
-/* Custom scrollbar */
-.menu::-webkit-scrollbar {
-    width: 5px;
+.sidebar.collapsed .menu-link {
+    justify-content: center;
+    padding: 12px;
 }
 
-.menu::-webkit-scrollbar-track {
-    background: transparent;
+.sidebar.collapsed .submenu-link {
+    padding: 10px;
+    justify-content: center;
 }
 
-.menu::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 3px;
+.sidebar.collapsed .menu-icon {
+    margin: 0;
 }
 
-.menu::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-/* Responsive styles */
-@media (max-width: 768px) {
+/* Responsive Design */
+@media (max-width: 992px) {
     .sidebar {
-        width: var(--sidebar-collapsed-width);
+        width: 70px;
     }
-
-    .sidebar.expanded {
-        width: var(--sidebar-width);
-    }
-
-    .logo-text {
+    
+    .logo-text,
+    .menu-text,
+    .fa-submenu-icon {
         display: none;
     }
-
-    .sidebar.expanded .logo-text {
-        display: block;
+    
+    .menu-link {
+        justify-content: center;
+        padding: 12px;
     }
-
-    .menu-text {
-        display: none;
+    
+    .submenu-link {
+        padding: 10px;
+        justify-content: center;
     }
-
-    .sidebar.expanded .menu-text {
-        display: block;
+    
+    .menu-icon {
+        margin: 0;
     }
-
-    .submenu {
-        display: none;
-    }
-
-    .sidebar.expanded .submenu {
-        display: block;
+    
+    #main-content {
+        margin-left: 70px;
     }
 }
 

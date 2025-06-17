@@ -6,32 +6,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const menuItemsWithSubmenu = document.querySelectorAll('.has-submenu');
     const menuLinks = document.querySelectorAll('.menu-link');
 
-    // Ensure sidebar is open by default on page load, overriding localStorage temporarily
-    if (sidebar) {
-        sidebar.classList.remove('collapsed');
-        if (mainContent) {
-            mainContent.classList.remove('expanded');
-        }
-    }
-    
-    // Restore sidebar state from localStorage
-    const sidebarCollapsed = localStorage.getItem('sidebarCollapsed'); 
-    if (sidebarCollapsed === 'true' && sidebar) { 
-        sidebar.classList.add('collapsed');
-        if (mainContent) {
-            mainContent.classList.add('expanded');
-        }
-    }
-
     // Function to toggle sidebar
     function toggleSidebar() {
-        if (sidebar) {
-            sidebar.classList.toggle('collapsed');
-            if (mainContent) {
-                mainContent.classList.toggle('expanded');
-            }
-            // Save state to localStorage
-            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        if (sidebar && mainContent) {
+            const isCollapsed = !sidebar.classList.contains('collapsed'); // Đảo ngược trạng thái
+            sidebar.classList.toggle('collapsed', isCollapsed);
+            mainContent.classList.toggle('expanded', isCollapsed);
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
+
+            // Update submenu visibility
+            menuItemsWithSubmenu.forEach(item => {
+                const submenu = item.querySelector('.submenu');
+                if (submenu) {
+                    submenu.style.maxHeight = isCollapsed ? '0' : submenu.scrollHeight + 'px';
+                    if (isCollapsed) item.classList.remove('open');
+                }
+            });
         }
     }
 
@@ -46,27 +36,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to set active menu item based on current URL
     function setActiveMenuItem() {
-        const currentPath = window.location.pathname.split('/').pop(); // Get current file name
+        const currentPath = window.location.pathname.split('/').pop();
         menuLinks.forEach(link => {
             link.classList.remove('active');
             const linkPath = link.getAttribute('href').split('/').pop();
             if (currentPath === linkPath) {
                 link.classList.add('active');
-                // Open parent submenu if it's a submenu item
                 let parentSubmenu = link.closest('.has-submenu');
                 if (parentSubmenu && !sidebar.classList.contains('collapsed')) {
                     parentSubmenu.classList.add('open');
                     let submenu = parentSubmenu.querySelector('.submenu');
                     if (submenu) {
-                        submenu.style.maxHeight = submenu.scrollHeight + "px";
+                        submenu.style.maxHeight = submenu.scrollHeight + 'px';
                     }
                 }
             }
         });
 
-        // Handle case for homepage or adminDashboard if no specific path matches
         if (currentPath === '' || currentPath === 'adminDashboard.jsp') {
-            // Default to adminDashboard if it's homepage or no path
             const adminDashboardLink = document.querySelector('a[href="adminDashboard.jsp"]');
             if (adminDashboardLink) {
                 adminDashboardLink.classList.add('active');
@@ -80,21 +67,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle menu items active state on click
     menuLinks.forEach(link => {
         link.addEventListener('click', function(e) {
-            // Don't prevent default for links that should navigate
             if (!this.getAttribute('href') || this.getAttribute('href') === '#') {
                 e.preventDefault();
             }
-            // Remove active from all and add to clicked link
             menuLinks.forEach(l => l.classList.remove('active'));
             this.classList.add('active');
 
-            // Close other submenus and open current one
             menuItemsWithSubmenu.forEach(item => {
                 if (item !== this.closest('.has-submenu')) {
                     item.classList.remove('open');
                     let submenu = item.querySelector('.submenu');
                     if (submenu) {
-                        submenu.style.maxHeight = "0";
+                        submenu.style.maxHeight = '0';
                     }
                 }
             });
@@ -108,11 +92,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (link && submenu) {
             link.addEventListener('click', (e) => {
-                // Only toggle if sidebar is not collapsed, or if it's the main submenu link clicked in collapsed mode (if desired)
                 if (!sidebar.classList.contains('collapsed')) {
                     e.preventDefault();
                     item.classList.toggle('open');
-                    submenu.style.maxHeight = item.classList.contains('open') ? submenu.scrollHeight + "px" : "0";
+                    submenu.style.maxHeight = item.classList.contains('open') ? submenu.scrollHeight + 'px' : '0';
                 }
             });
         }
@@ -125,15 +108,42 @@ document.addEventListener('DOMContentLoaded', function() {
             if (mainContent) {
                 mainContent.classList.add('expanded');
             }
-        }
-        // Re-evaluate submenu heights on resize in case content changes
-        menuItemsWithSubmenu.forEach(item => {
-            if (item.classList.contains('open')) {
+            menuItemsWithSubmenu.forEach(item => {
                 let submenu = item.querySelector('.submenu');
                 if (submenu) {
-                    submenu.style.maxHeight = submenu.scrollHeight + "px";
+                    submenu.style.maxHeight = '0';
+                    item.classList.remove('open');
                 }
+            });
+        } else if (sidebar && !localStorage.getItem('sidebarCollapsed')) {
+            sidebar.classList.remove('collapsed');
+            if (mainContent) {
+                mainContent.classList.remove('expanded');
+            }
+            menuItemsWithSubmenu.forEach(item => {
+                if (item.classList.contains('open')) {
+                    let submenu = item.querySelector('.submenu');
+                    if (submenu) {
+                        submenu.style.maxHeight = submenu.scrollHeight + 'px';
+                    }
+                }
+            });
+        }
+    });
+
+    // Restore sidebar state from localStorage on load
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    if (savedState === 'true' && sidebar && mainContent) {
+        sidebar.classList.add('collapsed');
+        mainContent.classList.add('expanded');
+        menuItemsWithSubmenu.forEach(item => {
+            let submenu = item.querySelector('.submenu');
+            if (submenu) {
+                submenu.style.maxHeight = '0';
             }
         });
-    });
-}); 
+    } else if (sidebar && mainContent) {
+        sidebar.classList.remove('collapsed');
+        mainContent.classList.remove('expanded');
+    }
+});

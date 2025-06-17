@@ -5,123 +5,103 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>User Permission Management</title>
+        <c:if test="${not empty error}">
+            <meta name="error-message" content="${error}">
+        </c:if>
+        <c:if test="${not empty success}">
+            <meta name="success-message" content="${success}">
+        </c:if>
+        <title>Role Permission Management</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
         <link rel="stylesheet" href="css/sidebar.css">
         <link rel="stylesheet" href="css/userPermission.css">
         <link rel="stylesheet" href="css/footer.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.11.2/toastify.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.11.2/toastify.min.js"></script>
+        <script src="js/userPermission.js" defer></script>
     </head>
-
     <body>
-        <jsp:include page="sidebar.jsp" />
-
+        
+        <jsp:include page="sidebar.jsp"/>
+                     
         <div class="main-content">
             <div class="permission-container">
-                <h2 class="page-title">User Permission Management</h2>
+                <div class="header-section">
+                    <h2 class="page-title"><i class="fas fa-user-shield"></i> Phân quyền vai trò</h2>
 
-                <div class="search-box">
-                    <form action="userPermission" method="get" class="search-form">
-                        <div class="input-group">
-                            <input type="text" id="searchUser" name="keyword" placeholder="Enter Username or ID" value="${param.keyword}" aria-label="Search Username or ID">
-                            <button type="submit" id="searchBtn" aria-label="Search for user">
-                                <i class="fas fa-search"></i> Search
-                            </button>
-                        </div>
-                    </form>
+                    <div class="theme-toggle">
+                        <a href="permissionLogs.jsp" class="history-btn" aria-label="View history">
+                            <i class="fas fa-history"></i> Xem lịch sử
+                        </a>
+                        <button id="themeToggle" aria-label="Toggle theme">
+                            <i class="fas fa-moon"></i> Dark Mode
+                        </button>
+                    </div>
                 </div>
 
-                <c:if test="${not empty success}">
-                    <div class="message-box success-message">
-                        <i class="fas fa-check-circle"></i> ${success}
-                    </div>
-                </c:if>
-
-                <c:if test="${not empty message and not empty multipleUsers}">
-                    <div class="message-box info-message">
-                        <i class="fas fa-info-circle"></i> ${message}
-                    </div>
-                    <table class="user-selection-table">
-                        <thead>
-                            <tr>
-                                <th>User ID</th>
-                                <th>Full Name</th>
-                                <th>Role</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <c:forEach var="user" items="${multipleUsers}">
-                                <tr>
-                                    <td>${user.userId}</td>
-                                    <td>${user.fullName}</td>
-                                    <td>${user.roleName}</td>
-                                    <td>
-                                        <a href="userPermission?keyword=${user.userId}" class="action-link">Select</a>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                    <a href="userPermission" class="back-btn" aria-label="Back to initial page">
-                        <i class="fas fa-arrow-left"></i> Back
-                    </a>
-                </c:if>
-
-                <c:if test="${not empty fullName and empty multipleUsers}">
-                    <div class="user-info">
-                        <h3><i class="fas fa-user"></i> User: ${fullName}</h3>
-                        <p><i class="fas fa-shield-alt"></i> Role: ${roleName}</p>
+                <!-- Role Permission Form -->
+                <c:if test="${not empty role}">
+                    <div class="user-info-card">
+                        <h3><i class="fas fa-shield-alt"></i> Vai trò: ${role.rolename}</h3>
+                        <c:choose>
+                            <c:when test="${role.roleid == 2}">
+                                <p class="role-description"><i class="fas fa-info-circle"></i> Director Role: Có thể xem tất cả dữ liệu và quản lý các hoạt động cấp cao</p>
+                            </c:when>
+                            <c:when test="${role.roleid == 3}">
+                                <p class="role-description"><i class="fas fa-info-circle"></i> Warehouse Staff Role: Có thể quản lý kho và xử lý giao hàng</p>
+                            </c:when>
+                            <c:when test="${role.roleid == 4}">
+                                <p class="role-description"><i class="fas fa-info-circle"></i> Employee Role: Quyền truy cập cơ bản để xem và quản lý dữ liệu của chính họ</p>
+                            </c:when>
+                        </c:choose>
                     </div>
 
                     <form id="permissionForm" action="savePermissions" method="POST" class="permission-form">
-                        <input type="hidden" name="userId" value="${userId}">
-                        <input type="hidden" name="fullName" value="${fullName}">
-                        <table class="permission-table">
-                            <thead>
-                                <tr>
-                                    <th>Function</th>
-                                    <th>View</th>
-                                    <th>Add</th>
-                                    <th>Edit</th>
-                                    <th>Delete</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach items="${['category','inventory','order','delivery','user']}" var="module">
-                                    <tr>
-                                        <td>Manage ${module == 'category' ? 'Categories' : module == 'inventory' ? 'Inventory' : module == 'order' ? 'Orders' : module == 'delivery' ? 'Deliveries' : 'Users'}</td>
+                        <input type="hidden" name="roleId" value="${role.roleid}">
+                        <div class="permission-grid">
+                            <c:forEach items="${['category','inventory','order','delivery','user']}" var="module">
+                                <div class="permission-card">
+                                    <h4>
+                                        <i class="fas ${module == 'category' ? 'fa-tags' : module == 'inventory' ? 'fa-warehouse' : module == 'order' ? 'fa-shopping-cart' : module == 'delivery' ? 'fa-truck' : 'fa-users'}"></i>
+                                        Quản lý ${module == 'category' ? 'Danh mục' : module == 'inventory' ? 'Kho' : module == 'order' ? 'Đơn hàng' : module == 'delivery' ? 'Giao hàng' : 'Người dùng'}
+                                    </h4>
+                                    <div class="permission-options">
                                         <c:forEach items="${['view','add','edit','delete']}" var="action">
                                             <c:set var="permissionKey" value="${module}_${action}" />
-                                            <td>
-                                                <input type="checkbox" name="${permissionKey}"
-                                                       ${empty rolePermissions || empty rolePermissions[permissionKey] ? 'disabled' : ''}
-                                                       ${not empty userPermissions && userPermissions.contains(permissionKey) ? 'checked' : ''}>
-                                            </td>
+                                            <label class="permission-option">
+                                                <input type="checkbox" name="${permissionKey}" value="true"
+                                                       ${rolePermissions[permissionKey] ? 'checked' : ''}>
+                                                <span>
+                                                    <i class="fas ${action == 'view' ? 'fa-eye' : action == 'add' ? 'fa-plus' : action == 'edit' ? 'fa-edit' : 'fa-trash'}"></i>
+                                                    ${action == 'view' ? 'Xem' : action == 'add' ? 'Thêm' : action == 'edit' ? 'Sửa' : 'Xóa'}
+                                                </span>
+                                            </label>
                                         </c:forEach>
-                                    </tr>
-                                </c:forEach>
-                            </tbody>
-                        </table>
+                                    </div>
+                                </div>
+                            </c:forEach>
+                        </div>
                         <div class="form-actions">
                             <button type="submit" class="save-btn" id="saveBtn">
-                                <i class="fas fa-save"></i> Save Permissions
+                                <i class="fas fa-save"></i> Lưu phân quyền
                             </button>
-                            <a href="userPermission" class="back-btn" aria-label="Back to initial page">
-                                <i class="fas fa-arrow-left"></i> Back
+                            <a href="permissionList" class="back-btn" aria-label="Back to permission list">
+                                <i class="fas fa-arrow-left"></i> Quay lại
                             </a>
                         </div>
                     </form>
                 </c:if>
             </div>
-        </div>
 
-        <div class="loading" id="loadingOverlay" style="display: none;">
-            <div class="loading-spinner">
-                <i class="fas fa-spinner fa-spin"></i> Processing...
+            <div class="loading" id="loadingOverlay" style="display: none;">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i> Đang xử lý...
+                </div>
             </div>
-        </div>
 
-        <jsp:include page="footer.jsp" />
+            <jsp:include page="footer.jsp" />
+            
+        </div>
     </body>
 </html>

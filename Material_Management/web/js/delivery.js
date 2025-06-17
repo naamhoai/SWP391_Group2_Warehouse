@@ -1,14 +1,25 @@
 function showAddEditForm(id, exportId, receiverName, deliveryAddress, status, deliveryDate, description) {
-    document.getElementById('formTitle').textContent = id ? 'Edit Delivery' : 'Add Delivery';
-    document.getElementById('formAction').value = id ? 'edit' : 'add';
-    document.getElementById('deliveryForm').style.display = 'block';
-    document.getElementById('deliveryId').value = id || '';
-    document.getElementById('exportId').value = exportId || '';
-    document.getElementById('receiverName').value = receiverName || '';
-    document.getElementById('deliveryAddress').value = deliveryAddress || '';
-    document.getElementById('deliveryDate').value = deliveryDate ? new Date(deliveryDate).toISOString().split('T')[0] : '';
-    document.getElementById('status').value = status || 'Pending';
-    document.getElementById('description').value = description || '';
+    const formTitle = document.getElementById('formTitle');
+    const formAction = document.getElementById('formAction');
+    const deliveryForm = document.getElementById('deliveryForm');
+    const deliveryId = document.getElementById('deliveryId');
+    const exportIdSelect = document.getElementById('exportId');
+    const receiverNameInput = document.getElementById('receiverName');
+    const deliveryAddressInput = document.getElementById('deliveryAddress');
+    const deliveryDateInput = document.getElementById('deliveryDate');
+    const statusSelect = document.getElementById('status');
+    const descriptionInput = document.getElementById('description');
+
+    formTitle.textContent = id ? 'Sửa giao hàng' : 'Thêm giao hàng';
+    formAction.value = id ? 'edit' : 'add';
+    deliveryForm.style.display = 'block';
+    deliveryId.value = id || '';
+    exportIdSelect.value = exportId || '';
+    receiverNameInput.value = receiverName || '';
+    deliveryAddressInput.value = deliveryAddress || '';
+    deliveryDateInput.value = deliveryDate || '';
+    statusSelect.value = status || 'Pending';
+    descriptionInput.value = description || '';
 }
 
 function hideForm() {
@@ -23,7 +34,7 @@ function deleteDelivery(id) {
 
 function filterByStatus() {
     const status = document.querySelector('select[name="statusFilter"]').value;
-    window.location.href = 'delivery?status=' + status;
+    window.location.href = 'delivery?status=' + encodeURIComponent(status);
 }
 
 // Load filtered data if status parameter exists
@@ -31,6 +42,6 @@ window.onload = function() {
     const urlParams = new URLSearchParams(window.location.search);
     const status = urlParams.get('status');
     if (status) {
-        document.querySelector('select[name="statusFilter"]').value = status;
+        document.querySelector('select[name="statusFilter"]').value = decodeURIComponent(status);
     }
 };

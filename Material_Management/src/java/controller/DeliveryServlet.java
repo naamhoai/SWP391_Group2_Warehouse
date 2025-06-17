@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.Delivery;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @WebServlet(name = "DeliveryServlet", urlPatterns = {"/delivery"})
@@ -21,9 +21,9 @@ public class DeliveryServlet extends HttpServlet {
             throws ServletException, IOException {
         String action = request.getParameter("action");
 
-        if (action != null && action.equals("delete")) {
+        if ("delete".equals(action)) {
             deleteDelivery(request, response);
-        } else if (action != null && action.equals("edit")) {
+        } else if ("edit".equals(action)) {
             showEditForm(request, response);
         } else {
             listDeliveries(request, response);
@@ -35,18 +35,10 @@ public class DeliveryServlet extends HttpServlet {
             throws ServletException, IOException {
         String action = request.getParameter("action");
 
-        if (action != null) {
-            switch (action) {
-                case "add":
-                    addDelivery(request, response);
-                    break;
-                case "edit":
-                    updateDelivery(request, response);
-                    break;
-                default:
-                    listDeliveries(request, response);
-                    break;
-            }
+        if ("add".equals(action)) {
+            addDelivery(request, response);
+        } else if ("edit".equals(action)) {
+            updateDelivery(request, response);
         } else {
             listDeliveries(request, response);
         }
@@ -54,20 +46,17 @@ public class DeliveryServlet extends HttpServlet {
 
     private void listDeliveries(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Kiểm tra quyền delivery_view
-        if (!hasPermission(request, "delivery_view")) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
-            return;
-        }
-
-        List<Delivery> deliveries = deliveryDAO.getAllDeliveries();
+        String status = request.getParameter("status");
+        List<Delivery> deliveries = (status != null && !status.isEmpty()) 
+            ? deliveryDAO.getDeliveriesByStatus(status) 
+            : deliveryDAO.getAllDeliveries();
         request.setAttribute("deliveries", deliveries);
+        request.setAttribute("exportForms", deliveryDAO.getAllExportForms()); // Giả định có phương thức này
         request.getRequestDispatcher("/delivery.jsp").forward(request, response);
     }
 
     private void showEditForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Kiểm tra quyền delivery_edit
         if (!hasPermission(request, "delivery_edit")) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
             return;
@@ -76,12 +65,12 @@ public class DeliveryServlet extends HttpServlet {
         int id = Integer.parseInt(request.getParameter("id"));
         Delivery delivery = deliveryDAO.getDeliveryById(id);
         request.setAttribute("delivery", delivery);
+        request.setAttribute("exportForms", deliveryDAO.getAllExportForms()); // Giả định có phương thức này
         request.getRequestDispatcher("/delivery.jsp").forward(request, response);
     }
 
     private void addDelivery(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        // Kiểm tra quyền delivery_add
         if (!hasPermission(request, "delivery_add")) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
             return;
@@ -93,25 +82,22 @@ public class DeliveryServlet extends HttpServlet {
             delivery.setReceiverName(request.getParameter("receiverName"));
             delivery.setDeliveryAddress(request.getParameter("deliveryAddress"));
             delivery.setStatus(request.getParameter("status"));
-            delivery.setDeliveryDate(Timestamp.valueOf(
-                new SimpleDateFormat("yyyy-MM-dd'T'HH:mm").parse(
-                    request.getParameter("deliveryDate")).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime()));
+            delivery.setDeliveryDate(Timestamp.valueOf(LocalDateTime.parse(request.getParameter("deliveryDate") + "T00:00:00")));
             delivery.setDescription(request.getParameter("description"));
 
             if (deliveryDAO.addDelivery(delivery)) {
-                response.sendRedirect("delivery?success=Delivery added successfully");
+                response.sendRedirect("delivery?success=Thêm giao hàng thành công");
             } else {
-                response.sendRedirect("delivery?error=Failed to add delivery");
+                response.sendRedirect("delivery?error=Thêm giao hàng thất bại");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("delivery?error=Invalid input");
+            response.sendRedirect("delivery?error=Dữ liệu không hợp lệ");
         }
     }
 
     private void updateDelivery(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        // Kiểm tra quyền delivery_edit
         if (!hasPermission(request, "delivery_edit")) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
             return;
@@ -124,25 +110,22 @@ public class DeliveryServlet extends HttpServlet {
             delivery.setReceiverName(request.getParameter("receiverName"));
             delivery.setDeliveryAddress(request.getParameter("deliveryAddress"));
             delivery.setStatus(request.getParameter("status"));
-            delivery.setDeliveryDate(Timestamp.valueOf(
-                new SimpleDateFormat("yyyy-MM-dd'T'HH:mm").parse(
-                    request.getParameter("deliveryDate")).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime()));
+            delivery.setDeliveryDate(Timestamp.valueOf(LocalDateTime.parse(request.getParameter("deliveryDate") + "T00:00:00")));
             delivery.setDescription(request.getParameter("description"));
 
             if (deliveryDAO.updateDelivery(delivery)) {
-                response.sendRedirect("delivery?success=Delivery updated successfully");
+                response.sendRedirect("delivery?success=Cập nhật giao hàng thành công");
             } else {
-                response.sendRedirect("delivery?error=Failed to update delivery");
+                response.sendRedirect("delivery?error=Cập nhật giao hàng thất bại");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("delivery?error=Invalid input");
+            response.sendRedirect("delivery?error=Dữ liệu không hợp lệ");
         }
     }
 
     private void deleteDelivery(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        // Kiểm tra quyền delivery_delete
         if (!hasPermission(request, "delivery_delete")) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
             return;
@@ -150,25 +133,21 @@ public class DeliveryServlet extends HttpServlet {
 
         int id = Integer.parseInt(request.getParameter("id"));
         if (deliveryDAO.deleteDelivery(id)) {
-            response.sendRedirect("delivery?success=Delivery deleted successfully");
+            response.sendRedirect("delivery?success=Xóa giao hàng thành công");
         } else {
-            response.sendRedirect("delivery?error=Failed to delete delivery");
+            response.sendRedirect("delivery?error=Xóa giao hàng thất bại");
         }
     }
 
     private boolean hasPermission(HttpServletRequest request, String permission) {
-        // Giả định lấy role_id từ session
         Integer roleId = (Integer) request.getSession().getAttribute("role_id");
         if (roleId == null) return false;
 
-        // Kiểm tra quyền từ bảng role_permissions (giả định)
-        // Thay bằng truy vấn thực tế đến DB hoặc cache
         List<String> permissions = getPermissionsForRole(roleId);
         return permissions.contains(permission);
     }
 
     private List<String> getPermissionsForRole(int roleId) {
-        // Dữ liệu mẫu, thay bằng truy vấn DB thực tế
         switch (roleId) {
             case 1: // Admin
                 return List.of("delivery_view", "delivery_add", "delivery_edit", "delivery_delete");

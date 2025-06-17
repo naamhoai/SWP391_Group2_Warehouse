@@ -101,18 +101,30 @@ public class LoginServlet extends HttpServlet {
                             vali = true;
 
                        
-                            if (user2.getRole().getRoleid() == 1) {
-                                response.sendRedirect("adminDashboard.jsp");
-                            } else if (user2.getRole().getRoleid() == 2) {
-                                PrintWriter out = response.getWriter();
-                                out.print("day la so 2");
-                            } else if (user2.getRole().getRoleid() == 3) {
-                                PrintWriter out = response.getWriter();
-                                out.print("day la so 3");
-
-                            } else if (user2.getRole().getRoleid() == 4) {
-                                PrintWriter out = response.getWriter();
-                                out.print("day la so 4");
+                            switch (user2.getRole().getRoleid()) {
+                                case 1:
+                                    response.sendRedirect("adminDashboard.jsp");
+                                    break;
+                                case 2:
+                                    {
+                                        PrintWriter out = response.getWriter();
+                                        out.print("day la so 2");
+                                        break;
+                                    }
+                                case 3:
+                                    {
+                                        PrintWriter out = response.getWriter();
+                                        out.print("day la so 3");
+                                        break;
+                                    }
+                                case 4:
+                                    {
+                                        PrintWriter out = response.getWriter();
+                                        out.print("day la so 4");
+                                        break;
+                                    }
+                                default:
+                                    break;
                             }
                             break;
                         }
@@ -127,19 +139,24 @@ public class LoginServlet extends HttpServlet {
 
                                 vali = true;
 
-                                if (user2.getRole().getRoleid() == 1) {
-                                    response.sendRedirect("adminDashboard.jsp");
-                                } else if (user2.getRole().getRoleid() == 2) {
-                                    PrintWriter out = response.getWriter();
-                                    out.print("day la so 2");
-                                } else if (user2.getRole().getRoleid() == 3) {
-//                                    PrintWriter out = response.getWriter();
-//                                    out.print("day la so 3");
-                                    response.sendRedirect("requestMaterial.jsp");
-                                } else if (user2.getRole().getRoleid() == 4) {
-                                    PrintWriter out = response.getWriter();
-                                    out.print("day la so 4");
-
+                                // Check if there's a redirect URL stored in session
+                                String redirectURL = (String) session.getAttribute("redirectURL");
+                                if (redirectURL != null) {
+                                    session.removeAttribute("redirectURL"); // Clear the stored URL
+                                    response.sendRedirect(request.getContextPath() + redirectURL);
+                                } else {
+                                    // Default redirect based on role
+                                    if (user2.getRole().getRoleid() == 1) {
+                                        response.sendRedirect("adminDashboard.jsp");
+                                    } else if (user2.getRole().getRoleid() == 2) {
+                                        PrintWriter out = response.getWriter();
+                                        out.print("day la so 2");
+                                    } else if (user2.getRole().getRoleid() == 3) {
+                                        response.sendRedirect("requestMaterial.jsp");
+                                    } else if (user2.getRole().getRoleid() == 4) {
+                                        PrintWriter out = response.getWriter();
+                                        out.print("day la so 4");
+                                    }
                                 }
                                 break;
                             } else {

@@ -35,16 +35,16 @@
             </a>
         </li>
         <li class="menu-item">
-            <a href="#" class="menu-link">
+            <a href="delivery.jsp" class="menu-link">
                 <i class="fas fa-truck menu-icon"></i>
                 <span class="menu-text">Giao Hàng</span>
             </a>
         </li>
         <li class="menu-item has-submenu">
-            <a href="#" class="menu-link">
+            <a href="adminDashboard.jsp" class="menu-link">
                 <i class="fas fa-users menu-icon"></i>
                 <span class="menu-text">Người Dùng</span>
-                <i class="fas fa- submenu-icon"></i>
+                <i class="fas fa-submenu-icon"></i>
             </a>
             <ul class="submenu">
                 <li>
@@ -59,6 +59,12 @@
                         <span class="menu-text">Phân Quyền</span>
                     </a>
                 </li>
+                <li>
+                    <a href="${pageContext.request.contextPath}/permissionList.jsp" class="submenu-link">
+                        <i class="fas fa-key menu-icon"></i>
+                        <span class="menu-text">Danh Sách Quyền</span>
+                    </a>
+                </li>
             </ul>
         </li>
 
@@ -68,7 +74,5 @@
                 <span class="menu-text">Đăng Xuất</span>
             </a>
         </li>
-        
     </ul>
 </div>
-

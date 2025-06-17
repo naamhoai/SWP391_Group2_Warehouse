@@ -1,3 +1,4 @@
+
 package dao;
 
 import model.*;
@@ -15,46 +16,37 @@ public class UserDAO {
     }
 
     public boolean isValidPassword(String password) {
-        // Kiểm tra độ dài mật khẩu (ít nhất 8 ký tự)
         if (password.length() < 8) {
             return false;
         }
-
-        // Kiểm tra có ít nhất một ký tự hoa, ký tự thường, số và ký tự đặc biệt
         String regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
         return password.matches(regex);
     }
 
-    // Mã hóa mật khẩu
     public String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());
     }
 
-    // Thêm user mới
     public boolean insertUser(User user) {
         String sql = "INSERT INTO users "
                 + "(full_name, email, password, phone, role_id, status, priority, image, gender, dayofbirth, description) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setString(1, user.getFullname());
             ps.setString(2, user.getEmail());
             ps.setString(3, user.getPassword());
             ps.setString(4, user.getPhone());
-
             if (user.getRole() == null || user.getRole().getRoleid() == 0) {
                 ps.setNull(5, Types.INTEGER);
             } else {
                 ps.setInt(5, user.getRole().getRoleid());
             }
-
             ps.setString(6, user.getStatus());
             ps.setInt(7, user.getPriority());
             ps.setString(8, user.getImage());
             ps.setString(9, user.getGender());
             ps.setString(10, user.getDayofbirth());
             ps.setString(11, user.getDescription());
-
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -62,30 +54,25 @@ public class UserDAO {
         }
     }
 
-    // Cập nhật user
     public boolean updateUser(User user) {
         String sql = "UPDATE users SET full_name=?, email=?, password=?, phone=?, role_id=?, status=?, priority=?, image=?, gender=?, dayofbirth=?, description=? WHERE user_id=?";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setString(1, user.getFullname());
             ps.setString(2, user.getEmail());
             ps.setString(3, user.getPassword());
             ps.setString(4, user.getPhone());
-
             if (user.getRole() != null && user.getRole().getRoleid() != 0) {
                 ps.setInt(5, user.getRole().getRoleid());
             } else {
-                ps.setNull(5, Types.INTEGER); // Nếu không có vai trò, set null
+                ps.setNull(5, Types.INTEGER);
             }
-
             ps.setString(6, user.getStatus());
             ps.setInt(7, user.getPriority());
-            ps.setString(8, user.getImage()); // Cập nhật đường dẫn ảnh
+            ps.setString(8, user.getImage());
             ps.setString(9, user.getGender());
             ps.setString(10, user.getDayofbirth());
             ps.setString(11, user.getDescription());
             ps.setInt(12, user.getUser_id());
-
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -93,74 +80,91 @@ public class UserDAO {
         }
     }
 
-    // Lấy user theo ID
     public User getUserById(int userId) {
-        // Thêm JOIN để lấy thông tin role_name từ bảng 'roles'
         String sql = "SELECT u.user_id, u.full_name, u.email, u.password, u.phone, u.role_id, r.role_name, u.status, u.priority, u.image, u.gender, u.dayofbirth, u.description "
                 + "FROM users u "
                 + "INNER JOIN roles r ON u.role_id = r.role_id "
-                + // JOIN với bảng roles
-                "WHERE u.user_id = ?";
+                + "WHERE u.user_id = ?";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setInt(1, userId);
-
             try (ResultSet rs = ps.executeQuery()) {
-                // Kiểm tra nếu có kết quả trả về
                 if (rs.next()) {
                     User user = new User();
                     Role role = new Role();
-
-                    // Thiết lập thông tin cho đối tượng User từ ResultSet
                     user.setUser_id(rs.getInt("user_id"));
                     user.setFullname(rs.getString("full_name"));
                     user.setEmail(rs.getString("email"));
                     user.setPassword(rs.getString("password"));
                     user.setPhone(rs.getString("phone"));
-
-                    // Cập nhật thông tin vai trò từ bảng roles
                     role.setRoleid(rs.getInt("role_id"));
-                    role.setRolename(rs.getString("role_name"));  // Lấy tên vai trò từ bảng roles
+                    role.setRolename(rs.getString("role_name"));
                     user.setRole(role);
-
-                    // Cập nhật các thông tin khác của người dùng
                     user.setStatus(rs.getString("status"));
                     user.setPriority(rs.getInt("priority"));
                     user.setImage(rs.getString("image"));
                     user.setGender(rs.getString("gender"));
                     user.setDayofbirth(rs.getString("dayofbirth"));
                     user.setDescription(rs.getString("description"));
-
                     return user;
-                } else {
-                    // Trường hợp không tìm thấy người dùng
-                    System.out.println("No user found with user_id = " + userId);
                 }
             }
         } catch (SQLException e) {
-            // Log chi tiết lỗi nếu có
             System.err.println("Error fetching user with ID " + userId + ": " + e.getMessage());
             e.printStackTrace();
         }
-        return null;  // Trả về null nếu không tìm thấy hoặc gặp lỗi
+        return null;
     }
 
-    // Tạo email tự động
+    public Role getRoleById(int roleId) {
+        String sql = "SELECT role_id, role_name FROM roles WHERE role_id = ?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, roleId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Role role = new Role();
+                    role.setRoleid(rs.getInt("role_id"));
+                    role.setRolename(rs.getString("role_name"));
+                    return role;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error fetching role with ID " + roleId + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<Role> getAllRoles() {
+        List<Role> roles = new ArrayList<>();
+        String sql = "SELECT role_id, role_name FROM roles WHERE role_id >= 2 AND role_id <= 4";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Role role = new Role();
+                    role.setRoleid(rs.getInt("role_id"));
+                    role.setRolename(rs.getString("role_name"));
+                    roles.add(role);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error fetching roles: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return roles;
+    }
+
     public String generateEmail(String fullName) {
         if (fullName == null || fullName.trim().isEmpty()) {
             return null;
         }
-
         fullName = fullName.trim().replaceAll("\\s+", " ");
         String[] parts = fullName.split(" ");
         if (parts.length < 2) {
             return null;
         }
-
         String lastName = parts[parts.length - 1];
         lastName = removeAccent(lastName);
         lastName = lastName.substring(0, 1).toUpperCase() + lastName.substring(1).toLowerCase();
-
         StringBuilder initials = new StringBuilder();
         for (int i = 0; i < parts.length - 1; i++) {
             String partNoAccent = removeAccent(parts[i]);
@@ -168,12 +172,10 @@ public class UserDAO {
                 initials.append(partNoAccent.substring(0, 1).toUpperCase());
             }
         }
-
         int randomNum = 100000 + (int) (Math.random() * 900000);
         return lastName + initials.toString() + randomNum + "@gmail.com";
     }
 
-    // Loại bỏ dấu tiếng Việt
     public String removeAccent(String s) {
         if (s == null) {
             return null;
@@ -184,11 +186,9 @@ public class UserDAO {
         return s;
     }
 
-    // Kiểm tra email đã tồn tại
     public boolean existsEmail(String email) {
         String sql = "SELECT 1 FROM users WHERE email = ?";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setString(1, email);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
@@ -201,20 +201,12 @@ public class UserDAO {
 
     public List<User> getUserListSummary() {
         List<User> list = new ArrayList<>();
-        // Update SQL query to select all user fields and role information (role_id and role_name)
         String sql = "SELECT u.user_id, u.full_name, u.email, u.password, u.phone, u.status, u.priority, u.image, u.gender, u.dayofbirth, u.description, r.role_id, r.role_name "
                 + "FROM users u "
-                + "JOIN roles r ON u.role_id = r.role_id";  // JOIN roles table to get role information
-
+                + "JOIN roles r ON u.role_id = r.role_id";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
-
-            // Debugging: check the SQL query result
-            System.out.println("Executing SQL Query: " + sql);
-
             while (rs.next()) {
                 User user = new User();
-
-                // Set user details from the result set
                 user.setUser_id(rs.getInt("user_id"));
                 user.setFullname(rs.getString("full_name"));
                 user.setEmail(rs.getString("email"));
@@ -226,51 +218,33 @@ public class UserDAO {
                 user.setGender(rs.getString("gender"));
                 user.setDayofbirth(rs.getString("dayofbirth"));
                 user.setDescription(rs.getString("description"));
-
-                // Debugging: check user data retrieved
-                System.out.println("User retrieved: " + user);
-
-                // Create a Role object and set the role data from the result set
                 Role role = new Role();
                 role.setRoleid(rs.getInt("role_id"));
                 role.setRolename(rs.getString("role_name"));
-                user.setRole(role);  // Set the role for the user
-
-                // Add the user to the list
+                user.setRole(role);
                 list.add(user);
             }
-
-            // Debugging: check the final list size
-            System.out.println("Total users retrieved: " + list.size());
-
         } catch (SQLException e) {
-            e.printStackTrace();  // Log any SQL exceptions that occur
+            e.printStackTrace();
         }
-
-        return list;  // Return the list of users with full information
+        return list;
     }
 
     public List<User> searchUsersByKeyword(String keyword) {
         List<User> list = new ArrayList<>();
-        String sql = "SELECT u.user_id, u.full_name, u.email, u.status,u.role_id, r.role_name "
+        String sql = "SELECT u.user_id, u.full_name, u.email, u.status, u.role_id, r.role_name "
                 + "FROM users u LEFT JOIN roles r ON u.role_id = r.role_id "
                 + "WHERE u.full_name LIKE ?";
-
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-
             String likeKeyword = "%" + keyword + "%";
             ps.setString(1, likeKeyword);
-            ps.setString(2, likeKeyword);
-
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     User user = new User();
-
                     user.setUser_id(rs.getInt("user_id"));
                     user.setFullname(rs.getString("full_name"));
                     user.setEmail(rs.getString("email"));
                     user.setStatus(rs.getString("status"));
-
                     Role role = new Role();
                     role.setRoleid(rs.getInt("role_id"));
                     role.setRolename(rs.getString("role_name"));

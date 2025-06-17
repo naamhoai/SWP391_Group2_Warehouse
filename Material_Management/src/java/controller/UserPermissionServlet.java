@@ -1,7 +1,8 @@
 package controller;
 
-import dal.DBContext;
 import dao.UserPermissionDAO;
+import dao.UserDAO;
+import model.Role;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -15,65 +16,66 @@ import java.util.Map;
 @WebServlet(name = "UserPermissionServlet", urlPatterns = {"/userPermission"})
 public class UserPermissionServlet extends HttpServlet {
 
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    private void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        
+        UserPermissionDAO userPermissionDAO = new UserPermissionDAO();
+        UserDAO userDAO = new UserDAO();
+
         try {
-            UserPermissionDAO userPermissionDAO = new UserPermissionDAO();
-            
-            // Get search keyword
-            String keyword = request.getParameter("keyword");
-            List<Map<String, Object>> users;
-            
-            if (keyword != null && !keyword.trim().isEmpty()) {
-                // Search users by keyword
-                users = userPermissionDAO.searchUser(keyword);
-                if (users.isEmpty()) {
-                    request.setAttribute("error", "No user found for the keyword. : " + keyword);
-                } else if (users.size() > 1) {
-                    // Multiple users found, let user choose by userId
-                    request.setAttribute("multipleUsers", users);
-                    request.setAttribute("message",  "Multiple users found with the name '" + keyword + "'. Please select a user by ID.");
-                } else {
-                    // Single user found
-                    request.setAttribute("users", users);
-                    request.setAttribute("userId", users.get(0).get("userId"));
-                    request.setAttribute("fullName", users.get(0).get("fullName"));
-                    request.setAttribute("roleName", users.get(0).get("roleName"));
-                    request.setAttribute("rolePermissions", users.get(0).get("rolePermissions"));
-                    request.setAttribute("userPermissions", users.get(0).get("userPermissions"));
-                }
-            } else {
-                // Get all users with their permissions
-                users = userPermissionDAO.getAllUsersWithPermissions();
-                request.setAttribute("users", users);
+            String roleIdStr = request.getParameter("roleId");
+            if (roleIdStr == null || roleIdStr.trim().isEmpty()) {
+                request.setAttribute("error", "Role ID is missing");
+                request.getRequestDispatcher("userPermission.jsp").forward(request, response);
+                return;
             }
-            
-            // Get all available permissions
-            List<Map<String, Object>> permissions = userPermissionDAO.getAllPermissions();
-            request.setAttribute("permissions", permissions);
-            
+
+            int roleId;
+            try {
+                roleId = Integer.parseInt(roleIdStr);
+                if (roleId <= 1 || roleId > 4) {
+                    request.setAttribute("error", "Invalid Role ID");
+                    request.getRequestDispatcher("userPermission.jsp").forward(request, response);
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                request.setAttribute("error", "Invalid Role ID format");
+                request.getRequestDispatcher("userPermission.jsp").forward(request, response);
+                return;
+            }
+
+            // Lấy thông tin vai trò (giả định UserDAO có phương thức getRoleById)
+            Role role = userDAO.getRoleById(roleId); // Cần thêm phương thức này vào UserDAO
+            if (role == null) {
+                request.setAttribute("error", "Role not found");
+                request.getRequestDispatcher("userPermission.jsp").forward(request, response);
+                return;
+            }
+
+            // Lấy quyền của vai trò
+            Map<String, Boolean> rolePermissions = userPermissionDAO.getRolePermissions(roleId);
+            List<Map<String, Object>> allPermissions = userPermissionDAO.getAllPermissions();
+
+            request.setAttribute("role", role);
+            request.setAttribute("rolePermissions", rolePermissions);
+            request.setAttribute("permissions", allPermissions);
+
             request.getRequestDispatcher("userPermission.jsp").forward(request, response);
-            
         } catch (SQLException e) {
-            e.printStackTrace();
             request.setAttribute("error", "Database error: " + e.getMessage());
             request.getRequestDispatcher("userPermission.jsp").forward(request, response);
         } catch (Exception e) {
-            e.printStackTrace();
-            request.setAttribute("error", "An unexpected error has occurred: " + e.getMessage());
+            request.setAttribute("error", "Unexpected error: " + e.getMessage());
             request.getRequestDispatcher("userPermission.jsp").forward(request, response);
         }
-    }
-
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
-    }
-
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
     }
 }
