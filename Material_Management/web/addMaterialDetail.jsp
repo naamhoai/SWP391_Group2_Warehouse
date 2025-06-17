@@ -1,12 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Cập Nhật Vật Tư</title>
+    <title>Thêm Vật Tư Mới</title>
     <link rel="stylesheet" href="css/sidebar.css">
     <link rel="stylesheet" href="css/addMaterialDetail.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -16,27 +15,24 @@
 
     <div id="main-content">
         <div class="container">
-            <h1 class="page-title">Cập Nhật Vật Tư</h1>
-            <p class="page-description">Chỉnh sửa các thông tin vật tư và lưu thay đổi vào hệ thống.</p>
+            <h1 class="page-title">Thêm Vật Tư Mới</h1>
+            <p class="page-description">Điền các thông tin dưới đây để tạo một vật tư mới trong hệ thống.</p>
             
+            <%-- Hiển thị thông báo lỗi nếu có --%>
             <c:if test="${not empty errorMessage}">
                 <div class="alert alert-danger" style="color: red; border: 1px solid red; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
                     ${errorMessage}
                 </div>
             </c:if>
 
-            <form action="updateMaterialServlet" method="post" enctype="multipart/form-data" class="add-form">
+            <%-- Form sẽ gửi dữ liệu đến Servlet /addMaterial --%>
+            <form action="addMaterial" method="post" enctype="multipart/form-data" class="add-form">
                 
                 <div class="form-section">
                     <h3 class="form-section-title">Thông Tin Bắt Buộc</h3>
                     <div class="form-group">
-                        <label for="materialId">Mã Vật Tư:</label>
-                        <input type="text" id="materialId" name="materialId" value="${material.materialId}" readonly>
-                    </div>
-
-                    <div class="form-group">
                         <label for="name">Tên vật tư <span class="required">*</span></label>
-                        <input type="text" id="name" name="name" placeholder="Ví dụ: Dây điện Cadivi CV 1.5mm" value="${material.name}" required>
+                        <input type="text" id="name" name="name" placeholder="Ví dụ: Dây điện Cadivi CV 1.5mm" required>
                     </div>
 
                     <div class="form-row">
@@ -45,7 +41,7 @@
                             <select id="categoryId" name="categoryId" required>
                                 <option value="">-- Chọn danh mục --</option>
                                 <c:forEach items="${categories}" var="cat">
-                                    <option value="${cat.categoryId}" ${material.categoryId == cat.categoryId ? 'selected' : ''}>${cat.name}</option>
+                                    <option value="${cat.categoryId}">${cat.name}</option>
                                 </c:forEach>
                             </select>
                         </div>
@@ -54,7 +50,7 @@
                             <select id="supplierId" name="supplierId" required>
                                 <option value="">-- Chọn nhà cung cấp --</option>
                                 <c:forEach items="${suppliers}" var="sup">
-                                    <option value="${sup.supplierId}" ${material.supplierId == sup.supplierId ? 'selected' : ''}>${sup.supplierName}</option>
+                                    <option value="${sup.supplierId}">${sup.supplierName}</option>
                                 </c:forEach>
                             </select>
                         </div>
@@ -63,43 +59,29 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="price">Giá (VNĐ) <span class="required">*</span></label>
-                            <input type="number" id="price" name="price" value="${material.price}" step="0.01" min="0" required>
+                            <input type="number" id="price" name="price" value="0" step="100" min="0" required>
                         </div>
                         <div class="form-group">
                             <label for="conversionId">Đơn vị tính <span class="required">*</span></label>
                             <select id="conversionId" name="conversionId" required>
-                                <option value="">-- Chọn đơn vị tính --</option>
+                                <option value="">-- Chọn đơn vị --</option>
                                 <c:forEach items="${units}" var="unit">
-                                    <option value="${unit.material.conversionId}" ${material.conversionId == unit.material.conversionId ? 'selected' : ''}>${unit.baseunit}</option>
+                                    <option value="${unit.material.conversionId}">${unit.baseunit}</option>
                                 </c:forEach>
                             </select>
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="material_condition">Tình trạng vật tư <span class="required">*</span></label>
-                        <select id="material_condition" name="material_condition" required>
-                            <option value="">-- Chọn tình trạng --</option>
-                            <option value="Mới" ${material.materialCondition == 'Mới' ? 'selected' : ''}>Mới</option>
-                            <option value="Đã sử dụng" ${material.materialCondition == 'Đã sử dụng' ? 'selected' : ''}>Đã sử dụng</option>
-                            <option value="Hỏng" ${material.materialCondition == 'Hỏng' ? 'selected' : ''}>Hỏng</option>
-                        </select>
                     </div>
                 </div>
 
                 <div class="form-section">
                     <h3 class="form-section-title">Thông Tin Bổ Sung (Không bắt buộc)</h3>
                     <div class="form-group">
-                        <label for="imageUrl">Hình ảnh đại diện hiện tại:</label>
-                        <c:if test="${not empty material.imageUrl}">
-                            <img src="image/${material.imageUrl}" alt="Current Material Image" style="max-width: 150px; margin-bottom: 10px; display: block;">
-                        </c:if>
-                        <label for="imageUpload">Upload ảnh mới (nếu muốn thay đổi):</label>
-                        <input type="file" id="imageUpload" name="imageUpload" accept="image/*">
+                        <label for="imageUrl">Hình ảnh đại diện</label>
+                        <input type="file" id="imageUrl" name="imageUrl" accept="image/*">
                     </div>
                     <div class="form-group">
                         <label for="description">Mô tả chi tiết</label>
-                        <textarea id="description" name="description" rows="5" placeholder="Nhập mô tả, thông số kỹ thuật, quy cách...">${material.description}</textarea>
+                        <textarea id="description" name="description" rows="5" placeholder="Nhập mô tả, thông số kỹ thuật, quy cách..."></textarea>
                     </div>
                 </div>
 
@@ -108,7 +90,7 @@
                         <i class="fas fa-times"></i> Hủy Bỏ
                     </a>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Cập Nhật Vật Tư
+                        <i class="fas fa-plus-circle"></i> Tạo Mới Vật Tư
                     </button>
                 </div>
             </form>

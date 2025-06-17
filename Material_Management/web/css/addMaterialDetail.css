@@ -1,4 +1,6 @@
-
+/* add-material.css */
+/* Sử dụng lại hầu hết các style từ edit-material.css để nhất quán */
+/* Bạn có thể tạo một file base.css và import vào cả hai trang */
 
 body {
     font-family: Arial, sans-serif;

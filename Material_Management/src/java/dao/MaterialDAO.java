@@ -14,6 +14,9 @@ import java.util.List;
 
 public class MaterialDAO extends DBContext {
 
+    /**
+     * Lấy danh sách vật tư cho trang quản trị (không có tồn kho).
+     */
     public List<Material> getMaterialsForAdmin(String searchQuery, String categoryFilter, String supplierFilter,
             int page, int itemsPerPage, String sortField, String sortDir) throws SQLException {
         List<Material> materials = new ArrayList<>();
@@ -29,7 +32,7 @@ public class MaterialDAO extends DBContext {
         ArrayList<Object> params = new ArrayList<>();
         buildWhereClauses(sql, params, searchQuery, categoryFilter, supplierFilter);
 
-        sql.append("ORDER BY ").append(getSafeSortField(sortField)).append("asc".equalsIgnoreCase(sortDir) ? " ASC" : " DESC");
+        sql.append("ORDER BY ").append(getSafeSortField(sortField)).append(sortDir.equalsIgnoreCase("asc") ? " ASC" : " DESC");
         sql.append(" LIMIT ? OFFSET ?");
 
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
@@ -44,22 +47,20 @@ public class MaterialDAO extends DBContext {
             while (rs.next()) {
                 materials.add(mapRowToMaterial(rs));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
         }
         return materials;
     }
 
+    /**
+     * Đếm tổng số vật tư cho trang quản trị.
+     */
     public int getTotalMaterialsForAdmin(String searchQuery, String categoryFilter, String supplierFilter) throws SQLException {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) as total FROM materials m ")
                 .append("LEFT JOIN categories c ON m.category_id = c.category_id ")
                 .append("LEFT JOIN supplier s ON m.supplier_id = s.supplier_id ")
                 .append("WHERE 1=1 ");
-
         ArrayList<Object> params = new ArrayList<>();
         buildWhereClauses(sql, params, searchQuery, categoryFilter, supplierFilter);
-
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             for (int i = 0; i < params.size(); i++) {
                 ps.setObject(i + 1, params.get(i));
@@ -68,13 +69,13 @@ public class MaterialDAO extends DBContext {
             if (rs.next()) {
                 return rs.getInt("total");
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
         }
         return 0;
     }
 
+    /**
+     * Lấy thông tin chi tiết của một vật tư bằng ID.
+     */
     public Material getMaterialById(int materialId) throws SQLException {
         String sql = "SELECT m.*, c.name as category_name, s.supplier_name, uc.base_unit "
                 + "FROM materials m "
@@ -88,13 +89,30 @@ public class MaterialDAO extends DBContext {
             if (rs.next()) {
                 return mapRowToMaterial(rs);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
         }
         return null;
     }
 
+    /**
+     * Thêm vật tư mới.
+     */
+    public boolean addMaterial(Material material) throws SQLException {
+        String sql = "INSERT INTO materials (name, category_id, image_url, description, price, supplier_id, conversion_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, material.getName());
+            ps.setInt(2, material.getCategoryId());
+            ps.setString(3, material.getImageUrl());
+            ps.setString(4, material.getDescription());
+            ps.setBigDecimal(5, material.getPrice());
+            ps.setInt(6, material.getSupplierId());
+            ps.setInt(7, material.getConversionId());
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    /**
+     * Cập nhật thông tin vật tư.
+     */
     public boolean updateMaterial(Material material) throws SQLException {
         String sql = "UPDATE materials SET name = ?, category_id = ?, supplier_id = ?, price = ?, "
                 + "conversion_id = ?, material_condition = ?, description = ?, image_url = ? "
@@ -110,12 +128,10 @@ public class MaterialDAO extends DBContext {
             ps.setString(8, material.getImageUrl());
             ps.setInt(9, material.getMaterialId());
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
         }
     }
 
+    // --- CÁC HÀM LẤY DỮ LIỆU CHO DROPDOWN ---
     public List<String> getAllCategories() throws SQLException {
         List<String> categories = new ArrayList<>();
         String sql = "SELECT DISTINCT name FROM categories WHERE name IS NOT NULL ORDER BY name";
@@ -177,9 +193,9 @@ public class MaterialDAO extends DBContext {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 UnitConversion unit = new UnitConversion();
-                Material tempMaterial = new Material();
-                tempMaterial.setConversionId(rs.getInt("conversion_id"));
-                unit.setMaterial(tempMaterial);
+                Material material = new Material();
+                material.setConversionId(rs.getInt("conversion_id"));
+                unit.setMaterial(material);
                 unit.setBaseunit(rs.getString("base_unit"));
                 units.add(unit);
             }
@@ -187,6 +203,7 @@ public class MaterialDAO extends DBContext {
         return units;
     }
 
+    // --- CÁC HÀM HELPER ---
     private void buildWhereClauses(StringBuilder sql, List<Object> params, String searchQuery, String categoryFilter, String supplierFilter) {
         if (searchQuery != null && !searchQuery.trim().isEmpty()) {
             sql.append("AND m.name LIKE ? ");
@@ -230,26 +247,5 @@ public class MaterialDAO extends DBContext {
         material.setDescription(rs.getString("description"));
         material.setUnit(rs.getString("base_unit"));
         return material;
-    }
-
-    public boolean addMaterial(Material material) throws SQLException {
-        // Không thêm material_id vì nó là AUTO_INCREMENT
-        String sql = "INSERT INTO materials (name, category_id, image_url, description, price, supplier_id, conversion_id) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, material.getName());
-            ps.setInt(2, material.getCategoryId());
-            ps.setString(3, material.getImageUrl());
-            ps.setString(4, material.getDescription());
-            ps.setBigDecimal(5, material.getPrice());
-            ps.setInt(6, material.getSupplierId());
-            ps.setInt(7, material.getConversionId());
-
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
-        }
     }
 }
