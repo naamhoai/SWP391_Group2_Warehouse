@@ -41,7 +41,7 @@ public class CreateMaterialDetailServlet extends HttpServlet {
 
         // Load units
         UnitConversionDao unitDao = new UnitConversionDao();
-        List<UnitConversion> units = unitDao.getAll();
+        List<UnitConversion> units = unitDao.getAll(1);
         request.setAttribute("units", units);
 
         request.getRequestDispatcher("createMaterialDetail.jsp").forward(request, response);
@@ -121,7 +121,7 @@ public class CreateMaterialDetailServlet extends HttpServlet {
         SupplierDAO supplierDAO = new SupplierDAO();
         request.setAttribute("suppliers", supplierDAO.getAllSuppliers());
         UnitConversionDao unitDao = new UnitConversionDao();
-        request.setAttribute("units", unitDao.getAll());
+        request.setAttribute("units", unitDao.getAll(1));
         request.setAttribute("errorMessage", errorMessage);
         request.getRequestDispatcher("CreateMaterialDetail").forward(request, response);
     }
