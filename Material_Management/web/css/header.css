@@ -49,6 +49,11 @@
     background: var(--secondary-color);
 }
 
+.notification {
+    position: relative;
+    cursor: pointer;
+}
+
 .notification-icon {
     font-size: 1.5rem;
     color: #666;
@@ -59,4 +64,63 @@
 
 .notification-icon:hover {
     color: var(--primary-color);
+}
+
+/* === Dropdown Thông Báo === */
+#notificationDropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    z-index: 1000;
+    background: #fff;
+    border: 1px solid #ccc;
+    width: 350px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    max-height: 360px; /* Hiển thị tối đa 6-7 thông báo */
+    overflow-y: auto;
+    border-radius: 4px;
+}
+
+/* Tuỳ chỉnh thanh cuộn */
+#notificationDropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+#notificationDropdown::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+/* Thông báo từng dòng */
+#notificationDropdown ul {
+    list-style: none;
+    padding: 10px;
+    margin: 0;
+}
+
+#notificationDropdown li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+#notificationDropdown li:last-child {
+    border-bottom: none;
+}
+
+#notificationDropdown li.unread {
+    opacity: 1;
+}
+
+#notificationDropdown li.read {
+    opacity: 0.7;
+}
+
+/* Phần label "Mới" */
+.notification-new-badge {
+    background: #007bff;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 10px;
 }

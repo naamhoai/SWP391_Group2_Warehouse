@@ -7,7 +7,7 @@
 <html lang="vi">
     <head>
         <meta charset="UTF-8" />
-        <title>Add New User</title>
+        <title>Tạo người dùng mới</title>
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/createUser.css" />
         <link rel="stylesheet" href="css/sidebar.css">
         
@@ -19,7 +19,7 @@
             <div class="main-content">
                 <div class="form-wrapper">
                     <div class="page-header">
-                        <h2 class="form-title">Add New User</h2>
+                        <h2 class="form-title">Tạo người dùng mới</h2>
 
                         <c:if test="${not empty error}">
                             <div class="alert error">${error}</div>
@@ -36,7 +36,7 @@
 
                             <div class="row">
                                 <div class="column">
-                                    <label for="fullName">Full Name:</label>
+                                    <label for="fullName">Họ và tên:</label>
                                     <input type="text" id="fullName" name="fullName" required 
                                            value="${fn:escapeXml(fullName)}" oninput="generateEmail()" />
                                 </div>
@@ -45,13 +45,13 @@
 
                             <div class="row">
                                 <div class="column">
-                                    <label for="password">Password:</label>
+                                    <label for="password">Mật khẩu:</label>
                                     <input type="password" id="password" name="password" required />
                                 </div>
                                 <div class="column">
-                                    <label for="gender">Gender</label>
+                                    <label for="gender">Giới tính:</label>
                                     <select id="gender" name="gender">
-                                        <option value="">Choose gender</option>
+                                        <option value="">Chọn giới tính</option>
                                         <option value="Men" <c:if test="${gender == 'Men'}">selected</c:if>>Nam</option>
                                         <option value="Women" <c:if test="${gender == 'Women'}">selected</c:if>>Nữ</option>
                                         <option value="Other" <c:if test="${gender == 'Other'}">selected</c:if>>Khác</option>
@@ -61,7 +61,7 @@
 
                                 <div class="row">
                                     <div class="column">
-                                        <label for="dayofbirth">Day Of Birth</label>
+                                        <label for="dayofbirth">Ngày sinh:</label>
                                         <input type="date" id="dayofbirth" name="dayofbirth" value="${dayofbirth}" />
                                 </div>
                                 <div class="column">
@@ -72,13 +72,13 @@
 
                             <div class="row">
                                 <div class="column">
-                                    <label for="phone">Phone Number:</label>
+                                    <label for="phone">Số điện thoại:</label>
                                     <input type="tel" id="phone" name="phone" value="${fn:escapeXml(userPhone)}" />
                                 </div>
                                 <div class="column">
-                                    <label for="roleId">Role</label>
+                                    <label for="roleId">Vai trò:</label>
                                     <select id="roleId" name="roleId">
-                                        <option value="">Choose role</option>
+                                        <option value="">Chọn vai trò</option>
                                         <c:forEach var="role" items="${roleList}">
                                             <option value="${role.roleid}" <c:if test="${role.roleid == selectedRoleId}">selected</c:if>>
                                                 ${role.rolename}
@@ -90,7 +90,7 @@
 
                             <div class="row">
                                 <div class="column">
-                                    <label class="status-label">Status</label>
+                                    <label class="status-label">Trạng thái:</label>
                                     <div class="status-group">
                                         <label>
                                             <input type="radio" name="status" value="active" 
@@ -103,19 +103,19 @@
                                         </div>
                                     </div>
                                     <div class="column">
-                                        <label for="priority">Priority:</label>
+                                        <label for="priority">Mức ưu tiên:</label>
                                         <input type="number" id="priority" name="priority" min="0" value="${priority}" />
                                 </div>
                             </div>
 
                             <div class="row full-width">
-                                <label for="description">Description:</label>
+                                <label for="description">Mô tả:</label>
                                 <a href="../src/java/dao/UserDAO.java"></a>
                                 <textarea id="description" name="description">${fn:escapeXml(description)}</textarea>
                             </div>
 
                             <div class="buttons">
-                                <a href="${pageContext.request.contextPath}/settinglist" class="btn back-btn">Back</a>
+                                <a href="${pageContext.request.contextPath}/settinglist" class="btn back-btn">Quay lại</a>
                                 <button type="submit" class="btn save-btn">Add User</button>
                             </div>
 

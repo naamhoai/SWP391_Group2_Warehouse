@@ -6,11 +6,10 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f4f8;
-    margin: 0;
-    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fa;
     color: #333;
+    line-height: 1.6;
     overflow-x: hidden;
 }
 
@@ -70,29 +69,65 @@ body {
     color: #1a237e;
 }
 
-/* Avatar upload */
+/* Avatar Container Styles */
 .avatar-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 25px;
+    margin-bottom: 2rem;
+    padding: 1rem;
 }
 
 .avatar-container img {
-    width: 140px;
-    height: 140px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
     object-fit: cover;
-    margin-bottom: 10px;
-    border: 3px solid #1a237e;
+    border: 3px solid #3b82f6;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.avatar-container img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.avatar-container span {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-top: 0.5rem;
 }
 
 .avatar-container input[type="file"] {
-    margin-top: 10px;
-    font-size: 1rem;
-    cursor: pointer;
-    color: #1a237e;
-    font-weight: 600;
+    display: none;
+}
+
+/* Edit Button Styles */
+a[href*="UpdateUserProfileServlet"] {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    background-color: #3b82f6;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    margin-top: 1.5rem;
+    transition: all 0.3s ease;
+    border: none;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+a[href*="UpdateUserProfileServlet"]:hover {
+    background-color: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+}
+
+a[href*="UpdateUserProfileServlet"]:active {
+    transform: translateY(0);
 }
 
 /* Form layout */
@@ -173,6 +208,8 @@ input[readonly] {
 .center-button {
     text-align: center;
     margin-top: 25px;
+    display: flex;
+    justify-content: center;
 }
 
 button[type="submit"] {
@@ -237,4 +274,71 @@ button[type="submit"]:hover {
         padding: 8px 16px;
         font-size: 15px;
     }
+}
+
+/* Nút chỉnh sửa nổi bật và căn giữa */
+.edit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.85rem 2.2rem;
+    background: linear-gradient(90deg, #3b82f6 60%, #2563eb 100%);
+    color: #fff !important;
+    text-decoration: none;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 1.15rem;
+    margin: 2rem auto 0 auto;
+    transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+    border: none;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.18);
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    justify-content: center;
+}
+
+.edit-btn:before {
+    content: '\f044'; /* FontAwesome icon: fa-edit */
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    font-size: 1.1em;
+    margin-right: 8px;
+}
+
+.edit-btn:hover {
+    background: linear-gradient(90deg, #2563eb 60%, #3b82f6 100%);
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.25);
+}
+
+.edit-btn:active {
+    transform: scale(0.98);
+}
+
+.center-button {
+    display: flex;
+    justify-content: center;
+}
+
+/* Custom file label styles */
+.custom-file-label {
+    display: inline-block;
+    padding: 8px 18px;
+    background-color: #3b82f6;
+    color: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-weight: 500;
+    transition: background 0.2s;
+    font-size: 1rem;
+}
+
+.custom-file-label i {
+    margin-right: 8px;
+}
+
+.custom-file-label:hover {
+    background-color: #2563eb;
 }

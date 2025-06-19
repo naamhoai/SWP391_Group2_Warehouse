@@ -66,6 +66,9 @@ public class RequestListServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        
         HttpSession session = request.getSession();
         Integer userId = (Integer) session.getAttribute("userId");
 
@@ -81,26 +84,90 @@ public class RequestListServlet extends HttpServlet {
             return;
         }
 
-        // Lấy tham số lọc
+        // Lấy tham số phân trang và tìm kiếm
+        int page = 1;
+        int pageSize = 5;
+        
+        try {
+            if (request.getParameter("page") != null) {
+                page = Integer.parseInt(request.getParameter("page"));
+            }
+            if (request.getParameter("pageSize") != null) {
+                pageSize = Integer.parseInt(request.getParameter("pageSize"));
+            }
+        } catch (NumberFormatException e) {
+            // Giữ giá trị mặc định nếu có lỗi
+        }
+
+        // Lấy và decode các tham số
         String status = request.getParameter("status");
         String date = request.getParameter("date");
         String sort = request.getParameter("sort");
+        String requestType = request.getParameter("requestType");
+        String search = request.getParameter("search");
+
         if (sort == null || (!sort.equals("asc") && !sort.equals("desc"))) {
             sort = "asc";
         }
+
         // Lấy danh sách request tùy theo vai trò
-        List<Request> requests;
-        if (user.getRole().getRoleid() == 2) { 
-            if ((status != null && !status.isEmpty()) || (date != null && !date.isEmpty())) {
-                requests = requestDAO.filterRequests(status, date, sort);
-            } else {
-                requests = requestDAO.getAllRequests(sort);
+        List<Request> requests = null;
+        int totalRequests = 0;
+        try {
+            boolean isDirector = user.getRole() != null && user.getRole().getRoleid() == 2;
+
+            // Nếu có từ khóa tìm kiếm
+            if (search != null && !search.trim().isEmpty()) {
+                if (isDirector) {
+                    // Giám đốc tìm kiếm trong tất cả requests
+                    requests = requestDAO.searchRequests(search, page, pageSize);
+                    totalRequests = requestDAO.getTotalSearchResults(search);
+                } else {
+                    // User khác chỉ tìm kiếm trong requests của họ
+                    requests = requestDAO.searchUserRequests(userId, search, page, pageSize);
+                    totalRequests = requestDAO.getTotalUserSearchResults(userId, search);
+                }
+            } 
+            // Nếu có bộ lọc
+            else if (status != null || date != null || requestType != null) {
+                if (isDirector) {
+                    // Giám đốc lọc trong tất cả requests
+                    requests = requestDAO.filterRequests(status, date, sort, requestType, page, pageSize);
+                    totalRequests = requestDAO.getTotalFilteredRequests(status, date, requestType);
+                } else {
+                    // User khác chỉ lọc trong requests của họ
+                    requests = requestDAO.filterUserRequests(userId, status, date, sort, requestType, page, pageSize);
+                    totalRequests = requestDAO.getTotalFilteredUserRequests(userId, status, date, requestType);
+                }
             }
-        } else {
-            requests = requestDAO.getRequestsByUserId(userId, sort);
+            // Nếu không có tìm kiếm hay lọc
+            else {
+                if (isDirector) {
+                    // Giám đốc xem tất cả requests
+                    requests = requestDAO.getAllRequests(sort, page, pageSize);
+                    totalRequests = requestDAO.getTotalRequests();
+                } else {
+                    // User khác chỉ xem requests của họ
+                    requests = requestDAO.getRequestsByUserId(userId, sort, page, pageSize);
+                    totalRequests = requestDAO.getTotalRequestsByUserId(userId);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            requests = new java.util.ArrayList<>();
+            totalRequests = 0;
         }
 
+        // Tính toán thông tin phân trang
+        int totalPages = (int) Math.ceil((double) totalRequests / pageSize);
+        
+        // Đặt các thuộc tính cho JSP
         request.setAttribute("requests", requests);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("pageSize", pageSize);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("totalRequests", totalRequests);
+        
         request.getRequestDispatcher("requestList.jsp").forward(request, response);
     }
 
@@ -125,7 +192,7 @@ public class RequestListServlet extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "Short description";
+        return "Request List Servlet";
     }// </editor-fold>
 
 }

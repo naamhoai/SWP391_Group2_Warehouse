@@ -35,7 +35,7 @@
             </a>
         </li>
         <li class="menu-item">
-            <a href="delivery.jsp" class="menu-link">
+            <a href="delivery" class="menu-link">
                 <i class="fas fa-truck menu-icon"></i>
                 <span class="menu-text">Giao Hàng</span>
             </a>
@@ -48,19 +48,14 @@
             </a>
             <ul class="submenu">
                 <li>
-                    <a href="${pageContext.request.contextPath}/UserDetailServlet?userId=${u.user_id}" class="submenu-link">
+                    <a href="${pageContext.request.contextPath}/UserDetailServlet?userId=${sessionScope.userId}" class="submenu-link">
                         <i class="fas fa-user menu-icon"></i>
                         <span class="menu-text">Thông Tin</span>
                     </a>
                 </li>
+               
                 <li>
-                    <a href="${pageContext.request.contextPath}/userPermission.jsp" class="submenu-link">
-                        <i class="fas fa-user-lock menu-icon"></i>
-                        <span class="menu-text">Phân Quyền</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="${pageContext.request.contextPath}/permissionList.jsp" class="submenu-link">
+                    <a href="${pageContext.request.contextPath}/permissionList" class="submenu-link">
                         <i class="fas fa-key menu-icon"></i>
                         <span class="menu-text">Danh Sách Quyền</span>
                     </a>

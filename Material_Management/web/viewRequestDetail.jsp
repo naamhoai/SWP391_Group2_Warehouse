@@ -11,15 +11,15 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Chi tiết yêu cầu vật tư</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="css/viewRequestDetail.css">
     </head>
     <body>
-        <div class="container mt-4">
+        <div class="request-detail-container">
             <h2>Chi tiết yêu cầu vật tư</h2>
-            <div class="mb-3">
+            <div class="request-info">
                 <label><b>Mã yêu cầu:</b></label> ${request.requestId}<br>
                 <label><b>Loại yêu cầu:</b></label> ${request.requestType}<br>
-                <label><b>Người yêu cầu (ID):</b></label> ${request.userId}<br>
+                <label><b>Người yêu cầu:</b></label> ${requesterName}<br>
                 <label><b>Lý do:</b></label> ${request.reason}<br>
                 <label><b>Trạng thái:</b></label> ${request.requestStatus}<br>
                 <label><b>Thời gian tạo:</b></label> ${request.createdAt}<br>
@@ -30,7 +30,7 @@
                 </c:if>
             </div>
             <h4>Danh sách vật tư</h4>
-            <table class="table table-bordered">
+            <table class="request-detail-table">
                 <thead>
                     <tr>
                         <th>Danh mục</th>
@@ -58,28 +58,37 @@
             </table>
 
             <!-- Phần xử lý cho giám đốc -->
-            <c:if test="${request.requestStatus eq 'Pending'}">
+            <c:if test="${request.requestStatus eq 'Pending' && sessionScope.roleId.roleid == 2}">
                 <div class="mb-2 mt-2">
                     <label for="directorNote"><b>Lý do (bắt buộc):</b></label>
-                    <textarea id="directorNote" class="form-control" required rows="2" placeholder="Nhập lý do phê duyệt hoặc từ chối..."></textarea>
+                    <textarea id="directorNote" class="input-note" required rows="2" placeholder="Nhập lý do phê duyệt hoặc từ chối..."></textarea>
                 </div>
                 <form id="approveForm" action="approveRequest" method="post" style="display:inline;">
                     <input type="hidden" name="requestId" value="${request.requestId}">
                     <input type="hidden" name="directorNote" id="approveNote">
-                    <button type="submit" class="btn btn-success">Phê duyệt</button>
+                    <button type="submit" class="btn-approve">Phê duyệt</button>
                 </form>
                 <form id="rejectForm" action="rejectRequest" method="post" style="display:inline;">
                     <input type="hidden" name="requestId" value="${request.requestId}">
                     <input type="hidden" name="directorNote" id="rejectNote">
-                    <button type="submit" class="btn btn-danger">Từ chối</button>
+                    <button type="submit" class="btn-reject">Từ chối</button>
                 </form>
             </c:if>
 
             <!-- Phần xử lý cho nhân viên kho -->
-            <c:if test="${request.requestStatus eq 'Approved'}">
+            <c:if test="${request.requestStatus eq 'Approved' && sessionScope.roleId.roleid == 3}">
                 <div class="mt-3">
-                    <a href="createPurchaseOrder?requestId=${request.requestId}" class="btn btn-primary">
+                    <a href="createPurchaseOrder?requestId=${request.requestId}" class="btn-create-order">
                         <i class="fas fa-plus"></i> Tạo đơn nhập hàng
+                    </a>
+                </div>
+            </c:if>
+
+            <!-- Phần xử lý cho yêu cầu bị từ chối -->
+            <c:if test="${request.requestStatus eq 'Rejected' && sessionScope.userId eq request.userId}">
+                <div class="mt-3">
+                    <a href="editRequest?requestId=${request.requestId}" class="btn-edit-request">
+                        <i class="fas fa-edit"></i> Chỉnh sửa yêu cầu
                     </a>
                 </div>
             </c:if>
@@ -87,14 +96,14 @@
             <!-- Nút quay lại -->
             <div class="mt-3">
                 <c:choose>
-                    <c:when test="${sessionScope.userRole eq 'Director'}">
-                        <a href="director" class="btn btn-secondary">Quay lại</a>
+                    <c:when test="${sessionScope.roleId.roleid == 2}">
+                        <a href="director" class="btn-back">Quay lại</a>
                     </c:when>
-                    <c:when test="${sessionScope.userRole eq 'Warehouse Staff'}">
-                        <a href="warehouseEmployeeDashboard" class="btn btn-secondary">Quay lại</a>
+                    <c:when test="${sessionScope.roleId.roleid == 3}">
+                        <a href="warehouseEmployeeDashboard" class="btn-back">Quay lại</a>
                     </c:when>
                     <c:otherwise>
-                        <a href="javascript:history.back()" class="btn btn-secondary">Quay lại</a>
+                        <a href="javascript:history.back()" class="btn-back">Quay lại</a>
                     </c:otherwise>
                 </c:choose>
             </div>

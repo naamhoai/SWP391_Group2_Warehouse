@@ -5,20 +5,20 @@ import dao.RequestDetailDAO;
 import dao.CategoryDAO;
 import dao.UnitConversionDao;
 import dao.UserDAO;
+import dao.NotificationDAO;
+import dao.MaterialDAO;
 import model.Request;
 import model.RequestDetail;
 import model.Category;
-import model.UnitConversion;
 import model.User;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @WebServlet(name = "EditRequestServlet", urlPatterns = {"/editRequest"})
 public class EditRequestServlet extends HttpServlet {
@@ -28,41 +28,40 @@ public class EditRequestServlet extends HttpServlet {
             throws ServletException, IOException {
         try {
             int requestId = Integer.parseInt(request.getParameter("requestId"));
+
+            // Khởi tạo các DAO cần thiết
             RequestDAO requestDAO = new RequestDAO();
             RequestDetailDAO detailDAO = new RequestDetailDAO();
             CategoryDAO categoryDAO = new CategoryDAO();
             UnitConversionDao unitDao = new UnitConversionDao();
             UserDAO userDAO = new UserDAO();
+            MaterialDAO materialDAO = new MaterialDAO();
 
-            // Lấy thông tin yêu cầu và chi tiết yêu cầu (bao gồm materialCondition)
+            // Lấy dữ liệu cần thiết
             Request req = requestDAO.getRequestById(requestId);
             List<RequestDetail> details = detailDAO.getRequestDetailsByRequestId(requestId);
-
-            // Lấy user đang đăng nhập
-            Integer userId = (Integer) request.getSession().getAttribute("userId");
-            User user = userDAO.getUserById(userId);
-
-            // Lấy danh mục cha, con, đơn vị
+            User user = userDAO.getUserById((Integer) request.getSession().getAttribute("userId"));
             List<Category> parentCategories = categoryDAO.getParentCategories();
-            List<Category> subCategories = new ArrayList<>();
-            for (Category cat : categoryDAO.getAllCategories()) {
-                if (cat.getParentId() != null) {
-                    subCategories.add(cat);
-                }
-            }
-            List<UnitConversion> unitList = unitDao.getAllunit();
 
-            // Truyền sang JSP để hiển thị form chỉnh sửa
+            // Lọc danh mục con
+            List<Category> subCategories = categoryDAO.getAllCategories().stream()
+                    .filter(cat -> cat.getParentId() != null)
+                    .collect(Collectors.toList());
+
+            // Set attributes cho JSP
             request.setAttribute("request", req);
             request.setAttribute("details", details);
             request.setAttribute("userName", user.getFullname());
             request.setAttribute("parentCategories", parentCategories);
             request.setAttribute("subCategories", subCategories);
-            request.setAttribute("unitList", unitList);
+            request.setAttribute("unitList", unitDao.getAllunit());
+            request.setAttribute("materialList", materialDAO.getMaterial());
+
             request.getRequestDispatcher("editRequest.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi khi tải form chỉnh sửa yêu cầu: " + e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "Lỗi khi tải form chỉnh sửa yêu cầu: " + e.getMessage());
         }
     }
 
@@ -71,11 +70,21 @@ public class EditRequestServlet extends HttpServlet {
             throws ServletException, IOException {
         try {
             int requestId = Integer.parseInt(request.getParameter("requestId"));
-            String requestType = request.getParameter("requestType");
-            String reason = request.getParameter("reason");
             int itemCount = Integer.parseInt(request.getParameter("itemCount"));
 
-            // Lấy các thông tin vật tư
+            // Cập nhật thông tin yêu cầu
+            RequestDAO requestDAO = new RequestDAO();
+            requestDAO.updateRequestTypeAndReason(
+                    requestId,
+                    request.getParameter("requestType"),
+                    request.getParameter("reason")
+            );
+            requestDAO.updateRequestStatus(requestId, "Pending");
+
+            // Cập nhật chi tiết yêu cầu
+            RequestDetailDAO detailDAO = new RequestDetailDAO();
+            detailDAO.deleteAllDetailsByRequestId(requestId);
+
             String[] parentCategoryIds = request.getParameterValues("parentCategoryId");
             String[] categoryIds = request.getParameterValues("categoryId");
             String[] materialNames = request.getParameterValues("materialName");
@@ -84,37 +93,38 @@ public class EditRequestServlet extends HttpServlet {
             String[] descriptions = request.getParameterValues("description");
             String[] materialConditions = request.getParameterValues("materialCondition");
 
-            // Cập nhật lại yêu cầu
-            RequestDAO requestDAO = new RequestDAO();
-            requestDAO.updateRequestTypeAndReason(requestId, requestType, reason);
-            requestDAO.updateRequestStatus(requestId, "Pending");
-
-            // Xóa chi tiết cũ và thêm lại chi tiết mới
-            RequestDetailDAO detailDAO = new RequestDetailDAO();
-            detailDAO.deleteAllDetailsByRequestId(requestId);
             for (int i = 0; i < itemCount; i++) {
                 RequestDetail detail = new RequestDetail();
                 detail.setRequestId(requestId);
-                detail.setParentCategoryId(parentCategoryIds != null && parentCategoryIds[i] != null && !parentCategoryIds[i].isEmpty() ? Integer.parseInt(parentCategoryIds[i]) : null);
-                detail.setCategoryId(categoryIds != null && categoryIds[i] != null && !categoryIds[i].isEmpty() ? Integer.parseInt(categoryIds[i]) : null);
+                detail.setParentCategoryId(parentCategoryIds != null && !parentCategoryIds[i].isEmpty()
+                        ? Integer.parseInt(parentCategoryIds[i]) : null);
+                detail.setCategoryId(categoryIds != null && !categoryIds[i].isEmpty()
+                        ? Integer.parseInt(categoryIds[i]) : null);
                 detail.setMaterialName(materialNames[i]);
                 detail.setQuantity(Integer.parseInt(quantities[i]));
                 detail.setUnitName(unitNames[i]);
                 detail.setDescription(descriptions[i]);
-                // Bổ sung set materialCondition
-                if (materialConditions != null && materialConditions[i] != null && !materialConditions[i].isEmpty()) {
-                    detail.setMaterialCondition(materialConditions[i]);
-                } else {
-                    detail.setMaterialCondition("Mới");
-                }
+                detail.setMaterialCondition(materialConditions != null && !materialConditions[i].isEmpty()
+                        ? materialConditions[i] : "Mới");
+
                 detailDAO.addRequestDetail(detail);
             }
 
-            // Gửi thông báo cho giám đốc (nếu cần)
-            response.sendRedirect(request.getContextPath() + "/StaffDashboardServlet");
+            // Gửi thông báo cho giám đốc
+            int directorId = requestDAO.getDirectorId();
+            if (directorId != -1) {
+                new NotificationDAO().addNotification(
+                        directorId,
+                        "Yêu cầu vật tư #" + requestId + " đã được chỉnh sửa và gửi lại. Vui lòng xem xét.",
+                        requestId
+                );
+            }
+
+            response.sendRedirect(request.getContextPath() + "/staffDashboard");
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi khi cập nhật yêu cầu: " + e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "Lỗi khi cập nhật yêu cầu: " + e.getMessage());
         }
     }
 }

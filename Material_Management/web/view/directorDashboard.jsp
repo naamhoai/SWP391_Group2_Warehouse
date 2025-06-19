@@ -1,30 +1,77 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Tổng Quan - Hệ Thống Quản Lý Kho</title>
-        <link rel="stylesheet" href="../css/footer.css">
-        <link rel="stylesheet" href="../css/directorDashboard.css">
-        <link rel="stylesheet" href="../css/sidebar.css"/>
-        <link rel="stylesheet" href="../css/header.css"/>
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/footer.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/directorDashboard.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css"/>
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css"/>
+
         <!-- Font Awesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-        
+
         <!-- Chart.js CDN -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     </head>
     <body>
         <!-- Include Sidebar -->
         <jsp:include page="../sidebar.jsp" />
-        
+
         <!-- Main Content -->
         <div id="main-content">
             <!-- Header -->
-            <%@include file="../header.jsp" %>
+            <div class="welcome-header">
+                <div class="welcome-text">
+
+                    Xin chào, 
+                    <strong>${user.fullname}</strong> 
+                    <c:if test="${not empty user and not empty user.role and not empty user.role.rolename}">
+                        (<span style="font-weight:normal;">${user.role.rolename}</span>)
+                    </c:if>
+                </div>
+
+
+
+                <div class="user-info">
+                    <div class="notification" id="notificationBell" style="position:relative;cursor:pointer;">
+                        <i class="fas fa-bell notification-icon"></i>
+                        <c:if test="${not empty notifications}">
+                            <span class="badge">${fn:length(notifications)}</span>
+                        </c:if>
+                        <div id="notificationDropdown" style="display:none;position:absolute;right:0;top:100%;z-index:1000;background:#fff;border:1px solid #ccc;width:350px;box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+
+                            <ul style="list-style:none;padding:10px;margin:0;max-height:420px;overflow-y:auto;">
+                                <c:if test="${empty notifications}">
+                                    <li style="padding:8px 0;color:#666;">Không có thông báo</li>
+                                    </c:if>
+                                    <c:forEach var="noti" items="${notifications}">
+                                    <li style="padding:8px 0;border-bottom:1px solid #eee;${noti.read ? 'opacity:0.7;' : ''}">
+                                        <a href="markNotificationRead?notificationId=${noti.id}&requestId=${noti.requestId}" 
+                                           style="color:#007bff;text-decoration:none;display:block;">
+                                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                                <span>${noti.message}</span>
+                                                <c:if test="${!noti.read}">
+                                                    <span style="background:#007bff;color:white;padding:2px 6px;border-radius:10px;font-size:10px;">Mới</span>
+                                                </c:if>
+                                            </div>
+                                            <span style="font-size:12px;color:gray;">(${noti.createdAt})</span>
+                                        </a>
+                                    </li>
+                                </c:forEach>
+                            </ul>
+                        </div>
+                    </div>                    
+                    <div class="user-avatar">
+                        ${sessionScope.user.fullname != null ? sessionScope.user.fullname.charAt(0) : 'A'}
+                    </div>
+                </div>
+            </div>  
 
             <div class="dashboard-header">
                 <h1>Tổng Quan</h1>
@@ -209,6 +256,27 @@
         </div>
 
         <script src="../js/directorDashboard.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var bell = document.getElementById('notificationBell');
+                var dropdown = document.getElementById('notificationDropdown');
+                if (bell && dropdown) {
+                    bell.addEventListener('click', function (event) {
+                        event.stopPropagation();
+                        dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'block' : 'none';
+                    });
+                    // Ẩn dropdown khi click ra ngoài
+                    document.addEventListener('click', function () {
+                        dropdown.style.display = 'none';
+                    });
+                    // Ngăn dropdown bị ẩn khi click vào chính nó
+                    dropdown.addEventListener('click', function (event) {
+                        event.stopPropagation();
+                    });
+                }
+            });
+        </script>
+
     </body>
 </html>
 

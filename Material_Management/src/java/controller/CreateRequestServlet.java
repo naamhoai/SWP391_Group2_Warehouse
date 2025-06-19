@@ -15,6 +15,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import model.Category;
+import model.Material;
 import model.UnitConversion;
 import model.User;
 
@@ -27,21 +28,27 @@ public class CreateRequestServlet extends HttpServlet {
             dao.CategoryDAO categoryDAO = new dao.CategoryDAO();
             // Lấy danh mục cha (parent_id == null)
             List<Category> parentCategories = categoryDAO.getParentCategories();
-// Lấy danh mục con (parent_id != null)
+            // Lấy danh mục con (parent_id != null)
             List<Category> subCategories = new ArrayList<>();
             for (Category cat : categoryDAO.getAllCategories()) {
                 if (cat.getParentId() != null) {
                     subCategories.add(cat);
                 }
             }
+
             // Lấy userId từ session
             Integer userId = (Integer) request.getSession().getAttribute("userId");
             dao.UserDAO userDAO = new dao.UserDAO();
-// Lấy thông tin user từ DB
+            // Lấy thông tin user từ DB
             User user = userDAO.getUserById(userId);
 
-// Truyền tên sang JSP
-            request.setAttribute("userName", user.getFullname()); // hoặc getFullName()
+            // Lấy danh sách material
+            dao.MaterialDAO materialDAO = new dao.MaterialDAO();
+            List<Material> materials = materialDAO.getMaterial();
+            request.setAttribute("materialList", materials);
+            
+            // Truyền tên sang JSP
+            request.setAttribute("userName", user.getFullname());
             UnitConversionDao unitDao = new UnitConversionDao();
             List<UnitConversion> unitList = unitDao.getAllunit();
             request.setAttribute("unitList", unitList);
@@ -59,7 +66,7 @@ public class CreateRequestServlet extends HttpServlet {
         try {
             String requestType = request.getParameter("requestType");
             String reason = request.getParameter("reason");
-            int userId = (int) request.getSession().getAttribute("userId"); // Đảm bảo đã login và có userId trong session
+            int userId = (int) request.getSession().getAttribute("userId");
             Timestamp now = new Timestamp(System.currentTimeMillis());
 
             Request req = new Request();
@@ -81,29 +88,25 @@ public class CreateRequestServlet extends HttpServlet {
             String[] quantities = request.getParameterValues("quantity");
             String[] unitNames = request.getParameterValues("unit");
             String[] descriptions = request.getParameterValues("description");
+            String[] materialConditions = request.getParameterValues("materialCondition");
 
             for (int i = 0; i < itemCount; i++) {
                 RequestDetail detail = new RequestDetail();
                 detail.setRequestId(requestId);
 
-                // Lưu parentCategoryId
                 if (parentCategoryIds != null && parentCategoryIds[i] != null && !parentCategoryIds[i].isEmpty()) {
                     detail.setParentCategoryId(Integer.parseInt(parentCategoryIds[i]));
-                } else {
-                    detail.setParentCategoryId(null);
                 }
 
-                // Lưu categoryId
                 if (categoryIds != null && categoryIds[i] != null && !categoryIds[i].isEmpty()) {
                     detail.setCategoryId(Integer.parseInt(categoryIds[i]));
-                } else {
-                    detail.setCategoryId(null);
                 }
 
                 detail.setMaterialName(materialNames[i]);
                 detail.setQuantity(Integer.parseInt(quantities[i]));
                 detail.setUnitName(unitNames[i]);
                 detail.setDescription(descriptions[i]);
+                detail.setMaterialCondition(materialConditions[i]);
                 details.add(detail);
             }
 
@@ -111,7 +114,8 @@ public class CreateRequestServlet extends HttpServlet {
             for (RequestDetail d : details) {
                 detailDAO.addRequestDetail(d);
             }
-            // Thêm phần gửi thông báo cho giám đốc
+
+            // Gửi thông báo cho giám đốc
             dao.UserDAO userDAO = new dao.UserDAO();
             Integer directorId = userDAO.getDirectorId();
             User sender = userDAO.getUserById(userId);
@@ -123,11 +127,10 @@ public class CreateRequestServlet extends HttpServlet {
                 notificationDAO.addNotification(directorId, message, requestId);
             }
 
-            response.sendRedirect("successRequest.jsp"); // hoặc chuyển hướng về trang xác nhận
+            response.sendRedirect("successRequest.jsp");
         } catch (Exception e) {
             e.printStackTrace();
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi khi gửi yêu cầu: " + e.getMessage());
         }
     }
-
 }

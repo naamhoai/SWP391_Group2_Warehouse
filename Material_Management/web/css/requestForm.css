@@ -1,0 +1,211 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/ClientSide/css.css to edit this template
+*/
+/* 
+    Created on : Jun 19, 2025, 12:37:17 PM
+    Author     : kimoa
+*/
+
+/* Container chính */
+.request-form-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 48px 40px 32px 40px;
+    border-radius: 18px;
+    box-shadow: 0 6px 32px rgba(0,0,0,0.10), 0 1.5px 4px rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s;
+}
+.request-form-container:hover {
+    box-shadow: 0 10px 40px rgba(0,0,0,0.13), 0 2px 8px rgba(0,0,0,0.06);
+}
+
+h2 {
+    margin-bottom: 22px;
+    color: #1a237e;
+    font-size: 2.1rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.form-group {
+    margin-bottom: 22px;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #263238;
+    letter-spacing: 0.1px;
+}
+
+.input-text, .input-select, .input-textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #bdbdbd;
+    border-radius: 6px;
+    font-size: 16px;
+    margin-bottom: 4px;
+    box-sizing: border-box;
+    background: #fafbfc;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+.input-text:focus, .input-select:focus, .input-textarea:focus {
+    border: 1.5px solid #1976d2;
+    outline: none;
+    box-shadow: 0 0 0 2px #1976d220;
+    background: #fff;
+}
+
+.input-textarea {
+    min-height: 70px;
+    resize: vertical;
+}
+
+.input-textarea[readonly] {
+    background: #f5f5f5;
+    color: #888;
+    border: 1px solid #e0e0e0;
+    cursor: not-allowed;
+}
+
+h4 {
+    margin-top: 22px;
+    margin-bottom: 14px;
+    color: #1976d2;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.request-items-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 16px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(25, 118, 210, 0.07);
+    overflow: hidden;
+}
+.request-items-table th, .request-items-table td {
+    border: 1px solid #e3e6f0;
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 15px;
+}
+.request-items-table th {
+    background: #e3f0fc;
+    color: #1976d2;
+    font-weight: 700;
+}
+.request-items-table tbody tr:hover {
+    background: #f1f8fe;
+    transition: background 0.15s;
+}
+
+.btn-add {
+    background: linear-gradient(90deg, #1976d2 60%, #42a5f5 100%);
+    color: #fff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px #1976d220;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+.btn-add:hover {
+    background: linear-gradient(90deg, #1565c0 60%, #1976d2 100%);
+    box-shadow: 0 4px 16px #1976d230;
+    transform: translateY(-2px) scale(1.03);
+}
+
+.btn-remove {
+    background: linear-gradient(90deg, #e53935 60%, #ff7043 100%);
+    color: #fff;
+    border: none;
+    padding: 7px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px #e5393520;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+.btn-remove:hover {
+    background: linear-gradient(90deg, #b71c1c 60%, #e53935 100%);
+    box-shadow: 0 4px 16px #e5393530;
+    transform: translateY(-2px) scale(1.03);
+}
+
+.btn-submit {
+    background: linear-gradient(90deg, #43a047 60%, #66bb6a 100%);
+    color: #fff;
+    border: none;
+    padding: 11px 32px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 17px;
+    font-weight: 700;
+    margin-top: 16px;
+    margin-bottom: 0;
+    box-shadow: 0 2px 8px #43a04720;
+    letter-spacing: 0.5px;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+.btn-submit:hover {
+    background: linear-gradient(90deg, #388e3c 60%, #43a047 100%);
+    box-shadow: 0 4px 16px #43a04730;
+    transform: translateY(-2px) scale(1.03);
+}
+
+.request-form-container form {
+    display: flex;
+    flex-direction: column;
+}
+.request-form-container .btn-submit,
+.request-form-container .btn-back {
+    width: fit-content;
+    margin-right: 12px;
+    margin-bottom: 0;
+    margin-top: 10px;
+    display: inline-block;
+}
+.request-form-container .btn-back {
+    background: #6c757d;
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 15px;
+    margin-left: 0;
+    font-weight: 600;
+    box-shadow: 0 2px 8px #6c757d20;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+.request-form-container .btn-back:hover {
+    background: #565e64;
+    box-shadow: 0 4px 16px #6c757d30;
+    transform: translateY(-2px) scale(1.03);
+}
+
+@media (max-width: 900px) {
+    .request-form-container {
+        padding: 10px;
+    }
+    .request-items-table th, .request-items-table td {
+        padding: 6px 4px;
+        font-size: 13px;
+    }
+    h2, h4 {
+        font-size: 18px;
+    }
+}
+

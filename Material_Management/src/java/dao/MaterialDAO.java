@@ -213,4 +213,26 @@ public class MaterialDAO {
         material.setUnit(rs.getString("base_unit"));
         return material;
     }
+
+    public List<Material> getMaterial() {
+        List<Material> list = new ArrayList<>();
+        String sql = "SELECT m.material_id, m.name, m.category_id, c.parent_id " +
+                    "FROM materials m " +
+                    "LEFT JOIN categories c ON m.category_id = c.category_id " +
+                    "ORDER BY m.name";
+        try {
+            PreparedStatement ca = new DBContext().connection.prepareStatement(sql);
+            ResultSet st = ca.executeQuery();
+            while (st.next()) {
+                Material mate = new Material();
+                mate.setName(st.getString("name"));
+                mate.setMaterialId(st.getInt("material_id"));
+                mate.setCategoryId(st.getInt("category_id"));
+                list.add(mate);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return list;
+    }
 }
