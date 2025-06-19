@@ -102,6 +102,8 @@
                                                class="btn-view">Xem</a>
                                             <a href="${pageContext.request.contextPath}/suppliers?action=edit&id=${s.supplierId}" 
                                                class="btn-edit">Sửa</a>
+                                            <a href="${pageContext.request.contextPath}/materialSupplierList.jsp?supplierId=${s.supplierId}" 
+                                               class="btn-view" style="background-color:#ffc107; color:#212529; margin-left:5px;">Vật tư</a>
                                         </td>
                                     </tr>
                                 </c:forEach>
@@ -115,6 +117,37 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination -->
+            <c:if test="${totalPages > 1}">
+                <div class="pagination">
+                    <!-- Nút Previous -->
+                    <c:choose>
+                        <c:when test="${currentPage > 1}">
+                            <a href="${pageContext.request.contextPath}/suppliers?page=${currentPage - 1}${not empty keyword ? '&keyword=' : ''}${not empty keyword ? keyword : ''}${not empty status ? '&status=' : ''}${not empty status ? status : ''}${not empty sortBy ? '&sortBy=' : ''}${not empty sortBy ? sortBy : ''}">&laquo;</a>
+                        </c:when>
+                        <c:otherwise>
+                            <a class="disabled">&laquo;</a>
+                        </c:otherwise>
+                    </c:choose>
+
+                    <!-- Các số trang -->
+                    <c:forEach begin="${startPage}" end="${endPage}" var="i">
+                        <a href="${pageContext.request.contextPath}/suppliers?page=${i}${not empty keyword ? '&keyword=' : ''}${not empty keyword ? keyword : ''}${not empty status ? '&status=' : ''}${not empty status ? status : ''}${not empty sortBy ? '&sortBy=' : ''}${not empty sortBy ? sortBy : ''}"
+                           class="${i == currentPage ? 'active' : ''}">${i}</a>
+                    </c:forEach>
+
+                    <!-- Nút Next -->
+                    <c:choose>
+                        <c:when test="${currentPage < totalPages}">
+                            <a href="${pageContext.request.contextPath}/suppliers?page=${currentPage + 1}${not empty keyword ? '&keyword=' : ''}${not empty keyword ? keyword : ''}${not empty status ? '&status=' : ''}${not empty status ? status : ''}${not empty sortBy ? '&sortBy=' : ''}${not empty sortBy ? sortBy : ''}">&raquo;</a>
+                        </c:when>
+                        <c:otherwise>
+                            <a class="disabled">&raquo;</a>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+            </c:if>
         </div>
         <jsp:include page="footer.jsp"/>
     </div>

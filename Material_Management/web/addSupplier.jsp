@@ -7,6 +7,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Thêm nhà cung cấp mới</title>
         <link rel="stylesheet" href="css/supplier.css">
+        <style>
+            .alert-danger {
+                background-color: #dc3545 !important;
+                color: #fff !important;
+                border: 2px solid #b52a37 !important;
+                font-size: 16px;
+                font-weight: bold;
+                padding: 12px 16px;
+                border-radius: 6px;
+                margin-bottom: 20px;
+            }
+        </style>
     </head>
     <body>
         <div class="form-container">
@@ -16,6 +28,12 @@
                 <div class="alert alert-danger">
                     ${sessionScope.error}
                     <% session.removeAttribute("error"); %>
+                </div>
+            </c:if>
+            <c:if test="${not empty sessionScope.message}">
+                <div class="alert alert-success">
+                    ${sessionScope.message}
+                    <% session.removeAttribute("message"); %>
                 </div>
             </c:if>
             

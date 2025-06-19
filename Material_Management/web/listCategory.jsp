@@ -16,7 +16,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý danh mục</title>
+    <title>Quản lý Vật Tư</title>
     <link rel="stylesheet" href="css/sidebar.css">
     <link rel="stylesheet" href="css/category.css">
     <link rel="stylesheet" href="css/footer.css">
@@ -26,10 +26,10 @@
     <div class="main-content">
         <div class="page-content">
             <div class="content-header">
-                <h1>Quản lý danh mục</h1>
+                <h1>Quản Lý Vật Tư</h1>
                 <div class="header-actions">
                     <a href="categories?action=add" class="btn-add">+ Thêm danh mục mới</a>
-                    <a href="MaterialListServlet" class="btn-new">Danh sách vật liệu</a>
+                    <a href="materiallist.jsp" class="btn-new">Danh sách vật liệu</a>
                 </div>
             </div>
 

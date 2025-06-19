@@ -30,9 +30,9 @@
                     </div>
 
                     <div class="form-field">
-                        <label for="parentId">Danh mục vật tư <span class="required">*</span></label>
+                        <label for="parentId">Danh mục vật tư</label>
                         <select id="parentId" name="parentId">
-                            <option value="">Chọn danh mục vật tư</option>
+                            <option value="">Không chọn (tạo danh mục cha)</option>
                             <c:forEach items="${parentCategories}" var="category">
                                 <option value="${category.categoryId}">
                                     ${category.name}
@@ -54,14 +54,9 @@
             function validateForm() {
                 let isValid = true;
                 const nameInput = document.getElementById('name');
-                const parentInput = document.getElementById('parentId');
                 const nameError = document.getElementById('nameError');
-                const parentError = document.getElementById('parentError');
-                
                 // Reset error messages
                 nameError.textContent = '';
-                parentError.textContent = '';
-                
                 // Validate name
                 if (!nameInput.value.trim()) {
                     nameError.textContent = 'Vui lòng nhập tên danh mục';
@@ -70,13 +65,7 @@
                     nameError.textContent = 'Tên danh mục phải có ít nhất 2 ký tự';
                     isValid = false;
                 }
-                
-                // Validate parent category
-                if (!parentInput.value) {
-                    parentError.textContent = 'Vui lòng chọn danh mục vật tư';
-                    isValid = false;
-                }
-                
+                // Không cần validate parentId nữa
                 return isValid;
             }
         </script>

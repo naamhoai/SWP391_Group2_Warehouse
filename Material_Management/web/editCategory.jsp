@@ -21,7 +21,7 @@
 
                 <form action="${pageContext.request.contextPath}/categories" method="post" class="category-form" onsubmit="return validateForm()">
                     <input type="hidden" name="action" value="edit">
-                    <input type="hidden" name="categoryId" value="${category.categoryId}">
+                    <input type="hidden" name="id" value="${category.categoryId}">
 
                     <div class="form-field">
                         <label for="name">Tên danh mục <span class="required">*</span></label>
