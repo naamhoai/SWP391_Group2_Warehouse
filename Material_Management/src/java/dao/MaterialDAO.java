@@ -11,42 +11,43 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.sql.Connection;
 
-public class MaterialDAO extends DBContext {
+public class MaterialDAO {
+    private DBContext dbContext = new DBContext();
 
     /**
      * Lấy danh sách vật tư cho trang quản trị (không có tồn kho).
      */
     public List<Material> getMaterialsForAdmin(String searchQuery, String categoryFilter, String supplierFilter,
-            int page, int itemsPerPage, String sortField, String sortDir) throws SQLException {
+            int page, int itemsPerPage, String sortField, String sortDir) {
         List<Material> materials = new ArrayList<>();
         StringBuilder sql = new StringBuilder();
-
         sql.append("SELECT m.*, c.name as category_name, s.supplier_name, uc.base_unit ")
                 .append("FROM materials m ")
                 .append("LEFT JOIN categories c ON m.category_id = c.category_id ")
                 .append("LEFT JOIN supplier s ON m.supplier_id = s.supplier_id ")
                 .append("LEFT JOIN unit_conversion uc ON m.conversion_id = uc.conversion_id ")
                 .append("WHERE 1=1 ");
-
         ArrayList<Object> params = new ArrayList<>();
         buildWhereClauses(sql, params, searchQuery, categoryFilter, supplierFilter);
-
         sql.append("ORDER BY ").append(getSafeSortField(sortField)).append(sortDir.equalsIgnoreCase("asc") ? " ASC" : " DESC");
         sql.append(" LIMIT ? OFFSET ?");
-
-        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
             int paramIndex = 1;
             for (Object param : params) {
                 ps.setObject(paramIndex++, param);
             }
             ps.setInt(paramIndex++, itemsPerPage);
             ps.setInt(paramIndex, (page - 1) * itemsPerPage);
-
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                materials.add(mapRowToMaterial(rs));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    materials.add(mapRowToMaterial(rs));
+                }
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
         return materials;
     }
@@ -54,21 +55,25 @@ public class MaterialDAO extends DBContext {
     /**
      * Đếm tổng số vật tư cho trang quản trị.
      */
-    public int getTotalMaterialsForAdmin(String searchQuery, String categoryFilter, String supplierFilter) throws SQLException {
+    public int getTotalMaterialsForAdmin(String searchQuery, String categoryFilter, String supplierFilter) {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) as total FROM materials m ")
                 .append("LEFT JOIN categories c ON m.category_id = c.category_id ")
                 .append("LEFT JOIN supplier s ON m.supplier_id = s.supplier_id ")
                 .append("WHERE 1=1 ");
         ArrayList<Object> params = new ArrayList<>();
         buildWhereClauses(sql, params, searchQuery, categoryFilter, supplierFilter);
-        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
             for (int i = 0; i < params.size(); i++) {
                 ps.setObject(i + 1, params.get(i));
             }
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt("total");
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("total");
+                }
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
         return 0;
     }
@@ -83,11 +88,13 @@ public class MaterialDAO extends DBContext {
                 + "LEFT JOIN supplier s ON m.supplier_id = s.supplier_id "
                 + "LEFT JOIN unit_conversion uc ON m.conversion_id = uc.conversion_id "
                 + "WHERE m.material_id = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, materialId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return mapRowToMaterial(rs);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapRowToMaterial(rs);
+                }
             }
         }
         return null;
@@ -98,7 +105,8 @@ public class MaterialDAO extends DBContext {
      */
     public boolean addMaterial(Material material) throws SQLException {
         String sql = "INSERT INTO materials (name, category_id, image_url, description, price, supplier_id, conversion_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, material.getName());
             ps.setInt(2, material.getCategoryId());
             ps.setString(3, material.getImageUrl());
@@ -117,7 +125,8 @@ public class MaterialDAO extends DBContext {
         String sql = "UPDATE materials SET name = ?, category_id = ?, supplier_id = ?, price = ?, "
                 + "conversion_id = ?, material_condition = ?, description = ?, image_url = ? "
                 + "WHERE material_id = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, material.getName());
             ps.setInt(2, material.getCategoryId());
             ps.setInt(3, material.getSupplierId());
@@ -131,76 +140,32 @@ public class MaterialDAO extends DBContext {
         }
     }
 
-    // --- CÁC HÀM LẤY DỮ LIỆU CHO DROPDOWN ---
-    public List<String> getAllCategories() throws SQLException {
-        List<String> categories = new ArrayList<>();
-        String sql = "SELECT DISTINCT name FROM categories WHERE name IS NOT NULL ORDER BY name";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                categories.add(rs.getString("name"));
-            }
+    public boolean deleteMaterial(int materialId) throws SQLException {
+        String sql = "DELETE FROM materials WHERE material_id = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, materialId);
+            return ps.executeUpdate() > 0;
         }
-        return categories;
     }
 
-    public List<String> getAllSuppliers() throws SQLException {
-        List<String> suppliers = new ArrayList<>();
-        String sql = "SELECT DISTINCT supplier_name FROM supplier WHERE status = 'active' ORDER BY supplier_name";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                suppliers.add(rs.getString("supplier_name"));
-            }
+    /**
+     * Thêm vật tư mới với ID do admin nhập.
+     */
+    public boolean addMaterialWithId(Material material) throws SQLException {
+        String sql = "INSERT INTO materials (material_id, name, category_id, image_url, description, price, supplier_id, conversion_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, material.getMaterialId());
+            ps.setString(2, material.getName());
+            ps.setInt(3, material.getCategoryId());
+            ps.setString(4, material.getImageUrl());
+            ps.setString(5, material.getDescription());
+            ps.setBigDecimal(6, material.getPrice());
+            ps.setInt(7, material.getSupplierId());
+            ps.setInt(8, material.getConversionId());
+            return ps.executeUpdate() > 0;
         }
-        return suppliers;
-    }
-
-    public List<Category> getAllCategoriesForDropdown() throws SQLException {
-        List<Category> categories = new ArrayList<>();
-        String sql = "SELECT category_id, name FROM categories ORDER BY name";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                Category cat = new Category();
-                cat.setCategoryId(rs.getInt("category_id"));
-                cat.setName(rs.getString("name"));
-                categories.add(cat);
-            }
-        }
-        return categories;
-    }
-
-    public List<Supplier> getAllSuppliersForDropdown() throws SQLException {
-        List<Supplier> suppliers = new ArrayList<>();
-        String sql = "SELECT supplier_id, supplier_name FROM supplier WHERE status = 'active' ORDER BY supplier_name";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                Supplier sup = new Supplier();
-                sup.setSupplierId(rs.getInt("supplier_id"));
-                sup.setSupplierName(rs.getString("supplier_name"));
-                suppliers.add(sup);
-            }
-        }
-        return suppliers;
-    }
-
-    public List<UnitConversion> getAllUnitConversions() throws SQLException {
-        List<UnitConversion> units = new ArrayList<>();
-        String sql = "SELECT conversion_id, base_unit FROM unit_conversion ORDER BY base_unit";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                UnitConversion unit = new UnitConversion();
-                Material material = new Material();
-                material.setConversionId(rs.getInt("conversion_id"));
-                unit.setMaterial(material);
-                unit.setBaseunit(rs.getString("base_unit"));
-                units.add(unit);
-            }
-        }
-        return units;
     }
 
     // --- CÁC HÀM HELPER ---

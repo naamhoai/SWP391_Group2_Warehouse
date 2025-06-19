@@ -1,6 +1,9 @@
 package controller;
 
+import dao.CategoryDAO;
 import dao.MaterialDAO;
+import dao.SupplierDAO;
+import dao.UnitConversionDao;
 import model.Category;
 import model.Material;
 import model.Supplier;
@@ -13,121 +16,113 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
-
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.util.List;
 
-@WebServlet("/CreateMaterialDetail")
-@MultipartConfig(
-        fileSizeThreshold = 1024 * 1024 * 1, // 1 MB
-        maxFileSize = 1024 * 1024 * 10, // 10 MB
-        maxRequestSize = 1024 * 1024 * 15 // 15 MB
-)
+@WebServlet(name = "CreateMaterialDetailServlet", urlPatterns = {"/CreateMaterialDetail"})
+@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB
+        maxFileSize = 1024 * 1024 * 10,      // 10MB
+        maxRequestSize = 1024 * 1024 * 50)   // 50MB
 public class CreateMaterialDetailServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        // Load categories
+        CategoryDAO categoryDAO = new CategoryDAO();
+        List<Category> categories = categoryDAO.getAllCategories();
+        request.setAttribute("categories", categories);
+
+        // Load suppliers
+        SupplierDAO supplierDAO = new SupplierDAO();
+        List<Supplier> suppliers = supplierDAO.getAllSuppliers();
+        request.setAttribute("suppliers", suppliers);
+
+        // Load units
+        UnitConversionDao unitDao = new UnitConversionDao();
+        List<UnitConversion> units = unitDao.getAll();
+        request.setAttribute("units", units);
+
+        request.getRequestDispatcher("createMaterialDetail.jsp").forward(request, response);
+    }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
+        String materialIdStr = request.getParameter("materialId");
+        String name = request.getParameter("name");
+        String categoryIdStr = request.getParameter("category");
+        String supplierIdStr = request.getParameter("supplier");
+        String priceStr = request.getParameter("price");
+        String description = request.getParameter("description");
+        Part imagePart = request.getPart("imageUpload");
 
-        MaterialDAO materialDAO = new MaterialDAO();
-        String uploadPath = getServletContext().getRealPath("" + File.separator + "img"); // Đường dẫn lưu ảnh
-        File uploadDir = new File(uploadPath);
-        if (!uploadDir.exists()) {
-            uploadDir.mkdirs();
-        }
-
+        String errorMessage = null;
         try {
-            // Lấy các tham số từ form
-            String materialIdStr = request.getParameter("materialId");
-            String name = request.getParameter("name");
-            String categoryIdStr = request.getParameter("category");
-            String supplierIdStr = request.getParameter("supplier");
-            String priceStr = request.getParameter("price");
-            String unitConversionIdStr = request.getParameter("unitConversion");
-            String quantityStr = request.getParameter("quantity");
-            String description = request.getParameter("description");
+            // Validate required fields
+            if (materialIdStr == null || materialIdStr.isEmpty() ||
+                name == null || name.trim().isEmpty() ||
+                categoryIdStr == null || categoryIdStr.isEmpty() ||
+                supplierIdStr == null || supplierIdStr.isEmpty() ||
+                priceStr == null || priceStr.isEmpty()) {
+                throw new Exception("Vui lòng nhập đầy đủ thông tin bắt buộc.");
+            }
 
-            // Chuyển đổi kiểu dữ liệu
             int materialId = Integer.parseInt(materialIdStr);
             int categoryId = Integer.parseInt(categoryIdStr);
             int supplierId = Integer.parseInt(supplierIdStr);
             BigDecimal price = new BigDecimal(priceStr);
-            int unitConversionId = Integer.parseInt(unitConversionIdStr);
-            int quantity = Integer.parseInt(quantityStr);
 
-            // Xử lý upload ảnh
-            String imagePath = null;
-            Part filePart = request.getPart("imageUpload"); // Tên input type="file" là "imageUpload"
-            if (filePart != null && filePart.getSize() > 0) {
-                String fileName = filePart.getSubmittedFileName();
-                imagePath = "img/" + fileName; // Lưu đường dẫn tương đối để dễ hiển thị trên web
-                filePart.write(uploadPath + File.separator + fileName);
+            // Check duplicate ID
+            MaterialDAO materialDAO = new MaterialDAO();
+            if (materialDAO.getMaterialById(materialId) != null) {
+                throw new Exception("ID vật tư đã tồn tại. Vui lòng chọn ID khác.");
             }
 
-            // Tạo đối tượng Material
-            Material newMaterial = new Material();
-            newMaterial.setMaterialId(materialId);
-            newMaterial.setName(name);
-            newMaterial.setCategoryId(categoryId);
-            newMaterial.setSupplierId(supplierId);
-            newMaterial.setPrice(price);
-            newMaterial.setConversionId(unitConversionId);
-            newMaterial.setQuantity(quantity);
-            newMaterial.setDescription(description);
-            newMaterial.setImageUrl(imagePath);
+            // Handle image upload
+            String imageUrl = null;
+            if (imagePart != null && imagePart.getSize() > 0) {
+                String fileName = new File(imagePart.getSubmittedFileName()).getName();
+                String uploadPath = getServletContext().getRealPath("/image");
+                File uploadDir = new File(uploadPath);
+                if (!uploadDir.exists()) uploadDir.mkdir();
+                imagePart.write(uploadPath + File.separator + fileName);
+                imageUrl = fileName;
+            }
 
-            // Thêm vật tư vào database
-            boolean success = materialDAO.addMaterial(newMaterial);
+            // Create Material object
+            Material material = new Material();
+            material.setMaterialId(materialId);
+            material.setName(name);
+            material.setCategoryId(categoryId);
+            material.setSupplierId(supplierId);
+            material.setPrice(price);
+            material.setImageUrl(imageUrl);
+            material.setDescription(description);
 
+            // Save to DB
+            boolean success = materialDAO.addMaterialWithId(material);
             if (success) {
-                response.sendRedirect("materialDetailList.jsp?status=addSuccess"); // Chuyển hướng về trang danh sách
+                response.sendRedirect("MaterialListServlet");
+                return;
             } else {
-                request.setAttribute("errorMessage", "Thêm vật tư thất bại, ID vật tư có thể đã tồn tại hoặc có lỗi xảy ra.");
-                // Load lại dữ liệu cho dropdown nếu thất bại để người dùng không phải nhập lại
-                List<Category> categories = materialDAO.getAllCategoriesForDropdown();
-                List<Supplier> suppliers = materialDAO.getAllSuppliersForDropdown();
-                List<UnitConversion> units = materialDAO.getAllUnitConversions();
-                request.setAttribute("categories", categories);
-                request.setAttribute("suppliers", suppliers);
-                request.setAttribute("units", units);
-                request.setAttribute("material", newMaterial); // Giữ lại dữ liệu người dùng đã nhập
-                request.getRequestDispatcher("/createMaterialDetail.jsp").forward(request, response);
+                errorMessage = "Không thể tạo mới vật tư. Vui lòng thử lại.";
             }
-
-        } catch (NumberFormatException e) {
-            request.setAttribute("errorMessage", "Dữ liệu nhập vào không hợp lệ. Vui lòng kiểm tra lại ID, giá, số lượng.");
-            request.getRequestDispatcher("/createMaterialDetail.jsp").forward(request, response);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            request.setAttribute("errorMessage", "Lỗi cơ sở dữ liệu: " + e.getMessage());
-            request.getRequestDispatcher("/createMaterialDetail.jsp").forward(request, response);
         } catch (Exception e) {
-            e.printStackTrace();
-            request.setAttribute("errorMessage", "Đã xảy ra lỗi không mong muốn: " + e.getMessage());
-            request.getRequestDispatcher("/createMaterialDetail.jsp").forward(request, response);
+            errorMessage = e.getMessage();
         }
-    }
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Load dữ liệu cần thiết cho dropdown khi người dùng truy cập trang tạo mới
-        MaterialDAO materialDAO = new MaterialDAO();
-        try {
-            List<Category> categories = materialDAO.getAllCategoriesForDropdown();
-            List<Supplier> suppliers = materialDAO.getAllSuppliersForDropdown();
-            List<UnitConversion> units = materialDAO.getAllUnitConversions();
-            request.setAttribute("categories", categories);
-            request.setAttribute("suppliers", suppliers);
-            request.setAttribute("units", units);
-            request.getRequestDispatcher("/createMaterialDetail.jsp").forward(request, response);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            request.setAttribute("errorMessage", "Không thể tải dữ liệu danh mục, nhà cung cấp, đơn vị tính.");
-            request.getRequestDispatcher("/error.jsp").forward(request, response);
-        }
+        // Reload dropdowns and show error
+        CategoryDAO categoryDAO = new CategoryDAO();
+        request.setAttribute("categories", categoryDAO.getAllCategories());
+        SupplierDAO supplierDAO = new SupplierDAO();
+        request.setAttribute("suppliers", supplierDAO.getAllSuppliers());
+        UnitConversionDao unitDao = new UnitConversionDao();
+        request.setAttribute("units", unitDao.getAll());
+        request.setAttribute("errorMessage", errorMessage);
+        request.getRequestDispatcher("CreateMaterialDetail").forward(request, response);
     }
 } 

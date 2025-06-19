@@ -1,64 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="dao.MaterialDAO" %>
-<%@ page import="model.Material" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.Arrays" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
-<%
-    request.setCharacterEncoding("UTF-8");
-
-    // Lấy các tham số lọc, sắp xếp, phân trang từ request
-    String searchQuery = request.getParameter("search");
-    String categoryFilter = request.getParameter("category") == null ? "All" : request.getParameter("category");
-    String supplierFilter = request.getParameter("supplier") == null ? "All" : request.getParameter("supplier");
-    String sortField = request.getParameter("sort") == null ? "material_id" : request.getParameter("sort");
-    String sortDir = request.getParameter("dir") == null ? "desc" : request.getParameter("dir");
-
-    int currentPage = 1;
-    int itemsPerPage = 10;
-    try {
-        String pageStr = request.getParameter("page");
-        if (pageStr != null && !pageStr.isEmpty()) currentPage = Integer.parseInt(pageStr);
-        String itemsPerPageStr = request.getParameter("itemsPerPage");
-        if (itemsPerPageStr != null && !itemsPerPageStr.isEmpty()) itemsPerPage = Integer.parseInt(itemsPerPageStr);
-    } catch (NumberFormatException e) {
-        // Giữ giá trị mặc định nếu có lỗi
-    }
-
-    // Khởi tạo DAO và gọi các phương thức dành riêng cho trang quản trị
-    MaterialDAO dao = new MaterialDAO();
-    int totalItems = dao.getTotalMaterialsForAdmin(searchQuery, categoryFilter, supplierFilter);
-    int totalPages = (int) Math.ceil((double) totalItems / itemsPerPage);
-
-    if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
-    if (currentPage < 1) currentPage = 1;
-
-    List<Material> materials = dao.getMaterialsForAdmin(searchQuery, categoryFilter, supplierFilter, currentPage, itemsPerPage, sortField, sortDir);
-    List<String> categories = dao.getAllCategories();
-    List<String> suppliers = dao.getAllSuppliers();
-    List<Integer> itemsPerPageOptions = Arrays.asList(5, 10, 20, 50);
-
-    // Đặt các biến vào pageContext
-    pageContext.setAttribute("materials", materials);
-    pageContext.setAttribute("categories", categories);
-    pageContext.setAttribute("suppliers", suppliers);
-    pageContext.setAttribute("itemsPerPageOptions", itemsPerPageOptions);
-    pageContext.setAttribute("currentPage", currentPage);
-    pageContext.setAttribute("totalPages", totalPages);
-    pageContext.setAttribute("itemsPerPage", itemsPerPage);
-    pageContext.setAttribute("searchQuery", searchQuery);
-    pageContext.setAttribute("categoryFilter", categoryFilter);
-    pageContext.setAttribute("supplierFilter", supplierFilter);
-    pageContext.setAttribute("sortField", sortField);
-    pageContext.setAttribute("sortDir", sortDir);
-
-    int startPage = Math.max(1, currentPage - 2);
-    int endPage = Math.min(totalPages, currentPage + 2);
-    pageContext.setAttribute("startPage", startPage);
-    pageContext.setAttribute("endPage", endPage);
-%>
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -76,7 +19,7 @@
         <div class="container">
             <div class="top-bar">
                 <h1 class="page-title">Quản Lý Danh Sách Vật Tư</h1>
-                <a href="addMaterialDetail.jsp" class="add-button">+ Thêm Vật Tư Mới</a>
+                <a href="CreateMaterialDetail" class="add-button">+ Thêm Vật Tư Mới</a>
             </div>
             
             <c:if test="${not empty param.status}">
@@ -91,7 +34,7 @@
                 </div>
             </c:if>
 
-            <form method="get" action="materialDetailList.jsp" id="filterForm">
+            <form method="get" action="MaterialListServlet" id="filterForm">
                 <div class="filters">
                     <div class="filter-item">
                         <label>Danh mục</label>
@@ -170,7 +113,8 @@
                                     <td>
                                         <div class="action-buttons">
                                             <a href="editMaterialDetail?id=${material.materialId}" class="table-button edit-button">Sửa</a>
-                                            <form method="post" action="deleteMaterial" onsubmit="return confirm('Bạn có chắc chắn muốn xóa vật tư #${material.materialId} - ${material.name}? Thao tác này không thể hoàn tác.')" style="display: inline;">
+                                            <form method="post" action="MaterialListServlet" onsubmit="return confirm('Bạn có chắc chắn muốn xóa vật tư #${material.materialId} - ${material.name}? Thao tác này không thể hoàn tác.')" style="display: inline;">
+                                                <input type="hidden" name="action" value="delete">
                                                 <input type="hidden" name="materialId" value="${material.materialId}">
                                                 <button type="submit" class="table-button delete-button">Xóa</button>
                                             </form>

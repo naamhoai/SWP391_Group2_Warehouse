@@ -1,6 +1,7 @@
 package controller;
 
 import dao.MaterialDAO;
+import dao.MaterialInfoDAO;
 import model.Material;
 
 import jakarta.servlet.ServletException;
@@ -34,14 +35,20 @@ public class UpdateMaterialServlet extends HttpServlet {
             int categoryId = Integer.parseInt(request.getParameter("categoryId"));
             int supplierId = Integer.parseInt(request.getParameter("supplierId"));
             BigDecimal price = new BigDecimal(request.getParameter("price"));
-            int conversionId = Integer.parseInt(request.getParameter("conversionId"));
-            String materialCondition = request.getParameter("material_condition");
             String description = request.getParameter("description");
 
             // Lấy URL ảnh hiện tại (nếu có) để giữ lại nếu không có ảnh mới được upload
             // Có thể cần lấy từ DB hoặc từ một trường ẩn trong form nếu không thay đổi
             // Hiện tại, chúng ta sẽ bỏ qua trường hợp này và chỉ xử lý khi có upload mới.
             String imageUrl = null; // Mặc định là null, sẽ được cập nhật nếu có file mới
+
+            // Lấy conversionId hiện tại từ DB để giữ nguyên đơn vị
+            MaterialDAO dao = new MaterialDAO();
+            Material existingMaterial = dao.getMaterialById(materialId);
+            int conversionId = 0;
+            if (existingMaterial != null) {
+                conversionId = existingMaterial.getConversionId();
+            }
 
             // Xử lý upload ảnh mới
             Part filePart = request.getPart("imageUpload"); // Tên input trong JSP
@@ -59,10 +66,6 @@ public class UpdateMaterialServlet extends HttpServlet {
                 filePart.write(uploadFilePath + File.separator + fileName);
             } else {
                 // Nếu không upload ảnh mới, giữ lại ảnh cũ
-                // Để làm được điều này, JSP cần gửi kèm URL ảnh cũ dưới dạng trường ẩn.
-                // Hoặc chúng ta sẽ lấy từ DB nếu không có URL ảnh cũ trong request.
-                MaterialDAO dao = new MaterialDAO();
-                Material existingMaterial = dao.getMaterialById(materialId);
                 if (existingMaterial != null) {
                     imageUrl = existingMaterial.getImageUrl();
                 }
@@ -75,26 +78,25 @@ public class UpdateMaterialServlet extends HttpServlet {
             material.setCategoryId(categoryId);
             material.setSupplierId(supplierId);
             material.setPrice(price);
-            material.setConversionId(conversionId);
-            material.setMaterialCondition(materialCondition);
             material.setDescription(description);
             material.setImageUrl(imageUrl);
+            material.setConversionId(conversionId);
 
             // Gọi DAO để cập nhật vào DB
-            MaterialDAO dao = new MaterialDAO();
             boolean success = dao.updateMaterial(material);
 
             // Chuyển hướng người dùng về trang danh sách với thông báo
             if (success) {
-                response.sendRedirect("materialDetailList.jsp?status=updateSuccess");
+                response.sendRedirect("MaterialListServlet");
             } else {
                 request.setAttribute("errorMessage", "Cập nhật vật tư thất bại, vui lòng thử lại.");
                 // Cần load lại dữ liệu cho form nếu thất bại
                 request.setAttribute("material", material); // Giữ lại dữ liệu người dùng đã nhập
                 // Lấy lại các dropdown data nếu cần
-                request.setAttribute("categories", dao.getAllCategoriesForDropdown());
-                request.setAttribute("suppliers", dao.getAllSuppliersForDropdown());
-                request.setAttribute("units", dao.getAllUnitConversions());
+                MaterialInfoDAO infoDAO = new MaterialInfoDAO();
+                request.setAttribute("categories", infoDAO.getAllCategoriesForDropdown());
+                request.setAttribute("suppliers", infoDAO.getAllSuppliersForDropdown());
+                request.setAttribute("units", infoDAO.getAllUnitConversions());
                 request.getRequestDispatcher("/updateMaterialDetail.jsp").forward(request, response);
             }
 

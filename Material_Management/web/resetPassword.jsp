@@ -8,8 +8,12 @@
 </head>
 <body>
     <div class="container">
-        <h2>Reset Password</h2>
+        <h2>Change Password</h2>
         <form action="resetPassword" method="POST">
+            <div class="form-group">
+                <label for="fullname">Full Name</label>
+                <input type="text" name="fullname" id="fullname" value="${fullname != null ? fullname : ''}" required placeholder="Enter your full name">
+            </div>
             <div class="form-group">
                 <label for="email">Email Address</label>
                 <input type="email" name="email" id="email" value="${email}" required placeholder="Enter your email">
@@ -24,7 +28,7 @@
             </div>
             <button type="submit" class="btn-submit">Reset Password</button>
             <div class="back-link-container">
-                <a href=".jsp" class="back-link">← Back to Home</a>
+                <a href="adminDashboard.jsp" class="back-link">← Back to Home</a>
             </div>
             <p class="text-danger">${mess}</p>
         </form>

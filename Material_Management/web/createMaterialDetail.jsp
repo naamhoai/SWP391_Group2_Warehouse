@@ -1,92 +1,102 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Material Detail</title>
-    <link rel="stylesheet" href="css/createMaterialDetail.css">
+    <title>Thêm Mới Vật Tư</title>
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/addMaterialDetail.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
+    <jsp:include page="sidebar.jsp" />
 
-    <div class="material-detail-container">
-        <h1 class="material-detail-title">CREATE MATERIAL DETAIL</h1>
-
-        <form action="CreateMaterialDetail" method="POST" enctype="multipart/form-data">
-            <div class="form-group">
-                <div class="input-group">
-                    <label for="materialId">Enter ID:</label>
-                    <input type="text" id="materialId" name="materialId" required>
-                    <span class="error-message" id="materialId-error"></span>
+    <div id="main-content">
+        <div class="container">
+            <h1 class="page-title">Thêm Mới Vật Tư</h1>
+            <p class="page-description">Nhập thông tin vật tư mới vào hệ thống.</p>
+            
+            <c:if test="${not empty errorMessage}">
+                <div class="alert alert-danger" style="color: red; border: 1px solid red; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
+                    ${errorMessage}
                 </div>
+            </c:if>
 
-                <div class="input-group">
-                    <label for="supplier">Supplier:</label>
-                    <select id="supplier" name="supplier" required>
-                        <option value="">Select Supplier</option>
-                        <c:forEach items="${supplierList}" var="supplier">
-                            <option value="${supplier.id}">${supplier.name}</option>
-                        </c:forEach>
-                    </select>
-                </div>
+            <form action="CreateMaterialDetail" method="post" enctype="multipart/form-data" class="add-form">
+                <div class="form-section">
+                    <h3 class="form-section-title">Thông Tin Bắt Buộc</h3>
+                    <div class="form-group">
+                        <label for="materialId">ID vật tư <span class="required">*</span></label>
+                        <input type="number" id="materialId" name="materialId" placeholder="Nhập ID vật tư" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="name">Tên vật tư <span class="required">*</span></label>
+                        <input type="text" id="name" name="name" placeholder="Ví dụ: Dây điện Cadivi CV 1.5mm" required>
+                    </div>
 
-                <div class="input-group">
-                    <label for="imageUpload">Upload Image:</label>
-                    <div class="image-upload">
-                        <input type="file" id="imageUpload" name="imageUpload" accept="image/*">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="category">Danh mục <span class="required">*</span></label>
+                            <select id="category" name="category" required>
+                                <option value="">-- Chọn danh mục --</option>
+                                <c:forEach items="${categories}" var="cat">
+                                    <option value="${cat.categoryId}">${cat.name}</option>
+                                </c:forEach>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="supplier">Nhà cung cấp <span class="required">*</span></label>
+                            <select id="supplier" name="supplier" required>
+                                <option value="">-- Chọn nhà cung cấp --</option>
+                                <c:forEach items="${suppliers}" var="sup">
+                                    <option value="${sup.supplierId}">${sup.supplierName}</option>
+                                </c:forEach>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="price">Giá (VNĐ) <span class="required">*</span></label>
+                            <input type="number" id="price" name="price" value="0" step="0.01" min="0" required>
+                        </div>
                     </div>
                 </div>
 
-                <div class="input-group">
-                    <label for="quantity">Quantity:</label>
-                    <input type="number" id="quantity" name="quantity" min="0" required>
+                <div class="form-section">
+                    <h3 class="form-section-title">Thông Tin Bổ Sung (Không bắt buộc)</h3>
+                    <div class="form-group">
+                        <label for="imageUpload">Hình ảnh đại diện</label>
+                        <input type="file" id="imageUpload" name="imageUpload" accept="image/*">
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Mô tả chi tiết</label>
+                        <textarea id="description" name="description" rows="5" placeholder="Nhập mô tả, thông số kỹ thuật, quy cách..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="materialCondition">Tình trạng vật tư</label>
+                        <select id="materialCondition" name="materialCondition">
+                            <option value="">-- Chọn tình trạng --</option>
+                            <option value="Mới">Mới</option>
+                            <option value="Đã qua sử dụng">Đã qua sử dụng</option>
+                            <option value="Hỏng">Hỏng</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="input-group">
-                    <label for="name">Name:</label>
-                    <input type="text" id="name" name="name" required>
+                <div class="form-actions">
+                    <a href="CreateMaterialDetail" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Hủy Bỏ
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Tạo Mới Vật Tư
+                    </button>
                 </div>
-
-                <div class="input-group">
-                    <label for="unit">Unit:</label>
-                    <select id="unit" name="unit" required>
-                        <option value="">Select Unit</option>
-                        <c:forEach items="${unitList}" var="unit">
-                            <option value="${unit.id}">${unit.name}</option>
-                        </c:forEach>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label for="category">Category:</label>
-                    <select id="category" name="category" required>
-                        <option value="">Select Category</option>
-                        <c:forEach items="${categoryList}" var="category">
-                            <option value="${category.id}">${category.name}</option>
-                        </c:forEach>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label for="status">Status:</label>
-                    <select id="status" name="status" required>
-                        <option value="">Select Status</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
-                </div>
-
-                <div class="input-group description-group">
-                    <label for="description">Description:</label>
-                    <textarea id="description" name="description" rows="5"></textarea>
-                </div>
-
-                <div class="submit-btn">
-                    <button type="submit">Submit</button>
-                </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </body>
 </html>

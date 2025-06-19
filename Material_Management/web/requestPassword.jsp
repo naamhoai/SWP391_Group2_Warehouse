@@ -8,8 +8,12 @@
     </head>
     <body>
         <div class="container">
-            <h2>Forgot Password</h2>
+            <h2>Reset Password</h2>
             <form action="requestPassword" method="POST">
+                <div class="form-group">
+                    <label for="fullname">Full Name</label>
+                    <input type="text" name="fullname" id="fullname" class="form-control" required placeholder="Enter your full name">
+                </div>
                 <div class="form-group">
                     <label for="email">Email Address</label>
                     <input type="email" name="email" id="email" class="form-control" required placeholder="Enter your email">

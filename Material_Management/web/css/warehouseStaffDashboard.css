@@ -1,0 +1,202 @@
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f6f8fa;
+    margin: 0;
+    padding: 0;
+}
+.main-content {
+    margin-left: 220px;
+    padding: 32px 0 32px 0;
+    min-height: 100vh;
+}
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+}
+.stat-card {
+    flex: 1 1 220px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex;
+    align-items: center;
+    padding: 20px 18px;
+    min-width: 220px;
+    min-height: 110px;
+    transition: box-shadow 0.2s;
+}
+.stat-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+.stat-icon {
+    font-size: 2.2rem;
+    margin-right: 18px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #f2f2f2;
+}
+.stat-card.orange .stat-icon { background: #ff9800; color: #fff; }
+.stat-card.green .stat-icon { background: #4CAF50; color: #fff; }
+.stat-card.red .stat-icon { background: #f44336; color: #fff; }
+.stat-card.purple .stat-icon { background: #7c4dff; color: #fff; }
+.stat-info {
+    flex: 1;
+}
+.stat-title {
+    font-size: 1rem;
+    color: #555;
+    font-weight: 500;
+}
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #222;
+    margin: 2px 0 4px 0;
+}
+.stat-desc {
+    font-size: 0.95rem;
+    color: #888;
+}
+
+/* Charts Grid */
+.charts-grid {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+}
+.chart-card {
+    flex: 1 1 340px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 20px 18px 16px 18px;
+    min-width: 320px;
+}
+.chart-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+}
+
+/* Tables */
+.tables-grid {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+.table-card {
+    flex: 1 1 420px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 20px 18px 16px 18px;
+    margin-bottom: 24px;
+    min-width: 380px;
+    display: flex;
+    flex-direction: column;
+}
+.table-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+}
+.table-scroll {
+    overflow-x: auto;
+}
+.simple-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+.simple-table th, .simple-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    text-align: left;
+    font-size: 1rem;
+}
+.simple-table th {
+    background: #f7f7f7;
+    font-weight: 600;
+    color: #444;
+}
+.simple-table tr:last-child td {
+    border-bottom: none;
+}
+.simple-table tbody tr:hover {
+    background: #f5faff;
+}
+
+/* Button */
+.btn {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+    outline: none;
+}
+.btn.blue {
+    background: #2196F3;
+    color: #fff;
+}
+.btn.blue:hover {
+    background: #1769aa;
+}
+.btn.orange {
+    background: #ff9800;
+    color: #fff;
+}
+.btn.orange:hover {
+    background: #c66900;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+    .stats-grid, .charts-grid, .tables-grid {
+        flex-direction: column;
+        gap: 16px;
+    }
+    .stat-card, .chart-card, .table-card {
+        min-width: 0;
+    }
+}
+@media (max-width: 700px) {
+    .main-content {
+        margin-left: 0;
+        padding: 12px 0 12px 0;
+    }
+    .dashboard-container {
+        padding: 0 4px;
+    }
+    .stat-card, .chart-card, .table-card {
+        padding: 12px 6px 10px 10px;
+    }
+    .stat-title, .chart-title, .table-title {
+        font-size: 1rem;
+    }
+    .stat-number {
+        font-size: 1.2rem;
+    }
+    .simple-table th, .simple-table td {
+        font-size: 0.95rem;
+        padding: 7px 6px;
+    }
+} 

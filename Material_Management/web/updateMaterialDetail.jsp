@@ -65,25 +65,6 @@
                             <label for="price">Giá (VNĐ) <span class="required">*</span></label>
                             <input type="number" id="price" name="price" value="${material.price}" step="0.01" min="0" required>
                         </div>
-                        <div class="form-group">
-                            <label for="conversionId">Đơn vị tính <span class="required">*</span></label>
-                            <select id="conversionId" name="conversionId" required>
-                                <option value="">-- Chọn đơn vị tính --</option>
-                                <c:forEach items="${units}" var="unit">
-                                    <option value="${unit.material.conversionId}" ${material.conversionId == unit.material.conversionId ? 'selected' : ''}>${unit.baseunit}</option>
-                                </c:forEach>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="material_condition">Tình trạng vật tư <span class="required">*</span></label>
-                        <select id="material_condition" name="material_condition" required>
-                            <option value="">-- Chọn tình trạng --</option>
-                            <option value="Mới" ${material.materialCondition == 'Mới' ? 'selected' : ''}>Mới</option>
-                            <option value="Đã sử dụng" ${material.materialCondition == 'Đã sử dụng' ? 'selected' : ''}>Đã sử dụng</option>
-                            <option value="Hỏng" ${material.materialCondition == 'Hỏng' ? 'selected' : ''}>Hỏng</option>
-                        </select>
                     </div>
                 </div>
 
@@ -101,10 +82,19 @@
                         <label for="description">Mô tả chi tiết</label>
                         <textarea id="description" name="description" rows="5" placeholder="Nhập mô tả, thông số kỹ thuật, quy cách...">${material.description}</textarea>
                     </div>
+                    <div class="form-group">
+                        <label for="materialCondition">Tình trạng vật tư</label>
+                        <select id="materialCondition" name="materialCondition">
+                            <option value="">-- Chọn tình trạng --</option>
+                            <option value="Mới" ${material.materialCondition == 'Mới' ? 'selected' : ''}>Mới</option>
+                            <option value="Đã qua sử dụng" ${material.materialCondition == 'Đã qua sử dụng' ? 'selected' : ''}>Đã qua sử dụng</option>
+                            <option value="Hỏng" ${material.materialCondition == 'Hỏng' ? 'selected' : ''}>Hỏng</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-actions">
-                    <a href="materialDetailList.jsp" class="btn btn-secondary">
+                    <a href="MaterialListServlet" class="btn btn-secondary">
                         <i class="fas fa-times"></i> Hủy Bỏ
                     </a>
                     <button type="submit" class="btn btn-primary">

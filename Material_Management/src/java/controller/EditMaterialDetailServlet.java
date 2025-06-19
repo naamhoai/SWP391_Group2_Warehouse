@@ -1,6 +1,7 @@
 package controller;
 
 import dao.MaterialDAO;
+import dao.MaterialInfoDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -23,20 +24,20 @@ public class EditMaterialDetailServlet extends HttpServlet {
         try {
             int materialId = Integer.parseInt(request.getParameter("id"));
             MaterialDAO materialDAO = new MaterialDAO();
+            MaterialInfoDAO infoDAO = new MaterialInfoDAO();
 
             // Lấy thông tin vật tư cần chỉnh sửa
             Material material = materialDAO.getMaterialById(materialId);
 
             // Lấy danh sách các danh mục, nhà cung cấp, đơn vị tính cho dropdown
-            List<Category> categories = materialDAO.getAllCategoriesForDropdown();
-            List<Supplier> suppliers = materialDAO.getAllSuppliersForDropdown();
-            List<UnitConversion> units = materialDAO.getAllUnitConversions();
+            List<Category> categories = infoDAO.getAllCategoriesForDropdown();
+            List<Supplier> suppliers = infoDAO.getAllSuppliersForDropdown();
+            List<UnitConversion> units = infoDAO.getAllUnitConversions();
 
             // Đặt các đối tượng vào request scope
             request.setAttribute("material", material);
             request.setAttribute("categories", categories);
             request.setAttribute("suppliers", suppliers);
-            request.setAttribute("units", units);
 
             // Chuyển tiếp đến trang JSP chỉnh sửa
             request.getRequestDispatcher("/updateMaterialDetail.jsp").forward(request, response);

@@ -35,6 +35,7 @@ public class ResetPasswordServlet extends HttpServlet {
 
             User user = daoUser.getUserById(tokenObj.getUser_id());
             request.setAttribute("email", user.getEmail());
+            request.setAttribute("fullname", user.getFullname());
             session.setAttribute("token", token);
             request.getRequestDispatcher("resetPassword.jsp").forward(request, response);
         } else {
@@ -45,9 +46,16 @@ public class ResetPasswordServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String fullname = request.getParameter("fullname");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         String confirmPassword = request.getParameter("confirm_password");
+        if (fullname == null || fullname.trim().isEmpty()) {
+            request.setAttribute("mess", "Full name không được để trống.");
+            request.setAttribute("email", email);
+            request.getRequestDispatcher("resetPassword.jsp").forward(request, response);
+            return;
+        }
 
         if (!password.equals(confirmPassword)) {
             request.setAttribute("mess", "Mật khẩu xác nhận không khớp.");
@@ -69,6 +77,10 @@ public class ResetPasswordServlet extends HttpServlet {
 
         // Chỉ update password theo email
         daoUser.updatePassword(email, password);
+
+        // Gửi email mật khẩu mới cho user
+        User user = daoUser.getUserByEmail(email);
+        service.sendPasswordEmail(email, user.getFullname(), password);
 
         tokenObj.setUsed(true);
         daoToken.updateStatus(tokenObj);
