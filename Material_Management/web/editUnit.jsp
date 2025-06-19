@@ -35,7 +35,7 @@
                                 </c:forEach> 
                             </select>
                         </div>
-
+                        
                         <div class="form-group">
                             <label for="standardUnit">Đơn vị chuyển đổi</label>
                             <select name="convertedunit">
@@ -44,6 +44,7 @@
                                 </c:forEach> 
                             </select>
                         </div>
+                        
                     </div>
 
                     <div class="form-group">
@@ -67,7 +68,6 @@
                         <button type="submit">
                             Sumbit
                         </button>
-
                     </div>
                 </form>
             </div>

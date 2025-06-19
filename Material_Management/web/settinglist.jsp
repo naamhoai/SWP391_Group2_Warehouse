@@ -1,4 +1,5 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -7,8 +8,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Setting List</title>
         <link rel="stylesheet" href="css/sidebar.css">
-        <link rel="stylesheet" href="./css/settingList.css">
-         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        <link rel="stylesheet" href="css/settinglist.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
 
     </head>
@@ -18,27 +19,27 @@
 
         <div id="main-content">
             <div class="page-header">
-                <h2>User Management</h2>
+                <h2>Quản lý người dùng</h2>
                 <c:if test="${not empty messUpdate}">
                     <div class="success-message">${messUpdate}</div>
                 </c:if>
             </div>
             <div>
-                <button><a href="${pageContext.request.contextPath}/CreateUserServlet">Add User</a></button>
+                <button><a href="${pageContext.request.contextPath}/CreateUserServlet">Thêm mới </a></button>
             </div>
 
             <form action="settinglist" method="get">
                 <div class="filter-section">
                     <select name="type">
-                        <option value="all">All Types</option>
+                        <option value="all">Tất cả</option>
                         <c:forEach var="r" items="${requestScope.listrole}">
                             <option value="${r.rolename}">${r.rolename}</option>
                         </c:forEach>
                     </select>
                     <select name="status">
                         <option value="All">All Statuses</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
+                        <option value="active">Hoạt động</option>
+                        <option value="inactive">Không hoặc động</option>
                     </select>
                     <input type="text" placeholder="Enter number to search" name="priority">
                     <input type="text" placeholder="Enter keyword(s) to search" name="searchname">
@@ -46,16 +47,16 @@
 
                     <button type="submit" value="filter" name="save">
 
-                        <i class="fas fa-search"></i> Search
+                        <i class="fas fa-search"></i> Tìm Kiếm
                     </button>
                     <select name="sortBy">
-                        <option value="">Sort By</option>
-                        <option value="idasc">ID (Ascending)</option>
-                        <option value="iddesc">ID (Descending)</option>
-                        <option value="nameasc">Name (A-Z)</option>
-                        <option value="namedesc">Name (Z-A)</option>
-                        <option value="priorityasc">Priority (Low-High)</option>
-                        <option value="prioritydesc">Priority (High-Low)</option>
+                        <option value="">Săp xếp</option>
+                        <option value="idasc">ID (Giảm dần)</option>
+                        <option value="iddesc">ID (Tăng dần)</option>
+                        <option value="nameasc">Tên (A-Z)</option>
+                        <option value="namedesc">Tên (Z-A)</option>
+                        <option value="priorityasc">Ưu tiên (thấp-cao)</option>
+                        <option value="prioritydesc">Ưu tiên (cao-thấp)</option>
                     </select>
 
                     <button type="submit" value="sort" name="save">
@@ -70,12 +71,12 @@
                         <tr>
                             <th> </th>
                             <th>Id</th>
-                            <th>Name</th>
-                            <th>Type</th>
-                            <th>description</th>
-                            <th>Priority</th>
-                            <th>Status</th>
-                            <th>Action</th>
+                            <th>Tên</th>
+                            <th>Kiểu</th>
+                            <th>Mô tả</th>
+                            <th>Ưu tiên</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
                         </tr>
                     </thead>
                     <tbody>

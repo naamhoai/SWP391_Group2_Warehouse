@@ -7,12 +7,14 @@
         <title>Quản lý đơn vị</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <link rel="stylesheet" href="./css/unitMmanagement.css">
+        <link rel="stylesheet" href="./css/unitmanga.css">
     </head>
     <body>
+    
         <div class="container">
-            <h2 class="page-title">Quản lý đơn vị đo</h2>
+            <h2 class="page-title">Quản lý đơn vị</h2>
 
-            <form action="unitConversionSeverlet" method="post">
+            <form action="unitConversionSeverlet" method="get">
                 <div class="filter-section">
                     <div class="search-filters">
                         <div class="filter-group">
@@ -22,7 +24,6 @@
                                 <c:forEach var="m" items="${requestScope.listbase}">
                                     <option value="${m.baseunit}">${m.baseunit}</option>
                                 </c:forEach>
-
                             </select>
                         </div>
 
@@ -36,6 +37,15 @@
                             </select>
                         </div>
 
+                        <div class="filter-group">
+                            <label>Trạng thái:</label>
+                            <select name="status">
+                                <option value="all">All</option>
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+
                         <div class="search-group">
                             <input type="text" name="search" placeholder="Tìm kiếm..." class="search-input">
                             <button class="search-btn" type="submit">
@@ -44,12 +54,18 @@
                         </div>
                     </div>
 
-                    <div class="add-button">
-                        <a href="CreateUnitServlet"> Thêm vật tư </a>
-                    </div>
-
                 </div>
             </form>
+
+            <div class="action-buttons">
+                <div class="add-button">
+                    <a href="CreateUnitServlet">Thêm vật tư</a>
+                </div>
+                <div class="add-button">
+                    <a href="#">Lịch sử thay đổi đơn vị</a>
+                </div>
+            </div>
+
             <div class="table-container">
                 <table>
                     <thead>
@@ -58,6 +74,7 @@
                             <th>Đơn vị gốc</th>
                             <th>Đơn vị chuẩn</th>
                             <th>Tỷ lệ quy đổi</th>
+                            <th>Trạng thái</th>
                             <th>Ghi chú</th>
                             <th>Hành động</th>
                         </tr>
@@ -66,25 +83,40 @@
                         <c:forEach var="v" items="${requestScope.list}">
                             <tr>
 
-
                                 <td>${v.material.name}</td>
                                 <td>${v.baseunit}</td>
                                 <td>${v.convertedunit}</td>
                                 <td>${v.conversionfactor}</td>
+                                <td>${v.status}</td>
                                 <td>${v.note}</td>
-                                <td >
-                                    <a><button>Action</button></a>
-                                    <a><button>Inaction</button></a>
-<%--                                    <a href="unitEditseverlet?baseunitid=${v.conversionid}&materialid=${v.material.materialId}&materialname=${v.material.name}"><button>Chỉnh sửa</button></a>--%>
 
+                                <td>
+
+                                    <a href="unitConversionSeverlet?cvid=${v.conversionid}&action=Active"><button>Active</button></a>
+                                    <a href="unitConversionSeverlet?cvid=${v.conversionid}&action=Inactive"><button>Inactive</button></a>
+                                    
+                                    <a href="unitEditseverlet?baseunitid=${v.conversionid}&materialid=${v.material.materialId}&materialname=${v.material.name}">
+                                      chỉnh sửa
+                                    </a>
                                 </td>
-
                             </tr>
                         </c:forEach>
-
                     </tbody>
                 </table>
+                <div class="pagination-container">
+                    <c:forEach begin="1" end="${pages}" var="p">
+                        <form action="unitConversionSeverlet" method="get">
+                            <input type="hidden" name="baseunit" value="${baseunit}">
+                            <input type="hidden" name="convertedunit" value="${convertedunit}">
+                            <input type="hidden" name="status" value="${status}">
+                            <input type="hidden" name="search" value="${search}">
+                            <input type="hidden" name="page" value="${p}">
+                            <button type="submit" ${p == currentPage ? 'disabled' : ''}>${p}</button>
+                        </form>
+                    </c:forEach>
+                </div>
+
             </div>
         </div>
     </body>
-</html> 
+</html>

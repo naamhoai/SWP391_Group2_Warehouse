@@ -91,13 +91,9 @@ public class CreateUnitServlet extends HttpServlet {
         String unit1 = request.getParameter("unit1");
         String unit2 = request.getParameter("unit2");
 
-        System.out.println("unitName" + unitName);
-        System.out.println("note" + note);
-        System.out.println("materialids" + materialids);
-        System.out.println("baseunit" + baseunit);
-
+        
         String mess = "";
-        List<UnitConversion> listid = dao.getAll();
+        List<UnitConversion> listid = dao.getAll(1);
         try {
 
             int materialid = Integer.parseInt(materialids);
@@ -111,24 +107,22 @@ public class CreateUnitServlet extends HttpServlet {
             Double ratio1 = Double.parseDouble(unit1);
             Double ratio2 = Double.parseDouble(unit2);
             Double result = ratio1 * ratio2;
-            System.out.println("unit1" + ratio1);
-            System.out.println("unit2" + ratio2);
+          
             String convertUnit = request.getParameter("convertedunit");
-            System.out.println("convertedunit" + convertUnit);
+           
 
             Boolean validate = true;
             for (UnitConversion unitConversion : listid) {
 
-//                if (unitConversion.getMaterialid() == materialid) {
-//                    System.out.println("unitConversion"  + unitConversion.getMaterialid());
-                     System.out.println("materialids" + materialids);
-                      System.out.println("materialids" + materialid);
+                if (unitConversion.getMaterialid() == materialid) {
+                    
                     mess = "Vật tư này đã tồn tại!";
                     request.setAttribute("messs", mess);
-                    validate = false;
                     Data(request);
+                    validate = false;
+                    
                     break;
-//                }
+                }
             }
 
             if (result <= 0) {
@@ -140,14 +134,17 @@ public class CreateUnitServlet extends HttpServlet {
                 return;
             }
             if (validate) {
-             dao.unitCreate2(baseunit, convertUnit, note, result, materialid);
-             request.getRequestDispatcher("/unitConversionSeverlet").forward(request, response);
+                dao.unitCreate2(baseunit, convertUnit, note, result, materialid);
+
+                
+                response.sendRedirect("unitConversionSeverlet");
+                return;
             }
 
         } catch (NumberFormatException e) {
             System.out.println(e.getMessage());
         }
-        request.getRequestDispatcher("createUnit.jsp").forward(request, response);
+      
 
     }
 

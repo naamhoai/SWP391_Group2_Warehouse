@@ -53,12 +53,12 @@ public class UnitEditServlet extends HttpServlet {
         String baseunitid = request.getParameter("baseunitid");
         String materialid = request.getParameter("materialid");
         String materialname = request.getParameter("materialname");
-        
-        
+    
+
         request.setAttribute("baseunitid", baseunitid);
         request.setAttribute("materialid", materialid);
         UnitConversionDao n = new UnitConversionDao();
-        List<UnitConversion> list = n.getAll();
+        List<UnitConversion> list = n.getAll(1);
         List<UnitConversion> listconverted = n.getAllunitconverted();
         List<UnitConversion> listbase = n.getAllunitbase();
         List<Category> listcat = n.getAllpre();
@@ -105,7 +105,7 @@ public class UnitEditServlet extends HttpServlet {
         UnitConversionDao dao = new UnitConversionDao();
         String baseunitid = request.getParameter("baseunitid");
         String materialid = request.getParameter("materialid");
-        
+
         
         String baseunit = request.getParameter("baseunit");
         String convertedunit = request.getParameter("convertedunit");
@@ -113,11 +113,10 @@ public class UnitEditServlet extends HttpServlet {
         String unit2 = request.getParameter("unit2");
         String note = request.getParameter("note");
         String mess = "";
+
+        
       
-        System.out.println("baseunitids" + baseunitid);
-        System.out.println("materialid" + materialid);
-        
-        
+
         try {
             int baseunitids = Integer.parseInt(baseunitid);
             int materialidids = Integer.parseInt(materialid);
@@ -144,18 +143,23 @@ public class UnitEditServlet extends HttpServlet {
 
             }
             if (validate) {
-                String results = String.valueOf(result);
-                dao.Update(materialidids, baseunit, convertedunit, results, note, baseunitids);
+               
                 
-                request.getRequestDispatcher("/unitConversionSeverlet").forward(request, response);
+                
+                String results = String.valueOf(result);
+              
+                dao.Update(materialidids, baseunit, convertedunit, results, note, baseunitids);
+  
+                response.sendRedirect("unitConversionSeverlet");
+               
 
             }
 
         } catch (NumberFormatException e) {
-            System.out.println(e.getMessage());
+            System.out.println(e);
 
         }
-        request.getRequestDispatcher("editUnit.jsp").forward(request, response);
+       
 
     }
 

@@ -15,28 +15,32 @@ import model.*;
  */
 public class UnitConversionDao extends dal.DBContext {
 
-    public List<UnitConversion> getAll() {
+    public List<UnitConversion> getAll(int pages) {
         List<UnitConversion> list = new ArrayList<>();
-        String sql = "SELECT u.conversion_id,u.material_id,m.material_id,u.base_unit,u.converted_unit,u.conversion_factor,u.note,m.name,m.category_id\n"
-                + "FROM unit_conversion u \n"
-                + "join materials m on m.material_id = u.material_id;";
+        String sql = "SELECT u.conversion_id,u.material_id,u.status,m.material_id,u.base_unit,u.converted_unit,u.conversion_factor,u.note,m.name,m.category_id\n"
+                + "	FROM unit_conversion u \n"
+                + "	join materials m on m.material_id = u.material_id\n"
+                + "	ORDER BY u.conversion_id LIMIT 5 OFFSET ?;";
 
         try {
             PreparedStatement st = connection.prepareStatement(sql);
+            int offset = (pages - 1) * 5;
+            st.setInt(1, offset);
             ResultSet sm = st.executeQuery();
             while (sm.next()) {
-
                 Material mate = new Material();
                 UnitConversion uni = new UnitConversion();
                 mate.setMaterialId(sm.getInt("material_id"));
-//                uni.setConversionid(sm.getInt("conversion_id"));
+                uni.setConversionid(sm.getInt("conversion_id"));
                 mate.setName(sm.getString("name"));
-//                uni.setMaterialid(sm.getInt("material_id"));
+                uni.setMaterialid(sm.getInt("material_id"));
                 uni.setMaterial(mate);
                 uni.setBaseunit(sm.getString("base_unit"));
                 uni.setConvertedunit(sm.getString("converted_unit"));
                 uni.setConversionfactor(sm.getString("conversion_factor"));
+                uni.setStatus(sm.getString("status"));
                 uni.setNote(sm.getString("note"));
+
                 list.add(uni);
             }
 
@@ -46,7 +50,7 @@ public class UnitConversionDao extends dal.DBContext {
         return list;
 
     }
-    
+
     public List<Material> getMaterial() {
         List<Material> list = new ArrayList<>();
         String sql = "SELECT material_id,name FROM materials;";
@@ -89,7 +93,7 @@ public class UnitConversionDao extends dal.DBContext {
         return list;
 
     }
-    
+
     public List<UnitConversion> getAllunit() {
         List<UnitConversion> list = new ArrayList<>();
         String sql = "SELECT DISTINCT base_unit,converted_unit FROM unit_conversion;";
@@ -100,7 +104,7 @@ public class UnitConversionDao extends dal.DBContext {
                 UnitConversion uni = new UnitConversion();
                 uni.setBaseunit(st.getString("base_unit"));
                 uni.setConvertedunit(st.getString("converted_unit"));
-                
+
                 list.add(uni);
             }
 
@@ -117,10 +121,10 @@ public class UnitConversionDao extends dal.DBContext {
         try {
             PreparedStatement ca = connection.prepareStatement(sql);
             ResultSet st = ca.executeQuery();
-            while(st.next()) {
+            while (st.next()) {
                 UnitConversion uni = new UnitConversion();
                 uni.setBaseunit(st.getString("base_unit"));
-                
+
                 list.add(uni);
             }
 
@@ -130,6 +134,7 @@ public class UnitConversionDao extends dal.DBContext {
 
         return list;
     }
+
     public List<UnitConversion> getAllunitconverted() {
         List<UnitConversion> list = new ArrayList<>();
         String sql = "SELECT DISTINCT converted_unit FROM unit_conversion;";
@@ -138,7 +143,7 @@ public class UnitConversionDao extends dal.DBContext {
             ResultSet st = ca.executeQuery();
             while (st.next()) {
                 UnitConversion uni = new UnitConversion();
-          
+
                 uni.setConvertedunit(st.getString("converted_unit"));
                 list.add(uni);
             }
@@ -149,34 +154,36 @@ public class UnitConversionDao extends dal.DBContext {
 
         return list;
     }
-    
-    
-    
-    
 
-     public List<UnitConversion> getFilter(String baseunit, String convertedunit, String name) {
+    public List<UnitConversion> getFilter(String baseunit, String convertedunit, String name, String status, int pages) {
         List<UnitConversion> list = new ArrayList<>();
         List<Object> param = new ArrayList<>();
-        String sql = "SELECT u.conversion_id,m.material_id,u.base_unit,u.converted_unit, \n"
-                + "u.conversion_factor,u.note,m.name,m.category_id\n"
-                + "FROM unit_conversion u \n"
-                + "join materials m on m.material_id = u.material_id\n"
-                + "where  1 = 1";
+        String sql = "SELECT u.conversion_id,m.material_id,u.base_unit,u.converted_unit,\n"
+                + "                u.conversion_factor,u.note,m.name,m.category_id,u.status\n"
+                + "                FROM unit_conversion u \n"
+                + "                join materials m on m.material_id = u.material_id\n"
+                + "                where  1 = 1";
 
         if (baseunit != null && !baseunit.equalsIgnoreCase("all")) {
 
-            sql += " and base_unit = ?";
+            sql += " and base_unit=?";
             param.add(baseunit.trim());
         }
         if (convertedunit != null && !convertedunit.equalsIgnoreCase("all")) {
-            sql += " and converted_unit = ?";
+            sql += " and converted_unit=?";
             param.add(convertedunit.trim());
         }
 
         if (name != null && !name.isEmpty()) {
-            sql += " and m.name like ?";
+            sql += " and m.name like?";
             param.add("%" + name.trim() + "%");
         }
+        if (status != null && !status.equalsIgnoreCase("all")) {
+            sql += " and status=?";
+            param.add(status.trim());
+        }
+        sql += (" ORDER BY u.conversion_id LIMIT 5 OFFSET ?");
+        param.add((pages - 1) * 5);
 
         try {
             PreparedStatement st = connection.prepareStatement(sql);
@@ -190,13 +197,14 @@ public class UnitConversionDao extends dal.DBContext {
                 UnitConversion uni = new UnitConversion();
 
                 mate.setMaterialId(sm.getInt("material_id"));
-//                uni.setConversionid(sm.getInt("conversion_id"));
+                uni.setConversionid(sm.getInt("conversion_id"));
                 mate.setName(sm.getString("name"));
-
                 uni.setMaterial(mate);
+
                 uni.setBaseunit(sm.getString("base_unit"));
                 uni.setConvertedunit(sm.getString("converted_unit"));
                 uni.setConversionfactor(sm.getString("conversion_factor"));
+                uni.setStatus(sm.getString("status"));
                 uni.setNote(sm.getString("note"));
                 list.add(uni);
 
@@ -209,8 +217,8 @@ public class UnitConversionDao extends dal.DBContext {
         return list;
 
     }
-     
-     public UnitConversion Update(int materialid, String baseunit, String convertedunit, String conversionfactor, String note, int conversionid) {
+
+    public UnitConversion Update(int materialid, String baseunit, String convertedunit, String conversionfactor, String note, int conversionid) {
         String sql = "UPDATE unit_conversion\n"
                 + "SET\n"
                 + "material_id = ?,\n"
@@ -235,8 +243,8 @@ public class UnitConversionDao extends dal.DBContext {
         return null;
 
     }
-     
-     public List<Category> getname() {
+
+    public List<Category> getname() {
         List<Category> list = new ArrayList<>();
         String sql = "SELECT name\n"
                 + "FROM categories\n"
@@ -256,9 +264,8 @@ public class UnitConversionDao extends dal.DBContext {
 
         return list;
     }
-     
-     
-     public User unitCreate2(String base_unit, String converted_unit, String note, double conversion_factor, int material_id) {
+
+    public User unitCreate2(String base_unit, String converted_unit, String note, double conversion_factor, int material_id) {
         String sql = "INSERT INTO unit_conversion (base_unit, converted_unit, note,conversion_factor, material_id)\n"
                 + "VALUES (?, ? ,?, ?, ?);";
         try {
@@ -278,18 +285,57 @@ public class UnitConversionDao extends dal.DBContext {
 
     }
 
+    public int getcountPage() {
+        String sql = " SELECT COUNT(*) FROM unit_conversion";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                int total = rs.getInt(1);
+                int countpage = 0;
+                countpage = total / 5;
+                if (total % 5 != 0) {
+                    countpage++;
+                }
+                return countpage;
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return 0;
+
+    }
+
+    public UnitConversion updateStUnit(String status, int conversion_id) {
+        String sql = " update  unit_conversion\n"
+                + "                set status = ?\n"
+                + "                where conversion_id = ?";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, status);
+            st.setInt(2, conversion_id);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return null;
+
+    }
+
     public static void main(String[] args) {
         UnitConversionDao n = new UnitConversionDao();
-        String a ="Thiết bị điện";
-        String uni ="";
-        String c ="";
+        String a = "cat";
+        String uni = "mét";
+        String c = "thùng";
         System.out.println("Base unit: " + uni);
         System.out.println("Device (parent): " + a);
         System.out.println("Material name: " + c);
 
-        List<UnitConversion> l = n.getAllunitbase();
+//        List<UnitConversion> l = n.getFilter(c, uni, a, "Inactive");
+        List<UnitConversion> k = n.getAll(6);
 
-        System.out.println(l);
+        System.out.println(k);
 
     }
 

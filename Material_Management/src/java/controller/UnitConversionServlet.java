@@ -12,7 +12,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
+
 import java.util.List;
 import model.*;
 
@@ -61,18 +61,60 @@ public class UnitConversionServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        List<UnitConversion> displayList;
+
         UnitConversionDao n = new UnitConversionDao();
-        List<UnitConversion> list = n.getAll();
+        String sta = request.getParameter("cvid");
+        String baseunit = request.getParameter("baseunit");
+        String convertedunit = request.getParameter("convertedunit");
+        String search = request.getParameter("search");
+        String status = request.getParameter("status");
+        String page_raw = request.getParameter("page");
+        String action = request.getParameter("action");
+        int page = 1;
+        try {
+            page = Integer.parseInt(page_raw);
+        } catch (Exception e) {
+            page = 1;
+        }
+        if (sta != null && action != null) {
+
+            int stas = Integer.parseInt(sta);
+
+            if ("Active".equalsIgnoreCase(action) || "Inactive".equalsIgnoreCase(action)) {
+                n.updateStUnit(action, stas);
+                request.setAttribute("messUpdate", "Status has been updated! ");
+            }
+        }
+
+        int count = n.getcountPage();
+        List<Category> listcat = n.getAllpre();
         List<UnitConversion> listconverted = n.getAllunitconverted();
         List<UnitConversion> listbase = n.getAllunitbase();
-        List<Category> listcat = n.getAllpre();
-        if (list != null) {
-            request.setAttribute("list", list);
-            request.setAttribute("listcat", listcat);
-          request.setAttribute("listbase", listbase);
-        request.setAttribute("listconverted", listconverted);
 
+        boolean isFiltering
+                = (baseunit != null && !baseunit.isEmpty())
+                || (convertedunit != null && !convertedunit.isEmpty())
+                || (search != null && !search.isEmpty())
+                || (status != null && !status.isEmpty());
+        if (isFiltering) {
+            displayList = n.getFilter(baseunit, convertedunit, search, status, page);
+        } else {
+            displayList = n.getAll(page);
         }
+
+        request.setAttribute("baseunit", baseunit);
+        request.setAttribute("convertedunit", convertedunit);
+        request.setAttribute("search", search);
+        request.setAttribute("status", status);
+        request.setAttribute("pages", count);
+        request.setAttribute("currentPage", page);
+
+        request.setAttribute("list", displayList);
+        request.setAttribute("listcat", listcat);
+        request.setAttribute("listbase", listbase);
+        request.setAttribute("listconverted", listconverted);
 
         request.getRequestDispatcher("unitManagements.jsp").forward(request, response);
     }
@@ -88,29 +130,7 @@ public class UnitConversionServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String baseunit = request.getParameter("baseunit");
-        String convertedunit = request.getParameter("convertedunit");
-        String search = request.getParameter("search");
-        
-        
-        UnitConversionDao n = new UnitConversionDao();
 
-        List<Category> listcat = n.getAllpre();
-        List<UnitConversion> listconverted = n.getAllunitconverted();
-        List<UnitConversion> listbase = n.getAllunitbase();
-        List<UnitConversion> list = n.getAll();
-        List<UnitConversion> newlist = n.getFilter(baseunit, convertedunit, search);
-        System.out.println("Base unit: " + baseunit);
-        System.out.println("Device (parent): " + convertedunit);
-        System.out.println("Material name: " + search);
-
-        request.setAttribute("list", list);
-        request.setAttribute("listcat", listcat);
-        request.setAttribute("listbase", listbase);
-        request.setAttribute("listconverted", listconverted);
-        
-        request.setAttribute("list", newlist);
-        request.getRequestDispatcher("unitManagements.jsp").forward(request, response);
     }
 
     /**

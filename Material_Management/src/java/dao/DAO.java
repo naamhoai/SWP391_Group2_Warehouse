@@ -15,9 +15,7 @@ import java.util.List;
 
 public class DAO extends dal.DBContext {
 
-    public DAO() {
-        super();
-    }
+
 
     public List<Role> getRoles() {
         List<Role> role = new ArrayList<>();

@@ -18,21 +18,24 @@ public class UnitConversion {
     private String conversionfactor;
     private String note;
     private String categorypar;
-//     private int conversionid;
-//    private int materialid;
+    private int conversionid;
+    private int materialid;
+    private String status;
 
     public UnitConversion() {
     }
 
-    public UnitConversion(Category category, Material material, String baseunit, String convertedunit, String conversionfactor, String note,String categorypar) {
+    public UnitConversion(Category category, Material material, String baseunit, String convertedunit, String conversionfactor, String note, String categorypar, int conversionid, int materialid, String status) {
         this.category = category;
-
         this.material = material;
         this.baseunit = baseunit;
         this.convertedunit = convertedunit;
         this.conversionfactor = conversionfactor;
         this.note = note;
         this.categorypar = categorypar;
+        this.conversionid = conversionid;
+        this.materialid = materialid;
+        this.status = status;
     }
 
     public Category getCategory() {
@@ -91,11 +94,37 @@ public class UnitConversion {
         this.categorypar = categorypar;
     }
 
-    @Override
-    public String toString() {
-        return "unitConversion{" + "category=" + category + ", material=" + material + ", baseunit=" + baseunit + ", convertedunit=" + convertedunit + ", conversionfactor=" + conversionfactor + ", note=" + note + ", categorypar=" + categorypar + '}';
+    public int getConversionid() {
+        return conversionid;
     }
 
+    public void setConversionid(int conversionid) {
+        this.conversionid = conversionid;
+    }
+
+    public int getMaterialid() {
+        return materialid;
+    }
+
+    public void setMaterialid(int materialid) {
+        this.materialid = materialid;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        return "UnitConversion{" + "category=" + category + ", material=" + material + ", baseunit=" + baseunit + ", convertedunit=" + convertedunit + ", conversionfactor=" + conversionfactor + ", note=" + note + ", categorypar=" + categorypar + ", conversionid=" + conversionid + ", materialid=" + materialid + ", status=" + status + '}';
+    }
+
+   
+   
    
 
 }

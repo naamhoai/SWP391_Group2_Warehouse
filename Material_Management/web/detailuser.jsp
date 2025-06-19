@@ -1,12 +1,13 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Setting Details</title>
+        <title>Cài đặt người dùng</title>
 
-        <link rel="stylesheet" href="./css/detailUser.css">
+        <link rel="stylesheet" href="css/detailuser.css">
 
     </head>
     <body>
@@ -18,12 +19,12 @@
 
                 <div class="row">
                     <div>
-                        <label>Name*</label>
+                        <label>Tên</label>
                         <input type="text" name="name" value="${user.fullname}"required>
 
                     </div>
                     <div>
-                        <label>Type Role</label>
+                        <label>Kiểu vai trò</label>
                         <select name="role">
                             <c:forEach var="i" items="${requestScope.lits}">
                                 <option value="${i.roleid}">${i.rolename}</option>
@@ -32,21 +33,21 @@
                     </div>
                 </div>
                 <div>
-                    <label>Email</label>
+                    <label>gmail</label>
                     <input type="text" name="email" value="${user.email}"required>
                 </div>
                 <div>
-                    <label>Password</label>
+                    <label>Mật khẩu </label>
                     <input type="password" name="pass" value="${user.password}"readonly>
                 </div>
 
                 <div class="row">
                     <div>
-                        <label>Priority</label>
+                        <label>Ưu tiên</label>
                         <input type="text" name="priority" value="${user.priority}"required>
                     </div>
                     <div>
-                        <label>Status</label>
+                        <label>Trạng thái</label>
                         <div class="radio-group">
                             <label><input type="radio" name="status" value="active"> Active</label>
                             <label><input type="radio" name="status" value="inactive"> Inactive</label>
@@ -56,7 +57,7 @@
 
                 <div class="row">
                     <div style="width: 100%;">
-                        <label>Description</label>
+                        <label>Mô tả</label>
                         <textarea rows="3" name="description">${user.description}</textarea>
                     </div>
                 </div>
@@ -65,8 +66,8 @@
 
                 <div class="hopbut">
 
-                    <a href="settinglist">Back </a>
-                    <button type="submit">Submit</button>
+                    <a href="settinglist">Trở lại </a>
+                    <button type="submit">Lưu</button>
                 </div>
             </form>
 

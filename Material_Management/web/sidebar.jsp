@@ -15,7 +15,7 @@
                 <span class="menu-text">Bảng Điều Khiển</span>
             </a>
         </li>
-       
+
         <li class="menu-item">
             <a href="${pageContext.request.contextPath}/categories" class="menu-link">
                 <i class="fas fa-clipboard-list menu-icon"></i>
@@ -65,7 +65,21 @@
                         <span class="menu-text">Danh Sách Quyền</span>
                     </a>
                 </li>
+                <li>
+                    <a href="${pageContext.request.contextPath}/settinglist" class="submenu-link">
+                        <i class="fas fa-key menu-icon"></i>
+                        <span class="menu-text">Quản lý người dùng</span>
+                    </a>
+                </li>
+                
             </ul>
+
+        </li>
+        <li>
+            <a href="${pageContext.request.contextPath}/unitConversionSeverlet" class="menu-link">
+                <i class="fas fa-key menu-icon"></i>
+                <span class="menu-text">Quản lý đơn vị</span>
+            </a>
         </li>
 
         <li class="menu-item">
