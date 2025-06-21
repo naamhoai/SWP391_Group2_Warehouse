@@ -208,6 +208,8 @@ input[readonly] {
 .center-button {
     text-align: center;
     margin-top: 25px;
+    display: flex;
+    justify-content: center;
 }
 
 button[type="submit"] {
@@ -317,4 +319,80 @@ button[type="submit"]:hover {
 .center-button {
     display: flex;
     justify-content: center;
+}
+
+/* Custom file label styles */
+.custom-file-label {
+    display: inline-block;
+    padding: 8px 18px;
+    background-color: #3b82f6;
+    color: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-weight: 500;
+    transition: background 0.2s;
+    font-size: 1rem;
+}
+
+.custom-file-label i {
+    margin-right: 8px;
+}
+
+.custom-file-label:hover {
+    background-color: #2563eb;
+}
+
+.profile-actions .edit-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 15px;
+    display: inline-block;
+}
+
+.profile-actions .edit-btn:hover {
+    background-color: #45a049;
+}
+
+.buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+.edit-btn {
+    background-color: #007bff; /* Blue */
+    color: white;
+}
+
+.edit-btn:hover {
+    background-color: #0056b3;
+}
+
+.back-btn {
+    background-color: #6c757d; /* Gray */
+    color: white;
+}
+
+.back-btn:hover {
+    background-color: #5a6268;
 }

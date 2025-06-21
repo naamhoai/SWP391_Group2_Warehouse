@@ -25,58 +25,69 @@
                             <div class="alert error">${error}</div>
                         </c:if>
 
-
-
-                        <form action="${pageContext.request.contextPath}/CreateUserServlet" method="post" enctype="multipart/form-data">
+                        <form action="${pageContext.request.contextPath}/CreateUserServlet" method="post" enctype="multipart/form-data" id="createUserForm">
 
                             <div class="row file-upload">
                                 <label for="imageFile" class="file-upload-label">Avatar:</label>
                                 <input type="file" id="imageFile" name="imageFile" class="file-upload-input" accept="image/*" />
+                                <div class="error-message" id="imageError"></div>
                             </div>
 
                             <div class="row">
                                 <div class="column">
-                                    <label for="fullName">Họ và tên:</label>
+                                    <label for="fullName">Họ và tên: <span class="required">*</span></label>
                                     <input type="text" id="fullName" name="fullName" required 
                                            value="${fn:escapeXml(fullName)}" oninput="generateEmail()" />
+                                    <div class="error-message" id="fullNameError"></div>
                                 </div>
                                 
                             </div>
 
                             <div class="row">
                                 <div class="column">
-                                    <label for="password">Mật khẩu:</label>
+                                    <label for="password">Mật khẩu: <span class="required">*</span></label>
                                     <input type="password" id="password" name="password" required />
+                                    <div class="error-message" id="passwordError"></div>
+                                    <div class="password-requirements">
+                                        <small>Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt</small>
+                                    </div>
                                 </div>
                                 <div class="column">
-                                    <label for="gender">Giới tính:</label>
+                                    <label for="gender">Giới tính: <span class="required">*</span></label>
                                     <select id="gender" name="gender">
                                         <option value="">Chọn giới tính</option>
                                         <option value="Men" <c:if test="${gender == 'Men'}">selected</c:if>>Nam</option>
                                         <option value="Women" <c:if test="${gender == 'Women'}">selected</c:if>>Nữ</option>
                                         <option value="Other" <c:if test="${gender == 'Other'}">selected</c:if>>Khác</option>
                                         </select>
+                                    <div class="error-message" id="genderError"></div>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="column">
-                                        <label for="dayofbirth">Ngày sinh:</label>
+                                        <label for="dayofbirth">Ngày sinh: <span class="required">*</span></label>
                                         <input type="date" id="dayofbirth" name="dayofbirth" value="${dayofbirth}" />
+                                        <div class="error-message" id="dayofbirthError"></div>
                                 </div>
                                 <div class="column">
-                                    <label for="email">Email</label>
-                                    <input type="text" id="email" name="email" readonly value="${fn:escapeXml(email)}" />
+                                    <label for="email">Email: <span class="required">*</span></label>
+                                    <input type="email" id="email" name="email" value="${fn:escapeXml(email)}" readonly />
+                                    <div class="error-message" id="emailError"></div>
+                                    <div class="email-info">
+                                        <small>Email sẽ được tạo tự động từ họ và tên</small>
+                                    </div>
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="column">
                                     <label for="phone">Số điện thoại:</label>
-                                    <input type="tel" id="phone" name="phone" value="${fn:escapeXml(userPhone)}" />
+                                    <input type="tel" id="phone" name="phone" value="${fn:escapeXml(userPhone)}" placeholder="VD: 0123456789" />
+                                    <div class="error-message" id="phoneError"></div>
                                 </div>
                                 <div class="column">
-                                    <label for="roleId">Vai trò:</label>
+                                    <label for="roleId">Vai trò: <span class="required">*</span></label>
                                     <select id="roleId" name="roleId">
                                         <option value="">Chọn vai trò</option>
                                         <c:forEach var="role" items="${roleList}">
@@ -85,6 +96,7 @@
                                             </option>
                                         </c:forEach>
                                     </select>
+                                    <div class="error-message" id="roleIdError"></div>
                                 </div>
                             </div>
 
@@ -98,20 +110,24 @@
                                             </label>
                                             <label>
                                                 <input type="radio" name="status" value="inactive" 
-                                                <c:if test="${status == 'inactive'}">checked</c:if> /> Inactive
+                                                <c:if test="${status == 'inactive'}">selected</c:if> /> Inactive
                                             </label>
                                         </div>
                                     </div>
                                     <div class="column">
                                         <label for="priority">Mức ưu tiên:</label>
                                         <input type="number" id="priority" name="priority" min="0" value="${priority}" />
+                                        <div class="error-message" id="priorityError"></div>
                                 </div>
                             </div>
 
                             <div class="row full-width">
                                 <label for="description">Mô tả:</label>
-                                <a href="../src/java/dao/UserDAO.java"></a>
-                                <textarea id="description" name="description">${fn:escapeXml(description)}</textarea>
+                                <textarea id="description" name="description" maxlength="500">${fn:escapeXml(description)}</textarea>
+                                <div class="error-message" id="descriptionError"></div>
+                                <div class="char-count">
+                                    <small><span id="charCount">0</span>/500 ký tự</small>
+                                </div>
                             </div>
 
                             <div class="buttons">
@@ -119,11 +135,76 @@
                                 <button type="submit" class="btn save-btn">Add User</button>
                             </div>
 
-
                         </form>
                     </div>
                 </div>
             </div>
         </div>
+
+        <script>
+            // Function to remove accents from Vietnamese text
+            function removeAccent(str) {
+                if (str == null) return null;
+                return str
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .replace(/đ/g, 'd').replace(/Đ/g, 'D');
+            }
+
+            // Function to generate email from full name
+            function generateEmail() {
+                const fullName = document.getElementById('fullName').value.trim();
+                if (fullName.length >= 2) {
+                    // Chuẩn hóa tên, loại bỏ khoảng trắng thừa
+                    const normalizedName = fullName.replace(/\s+/g, ' ');
+                    const nameParts = normalizedName.split(' ');
+                    
+                    if (nameParts.length >= 2) {
+                        // Lấy họ (phần cuối cùng)
+                        const lastName = nameParts[nameParts.length - 1];
+                        const lastNameNoAccent = removeAccent(lastName);
+                        // Họ: viết hoa chữ cái đầu, còn lại viết thường
+                        const formattedLastName = lastNameNoAccent.substring(0, 1).toUpperCase() + 
+                                                 lastNameNoAccent.substring(1).toLowerCase();
+                        
+                        // Tạo chữ cái đầu của tên (các phần trước họ)
+                        let initials = '';
+                        for (let i = 0; i < nameParts.length - 1; i++) {
+                            const partNoAccent = removeAccent(nameParts[i]);
+                            if (partNoAccent && partNoAccent.length > 0) {
+                                initials += partNoAccent.substring(0, 1).toUpperCase();
+                            }
+                        }
+                        
+                        // Tạo số ngẫu nhiên 6 chữ số
+                        const randomNum = Math.floor(100000 + Math.random() * 900000);
+                        
+                        // Tạo email
+                        const email = formattedLastName + initials + randomNum + '@gmail.com';
+                        document.getElementById('email').value = email;
+                    }
+                }
+            }
+
+            // Initialize character count and generate email if needed
+            document.addEventListener('DOMContentLoaded', function() {
+                const description = document.getElementById('description');
+                const charCount = document.getElementById('charCount');
+                
+                // Update character count on input
+                description.addEventListener('input', function() {
+                    charCount.textContent = this.value.length;
+                });
+                
+                // Initialize character count
+                charCount.textContent = description.value.length;
+                
+                // Generate email if fullName is already filled (from previous submission)
+                const fullName = document.getElementById('fullName').value.trim();
+                if (fullName.length >= 2) {
+                    generateEmail();
+                }
+            });
+        </script>
     </body>
 </html>

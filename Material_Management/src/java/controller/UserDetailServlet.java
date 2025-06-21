@@ -81,7 +81,7 @@ public class UserDetailServlet extends HttpServlet {
                 userId = Integer.parseInt(userIdParam);
             } catch (NumberFormatException e) {
                 request.setAttribute("error", "Invalid user ID.");
-                request.getRequestDispatcher("userDetail.jsp").forward(request, response);
+                request.getRequestDispatcher("userProfile.jsp").forward(request, response);
                 return;
             }
         } else {
@@ -98,10 +98,10 @@ public class UserDetailServlet extends HttpServlet {
             request.setAttribute("dob", formattedDOB);
 
             // Forward to the update user profile page
-            request.getRequestDispatcher("userDetail.jsp").forward(request, response);
+            request.getRequestDispatcher("userProfile.jsp").forward(request, response);
         } else {
             request.setAttribute("error", "User not found.");
-            request.getRequestDispatcher("userDetail.jsp").forward(request, response);
+            request.getRequestDispatcher("userProfile.jsp").forward(request, response);
         }
     }
 

@@ -6,7 +6,7 @@
     <head>
         <meta charset="UTF-8" />
         <title>Thông tin người dùng</title>
-        <link rel="stylesheet" href="css/userDetail.css" />
+        <link rel="stylesheet" href="css/userProfile.css" />
         <link rel="stylesheet" href="css/footer.css">
         <link rel="stylesheet" href="css/sidebar.css">
         <!-- Font Awesome -->
@@ -89,7 +89,9 @@
                                 </div>
                             </div>
 
-                            <a class="center-button edit-btn" href="${pageContext.request.contextPath}/UpdateUserProfileServlet">Chỉnh sửa</a>
+                            <div class="buttons">
+                                <a href="${pageContext.request.contextPath}/UpdateUserProfileServlet?userId=${user.user_id}" class="btn edit-btn">Chỉnh sửa</a>
+                            </div>
                         </form>
                     </div>
                 </div>

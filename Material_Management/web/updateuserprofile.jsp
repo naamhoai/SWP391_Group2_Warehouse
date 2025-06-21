@@ -6,7 +6,7 @@
     <head>
         <meta charset="UTF-8" />
         <title>Chỉnh sửa thông tin cá nhân</title>
-        <link rel="stylesheet" href="css/updateUserProfile.css" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/updateUserProfile.css" />
         <link rel="stylesheet" href="css/footer.css">
         <link rel="stylesheet" href="css/dashboard.css">
         <link rel="stylesheet" href="css/sidebar.css">
@@ -94,9 +94,10 @@
                                     <input type="text" id="status" name="status" value="${user.status}" readonly />
                                 </div>
                             </div>
+                            
 
-                            <div class="center-button">
-                                <button type="submit">Lưu</button>
+                            <div class="buttons">
+                                <button type="submit" class="btn save-btn">Lưu</button>
                             </div>
                         </form>
                     </div>
