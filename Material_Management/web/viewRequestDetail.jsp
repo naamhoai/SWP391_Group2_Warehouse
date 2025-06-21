@@ -1,8 +1,3 @@
-<%-- 
-    Document   : viewRequestDetail
-    Created on : Jun 12, 2025, 5:01:36 PM
-    Author     : kimoa
---%>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -12,6 +7,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Chi tiết yêu cầu vật tư</title>
         <link rel="stylesheet" href="css/viewRequestDetail.css">
+        
     </head>
     <body>
         <div class="request-detail-container">
@@ -33,24 +29,18 @@
             <table class="request-detail-table">
                 <thead>
                     <tr>
-                        <th>Danh mục</th>
-                        <th>Loại vật tư</th>
                         <th>Tên vật tư</th>
                         <th>Số lượng</th>
                         <th>Đơn vị</th>
-                        <th>Mô tả</th>
                         <th>Tình trạng</th>
                     </tr>
                 </thead>
                 <tbody>
                     <c:forEach var="d" items="${details}">
                         <tr>
-                            <td>${d.parentCategoryName}</td>
-                            <td>${d.categoryName}</td>
                             <td>${d.materialName}</td>
                             <td>${d.quantity}</td>
                             <td>${d.unitName}</td>
-                            <td>${d.description}</td>
                             <td>${d.materialCondition}</td>
                         </tr>
                     </c:forEach>
@@ -58,25 +48,20 @@
             </table>
 
             <!-- Phần xử lý cho giám đốc -->
-            <c:if test="${request.requestStatus eq 'Pending' && sessionScope.roleId.roleid == 2}">
-                <div class="mb-2 mt-2">
-                    <label for="directorNote"><b>Lý do (bắt buộc):</b></label>
-                    <textarea id="directorNote" class="input-note" required rows="2" placeholder="Nhập lý do phê duyệt hoặc từ chối..."></textarea>
-                </div>
-                <form id="approveForm" action="approveRequest" method="post" style="display:inline;">
+            <c:if test="${request.requestStatus eq 'Pending' && sessionScope.roleId == 2}">
+                <form action="approveOrRejectRequest" method="post" class="approve-reject-form">
                     <input type="hidden" name="requestId" value="${request.requestId}">
-                    <input type="hidden" name="directorNote" id="approveNote">
-                    <button type="submit" class="btn-approve">Phê duyệt</button>
-                </form>
-                <form id="rejectForm" action="rejectRequest" method="post" style="display:inline;">
-                    <input type="hidden" name="requestId" value="${request.requestId}">
-                    <input type="hidden" name="directorNote" id="rejectNote">
-                    <button type="submit" class="btn-reject">Từ chối</button>
+                    <label for="directorNote" class="form-label"><b>Lý do (bắt buộc):</b></label>
+                    <textarea name="directorNote" id="directorNote" required class="input-reason" placeholder="Nhập lý do phê duyệt hoặc từ chối..."></textarea>
+                    <div class="action-btn-group">
+                        <button type="submit" name="action" value="approve" class="btn-approve">Phê duyệt</button>
+                        <button type="submit" name="action" value="reject" class="btn-reject">Từ chối</button>
+                    </div>
                 </form>
             </c:if>
 
             <!-- Phần xử lý cho nhân viên kho -->
-            <c:if test="${request.requestStatus eq 'Approved' && sessionScope.roleId.roleid == 3}">
+            <c:if test="${request.requestStatus eq 'Approved' && sessionScope.roleId == 3}">
                 <div class="mt-3">
                     <a href="createPurchaseOrder?requestId=${request.requestId}" class="btn-create-order">
                         <i class="fas fa-plus"></i> Tạo đơn nhập hàng
@@ -84,22 +69,14 @@
                 </div>
             </c:if>
 
-            <!-- Phần xử lý cho yêu cầu bị từ chối -->
-            <c:if test="${request.requestStatus eq 'Rejected' && sessionScope.userId eq request.userId}">
-                <div class="mt-3">
-                    <a href="editRequest?requestId=${request.requestId}" class="btn-edit-request">
-                        <i class="fas fa-edit"></i> Chỉnh sửa yêu cầu
-                    </a>
-                </div>
-            </c:if>
-
+            
             <!-- Nút quay lại -->
             <div class="mt-3">
                 <c:choose>
-                    <c:when test="${sessionScope.roleId.roleid == 2}">
+                    <c:when test="${sessionScope.roleId == 2}">
                         <a href="director" class="btn-back">Quay lại</a>
                     </c:when>
-                    <c:when test="${sessionScope.roleId.roleid == 3}">
+                    <c:when test="${sessionScope.roleId == 3}">
                         <a href="warehouseEmployeeDashboard" class="btn-back">Quay lại</a>
                     </c:when>
                     <c:otherwise>
@@ -107,31 +84,6 @@
                     </c:otherwise>
                 </c:choose>
             </div>
-
-            <script>
-                // Khi bấm nút nào thì copy lý do vào form đó rồi submit
-                document.getElementById('approveForm')?.addEventListener('submit', function (e) {
-                    var note = document.getElementById('directorNote').value.trim();
-                    if (!note) {
-                        alert('Vui lòng nhập lý do!');
-                        e.preventDefault();
-                        return false;
-                    }
-                    document.getElementById('approveNote').value = note;
-                    return true;
-                });
-
-                document.getElementById('rejectForm')?.addEventListener('submit', function (e) {
-                    var note = document.getElementById('directorNote').value.trim();
-                    if (!note) {
-                        alert('Vui lòng nhập lý do!');
-                        e.preventDefault();
-                        return false;
-                    }
-                    document.getElementById('rejectNote').value = note;
-                    return true;
-                });
-            </script>
         </div>
     </body>
 </html>

@@ -176,6 +176,12 @@ h2 {
     margin-right: 4px;
 }
 
+.action-buttons {
+    display: flex;
+    flex-wrap: nowrap; /* Ngăn các nút xuống dòng */
+    gap: 5px; /* Khoảng cách giữa các nút */
+}
+
 /* Phân trang */
 .pagination-container {
     display: flex;
@@ -219,25 +225,31 @@ h2 {
     color: #1565c0;
 }
 
-@media (max-width: 900px) {
-    .request-list-container {
-        padding: 10px;
-    }
-    .filter-row {
-        flex-direction: column;
-        gap: 8px;
-    }
-    .request-table th, .request-table td {
-        padding: 6px 4px;
-        font-size: 13px;
-    }
-    h2 {
-        font-size: 18px;
-    }
-    .filter-row.filter-actions, .filter-col.filter-col-actions {
-        flex-direction: column;
-        gap: 8px;
-        align-items: stretch;
-    }
+/* Nút quay lại */
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    background: linear-gradient(90deg, #6c757d 60%, #868e96 100%);
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px #6c757d20;
+    cursor: pointer;
+    text-decoration: none;
+    margin-bottom: 18px;
+    margin-right: 12px;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
 }
-
+.btn-back i {
+    font-size: 18px;
+    margin-right: 6px;
+}
+.btn-back:hover {
+    background: linear-gradient(90deg, #495057 60%, #6c757d 100%);
+    box-shadow: 0 4px 16px #6c757d30;
+    transform: translateY(-2px) scale(1.03);
+} 

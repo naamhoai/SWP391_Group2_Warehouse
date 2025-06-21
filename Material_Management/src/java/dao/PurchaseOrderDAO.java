@@ -121,4 +121,12 @@ public class PurchaseOrderDAO {
         }
         return null;
     }
+    public boolean existsPurchaseOrderByRequestId(int requestId) throws SQLException {
+        String sql = "SELECT 1 FROM purchase_orders WHERE request_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, requestId);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next();
+        }
+    }
 }
