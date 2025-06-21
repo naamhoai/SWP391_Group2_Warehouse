@@ -29,7 +29,7 @@
                 <h1>Quản Lý Vật Tư</h1>
                 <div class="header-actions">
                     <a href="categories?action=add" class="btn-add">+ Thêm danh mục mới</a>
-                    <a href="materiallist.jsp" class="btn-new">Danh sách vật liệu</a>
+                    <a href="${pageContext.request.contextPath}/MaterialListServlet" class="btn-new">Danh sách vật liệu</a>
                 </div>
             </div>
 

@@ -6,17 +6,36 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Chỉnh sửa danh mục</title>
         <link rel="stylesheet" href="css/category.css">
+        <style>
+            .message.error {
+                color: #fff;
+                background: #e74c3c;
+                padding: 10px 15px;
+                border-radius: 4px;
+                margin-bottom: 15px;
+                font-weight: bold;
+                text-align: center;
+            }
+            .message.success {
+                color: #fff;
+                background: #27ae60;
+                padding: 10px 15px;
+                border-radius: 4px;
+                margin-bottom: 15px;
+                font-weight: bold;
+                text-align: center;
+            }
+        </style>
     </head>
     <body>
         <div class="container">
             <div class="form-container">
                 <h2>Chỉnh sửa danh mục</h2>
 
-                <c:if test="${not empty sessionScope.error}">
+                <c:if test="${not empty error}">
                     <div class="message error">
-                        ${sessionScope.error}
+                        ${error}
                     </div>
-                    <% session.removeAttribute("error"); %>
                 </c:if>
 
                 <form action="${pageContext.request.contextPath}/categories" method="post" class="category-form" onsubmit="return validateForm()">

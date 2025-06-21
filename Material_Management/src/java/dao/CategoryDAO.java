@@ -9,7 +9,6 @@ import java.util.List;
 
 public class CategoryDAO extends DBContext {
 
-    // Lấy tất cả danh mục
     public List<Category> getAllCategories() {
         List<Category> list = new ArrayList<>();
         String sql = "SELECT * FROM categories";
@@ -40,7 +39,6 @@ public class CategoryDAO extends DBContext {
         return list;
     }
 
-    // Lấy danh mục vật tư (parent_id IS NULL)
     public List<Category> getParentCategories() {
         List<Category> list = new ArrayList<>();
         String sql = "SELECT * FROM categories WHERE parent_id IS NULL ORDER BY name ASC";
@@ -72,7 +70,6 @@ public class CategoryDAO extends DBContext {
         return list;
     }
 
-    // Lấy danh sách có lọc theo keyword, parentId và sort
     public List<Category> getFilteredCategories(String keyword, Integer parentId, String sortBy) {
         List<Category> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM categories WHERE 1=1");
@@ -88,7 +85,6 @@ public class CategoryDAO extends DBContext {
             params.add(parentId);
         }
 
-        // Xử lý sort
         if (sortBy != null) {
             switch (sortBy.toLowerCase()) {
                 case "name":
@@ -135,31 +131,26 @@ public class CategoryDAO extends DBContext {
         return list;
     }
 
-    // Thêm danh mục mới
-    public boolean addCategory(String name, Integer parentId) {
+    public String addCategory(String name, Integer parentId) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
-
         try {
             conn = getConnection();
-            
-            // Kiểm tra xem parentId có tồn tại và có phải là danh mục cha không
             if (parentId != null) {
                 String checkSql = "SELECT parent_id FROM categories WHERE category_id = ?";
                 stmt = conn.prepareStatement(checkSql);
                 stmt.setInt(1, parentId);
                 rs = stmt.executeQuery();
-                
-                if (!rs.next() || rs.getObject("parent_id") != null) {
-                    System.err.println("Parent ID không hợp lệ: ID không tồn tại hoặc không phải danh mục cha");
-                    return false;
+                if (!rs.next()) {
+                    return "ID danh mục cha không tồn tại.";
                 }
-                
+                if (rs.getObject("parent_id") != null) {
+                    return "ID danh mục cha không hợp lệ (không phải danh mục cha gốc).";
+                }
                 rs.close();
                 stmt.close();
             }
-
             String sql = "INSERT INTO categories (name, parent_id) VALUES (?, ?)";
             stmt = conn.prepareStatement(sql);
             stmt.setString(1, name);
@@ -168,14 +159,13 @@ public class CategoryDAO extends DBContext {
             } else {
                 stmt.setNull(2, Types.INTEGER);
             }
-
             int rowsAffected = stmt.executeUpdate();
-            return rowsAffected > 0;
-
+            if (rowsAffected > 0) return null;
+            else return "Không thể thêm danh mục (không có dòng nào bị ảnh hưởng).";
         } catch (SQLException e) {
             System.err.println("Lỗi khi thêm danh mục: " + e.getMessage());
             e.printStackTrace();
-            return false;
+            return "Lỗi SQL: " + e.getMessage();
         } finally {
             try {
                 if (rs != null) rs.close();
@@ -186,7 +176,6 @@ public class CategoryDAO extends DBContext {
         }
     }
 
-    // Lấy danh mục theo ID
     public Category getCategoryById(int id) {
         String sql = "SELECT * FROM categories WHERE category_id = ?";
         Connection conn = null;
@@ -217,7 +206,6 @@ public class CategoryDAO extends DBContext {
         return null;
     }
 
-    // Cập nhật danh mục
     public boolean updateCategory(int id, String name, Integer parentId) {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -226,7 +214,6 @@ public class CategoryDAO extends DBContext {
         try {
             conn = getConnection();
             
-            // Kiểm tra xem category hiện tại có phải là parent không
             String checkChildrenSql = "SELECT COUNT(*) as count FROM categories WHERE parent_id = ?";
             stmt = conn.prepareStatement(checkChildrenSql);
             stmt.setInt(1, id);
@@ -240,13 +227,11 @@ public class CategoryDAO extends DBContext {
             rs.close();
             stmt.close();
 
-            // Nếu là parent, không cho phép thêm parent_id
             if (isCurrentlyParent && parentId != null) {
                 System.err.println("Không thể chuyển danh mục cha thành danh mục con khi đã có danh mục con");
                 return false;
             }
 
-            // Kiểm tra parentId có hợp lệ không
             if (parentId != null) {
                 if (parentId == id) {
                     System.err.println("Không thể chọn chính nó làm danh mục cha");
@@ -294,7 +279,6 @@ public class CategoryDAO extends DBContext {
         }
     }
 
-    // Xóa danh mục
     public boolean deleteCategory(int id) {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -303,7 +287,6 @@ public class CategoryDAO extends DBContext {
         try {
             conn = getConnection();
             
-            // Kiểm tra xem danh mục có danh mục con không
             String checkChildrenSql = "SELECT COUNT(*) as count FROM categories WHERE parent_id = ?";
             stmt = conn.prepareStatement(checkChildrenSql);
             stmt.setInt(1, id);
@@ -317,7 +300,6 @@ public class CategoryDAO extends DBContext {
             rs.close();
             stmt.close();
 
-            // Thực hiện xóa danh mục
             String sql = "DELETE FROM categories WHERE category_id = ?";
             stmt = conn.prepareStatement(sql);
             stmt.setInt(1, id);
@@ -338,7 +320,6 @@ public class CategoryDAO extends DBContext {
         }
     }
 
-    // Chuyển đổi từ ResultSet thành Category object
     private Category mapResultSetToCategory(ResultSet rs) throws SQLException {
         int id = rs.getInt("category_id");
         String name = rs.getString("name");
@@ -348,31 +329,25 @@ public class CategoryDAO extends DBContext {
         return new Category(id, name, parentId);
     }
 
-    // Lấy tất cả danh mục có thể làm cha (trừ id được chỉ định)
     public List<Category> getAvailableParentCategories(Integer excludeId) {
         List<Category> list = new ArrayList<>();
-        String sql = "SELECT * FROM categories WHERE category_id != ? OR ? IS NULL ORDER BY name ASC";
+        String sql = "SELECT * FROM categories WHERE parent_id IS NULL" + (excludeId != null ? " AND category_id != ?" : "") + " ORDER BY name ASC";
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
         try {
             conn = getConnection();
-            stmt = conn.prepareStatement(sql);
-
             if (excludeId != null) {
+                stmt = conn.prepareStatement(sql);
                 stmt.setInt(1, excludeId);
-                stmt.setInt(2, excludeId);
             } else {
-                stmt.setNull(1, Types.INTEGER);
-                stmt.setNull(2, Types.INTEGER);
+                stmt = conn.prepareStatement(sql);
             }
-
             rs = stmt.executeQuery();
             while (rs.next()) {
                 list.add(mapResultSetToCategory(rs));
             }
-
         } catch (SQLException e) {
             System.err.println("Lỗi khi lấy danh sách danh mục cha: " + e.getMessage());
             e.printStackTrace();
@@ -384,11 +359,9 @@ public class CategoryDAO extends DBContext {
                 System.err.println("Lỗi đóng kết nối: " + e.getMessage());
             }
         }
-
         return list;
     }
 
-    // Lấy tên danh mục theo ID
     public String getCategoryNameById(Integer categoryId) {
         if (categoryId == null) return null;
         
@@ -437,7 +410,6 @@ public class CategoryDAO extends DBContext {
             params.add(parentId);
         }
 
-        // Xử lý sort
         if (sortBy != null) {
             switch (sortBy.toLowerCase()) {
                 case "name":
@@ -452,7 +424,6 @@ public class CategoryDAO extends DBContext {
             sql.append(" ORDER BY category_id ASC");
         }
 
-        // Thêm LIMIT và OFFSET cho phân trang
         sql.append(" LIMIT ? OFFSET ?");
         params.add(pageSize);
         params.add((page - 1) * pageSize);

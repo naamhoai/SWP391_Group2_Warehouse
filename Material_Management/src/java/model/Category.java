@@ -1,9 +1,9 @@
 package model;
 
 public class Category {
-    private Integer categoryId;  // dùng Integer, không dùng int
+    private Integer categoryId;
     private String name;
-    private Integer parentId;    // dùng Integer luôn
+    private Integer parentId;
 
     public Category() {}
 

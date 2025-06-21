@@ -165,6 +165,12 @@ public class CategoryServlet extends HttpServlet {
             throws ServletException, IOException {
         List<Category> parentCategories = categoryDAO.getAvailableParentCategories(null);
         request.setAttribute("parentCategories", parentCategories);
+        // Lấy thông báo thành công từ session nếu có
+        HttpSession session = request.getSession(false);
+        if (session != null && session.getAttribute("success") != null) {
+            request.setAttribute("success", session.getAttribute("success"));
+            session.removeAttribute("success");
+        }
         request.getRequestDispatcher("addCategory.jsp").forward(request, response);
     }
 
@@ -194,8 +200,40 @@ public class CategoryServlet extends HttpServlet {
         String name = request.getParameter("name");
         String parentIdParam = request.getParameter("parentId");
 
+        // Validate tên danh mục
         if (name == null || name.trim().isEmpty()) {
             request.setAttribute("error", "Tên danh mục không được để trống");
+            request.setAttribute("name", name);
+            request.setAttribute("parentId", parentIdParam);
+            showAddForm(request, response);
+            return;
+        }
+        if (name.trim().length() < 2) {
+            request.setAttribute("error", "Tên danh mục phải có ít nhất 2 ký tự");
+            request.setAttribute("name", name);
+            request.setAttribute("parentId", parentIdParam);
+            showAddForm(request, response);
+            return;
+        }
+        if (name.trim().replaceAll(" ", "").isEmpty()) {
+            request.setAttribute("error", "Tên danh mục không được chỉ chứa khoảng trắng");
+            request.setAttribute("name", name);
+            request.setAttribute("parentId", parentIdParam);
+            showAddForm(request, response);
+            return;
+        }
+        if (!name.trim().matches("^[\\p{L}0-9 ]+$")) {
+            request.setAttribute("error", "Tên danh mục chỉ được chứa chữ, số và khoảng trắng");
+            request.setAttribute("name", name);
+            request.setAttribute("parentId", parentIdParam);
+            showAddForm(request, response);
+            return;
+        }
+        // Kiểm tra tên trùng
+        if (categoryDAO.getAllCategories().stream().anyMatch(c -> c.getName().equalsIgnoreCase(name.trim()))) {
+            request.setAttribute("error", "Tên danh mục đã tồn tại. Vui lòng nhập tên khác.");
+            request.setAttribute("name", name);
+            request.setAttribute("parentId", parentIdParam);
             showAddForm(request, response);
             return;
         }
@@ -206,18 +244,23 @@ public class CategoryServlet extends HttpServlet {
                 parentId = Integer.parseInt(parentIdParam);
             } catch (NumberFormatException e) {
                 request.setAttribute("error", "ID danh mục cha không hợp lệ");
+                request.setAttribute("name", name);
+                request.setAttribute("parentId", parentIdParam);
                 showAddForm(request, response);
                 return;
             }
         }
 
-        boolean success = categoryDAO.addCategory(name.trim(), parentId);
+        String error = categoryDAO.addCategory(name.trim(), parentId);
         
-        if (success) {
-            request.getSession().setAttribute("message", "Thêm danh mục thành công");
-            response.sendRedirect("categories");
+        if (error == null) {
+            // Sau khi thêm thành công, chuyển hướng về form thêm với thông báo qua session
+            request.getSession().setAttribute("success", "Thêm danh mục thành công! Bạn có thể tiếp tục thêm danh mục khác.");
+            response.sendRedirect("categories?action=add");
         } else {
-            request.setAttribute("error", "Có lỗi xảy ra khi thêm danh mục. Vui lòng kiểm tra lại danh mục cha.");
+            request.setAttribute("error", error);
+            request.setAttribute("name", name);
+            request.setAttribute("parentId", parentIdParam);
             showAddForm(request, response);
         }
     }
@@ -229,8 +272,40 @@ public class CategoryServlet extends HttpServlet {
             String name = request.getParameter("name");
             String parentIdParam = request.getParameter("parentId");
 
+            // Validate tên danh mục
             if (name == null || name.trim().isEmpty()) {
                 request.setAttribute("error", "Tên danh mục không được để trống");
+                request.setAttribute("category", categoryDAO.getCategoryById(id));
+                request.setAttribute("parentId", parentIdParam);
+                showEditForm(request, response);
+                return;
+            }
+            if (name.trim().length() < 2) {
+                request.setAttribute("error", "Tên danh mục phải có ít nhất 2 ký tự");
+                request.setAttribute("category", categoryDAO.getCategoryById(id));
+                request.setAttribute("parentId", parentIdParam);
+                showEditForm(request, response);
+                return;
+            }
+            if (name.trim().replaceAll(" ", "").isEmpty()) {
+                request.setAttribute("error", "Tên danh mục không được chỉ chứa khoảng trắng");
+                request.setAttribute("category", categoryDAO.getCategoryById(id));
+                request.setAttribute("parentId", parentIdParam);
+                showEditForm(request, response);
+                return;
+            }
+            if (!name.trim().matches("^[\\p{L}0-9 ]+$")) {
+                request.setAttribute("error", "Tên danh mục chỉ được chứa chữ, số và khoảng trắng");
+                request.setAttribute("category", categoryDAO.getCategoryById(id));
+                request.setAttribute("parentId", parentIdParam);
+                showEditForm(request, response);
+                return;
+            }
+            // Kiểm tra tên trùng (trừ chính nó)
+            if (categoryDAO.getAllCategories().stream().anyMatch(c -> c.getName().equalsIgnoreCase(name.trim()) && c.getCategoryId() != id)) {
+                request.setAttribute("error", "Tên danh mục đã tồn tại. Vui lòng nhập tên khác.");
+                request.setAttribute("category", categoryDAO.getCategoryById(id));
+                request.setAttribute("parentId", parentIdParam);
                 showEditForm(request, response);
                 return;
             }
@@ -241,9 +316,28 @@ public class CategoryServlet extends HttpServlet {
                     parentId = Integer.parseInt(parentIdParam);
                 } catch (NumberFormatException e) {
                     request.setAttribute("error", "ID danh mục cha không hợp lệ");
+                    request.setAttribute("category", categoryDAO.getCategoryById(id));
+                    request.setAttribute("parentId", parentIdParam);
                     showEditForm(request, response);
                     return;
                 }
+                // Không tự chọn chính nó làm cha
+                if (parentId == id) {
+                    request.setAttribute("error", "Không thể chọn chính nó làm danh mục cha");
+                    request.setAttribute("category", categoryDAO.getCategoryById(id));
+                    request.setAttribute("parentId", parentIdParam);
+                    showEditForm(request, response);
+                    return;
+                }
+            }
+            // Không chuyển cha thành con nếu đang có con
+            boolean isCurrentlyParent = categoryDAO.getAllCategories().stream().anyMatch(c -> c.getParentId() != null && c.getParentId() == id);
+            if (isCurrentlyParent && parentId != null) {
+                request.setAttribute("error", "Không thể chuyển danh mục cha thành danh mục con khi đã có danh mục con");
+                request.setAttribute("category", categoryDAO.getCategoryById(id));
+                request.setAttribute("parentId", parentIdParam);
+                showEditForm(request, response);
+                return;
             }
 
             boolean success = categoryDAO.updateCategory(id, name.trim(), parentId);
@@ -252,6 +346,8 @@ public class CategoryServlet extends HttpServlet {
                 response.sendRedirect("categories");
             } else {
                 request.setAttribute("error", "Không thể cập nhật danh mục. Vui lòng kiểm tra lại danh mục cha hoặc xem danh mục này có chứa danh mục con không.");
+                request.setAttribute("category", categoryDAO.getCategoryById(id));
+                request.setAttribute("parentId", parentIdParam);
                 showEditForm(request, response);
             }
         } catch (Exception e) {
