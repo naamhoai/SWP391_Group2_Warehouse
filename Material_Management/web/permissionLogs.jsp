@@ -9,12 +9,10 @@
         <title>Permission Change History</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
-        <link rel="stylesheet" href="css/sidebar.css">
         <link rel="stylesheet" href="css/permissionLogs.css">
-        <link rel="stylesheet" href="css/footer.css">
     </head>
     <body>
-        <jsp:include page="sidebar.jsp" />
+
         <div class="main-content">
             <div class="logs-container">
                 <div class="header-section">
@@ -85,12 +83,12 @@
             // Theme toggle functionality
             const themeToggle = document.getElementById('themeToggle');
             if (themeToggle) {
-                themeToggle.addEventListener('click', function() {
+                themeToggle.addEventListener('click', function () {
                     document.body.classList.toggle('dark-theme');
                     const isDark = document.body.classList.contains('dark-theme');
-                    themeToggle.innerHTML = isDark 
-                        ? '<i class="fas fa-sun"></i> Light'
-                        : '<i class="fas fa-moon"></i> Dark';
+                    themeToggle.innerHTML = isDark
+                            ? '<i class="fas fa-sun"></i> Light'
+                            : '<i class="fas fa-moon"></i> Dark';
                     localStorage.setItem('theme', isDark ? 'dark' : 'light');
                 });
 
