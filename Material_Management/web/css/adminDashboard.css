@@ -125,17 +125,20 @@ body {
 /* Calendar Styling */
 .calendar-container {
     height: calc(100% - 40px);
+    padding: 15px;
+    background: #fff;
+    border-radius: 12px;
 }
 
 .calendar-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .month-year {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 600;
     color: #2c3e50;
 }
@@ -143,35 +146,52 @@ body {
 .calendar-table {
     width: 100%;
     border-collapse: separate;
-    border-spacing: 2px;
+    border-spacing: 5px;
 }
 
 .calendar-table th {
     padding: 10px;
     text-align: center;
-    color: #7f8c8d;
-    font-weight: 500;
+    color: #64748b;
+    font-weight: 600;
+    font-size: 14px;
 }
 
 .calendar-table td {
-    padding: 8px;
+    padding: 10px;
     text-align: center;
-    border-radius: 8px;
+    color: #1e293b;
+    font-size: 14px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
 }
 
-.calendar-table td:hover:not(.inactive) {
-    background-color: #f5f6fa;
+.calendar-table td.today {
+    background: #3b82f6;
+    color: white;
+    font-weight: 800;
+    font-size: 16px;
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    position: relative;
+    z-index: 1;
 }
 
-.calendar-table .today-highlight {
-    background-color: #3b82f6;
-    color: #fff;
+.calendar-table td.today:hover {
+    background: #2563eb;
+    transform: scale(1.2);
+}
+
+.calendar-table td:hover:not(.inactive):not(.today) {
+    background: #e2e8f0;
+    transform: scale(1.1);
 }
 
 .calendar-table .inactive {
-    color: #bdc3c7;
+    color: #cbd5e1;
 }
 
 /* Table Card */

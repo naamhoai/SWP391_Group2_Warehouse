@@ -27,11 +27,11 @@
     <body>
         <!-- Include Sidebar -->
         <jsp:include page="sidebar.jsp" />
-        
+
         <!-- Main Content -->
         <div id="main-content">
             <%@include file="header.jsp" %>
-            
+
             <!-- Dashboard Header -->
             <div class="dashboard-header">
                 <div class="header-left">
@@ -142,13 +142,13 @@
                         <table class="calendar-table" id="calendarTable">
                             <thead>
                                 <tr>
-                                    <th>Su</th>
-                                    <th>Mo</th>
-                                    <th>Tu</th>
-                                    <th>We</th>
-                                    <th>Th</th>
-                                    <th>Fr</th>
-                                    <th>Sa</th>
+                                    <th>CN</th>
+                                    <th>T2</th>
+                                    <th>T3</th>
+                                    <th>T4</th>
+                                    <th>T5</th>
+                                    <th>T6</th>
+                                    <th>T7</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -226,21 +226,21 @@
         <!-- Chart Data -->
         <script>
             var requestLabels = ["Mua Vật Tư", "Xuất Kho", "Sửa Chữa"];
-            var requestData = [<c:out value="${requestStats.purchaseCount}" default="0"/>, 
-                             <c:out value="${requestStats.outgoingCount}" default="0"/>, 
-                             <c:out value="${requestStats.repairCount}" default="0"/>];
+            var requestData = [<c:out value="${requestStats.purchaseCount}" default="0"/>,
+            <c:out value="${requestStats.outgoingCount}" default="0"/>,
+            <c:out value="${requestStats.repairCount}" default="0"/>];
             var costLabels = ["01/06", "04/06", "08/06", "12/06"];
-            var costData = [<c:out value="${costTrend[0]}" default="0"/>, 
-                          <c:out value="${costTrend[1]}" default="0"/>, 
-                          <c:out value="${costTrend[2]}" default="0"/>, 
-                          <c:out value="${costTrend[3]}" default="0"/>];
-            var categoryLabels = [<c:forEach var="item" items="${categoryStats}" varStatus="loop">"${item.categoryName}"<c:if test="${!loop.last}">,</c:if></c:forEach>];
+            var costData = [<c:out value="${costTrend[0]}" default="0"/>,
+            <c:out value="${costTrend[1]}" default="0"/>,
+            <c:out value="${costTrend[2]}" default="0"/>,
+            <c:out value="${costTrend[3]}" default="0"/>];
+                    var categoryLabels = [<c:forEach var="item" items="${categoryStats}" varStatus="loop">"${item.categoryName}"<c:if test="${!loop.last}">,</c:if></c:forEach>];
             var categoryData = [<c:forEach var="item" items="${categoryStats}" varStatus="loop">${item.itemCount}<c:if test="${!loop.last}">,</c:if></c:forEach>];
-            var inventoryTrendLabels = [<c:forEach var="label" items="${inventoryTrendLabels}" varStatus="loop">"${label}"<c:if test="${!loop.last}">,</c:if></c:forEach>];
+                    var inventoryTrendLabels = [<c:forEach var="label" items="${inventoryTrendLabels}" varStatus="loop">"${label}"<c:if test="${!loop.last}">,</c:if></c:forEach>];
             var inventoryTrendData = [<c:forEach var="value" items="${inventoryTrend}" varStatus="loop">${value}<c:if test="${!loop.last}">,</c:if></c:forEach>];
         </script>
 
         <script src="js/adminDashboard.js"></script>
         <script src="js/sidebar.js"></script>
     </body>
-</html>
+</html> 

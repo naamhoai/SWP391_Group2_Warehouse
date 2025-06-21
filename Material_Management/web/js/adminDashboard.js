@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Request Distribution Chart
     const requestDistributionChartCanvas = document.getElementById('requestDistributionChart');
     if (requestDistributionChartCanvas) {
@@ -7,15 +7,15 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: window.requestLabels || [],
                 datasets: [{
-                    data: window.requestData || [0, 0, 0],
-                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b']
-                }]
+                        data: window.requestData || [0, 0, 0],
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b']
+                    }]
             },
             options: {
                 responsive: true,
                 plugins: {
-                    legend: { position: 'top' },
-                    title: { display: true, text: 'Phân bổ Yêu Cầu (Tháng 6/2025)' }
+                    legend: {position: 'top'},
+                    title: {display: true, text: 'Phân bổ Yêu Cầu'}
                 }
             }
         });
@@ -29,21 +29,21 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: window.costLabels || [],
                 datasets: [{
-                    label: 'Chi Phí (Triệu VNĐ)',
-                    data: window.costData || [0, 0, 0, 0],
-                    borderColor: '#ef4444',
-                    tension: 0.1,
-                    fill: false
-                }]
+                        label: 'Chi Phí (Triệu VNĐ)',
+                        data: window.costData || [0, 0, 0, 0],
+                        borderColor: '#ef4444',
+                        tension: 0.1,
+                        fill: false
+                    }]
             },
             options: {
                 responsive: true,
                 scales: {
-                    y: { beginAtZero: true, title: { display: true, text: 'Triệu VNĐ' } }
+                    y: {beginAtZero: true, title: {display: true, text: 'Triệu VNĐ'}}
                 },
                 plugins: {
-                    legend: { position: 'top' },
-                    title: { display: true, text: 'Xu hướng Chi Phí (Tháng 6/2025)' }
+                    legend: {position: 'top'},
+                    title: {display: true, text: 'Xu hướng Chi Phí'}
                 }
             }
         });
@@ -57,17 +57,17 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: window.categoryLabels || [],
                 datasets: [{
-                    data: window.categoryData || [],
-                    backgroundColor: [
-                        '#4CAF50', '#2196F3', '#FFC107', '#FF5722', '#9C27B0', '#00BCD4', '#8BC34A', '#FFEB3B', '#795548', '#607D8B'
-                    ]
-                }]
+                        data: window.categoryData || [],
+                        backgroundColor: [
+                            '#4CAF50', '#2196F3', '#FFC107', '#FF5722', '#9C27B0', '#00BCD4', '#8BC34A', '#FFEB3B', '#795548', '#607D8B'
+                        ]
+                    }]
             },
             options: {
                 responsive: true,
                 plugins: {
-                    legend: { position: 'top' },
-                    title: { display: true, text: 'Phân Bổ Vật Tư Theo Danh Mục' }
+                    legend: {position: 'top'},
+                    title: {display: true, text: 'Phân Bổ Vật Tư Theo Danh Mục'}
                 }
             }
         });
@@ -81,80 +81,96 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: window.inventoryTrendLabels || [],
                 datasets: [{
-                    label: 'Số Lượng Tồn Kho',
-                    data: window.inventoryTrendData || [],
-                    borderColor: '#9C27B0',
-                    tension: 0.3,
-                    fill: false
-                }]
+                        label: 'Số Lượng Tồn Kho',
+                        data: window.inventoryTrendData || [],
+                        borderColor: '#9C27B0',
+                        tension: 0.3,
+                        fill: false
+                    }]
             },
             options: {
                 responsive: true,
                 scales: {
-                    y: { beginAtZero: true, title: { display: true, text: 'Số Lượng' } }
+                    y: {beginAtZero: true, title: {display: true, text: 'Số Lượng'}}
                 },
                 plugins: {
-                    legend: { position: 'top' },
-                    title: { display: true, text: 'Xu Hướng Tồn Kho' }
+                    legend: {position: 'top'},
+                    title: {display: true, text: 'Xu Hướng Tồn Kho'}
                 }
             }
         });
     }
 
-    // Calendar Functionality (Fixed to current date: 15/06/2025)
-    const monthNames = ["Tháng Một", "Tháng Hai", "Tháng Ba", "Tháng Tư", "Tháng Năm", "Tháng Sáu",
-                        "Tháng Bảy", "Tháng Tám", "Tháng Chín", "Tháng Mười", "Tháng Mười Một", "Tháng Mười Hai"];
-    const currentDate = new Date(2025, 5, 15); // Fixed to 15/06/2025
+    // Calendar Functionality
+    function generateCalendar() {
+        const today = new Date();
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
+        const currentDate = today.getDate();
 
-    const calendarTableBody = document.querySelector('#calendarTable tbody');
-    const currentMonthSpan = document.getElementById('currentMonth');
-    const currentYearSpan = document.getElementById('currentYear');
+        // Tên các tháng bằng tiếng Việt
+        const monthNames = [
+            "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+            "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"
+        ];
 
-    function renderCalendar(date) {
-        if (!calendarTableBody || !currentMonthSpan || !currentYearSpan) return;
+        // Hiển thị tháng và năm hiện tại
+        document.getElementById('currentMonth').textContent = monthNames[currentMonth];
+        document.getElementById('currentYear').textContent = currentYear;
 
-        calendarTableBody.innerHTML = '';
-        const year = date.getFullYear();
-        const month = date.getMonth();
-        const today = new Date(2025, 5, 15); // Fixed today as 15/06/2025
+        // Tạo lịch
+        const firstDay = new Date(currentYear, currentMonth, 1);
+        const lastDay = new Date(currentYear, currentMonth + 1, 0);
+        const startingDay = firstDay.getDay();
+        const monthLength = lastDay.getDate();
 
-        currentMonthSpan.textContent = monthNames[month];
-        currentYearSpan.textContent = year;
+        // Xóa nội dung cũ
+        const calendarBody = document.querySelector('#calendarTable tbody');
+        calendarBody.innerHTML = '';
 
-        const firstDayOfMonth = new Date(year, month, 1);
-        const lastDayOfMonth = new Date(year, month + 1, 0);
-        const numDaysInMonth = lastDayOfMonth.getDate();
-        const startDay = firstDayOfMonth.getDay();
-
-        let dateCounter = 1;
-        let row;
-
+        // Tạo các ô ngày
+        let date = 1;
         for (let i = 0; i < 6; i++) {
-            row = document.createElement('tr');
+            const row = document.createElement('tr');
+            
             for (let j = 0; j < 7; j++) {
                 const cell = document.createElement('td');
-                if (i === 0 && j < startDay) {
-                    const prevMonthLastDay = new Date(year, month, 0).getDate();
-                    cell.textContent = prevMonthLastDay - (startDay - 1 - j);
-                    cell.classList.add('inactive');
-                } else if (dateCounter > numDaysInMonth) {
-                    cell.textContent = dateCounter - numDaysInMonth;
-                    cell.classList.add('inactive');
-                    dateCounter++;
+                
+                if (i === 0 && j < startingDay) {
+                    // Ô trống trước ngày 1
+                    cell.textContent = '';
+                } else if (date > monthLength) {
+                    // Ô trống sau ngày cuối
+                    cell.textContent = '';
                 } else {
-                    cell.textContent = dateCounter;
-                    if (dateCounter === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
-                        cell.classList.add('today-highlight');
+                    // Ngày trong tháng
+                    cell.textContent = date;
+                    
+                    // Đánh dấu ngày hiện tại
+                    if (date === currentDate && 
+                        currentMonth === today.getMonth() && 
+                        currentYear === today.getFullYear()) {
+                        cell.classList.add('today');
+                        cell.style.fontWeight = 'bold';
+                        cell.style.backgroundColor = '#3b82f6';
+                        cell.style.color = 'white';
                     }
-                    dateCounter++;
+                    
+                    date++;
                 }
+                
                 row.appendChild(cell);
             }
-            calendarTableBody.appendChild(row);
-            if (dateCounter > numDaysInMonth) break;
+            
+            calendarBody.appendChild(row);
+            
+            // Dừng nếu đã hết ngày trong tháng
+            if (date > monthLength) {
+                break;
+            }
         }
     }
 
-    // Initial render with fixed date
-    renderCalendar(currentDate);
+    // Gọi hàm tạo lịch khi trang load
+    generateCalendar();
 });
