@@ -12,8 +12,6 @@
             <ul>
                 <li><a href="homepage.jsp">Trang Chủ</a></li>
                 <li><a href="adminDashboard.jsp">Bảng Điều Khiển</a></li>
-                <li><a href="#">Liên Hệ</a></li>
-                <li><a href="#">Hỗ Trợ</a></li>
             </ul>
         </div>
 

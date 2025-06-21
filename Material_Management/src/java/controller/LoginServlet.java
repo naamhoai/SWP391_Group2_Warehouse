@@ -96,7 +96,7 @@ public class LoginServlet extends HttpServlet {
                          
                             session.setAttribute("Admin", user2);
                             session.setAttribute("userId", user2.getUser_id());
-                            session.setAttribute("roleId", user2.getRole());
+                            session.setAttribute("roleId", user2.getRole().getRoleid());
 
                             vali = true;
 

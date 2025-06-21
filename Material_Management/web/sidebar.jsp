@@ -30,7 +30,7 @@
         </li>
         <li class="menu-item">
             <a href="#" class="menu-link">
-                <i class="fas fa-warehouse menu-icon"></i>
+                <i class="fas fa-boxes"></i>
                 <span class="menu-text">Kho Hàng</span>
             </a>
         </li>
@@ -53,26 +53,26 @@
                         <span class="menu-text">Thông Tin</span>
                     </a>
                 </li>
-               
+
                 <li>
                     <a href="${pageContext.request.contextPath}/permissionList" class="submenu-link">
-                        <i class="fas fa-key menu-icon"></i>
+                        <i class="fas fa-gavel"></i>
                         <span class="menu-text">Danh Sách Quyền</span>
                     </a>
                 </li>
                 <li>
                     <a href="${pageContext.request.contextPath}/settinglist" class="submenu-link">
-                        <i class="fas fa-key menu-icon"></i>
+                        <i class="fas fa-user-circle"></i>
                         <span class="menu-text">Quản lý người dùng</span>
                     </a>
                 </li>
-                
+
             </ul>
 
         </li>
         <li>
             <a href="${pageContext.request.contextPath}/unitConversionSeverlet" class="menu-link">
-                <i class="fas fa-key menu-icon"></i>
+                <i class="fas fa-balance-scale"></i>
                 <span class="menu-text">Quản lý đơn vị</span>
             </a>
         </li>
