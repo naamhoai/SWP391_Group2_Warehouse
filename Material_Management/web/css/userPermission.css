@@ -78,8 +78,8 @@ body.dark-mode {
 /* Theme toggle and buttons */
 .theme-toggle {
     display: flex;
-    gap: 12px;
     align-items: center;
+    gap: 12px;
 }
 
 .theme-toggle button,
@@ -151,7 +151,7 @@ body.dark-mode {
     font-size: 14px;
     display: flex;
     align-items: center;
-    gap: 8px;
+gap: 8px;
     margin-bottom: 8px;
 }
 
@@ -283,44 +283,24 @@ body.dark-mode {
     gap: 8px;
     transition: all 0.3s ease;
 }
-
 .save-btn {
     background-color: #3b82f6;
     color: white;
 }
-
-.dark-mode .save-btn {
-    background-color: #64748b;
-}
-
 .save-btn:hover {
     background-color: #2563eb;
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
-.dark-mode .save-btn:hover {
-    background-color: #94a3b8;
-}
-
 .back-btn {
     background-color: #6b7280;
     color: white;
     text-decoration: none;
 }
-
-.dark-mode .back-btn {
-    background-color: #475569;
-}
-
 .back-btn:hover {
     background-color: #4b5563;
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.dark-mode .back-btn:hover {
-    background-color: #64748b;
 }
 
 /* Loading overlay */

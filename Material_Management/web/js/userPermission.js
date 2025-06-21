@@ -24,20 +24,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // Theme toggle
     const themeToggle = document.getElementById('themeToggle');
     const body = document.body;
-    themeToggle.addEventListener('click', function() {
-        body.classList.toggle('dark-mode');
-        const isDark = body.classList.contains('dark-mode');
-        themeToggle.innerHTML = isDark 
-            ? '<i class="fas fa-sun"></i> Light'
-            : '<i class="fas fa-moon"></i> Dark';
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    });
-
     // Load saved theme
     if (localStorage.getItem('theme') === 'dark') {
         body.classList.add('dark-mode');
-        themeToggle.innerHTML = '<i class="fas fa-sun"></i> Light';
+        themeToggle.checked = true;
+    } else {
+        body.classList.remove('dark-mode');
+        themeToggle.checked = false;
     }
+    themeToggle.addEventListener('change', function() {
+        if (this.checked) {
+            body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            body.classList.remove('dark-mode');
+            localStorage.setItem('theme', 'light');
+        }
+    });
 
     // Form submission handling
     const permissionForm = document.getElementById('permissionForm');
