@@ -31,12 +31,6 @@ public class ViewRequestDetailServlet extends HttpServlet {
             Request req = requestDAO.getRequestById(requestId);
             List<RequestDetail> details = detailDAO.getRequestDetailsByRequestId(requestId);
 
-            // Set tên danh mục cha và con cho từng detail
-            for (RequestDetail d : details) {
-                d.setParentCategoryName(categoryDAO.getCategoryNameById(d.getParentCategoryId()));
-                d.setCategoryName(categoryDAO.getCategoryNameById(d.getCategoryId()));
-            }
-
             // Lấy tên người yêu cầu
             String requesterName = "";
             if (req != null) {

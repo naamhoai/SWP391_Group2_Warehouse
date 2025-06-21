@@ -8,7 +8,6 @@ import java.util.List;
 
 public class NotificationDAO extends DBContext {
 
-    // Thêm thông báo mới cho user (giám đốc)
     public void addNotification(int userId, String message, Integer requestId) {
         String sql = "INSERT INTO notifications (user_id, message, request_id, link) VALUES (?, ?, ?, ?)";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -25,43 +24,6 @@ public class NotificationDAO extends DBContext {
             System.out.println("Debug - Added notification for userId: " + userId + ", message: " + message);
         } catch (SQLException e) {
             System.out.println("Debug - Error adding notification: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    public List<Notification> getUnreadNotifications(int userId) {
-        List<Notification> list = new ArrayList<>();
-        String sql = "SELECT * FROM notifications WHERE user_id = ? AND is_read = FALSE ORDER BY created_at DESC";
-        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, userId);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                Notification n = new Notification();
-                n.setId(rs.getInt("id"));
-                n.setUserId(rs.getInt("user_id"));
-                n.setMessage(rs.getString("message"));
-                n.setRead(rs.getBoolean("is_read"));
-                n.setCreatedAt(rs.getTimestamp("created_at"));
-                n.setRequestId(rs.getInt("request_id"));
-                n.setLink(rs.getString("link"));
-                list.add(n);
-            }
-        } catch (SQLException e) {
-            System.out.println("Debug - Error getting unread notifications: " + e.getMessage());
-            e.printStackTrace();
-        }
-        return list;
-    }
-
-    // Đánh dấu thông báo đã đọc
-    public void markAsRead(int notificationId) {
-        String sql = "UPDATE notifications SET is_read = TRUE WHERE id = ?";
-        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, notificationId);
-            stmt.executeUpdate();
-            System.out.println("Debug - Marked notification as read: " + notificationId);
-        } catch (SQLException e) {
-            System.out.println("Debug - Error marking notification as read: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -95,39 +57,15 @@ public class NotificationDAO extends DBContext {
         return list;
     }
 
-    // Thêm phương thức để kiểm tra kết nối và dữ liệu
-    public void testConnection() {
-        try (Connection conn = getConnection()) {
-            System.out.println("Debug - Database connection successful");
-            
-            // Kiểm tra bảng notifications
-            String sql = "SELECT COUNT(*) FROM notifications";
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                ResultSet rs = stmt.executeQuery();
-                if (rs.next()) {
-                    System.out.println("Debug - Total notifications in DB: " + rs.getInt(1));
-                }
-            }
+    public void markAsRead(int notificationId) {
+        String sql = "UPDATE notifications SET is_read = TRUE WHERE id = ?";
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, notificationId);
+            stmt.executeUpdate();
+            System.out.println("Debug - Marked notification as read: " + notificationId);
         } catch (SQLException e) {
-            System.out.println("Debug - Database connection error: " + e.getMessage());
+            System.out.println("Debug - Error marking notification as read: " + e.getMessage());
             e.printStackTrace();
-        }
-    }
-
-    public static void main(String[] args) {
-        NotificationDAO dao = new NotificationDAO();
-        dao.testConnection();
-        int directorId = 2;
-        List<Notification> notifications = dao.getAllNotifications(directorId);
-        System.out.println("Debug - Total notifications for director: " + notifications.size());
-        for (Notification n : notifications) {
-            System.out.println("Debug - Notification details: "
-                + "ID=" + n.getId()
-                + ", user_id=" + n.getUserId()
-                + ", message=" + n.getMessage()
-                + ", is_read=" + n.isRead()
-                + ", created_at=" + n.getCreatedAt()
-                + ", link=" + n.getLink());
         }
     }
 }
