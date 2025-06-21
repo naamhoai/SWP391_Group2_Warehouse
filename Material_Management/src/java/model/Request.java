@@ -5,16 +5,15 @@ import java.sql.Timestamp;
 public class Request {
 
     private int requestId;
-    private String requestType; // 'Mua Vật Tư' hoặc 'Xuất Kho'
+    private String requestType; 
     private int userId;
     private String reason;
-    private String requestStatus; // 'Pending', 'Approved', 'Rejected'
+    private String requestStatus; 
     private Timestamp createdAt;
     private String directorNote;
     private String creatorName;
     private String creatorRole;
 
-    // Constructors
     public Request() {
     }
 
@@ -41,7 +40,6 @@ public class Request {
         this.directorNote = directorNote;
     }
 
-    // Getters and Setters
     public int getRequestId() {
         return requestId;
     }

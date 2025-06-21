@@ -32,12 +32,9 @@
                     <table class="request-items-table" id="itemsTable">
                         <thead>
                             <tr>
-                                <th>Danh mục vật tư</th>
-                                <th>Loại vật tư</th>
                                 <th>Tên vật tư</th>
                                 <th>Số lượng</th>
                                 <th>Đơn vị</th>
-                                <th>Mô tả</th>
                                 <th>Tình trạng</th>
                                 <th></th>
                             </tr>
@@ -45,39 +42,23 @@
                         <tbody id="itemsBody">
                             <tr>
                                 <td>
-                                    <select name="parentCategoryId" class="input-select parentCategory" required>
-                                        <option value="">Chọn danh mục cha</option>
-                                        <c:forEach var="cat" items="${parentCategories}">
-                                            <option value="${cat.categoryId}">${cat.name}</option>
+                                    <input name="materialName" class="input-text materialNameInput" list="materialNameList" autocomplete="off" required />
+                                    <datalist id="materialNameList">
+                                        <c:forEach var="m" items="${materialList}">
+                                            <option value="${m.name}" />
                                         </c:forEach>
-                                    </select>
-                                </td>
-                                <td>
-                                    <select name="categoryId" class="input-select subCategory" required>
-                                        <option value="">Chọn danh mục con</option>
-                                        <c:forEach var="cat" items="${subCategories}">
-                                            <option value="${cat.categoryId}" data-parent="${cat.parentId}">${cat.name}</option>
-                                        </c:forEach>
-                                    </select>
-                                </td>
-                                <td>
-                                    <select name="materialName" class="input-select materialSelect" required>
-                                        <option value="">Chọn vật tư</option>
-                                    </select>
+                                    </datalist>
                                 </td>
                                 <td>
                                     <input type="number" name="quantity" class="input-text" required min="1">
                                 </td>
                                 <td>
-                                    <select name="unit" class="input-select" required>
-                                        <option value="">Chọn đơn vị</option>
+                                    <input name="unit" class="input-text unitInput" list="unitList" autocomplete="off" required />
+                                    <datalist id="unitList">
                                         <c:forEach var="u" items="${unitList}">
-                                            <option value="${u.baseunit}">${u.baseunit}</option>
+                                            <option value="${u.baseunit}" />
                                         </c:forEach>
-                                    </select>
-                                </td>
-                                <td>
-                                    <input type="text" name="description" class="input-text">
+                                    </datalist>
                                 </td>
                                 <td>
                                     <select name="materialCondition" class="input-select" required>
@@ -96,83 +77,11 @@
                 </div>
                 <input type="hidden" name="itemCount" id="itemCount" value="1">
                 <button type="submit" class="btn-submit">Gửi yêu cầu</button>
+                <button type="button" class="btn-back" onclick="window.history.back()">Quay lại</button>
             </form>
         </div>
 
-        <c:set var="categoryIds" value=""/>
-        <c:forEach var="material" items="${materialList}">
-            <c:if test="${not fn:contains(categoryIds, material.categoryId)}">
-                <c:set var="categoryIds" value="${categoryIds}${material.categoryId},"/>
-            </c:if>
-        </c:forEach>
         <script>
-            // Sinh materialsByCategory từ server
-            const materialsByCategory = {
-            <c:forEach var="catId" items="${fn:split(categoryIds, ',')}" varStatus="catLoop">
-                <c:if test="${not empty catId}">
-                '${catId}': [
-                    <c:forEach var="m" items="${materialList}" varStatus="matLoop">
-                        <c:if test="${m.categoryId == catId}">
-                            { name: '${fn:escapeXml(m.name)}' }<c:if test="${!matLoop.last}">,</c:if>
-                        </c:if>
-                    </c:forEach>
-                ]<c:if test="${!catLoop.last}">,</c:if>
-                </c:if>
-            </c:forEach>
-            };
-
-            $(document).ready(function () {
-                // Xử lý khi thay đổi danh mục cha
-                $(document).on('change', '.parentCategory', function () {
-                    var parentId = $(this).val();
-                    var $row = $(this).closest('tr');
-                    var $subCatSelect = $row.find('.subCategory');
-                    var $materialSelect = $row.find('.materialSelect');
-
-                    // Reset các select phía sau
-                    $subCatSelect.html('<option value="">Chọn danh mục con</option>');
-                    resetMaterialSelect($materialSelect);
-
-                    if (parentId) {
-                        // Lọc và thêm các danh mục con tương ứng
-                        <c:forEach var="subCat" items="${subCategories}">
-                        if ('${subCat.parentId}' === parentId) {
-                            $subCatSelect.append(
-                                    $('<option>', {
-                                        value: '${subCat.categoryId}',
-                                        text: '${fn:escapeXml(subCat.name)}'
-                                    })
-                                    );
-                        }
-                        </c:forEach>
-                    }
-                });
-
-                // Xử lý khi thay đổi danh mục con
-                $(document).on('change', '.subCategory', function () {
-                    var categoryId = $(this).val();
-                    var $row = $(this).closest('tr');
-                    var $materialSelect = $row.find('.materialSelect');
-
-                    resetMaterialSelect($materialSelect);
-
-                    if (categoryId && materialsByCategory[categoryId]) {
-                        materialsByCategory[categoryId].forEach(function (material) {
-                            $materialSelect.append(
-                                    $('<option>', {
-                                        value: material.name,
-                                        text: material.name
-                                    })
-                                    );
-                        });
-                    }
-                });
-            });
-
-            function resetMaterialSelect($select) {
-                $select.html('<option value="">Chọn vật tư</option>');
-            }
-
             function addRow() {
                 const tbody = document.getElementById('itemsBody');
                 const newRow = tbody.rows[0].cloneNode(true);
@@ -180,9 +89,6 @@
                 newRow.querySelectorAll('select, input').forEach(input => {
                     input.value = '';
                 });
-                // Reset các dropdown
-                $(newRow).find('.subCategory').html('<option value="">Chọn danh mục con</option>');
-                $(newRow).find('.materialSelect').html('<option value="">Chọn vật tư</option>');
                 tbody.appendChild(newRow);
                 document.getElementById('itemCount').value = tbody.rows.length;
             }
