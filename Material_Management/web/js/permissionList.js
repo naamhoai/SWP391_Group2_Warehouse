@@ -76,7 +76,6 @@ function filterPermissions() {
             }
         });
 
-        card.style.display = hasVisibleItems ? 'block' : 'none';
         if (hasVisibleItems) visibleCards++;
     });
 

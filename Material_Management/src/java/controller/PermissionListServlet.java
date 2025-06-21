@@ -1,21 +1,17 @@
-
 package controller;
 
 import dao.PermissionListDAO;
 import dao.UserPermissionDAO;
 import dao.UserDAO;
+import model.Role;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.*;
+
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import model.Role;
+import java.util.*;
 
 @WebServlet("/permissionList")
 public class PermissionListServlet extends HttpServlet {
@@ -23,16 +19,16 @@ public class PermissionListServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
-        
-        // Check if user is logged in
+
+        // Kiểm tra đăng nhập
         if (session.getAttribute("Admin") == null) {
             String currentURL = request.getRequestURI();
             session.setAttribute("redirectURL", currentURL);
-            response.sendRedirect(request.getContextPath() + "/login");
+            response.sendRedirect(request.getContextPath() + "/login.jsp");
             return;
         }
 
-        // For admin role (roleId = 1), allow access without checking specific permissions
+        // Lấy roleId từ session
         Integer roleId = (Integer) session.getAttribute("roleId");
         if (roleId == null) {
             request.setAttribute("error", "Không tìm thấy vai trò người dùng");
@@ -40,13 +36,13 @@ public class PermissionListServlet extends HttpServlet {
             return;
         }
 
+        // Nếu không phải admin, kiểm tra quyền
         if (roleId != 1) {
-            // Check if user has permission to view permissions
             try {
                 UserPermissionDAO userPermissionDAO = new UserPermissionDAO();
                 Map<String, Boolean> rolePermissions = userPermissionDAO.getRolePermissions(roleId);
                 Set<String> userPermissions = rolePermissions.keySet();
-                if (!userPermissions.contains("user_view")) {
+                if (!userPermissions.contains("user_view")) { // Hoặc "permission_view" nếu bạn có quyền này
                     request.setAttribute("error", "Bạn không có quyền truy cập trang này");
                     request.getRequestDispatcher("error.jsp").forward(request, response);
                     return;
@@ -61,28 +57,41 @@ public class PermissionListServlet extends HttpServlet {
         try {
             PermissionListDAO permissionListDAO = new PermissionListDAO();
             UserDAO userDAO = new UserDAO();
-            
-            // Get permissions grouped by module
-            Map<String, List<Map<String, Object>>> permissions = permissionListDAO.getPermissionsByModule();
-            
-            // Get roles
-            List<Role> roles = userDAO.getAllRoles(); // Cần thêm phương thức này vào UserDAO
-            
-            // Add success message if redirected from permission update
-            String success = request.getParameter("success");
-            if (success != null) {
-                request.setAttribute("success", "Cập nhật quyền thành công");
+            UserPermissionDAO userPermissionDAO = new UserPermissionDAO();
+
+            // Lấy toàn bộ quyền
+            List<Map<String, Object>> allPermissions = permissionListDAO.getAllPermissions();
+            // Lấy toàn bộ vai trò
+            List<Role> roles = userDAO.getAllRoles();
+
+            // Lấy quyền của từng role (Map<roleId, Map<permissionName, Boolean>>)
+            Map<Integer, Map<String, Boolean>> rolePermissions = new HashMap<>();
+            for (Role role : roles) {
+                Map<String, Boolean> perms = userPermissionDAO.getRolePermissions(role.getRoleid());
+                rolePermissions.put(role.getRoleid(), perms);
             }
-            
-            request.setAttribute("permissions", permissions);
+
+            request.setAttribute("allPermissions", allPermissions);
             request.setAttribute("roles", roles);
+            request.setAttribute("rolePermissions", rolePermissions);
+
             request.getRequestDispatcher("permissionList.jsp").forward(request, response);
-            
+
         } catch (SQLException e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi tải danh sách quyền: " + e.getMessage());
             request.getRequestDispatcher("error.jsp").forward(request, response);
         }
     }
+
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
 }
-    
