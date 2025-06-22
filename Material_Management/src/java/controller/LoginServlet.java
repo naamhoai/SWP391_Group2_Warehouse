@@ -81,101 +81,61 @@ public class LoginServlet extends HttpServlet {
         String pass = request.getParameter("pass");
 
         DAO dao = new DAO();
-        List<User> list = dao.userAccount();
-        Boolean vali = false;
 
-        if (list != null && !list.isEmpty()) {
-            for (User user2 : list) {
+        List<User> users = dao.userAccount();
+        if (users != null && !users.isEmpty()) {
 
-            
-                if (gmail.equals(user2.getEmail())) {
-                  
-                    if (user2.getPassword() != null && !user2.getPassword().startsWith("$2a$")) { 
-                        if (pass.equals(user2.getPassword())) {
+            for (User user : users) {
+                if (gmail.equals(user.getEmail())) {
+                    if (!"active".equalsIgnoreCase(user.getStatus())) {
+                        request.setAttribute("mess", "Tài khoản đã bị khóa.");
+                        request.getRequestDispatcher("login.jsp").forward(request, response);
+                        return;
+                    }
 
-                         
-                            session.setAttribute("Admin", user2);
-                            session.setAttribute("userId", user2.getUser_id());
-                            session.setAttribute("roleId", user2.getRole().getRoleid());
-
-                            vali = true;
-
-                       
-                            switch (user2.getRole().getRoleid()) {
-                                case 1:
-                                    response.sendRedirect("adminDashboard.jsp");
-                                    break;
-                                case 2:
-                                    {
-                                        PrintWriter out = response.getWriter();
-                                        out.print("day la so 2");
-                                        break;
-                                    }
-                                case 3:
-                                    {
-                                        PrintWriter out = response.getWriter();
-                                        out.print("day la so 3");
-                                        break;
-                                    }
-                                case 4:
-                                    {
-                                        PrintWriter out = response.getWriter();
-                                        out.print("day la so 4");
-                                        break;
-                                    }
-                                default:
-                                    break;
-                            }
-                            break;
+                    if (BCrypt.checkpw(pass, user.getPassword())) {
+                        session.setAttribute("Admin", user);
+                        session.setAttribute("userId", user.getUser_id());
+                        session.setAttribute("roleId", user.getRole());
+                        String redirectURL = (String) session.getAttribute("redirectURL");
+                        if (redirectURL != null) {
+                            session.removeAttribute("redirectURL");
+                            response.sendRedirect(request.getContextPath() + redirectURL);
+                            return;
                         }
-                    } else {
-                     
-                        if (BCrypt.checkpw(pass, user2.getPassword())) {
-                        
-                            if (user2.getStatus() != null && user2.getStatus().equals("active")) {
-                                session.setAttribute("Admin", user2);
-                                session.setAttribute("userId", user2.getUser_id());
-                                session.setAttribute("roleId", user2.getRole());
-
-                                vali = true;
-
-                                // Check if there's a redirect URL stored in session
-                                String redirectURL = (String) session.getAttribute("redirectURL");
-                                if (redirectURL != null) {
-                                    session.removeAttribute("redirectURL"); // Clear the stored URL
-                                    response.sendRedirect(request.getContextPath() + redirectURL);
-                                } else {
-                                    // Default redirect based on role
-                                    if (user2.getRole().getRoleid() == 1) {
-                                        response.sendRedirect("adminDashboard.jsp");
-                                    } else if (user2.getRole().getRoleid() == 2) {
-                                        PrintWriter out = response.getWriter();
-                                        out.print("day la so 2");
-                                    } else if (user2.getRole().getRoleid() == 3) {
-                                        response.sendRedirect("requestMaterial.jsp");
-                                    } else if (user2.getRole().getRoleid() == 4) {
-                                        PrintWriter out = response.getWriter();
-                                        out.print("day la so 4");
-                                    }
-                                }
+                        int roleId = user.getRole().getRoleid();
+                        switch (roleId) {
+                            case 1:
+                                response.sendRedirect("adminDashboard.jsp");
                                 break;
-                            } else {
-                                String mess = "Account Invalid!";
-                                request.setAttribute("mess", mess);
-                                request.getRequestDispatcher("login.jsp").forward(request, response);
-                            }
+                            case 2:
+                                response.getWriter().print("day la so 2");
+                                break;
+                            case 3:
+                                response.sendRedirect("requestMaterial.jsp");
+                                break;
+                            case 4:
+                                response.getWriter().print("day la so 4");
+                                break;
+                            default:
+                                response.sendRedirect("login.jsp");
+                                break;
                         }
+                        return;
+
+                    } else {
+
+                        request.setAttribute("mess", "Sai mật khẩu.");
+                        request.getRequestDispatcher("login.jsp").forward(request, response);
+                        return;
+
                     }
                 }
             }
         }
 
-
-        if (!vali) {
-            String mess = "Incorrect account or password";
-            request.setAttribute("mess", mess);
-            request.getRequestDispatcher("login.jsp").forward(request, response);
-        }
+        request.setAttribute("mess", " Sai thông tin tài khoản.");
+        request.getRequestDispatcher("login.jsp").forward(request, response);
     }
 
     /**
