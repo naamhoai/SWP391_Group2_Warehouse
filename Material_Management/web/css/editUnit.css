@@ -201,4 +201,9 @@ body {
         width: 100%;
         justify-content: center;
     }
+
+   
+    .form-actions a, .form-actions button {
+        margin: 0 10px;
+    }
 } 

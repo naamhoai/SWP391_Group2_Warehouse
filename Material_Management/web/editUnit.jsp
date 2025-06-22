@@ -7,6 +7,13 @@
         <title>Chỉnh sửa đơn vị</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <link rel="stylesheet" href="./css/editUnit.css">
+        <style>
+            .form-actions {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+        </style>
     </head>
     <body>
         <div class="container">
@@ -35,7 +42,7 @@
                                 </c:forEach> 
                             </select>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="standardUnit">Đơn vị chuyển đổi</label>
                             <select name="convertedunit">
@@ -44,7 +51,7 @@
                                 </c:forEach> 
                             </select>
                         </div>
-                        
+
                     </div>
 
                     <div class="form-group">
@@ -61,15 +68,16 @@
                         <label for="note">Ghi chú</label>
                         <textarea id="note" rows="3" placeholder="Nhập ghi chú..." name="note"></textarea>
                     </div>
-                        <input type="hidden" name="baseunitid" value="${requestScope.baseunitid}"/>
-                         <input type="hidden" name="materialid" value="${requestScope.materialid}"/>
-                    <div>
-                        <a href="unitConversionSeverlet">BACK</a>
-                        <button type="submit">
-                            Sumbit
-                        </button>
+                    <input type="hidden" name="baseunitid" value="${requestScope.baseunitid}"/>
+                    <input type="hidden" name="materialid" value="${requestScope.materialid}"/>
+                    <input type="hidden" name="materialname" value="${requestScope.materialname}"/>
+                    <div class="form-actions">
+                        <a href="unitConversionSeverlet"><button type="button"> BACK</button></a>
+                        <button type="submit">SUBMIT</button>
+
                     </div>
                 </form>
+
             </div>
         </div>
     </body>
