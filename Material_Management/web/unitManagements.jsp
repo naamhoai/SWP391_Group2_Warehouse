@@ -8,8 +8,10 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <link rel="stylesheet" href="./css/unitMmanagement.css">
         <link rel="stylesheet" href="./css/unitmanga.css">
+       
     </head>
     <body>
+        
     
         <div class="container">
             <h2 class="page-title">Quản lý đơn vị</h2>
@@ -65,7 +67,7 @@
                     <a href="#">Lịch sử thay đổi đơn vị</a>
                 </div>
             </div>
-
+          
             <div class="table-container">
                 <table>
                     <thead>
@@ -113,10 +115,13 @@
                             <input type="hidden" name="page" value="${p}">
                             <button type="submit" ${p == currentPage ? 'disabled' : ''}>${p}</button>
                         </form>
+                       
                     </c:forEach>
+                    
                 </div>
-
+               
             </div>
         </div>
+          <a hidden="unitConversionSeverlet">Trở lại</a>
     </body>
 </html>
