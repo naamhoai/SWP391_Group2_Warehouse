@@ -1,25 +1,5 @@
-
 document.addEventListener('DOMContentLoaded', function() {
-    // Theme toggle functionality
-    const themeToggle = document.getElementById('themeToggle');
-    if (themeToggle) {
-        themeToggle.addEventListener('click', function() {
-            document.body.classList.toggle('dark-theme');
-            const isDark = document.body.classList.contains('dark-theme');
-            themeToggle.innerHTML = isDark 
-                ? '<i class="fas fa-sun"></i> Light'
-                : '<i class="fas fa-moon"></i> Dark';
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        });
 
-        // Load saved theme
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-theme');
-            themeToggle.innerHTML = '<i class="fas fa-sun"></i> Light';
-        }
-    }
-
-    // Search, filter and sort functionality
     const searchInput = document.getElementById('searchInput');
     const moduleFilter = document.getElementById('moduleFilter');
     const sortSelect = document.getElementById('sortSelect');
@@ -30,7 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
         sortSelect.addEventListener('change', filterPermissions);
     }
 
-    // Debug role edit buttons
     const editButtons = document.querySelectorAll('.role-card .action-btn');
     editButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -46,7 +25,6 @@ function filterPermissions() {
     const permissionCards = document.querySelectorAll('.permission-card');
     let visibleCards = 0;
 
-    // Filter and sort cards
     const sortedCards = Array.from(permissionCards).sort((a, b) => {
         const moduleA = a.dataset.module;
         const moduleB = b.dataset.module;
@@ -59,7 +37,6 @@ function filterPermissions() {
         return 0;
     });
 
-    // Apply filters and update visibility
     sortedCards.forEach(card => {
         const module = card.dataset.module;
         const permissionItems = card.querySelectorAll('.permission-item');
@@ -79,7 +56,6 @@ function filterPermissions() {
         if (hasVisibleItems) visibleCards++;
     });
 
-    // Show no results message if needed
     const noResultsMsg = document.querySelector('.no-results');
     if (visibleCards === 0) {
         if (!noResultsMsg) {

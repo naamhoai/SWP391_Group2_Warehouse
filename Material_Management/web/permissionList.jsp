@@ -17,6 +17,11 @@
                         <i class="fas fa-key"></i>
                         Quản lý quyền hệ thống
                     </h2>
+                    <div class="theme-toggle">
+                        <button id="themeToggle" aria-label="Toggle theme">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </div>
                 </div>
                 <div style="overflow-x:auto;">
                     <table class="permission-table">
@@ -61,8 +66,30 @@
                         <i class="fas fa-arrow-left"></i>
                         Quay lại Dashboard
                     </a>
+                    <a href="permissionLogs" class="back-button">
+                        <i class="fas fa-history"></i>
+                        Xem lịch sử 
+                    </a>
                 </div>
             </div>
         </div>
+        <script>
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function () {
+                    document.body.classList.toggle('dark-theme');
+                    const isDark = document.body.classList.contains('dark-theme');
+                    themeToggle.innerHTML = isDark
+                            ? '<i class="fas fa-sun"></i>'
+                            : '<i class="fas fa-moon"></i>';
+                    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                });
+
+                if (localStorage.getItem('theme') === 'dark') {
+                    document.body.classList.add('dark-theme');
+                    themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                }
+            }
+        </script>
     </body>
 </html>
