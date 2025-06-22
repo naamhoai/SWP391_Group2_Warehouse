@@ -13,56 +13,41 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-@WebServlet(name = "PermissionLogsServlet", urlPatterns = {"/permissionLogs"})
+@WebServlet(name = "PermissionLogsServlet", urlPatterns = {"/permissionlogs"})
 public class PermissionLogsServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
+
         PermissionLogDAO permissionLogDAO = new PermissionLogDAO();
         UserDAO userDAO = new UserDAO();
 
         try {
             String roleIdStr = request.getParameter("roleId");
-            if (roleIdStr == null || roleIdStr.trim().isEmpty()) {
-                request.setAttribute("error", "Role ID is missing");
-                request.getRequestDispatcher("permissionLogs.jsp").forward(request, response);
-                return;
-            }
 
-            int roleId;
-            try {
-                roleId = Integer.parseInt(roleIdStr);
-                if (roleId <= 1 || roleId > 4) {
-                    request.setAttribute("error", "Invalid Role ID");
-                    request.getRequestDispatcher("permissionLogs.jsp").forward(request, response);
-                    return;
+            if (roleIdStr != null && !roleIdStr.trim().isEmpty()) {
+                int roleId = Integer.parseInt(roleIdStr);
+                Role role = userDAO.getRoleById(roleId);
+                if (role == null) {
+                    request.setAttribute("error", "Role not found");
+                } else {
+                    request.setAttribute("role", role); // nếu bạn vẫn muốn show thông tin role
                 }
-            } catch (NumberFormatException e) {
-                request.setAttribute("error", "Invalid Role ID format");
-                request.getRequestDispatcher("permissionLogs.jsp").forward(request, response);
-                return;
+                List<Map<String, Object>> logs = permissionLogDAO.getPermissionLogsByRole(roleId);
+                request.setAttribute("logs", logs);
+            } else {
+                List<Map<String, Object>> logs = permissionLogDAO.getAllPermissionLogs();
+                request.setAttribute("logs", logs);
             }
 
-            Role role = userDAO.getRoleById(roleId);
-            if (role == null) {
-                request.setAttribute("error", "Role not found");
-                request.getRequestDispatcher("permissionLogs.jsp").forward(request, response);
-                return;
-            }
-
-            List<Map<String, Object>> logs = permissionLogDAO.getPermissionLogs(roleId);
-
-            request.setAttribute("role", role);
-            request.setAttribute("logs", logs);
-
-            request.getRequestDispatcher("permissionLogs.jsp").forward(request, response);
         } catch (SQLException e) {
-            request.setAttribute("error", "Database error: " + e.getMessage());
-            request.getRequestDispatcher("permissionLogs.jsp").forward(request, response);
-        } catch (Exception e) {
-            request.setAttribute("error", "Unexpected error: " + e.getMessage());
-            request.getRequestDispatcher("permissionLogs.jsp").forward(request, response);
+            e.printStackTrace();
+            request.setAttribute("error", "Error while retrieving permission logs: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            request.setAttribute("error", "Invalid Role ID format");
         }
+
+        request.getRequestDispatcher("permissionLogs.jsp").forward(request, response);
     }
 }
