@@ -140,7 +140,7 @@ public class DetailUser extends HttpServlet {
             e.printStackTrace();
             mess = "Failed to update.";
             se.setAttribute("messkk", mess);
-            response.sendRedirect("detailUser");
+            response.sendRedirect("detailuser");
 
         }
 
