@@ -1,5 +1,5 @@
-/* Global styles */
-* {
+
+*{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -21,10 +21,12 @@ body.dark-mode {
 
 /* Main container */
 .main-content {
-    margin-left: 250px;
-    padding: 20px;
-    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     min-height: 100vh;
+    margin: 0;
+    padding: 0;
     background-color: #f1f5f9;
 }
 
@@ -34,13 +36,16 @@ body.dark-mode {
 
 /* Permission container */
 .permission-container {
-    max-width: 1200px;
-    margin: 0 auto 30px;
-    padding: 25px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-    transition: background-color 0.3s;
+    max-width: 1000px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 32px 28px 28px 28px;
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 6px 32px rgba(0,0,0,0.10);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .dark-mode .permission-container {
@@ -62,13 +67,13 @@ body.dark-mode {
 }
 
 .page-title {
-    color: #1e293b;
-    font-size: 24px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-right: auto;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 24px;
+    margin-left: 50px;
+    font-size: 26px;
+    font-weight: 700;
+    color: #2563eb;
 }
 
 .dark-mode .page-title {
@@ -82,7 +87,22 @@ body.dark-mode {
     gap: 12px;
 }
 
-.theme-toggle button,
+.theme-toggle button {
+    width: 48px;         
+    height: 48px;
+    padding: 0;           
+    border-radius: 50%;  
+    margin-left: 200px;
+    background: #3b82f6;  
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
 .theme-toggle .history-btn {
     padding: 8px 16px;
     background-color: #3b82f6;
@@ -257,45 +277,83 @@ gap: 8px;
     color: #f1f5f9;
 }
 
-/* Form actions */
+/* Table styling */
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #f8fafc;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    margin-bottom: 24px;
+}
+th, td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: center;
+    font-size: 15px;
+}
+th {
+    background: #e0e7ef;
+    color: #1e293b;
+    font-weight: 600;
+}
+tr:last-child td {
+    border-bottom: none;
+}
+tr:hover {
+    background: #e0e7ef33;
+    transition: background 0.2s;
+}
+
+/* Checkbox centering */
+td input[type="checkbox"] {
+    transform: scale(1.2);
+    accent-color: #3b82f6;
+    cursor: pointer;
+}
+
+/* Error message styling */
+.error {
+    color: #ef4444;
+    background: #fee2e2;
+    border-radius: 6px;
+    padding: 8px 16px;
+    margin-bottom: 18px;
+    width: 100%;
+    text-align: center;
+    font-size: 15px;
+}
+
+/* Form actions styling */
 .form-actions {
     display: flex;
-    gap: 12px;
-    margin-top: 25px;
-    justify-content: flex-end;
-    padding-top: 20px;
-    border-top: 1px solid #e2e8f0;
+    gap: 14px;
+    justify-content: center;
+    width: 100%;
+    margin-top: 10px;
 }
-
-.dark-mode .form-actions {
-    border-top-color: #475569;
-}
-
 .save-btn, .back-btn {
-    padding: 10px 20px;
+    padding: 10px 22px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
+    font-size: 15px;
+    font-weight: 600;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 6px rgba(59,130,246,0.08);
 }
 .save-btn {
-    background-color: #3b82f6;
-    color: white;
+    background: #3b82f6;
+    color: #fff;
 }
 .save-btn:hover {
-    background-color: #2563eb;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: #2563eb;
 }
 .back-btn {
-    background-color: #6b7280;
-    color: white;
-    text-decoration: none;
+    background: #64748b;
+    color: #fff;
 }
 .back-btn:hover {
     background-color: #4b5563;
@@ -386,5 +444,23 @@ gap: 8px;
 
     .permission-card {
         padding: 15px;
+    }
+}
+
+@media (max-width: 800px) {
+    .permission-container {
+        max-width: 98vw;
+        padding: 16px 4px;
+    }
+    table th, table td {
+        padding: 8px 6px;
+        font-size: 13px;
+    }
+    .form-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+    .save-btn, .back-btn {
+        width: 100%;
     }
 }

@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle messages
     const errorMessage = document.querySelector('meta[name="error-message"]')?.content;
     const successMessage = document.querySelector('meta[name="success-message"]')?.content;
 
@@ -21,28 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }).showToast();
     }
 
-    // Theme toggle
-    const themeToggle = document.getElementById('themeToggle');
-    const body = document.body;
-    // Load saved theme
-    if (localStorage.getItem('theme') === 'dark') {
-        body.classList.add('dark-mode');
-        themeToggle.checked = true;
-    } else {
-        body.classList.remove('dark-mode');
-        themeToggle.checked = false;
-    }
-    themeToggle.addEventListener('change', function() {
-        if (this.checked) {
-            body.classList.add('dark-mode');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            body.classList.remove('dark-mode');
-            localStorage.setItem('theme', 'light');
-        }
-    });
-
-    // Form submission handling
     const permissionForm = document.getElementById('permissionForm');
     if (permissionForm) {
         permissionForm.addEventListener('submit', function(e) {

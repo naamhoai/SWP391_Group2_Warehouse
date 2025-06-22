@@ -13,11 +13,9 @@
                 <div class="header-section">
                     <h2 class="page-title">Phân quyền cho vai trò: <c:out value="${role.rolename}" /></h2>
                     <div class="theme-toggle">
-                        <input type="checkbox" id="themeToggle" class="theme-switch" aria-label="Toggle theme" />
-                        <label for="themeToggle" class="switch-label">
-                            <span class="switch-icon switch-sun"><i class="fas fa-sun"></i></span>
-                            <span class="switch-icon switch-moon"><i class="fas fa-moon"></i></span>
-                        </label>
+                        <button id="themeToggle" aria-label="Toggle theme">
+                            <i class="fas fa-moon"></i>
+                        </button>
                     </div>
                 </div>
                 <c:if test="${not empty error}">
@@ -57,5 +55,23 @@
                 </form>
             </div>
         </div>
+                    <script>
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function () {
+                    document.body.classList.toggle('dark-theme');
+                    const isDark = document.body.classList.contains('dark-theme');
+                    themeToggle.innerHTML = isDark
+                            ? '<i class="fas fa-sun"></i>'
+                            : '<i class="fas fa-moon"></i>';
+                    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                });
+
+                if (localStorage.getItem('theme') === 'dark') {
+                    document.body.classList.add('dark-theme');
+                    themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                }
+            }
+        </script>
     </body>
 </html>

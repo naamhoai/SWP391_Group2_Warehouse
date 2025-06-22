@@ -124,17 +124,34 @@ public class UserPermissionServlet extends HttpServlet {
                 return;
             }
 
-            // Lấy danh sách quyền mới từ form
             String[] permissionsArray = request.getParameterValues("permissions");
             List<String> newPermissions = permissionsArray != null ? new ArrayList<>(List.of(permissionsArray)) : new ArrayList<>();
 
-            // Lấy danh sách quyền cũ để so sánh
             Map<String, Boolean> oldPermissions = userPermissionDAO.getRolePermissions(roleId);
 
-            // Cập nhật quyền mới
             userPermissionDAO.updateRolePermissions(roleId, newPermissions);
 
-            // Cập nhật lại dữ liệu để hiển thị
+            // Lưu log thay đổi quyền
+            Map<String, Boolean> updatedPermissions = userPermissionDAO.getRolePermissions(roleId);
+            
+            // So sánh quyền cũ và mới để lưu log
+            for (Map.Entry<String, Boolean> entry : updatedPermissions.entrySet()) {
+                String permissionName = entry.getKey();
+                Boolean newValue = entry.getValue();
+                Boolean oldValue = oldPermissions.getOrDefault(permissionName, false);
+                
+                // Chỉ lưu log khi có thay đổi
+                if (!newValue.equals(oldValue)) {
+                    String action = newValue ? "GRANT" : "REVOKE";
+                    try {
+                        permissionLogDAO.logPermissionChange(roleId, adminId, action, permissionName, oldValue, newValue);
+                    } catch (SQLException logException) {
+                        System.err.println("Lỗi khi lưu log: " + logException.getMessage());
+                        // Không dừng quá trình nếu lưu log thất bại
+                    }
+                }
+            }
+
             Map<String, Boolean> rolePermissions = userPermissionDAO.getRolePermissions(roleId);
             List<Map<String, Object>> allPermissions = userPermissionDAO.getAllPermissions();
 
@@ -142,8 +159,6 @@ public class UserPermissionServlet extends HttpServlet {
             request.setAttribute("rolePermissions", rolePermissions);
             request.setAttribute("permissions", allPermissions);
             request.setAttribute("success", "Cập nhật quyền thành công");
-
-            // Chuyển hướng về permissionList để cập nhật giao diện
             response.sendRedirect("permissionList");
 
         } catch (SQLException e) {
