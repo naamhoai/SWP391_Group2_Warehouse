@@ -51,6 +51,27 @@ public class UnitConversionDao extends dal.DBContext {
 
     }
 
+    public List<UnitConversion> getMaterialid() {
+        List<UnitConversion> list = new ArrayList<>();
+        String sql = "SELECT material_id FROM material_system_2.unit_conversion;";
+        try {
+            PreparedStatement ca = connection.prepareStatement(sql);
+            ResultSet st = ca.executeQuery();
+            while (st.next()) {
+                UnitConversion uni = new UnitConversion();
+                uni.setMaterialid(st.getInt("material_id"));
+
+                list.add(uni);
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return list;
+
+    }
+
     public List<Material> getMaterial() {
         List<Material> list = new ArrayList<>();
         String sql = "SELECT material_id,name FROM materials;";
@@ -333,7 +354,8 @@ public class UnitConversionDao extends dal.DBContext {
         System.out.println("Material name: " + c);
 
 //        List<UnitConversion> l = n.getFilter(c, uni, a, "Inactive");
-        List<UnitConversion> k = n.getAll(6);
+        List<UnitConversion> k = n.getMaterialid();
+       
 
         System.out.println(k);
 

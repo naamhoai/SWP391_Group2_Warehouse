@@ -84,50 +84,42 @@ public class CreateUnitServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         UnitConversionDao dao = new UnitConversionDao();
-        String unitName = request.getParameter("unitName");
         String note = request.getParameter("note");
         String materialids = request.getParameter("materialid");
         String baseunit = request.getParameter("baseunit");
         String unit1 = request.getParameter("unit1");
         String unit2 = request.getParameter("unit2");
-
-        
+        String convertUnit = request.getParameter("convertedunit");
         String mess = "";
-        List<UnitConversion> listid = dao.getAll(1);
-        try {
+        System.out.println("materialid" + materialids);
 
-            int materialid = Integer.parseInt(materialids);
-            if (!unit1.matches("\\d+") || !unit2.matches("\\d+")) {
-                mess = "đơn vị nhập vào phải là số!";
+        try {
+            Boolean validate = true;
+            List<UnitConversion> listid = dao.getMaterialid();
+            if (!unit1.matches("\\d+(\\.\\d+)?") || !unit2.matches("\\d+(\\.\\d+)?")) {
+                mess = "đơn vị tỉ lệ nhập vào phải là số!";
                 Data(request);
-                request.setAttribute("messs", mess);
+                request.setAttribute("mess", mess);
                 request.getRequestDispatcher("createUnit.jsp").forward(request, response);
                 return;
             }
-            Double ratio1 = Double.parseDouble(unit1);
-            Double ratio2 = Double.parseDouble(unit2);
-            Double result = ratio1 * ratio2;
-          
-            String convertUnit = request.getParameter("convertedunit");
-           
-
-            Boolean validate = true;
+            String[] a = materialids.split("-");
+            int materialid = Integer.parseInt(a[0].trim());
+            System.out.println("mater" + materialid);
             for (UnitConversion unitConversion : listid) {
-
                 if (unitConversion.getMaterialid() == materialid) {
-                    
-                    mess = "Vật tư này đã tồn tại!";
-                    request.setAttribute("messs", mess);
-                    Data(request);
                     validate = false;
-                    
-                    break;
+                    return;
                 }
             }
 
+            Double ratio1 = Double.parseDouble(unit1);
+            Double ratio2 = Double.parseDouble(unit2);
+            Double result = ratio1 * ratio2;
+
             if (result <= 0) {
-                mess = "tỉ lệ chuyển đổi phải > 0";
-                request.setAttribute("messs", mess);
+                mess = "tỉ lệ quy đổi phải > 0";
+                request.setAttribute("mess", mess);
                 Data(request);
                 validate = false;
                 request.getRequestDispatcher("createUnit.jsp").forward(request, response);
@@ -135,16 +127,16 @@ public class CreateUnitServlet extends HttpServlet {
             }
             if (validate) {
                 dao.unitCreate2(baseunit, convertUnit, note, result, materialid);
-
-                
                 response.sendRedirect("unitConversionSeverlet");
-                return;
+
             }
 
         } catch (NumberFormatException e) {
-            System.out.println(e.getMessage());
+            mess = "Vật tư này đã tồn tại!";
+            request.setAttribute("mess", mess);
+            Data(request);
+            request.getRequestDispatcher("createUnit.jsp").forward(request, response);
         }
-      
 
     }
 
