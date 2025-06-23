@@ -85,37 +85,38 @@ public class LoginServlet extends HttpServlet {
         List<User> users = dao.userAccount();
         if (users != null && !users.isEmpty()) {
 
-            for (User user : users) {
-                if (gmail.equals(user.getEmail())) {
-                    if (!"active".equalsIgnoreCase(user.getStatus())) {
+            for (User user2 : users) {
+                if (gmail.equals(user2.getEmail())) {
+                     
+                    if (!"active".equalsIgnoreCase(user2.getStatus())) {
                         request.setAttribute("mess", "Tài khoản đã bị khóa.");
                         request.getRequestDispatcher("login.jsp").forward(request, response);
                         return;
                     }
-
-                    if (BCrypt.checkpw(pass, user.getPassword())) {
-                        session.setAttribute("Admin", user);
-                        session.setAttribute("userId", user.getUser_id());
-                        session.setAttribute("roleId", user.getRole());
+                       //BCrypt.checkpw(pass, user.getPassword())
+                    if (pass.equals(user2.getPassword())){
+                        session.setAttribute("Admin", user2);
+                        session.setAttribute("userId", user2.getUser_id());
+                        session.setAttribute("roleId", user2.getRole().getRoleid());
                         String redirectURL = (String) session.getAttribute("redirectURL");
                         if (redirectURL != null) {
                             session.removeAttribute("redirectURL");
                             response.sendRedirect(request.getContextPath() + redirectURL);
                             return;
                         }
-                        int roleId = user.getRole().getRoleid();
+                        int roleId = user2.getRole().getRoleid();
                         switch (roleId) {
                             case 1:
                                 response.sendRedirect("adminDashboard.jsp");
                                 break;
                             case 2:
-                                response.getWriter().print("day la so 2");
+                                response.sendRedirect("directorDashboard.jsp");
                                 break;
                             case 3:
                                 response.sendRedirect("warehouseStaffDashboard.jsp");
                                 break;
                             case 4:
-                                response.getWriter().print("day la so 4");
+                                response.sendRedirect("day la so 4");
                                 break;
                             default:
                                 response.sendRedirect("login.jsp");

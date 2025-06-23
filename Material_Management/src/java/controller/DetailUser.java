@@ -80,7 +80,7 @@ public class DetailUser extends HttpServlet {
                 request.setAttribute("user", usid);
                 request.setAttribute("lits", list);
 
-                request.getRequestDispatcher("detailUser.jsp").forward(request, response);
+                request.getRequestDispatcher("detailuser.jsp").forward(request, response);
             }
         } catch (IOException e) {
             System.out.println(e);
@@ -133,7 +133,7 @@ public class DetailUser extends HttpServlet {
 
                 request.setAttribute("user", usid);
                 request.setAttribute("messkk", mess);
-                request.getRequestDispatcher("detailUser.jsp").forward(request, response);
+                request.getRequestDispatcher("detailuser.jsp").forward(request, response);
             }
 
         } catch (NumberFormatException e) {

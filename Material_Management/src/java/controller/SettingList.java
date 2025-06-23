@@ -125,7 +125,7 @@ public class SettingList extends HttpServlet {
             dao.close();
         }
 
-        request.getRequestDispatcher("SettingList.jsp").forward(request, response);
+        request.getRequestDispatcher("settinglist.jsp").forward(request, response);
     }
 
     /**

@@ -111,7 +111,7 @@ public class UnitEditServlet extends HttpServlet {
 
         boolean validate = true;
         if (!unit1.matches("\\d+(\\.\\d+)?") || !unit2.matches("\\d+(\\.\\d+)?")) {
-            mess = "đơn vị nhập vào phải là số!";
+            mess = "đơn vị nhập vào phải là số dương!";
             validate = false;
             request.setAttribute("mess", mess);
             request.setAttribute("materialname", materialname);
@@ -130,7 +130,7 @@ public class UnitEditServlet extends HttpServlet {
 
             double result = a * b;
             if (result <= 0) {
-                mess = "Đơn vị chuyển đổi phải > 0!";
+                mess = "Tỉ lệ chuyển đổi phải > 0!";
                 validate = false;
                 data(request);
                 request.setAttribute("messss", mess);

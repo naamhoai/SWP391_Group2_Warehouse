@@ -94,8 +94,8 @@
 
                                 <td>
 
-                                    <a href="unitConversionSeverlet?cvid=${v.conversionid}&action=Active"><button>Active</button></a>
-                                    <a href="unitConversionSeverlet?cvid=${v.conversionid}&action=Inactive"><button>Inactive</button></a>
+                                    <a href="unitConversionSeverlet?cvid=${v.conversionid}&action=Active"><button>Hoạt động</button></a>
+                                    <a href="unitConversionSeverlet?cvid=${v.conversionid}&action=Inactive"><button>Không hoạt động</button></a>
                                     
                                     <a href="unitEditseverlet?baseunitid=${v.conversionid}&materialid=${v.material.materialId}&materialname=${v.material.name}">
                                       chỉnh sửa
@@ -105,6 +105,7 @@
                         </c:forEach>
                     </tbody>
                 </table>
+                
                 <div class="pagination-container">
                     <c:forEach begin="1" end="${pages}" var="p">
                         <form action="unitConversionSeverlet" method="get">
@@ -121,7 +122,8 @@
                 </div>
                
             </div>
+            <a href="adminDashboard.jsp">Trở lại</a>
         </div>
-          <a hidden="unitConversionSeverlet">Trở lại</a>
+        
     </body>
 </html>
