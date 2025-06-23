@@ -24,12 +24,6 @@
         <div class="form-container">
             <h2>Thêm nhà cung cấp mới</h2>
             
-            <c:if test="${not empty sessionScope.error}">
-                <div class="alert alert-danger">
-                    ${sessionScope.error}
-                    <% session.removeAttribute("error"); %>
-                </div>
-            </c:if>
             <c:if test="${not empty sessionScope.message}">
                 <div class="alert alert-success">
                     ${sessionScope.message}
@@ -44,40 +38,64 @@
                     <label for="supplierName">Tên nhà cung cấp <span class="required">*</span></label>
                     <input type="text" id="supplierName" name="supplierName" required 
                            placeholder="Nhập tên nhà cung cấp"
-                           maxlength="100"/>
-                    <span class="error-message" id="nameError"></span>
+                           maxlength="100"
+                           value="${supplierName != null ? supplierName : ''}"/>
+                    <span class="error-message" id="nameError">
+                        <c:if test="${not empty error && (error.contains('nhà cung cấp') || error.contains('tồn tại'))}">
+                            ${error}
+                        </c:if>
+                    </span>
                 </div>
                 
                 <div class="form-field">
                     <label for="contactPerson">Người liên hệ <span class="required">*</span></label>
                     <input type="text" id="contactPerson" name="contactPerson" required 
                            placeholder="Nhập tên người liên hệ"
-                           maxlength="100"/>
-                    <span class="error-message" id="contactError"></span>
+                           maxlength="100"
+                           value="${contactPerson != null ? contactPerson : ''}"/>
+                    <span class="error-message" id="contactError">
+                        <c:if test="${not empty error && error.contains('người liên hệ') && !(error.contains('nhà cung cấp') || error.contains('tồn tại'))}">
+                            ${error}
+                        </c:if>
+                    </span>
                 </div>
                 
                 <div class="form-field">
                     <label for="supplierPhone">Số điện thoại <span class="required">*</span></label>
                     <input type="tel" id="supplierPhone" name="supplierPhone" required 
                            placeholder="Nhập số điện thoại"
-                           pattern="[0-9]{10,11}"/>
-                    <span class="error-message" id="phoneError"></span>
+                           value="${supplierPhone != null ? supplierPhone : ''}"/>
+                    <span class="error-message" id="phoneError">
+                        <c:if test="${not empty error && error.contains('Số điện thoại') && !(error.contains('nhà cung cấp') || error.contains('tồn tại') || error.contains('người liên hệ'))}">
+                            ${error}
+                        </c:if>
+                    </span>
                 </div>
                 
                 <div class="form-field">
                     <label for="address">Địa chỉ <span class="required">*</span></label>
                     <input type="text" id="address" name="address" required 
                            placeholder="Nhập địa chỉ"
-                           maxlength="255"/>
-                    <span class="error-message" id="addressError"></span>
+                           maxlength="255"
+                           value="${address != null ? address : ''}"/>
+                    <span class="error-message" id="addressError">
+                        <c:if test="${not empty error && error.contains('Địa chỉ') && !(error.contains('nhà cung cấp') || error.contains('tồn tại') || error.contains('người liên hệ') || error.contains('Số điện thoại'))}">
+                            ${error}
+                        </c:if>
+                    </span>
                 </div>
                 
                 <div class="form-field">
                     <label for="status">Trạng thái <span class="required">*</span></label>
                     <select id="status" name="status" required>
-                        <option value="active">Hợp tác</option>
-                        <option value="inactive">Không hợp tác</option>
+                        <option value="active" ${status == 'active' ? 'selected' : ''}>Hợp tác</option>
+                        <option value="inactive" ${status == 'inactive' ? 'selected' : ''}>Không hợp tác</option>
                     </select>
+                    <span class="error-message" id="statusError">
+                        <c:if test="${not empty error && error.contains('Trạng thái') && !(error.contains('nhà cung cấp') || error.contains('tồn tại') || error.contains('người liên hệ') || error.contains('Số điện thoại') || error.contains('Địa chỉ'))}">
+                            ${error}
+                        </c:if>
+                    </span>
                 </div>
                 
                 <div class="form-actions">

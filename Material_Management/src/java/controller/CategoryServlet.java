@@ -229,8 +229,11 @@ public class CategoryServlet extends HttpServlet {
             showAddForm(request, response);
             return;
         }
-        // Kiểm tra tên trùng
-        if (categoryDAO.getAllCategories().stream().anyMatch(c -> c.getName().equalsIgnoreCase(name.trim()))) {
+        // Kiểm tra tên trùng (bỏ qua khoảng trắng thừa giữa các từ)
+        String normalizedName = name.trim().replaceAll("\\s+", " ");
+        boolean isDuplicate = categoryDAO.getAllCategories().stream()
+            .anyMatch(c -> c.getName().trim().replaceAll("\\s+", " ").equalsIgnoreCase(normalizedName));
+        if (isDuplicate) {
             request.setAttribute("error", "Tên danh mục đã tồn tại. Vui lòng nhập tên khác.");
             request.setAttribute("name", name);
             request.setAttribute("parentId", parentIdParam);
@@ -254,9 +257,9 @@ public class CategoryServlet extends HttpServlet {
         String error = categoryDAO.addCategory(name.trim(), parentId);
         
         if (error == null) {
-            // Sau khi thêm thành công, chuyển hướng về form thêm với thông báo qua session
-            request.getSession().setAttribute("success", "Thêm danh mục thành công! Bạn có thể tiếp tục thêm danh mục khác.");
-            response.sendRedirect("categories?action=add");
+            // Sau khi thêm thành công, chuyển hướng về trang danh sách và hiển thị thông báo thành công
+            request.getSession().setAttribute("message", "Thêm danh mục thành công!");
+            response.sendRedirect("categories");
         } else {
             request.setAttribute("error", error);
             request.setAttribute("name", name);
@@ -301,8 +304,11 @@ public class CategoryServlet extends HttpServlet {
                 showEditForm(request, response);
                 return;
             }
-            // Kiểm tra tên trùng (trừ chính nó)
-            if (categoryDAO.getAllCategories().stream().anyMatch(c -> c.getName().equalsIgnoreCase(name.trim()) && c.getCategoryId() != id)) {
+            // Kiểm tra tên trùng (trừ chính nó, bỏ qua khoảng trắng thừa giữa các từ)
+            String normalizedName = name.trim().replaceAll("\\s+", " ");
+            boolean isDuplicate = categoryDAO.getAllCategories().stream()
+                .anyMatch(c -> c.getName().trim().replaceAll("\\s+", " ").equalsIgnoreCase(normalizedName) && c.getCategoryId() != id);
+            if (isDuplicate) {
                 request.setAttribute("error", "Tên danh mục đã tồn tại. Vui lòng nhập tên khác.");
                 request.setAttribute("category", categoryDAO.getCategoryById(id));
                 request.setAttribute("parentId", parentIdParam);

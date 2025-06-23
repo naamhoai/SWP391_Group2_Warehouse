@@ -80,32 +80,35 @@ public class SupplierListServlet extends HttpServlet {
             String status = request.getParameter("status");
             String keyword = request.getParameter("keyword");
             String sortBy = request.getParameter("sortBy");
-
-            List<Supplier> suppliers;
-            if (keyword != null && !keyword.trim().isEmpty()) {
-                suppliers = supplierDAO.searchSuppliers(keyword);
-            } else {
-                suppliers = supplierDAO.getAllSuppliers();
+            String pageStr = request.getParameter("page");
+            String itemsPerPageStr = request.getParameter("itemsPerPage");
+            int currentPage = 1;
+            int itemsPerPage = 10;
+            if (pageStr != null) {
+                try { currentPage = Math.max(1, Integer.parseInt(pageStr)); } catch (Exception ignored) {}
+            }
+            if (itemsPerPageStr != null) {
+                try { itemsPerPage = Math.max(1, Integer.parseInt(itemsPerPageStr)); } catch (Exception ignored) {}
             }
 
-            if (status != null && !status.isEmpty()) {
-                suppliers = suppliers.stream()
-                    .filter(s -> status.equals(s.getStatus()))
-                    .toList();
-            }
+            // Đếm tổng số supplier sau filter/search
+            int totalSuppliers = supplierDAO.countSuppliers(keyword, status);
+            int totalPages = (int) Math.ceil((double) totalSuppliers / itemsPerPage);
+            if (totalPages == 0) totalPages = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
 
-            if (sortBy != null) {
-                switch (sortBy) {
-                    case "name":
-                        suppliers.sort((s1, s2) -> s1.getSupplierName().compareTo(s2.getSupplierName()));
-                        break;
-                    case "id":
-                        suppliers.sort((s1, s2) -> Integer.compare(s1.getSupplierId(), s2.getSupplierId()));
-                        break;
-                }
-            }
+            // Lấy danh sách supplier cho trang hiện tại
+            List<Supplier> suppliers = supplierDAO.getSuppliersWithPaging(keyword, status, sortBy, currentPage, itemsPerPage);
+
+            // Tính startPage, endPage cho hiển thị phân trang (5 số)
+            int startPage = Math.max(1, currentPage - 2);
+            int endPage = Math.min(totalPages, currentPage + 2);
 
             request.setAttribute("suppliers", suppliers);
+            request.setAttribute("currentPage", currentPage);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("startPage", startPage);
+            request.setAttribute("endPage", endPage);
             request.getRequestDispatcher("/listSupplier.jsp").forward(request, response);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error in listSuppliers: {0}", e.getMessage());
@@ -144,73 +147,135 @@ public class SupplierListServlet extends HttpServlet {
 
             // Validate Tên nhà cung cấp
             if (supplierName == null || supplierName.trim().isEmpty()) {
-                request.getSession().setAttribute("error", "Tên nhà cung cấp không được để trống");
-                response.sendRedirect(request.getContextPath() + "/suppliers?action=add");
+                request.setAttribute("error", "Tên nhà cung cấp không được để trống");
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                request.getRequestDispatcher("/addSupplier.jsp").forward(request, response);
                 return;
             }
             if (supplierName.trim().length() < 2) {
-                request.getSession().setAttribute("error", "Tên nhà cung cấp phải có ít nhất 2 ký tự");
-                response.sendRedirect(request.getContextPath() + "/suppliers?action=add");
+                request.setAttribute("error", "Tên nhà cung cấp phải có ít nhất 2 ký tự");
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                request.getRequestDispatcher("/addSupplier.jsp").forward(request, response);
                 return;
             }
             if (supplierName.trim().replaceAll(" ", "").isEmpty()) {
-                request.getSession().setAttribute("error", "Tên nhà cung cấp không được chỉ chứa khoảng trắng");
-                response.sendRedirect(request.getContextPath() + "/suppliers?action=add");
+                request.setAttribute("error", "Tên nhà cung cấp không được chỉ chứa khoảng trắng");
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                request.getRequestDispatcher("/addSupplier.jsp").forward(request, response);
                 return;
             }
             if (!supplierName.trim().matches("^[\\p{L}0-9 ]+$")) {
-                request.getSession().setAttribute("error", "Tên nhà cung cấp chỉ được chứa chữ, số và khoảng trắng");
-                response.sendRedirect(request.getContextPath() + "/suppliers?action=add");
+                request.setAttribute("error", "Tên nhà cung cấp chỉ được chứa chữ, số và khoảng trắng");
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                request.getRequestDispatcher("/addSupplier.jsp").forward(request, response);
                 return;
             }
             // Kiểm tra tên trùng
             if (supplierDAO.getAllSuppliers().stream().anyMatch(s -> s.getSupplierName().equalsIgnoreCase(supplierName.trim()))) {
-                request.getSession().setAttribute("error", "Tên nhà cung cấp đã tồn tại. Vui lòng nhập tên khác.");
-                response.sendRedirect(request.getContextPath() + "/suppliers?action=add");
+                request.setAttribute("error", "Tên nhà cung cấp đã tồn tại. Vui lòng nhập tên khác.");
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                request.getRequestDispatcher("/addSupplier.jsp").forward(request, response);
                 return;
             }
 
             // Validate Tên người liên hệ
             if (contactPerson == null || contactPerson.trim().isEmpty()) {
-                request.getSession().setAttribute("error", "Tên người liên hệ không được để trống");
-                response.sendRedirect(request.getContextPath() + "/suppliers?action=add");
+                request.setAttribute("error", "Tên người liên hệ không được để trống");
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                request.getRequestDispatcher("/addSupplier.jsp").forward(request, response);
                 return;
             }
             if (contactPerson.trim().length() < 2) {
-                request.getSession().setAttribute("error", "Tên người liên hệ phải có ít nhất 2 ký tự");
-                response.sendRedirect(request.getContextPath() + "/suppliers?action=add");
+                request.setAttribute("error", "Tên người liên hệ phải có ít nhất 2 ký tự");
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                request.getRequestDispatcher("/addSupplier.jsp").forward(request, response);
                 return;
             }
             if (!contactPerson.trim().matches("^[\\p{L}0-9 ]+$")) {
-                request.getSession().setAttribute("error", "Tên người liên hệ chỉ được chứa chữ, số và khoảng trắng");
-                response.sendRedirect(request.getContextPath() + "/suppliers?action=add");
+                request.setAttribute("error", "Tên người liên hệ chỉ được chứa chữ, số và khoảng trắng");
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                request.getRequestDispatcher("/addSupplier.jsp").forward(request, response);
                 return;
             }
-            // Nếu trùng người liên hệ thì báo lỗi
-            if (supplierDAO.getAllSuppliers().stream().anyMatch(s -> s.getContactPerson().equalsIgnoreCase(contactPerson.trim()))) {
-                request.getSession().setAttribute("error", "Tên người liên hệ đã tồn tại");
-                response.sendRedirect(request.getContextPath() + "/suppliers?action=add");
+            // Nếu trùng người liên hệ thì chỉ báo lỗi nếu số điện thoại cũng trùng
+            boolean duplicateContact = supplierDAO.getAllSuppliers().stream()
+                .anyMatch(s -> s.getContactPerson().equalsIgnoreCase(contactPerson.trim()) && s.getSupplierPhone().equals(supplierPhone));
+            if (duplicateContact) {
+                request.setAttribute("error", "Người liên hệ và số điện thoại đã tồn tại");
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                request.getRequestDispatcher("/addSupplier.jsp").forward(request, response);
                 return;
             }
 
             // Validate số điện thoại
             if (supplierPhone == null || !supplierPhone.matches("^[0-9]{10,11}$")) {
-                request.getSession().setAttribute("error", "Số điện thoại phải là số và có 10-11 chữ số");
-                response.sendRedirect(request.getContextPath() + "/suppliers?action=add");
+                request.setAttribute("error", "Số điện thoại phải là số và có 10-11 chữ số");
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                request.getRequestDispatcher("/addSupplier.jsp").forward(request, response);
                 return;
             }
 
             // Validate địa chỉ
             if (address == null || address.trim().length() < 5) {
-                request.getSession().setAttribute("error", "Địa chỉ phải có ít nhất 5 ký tự");
-                response.sendRedirect(request.getContextPath() + "/suppliers?action=add");
+                request.setAttribute("error", "Địa chỉ phải có ít nhất 5 ký tự");
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                request.getRequestDispatcher("/addSupplier.jsp").forward(request, response);
                 return;
             }
 
             // Validate trạng thái
             if (status == null || (!status.equals("active") && !status.equals("inactive"))) {
-                request.getSession().setAttribute("error", "Trạng thái không hợp lệ");
-                response.sendRedirect(request.getContextPath() + "/suppliers?action=add");
+                request.setAttribute("error", "Trạng thái không hợp lệ");
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                request.getRequestDispatcher("/addSupplier.jsp").forward(request, response);
                 return;
             }
 
@@ -247,34 +312,149 @@ public class SupplierListServlet extends HttpServlet {
             LOGGER.log(Level.INFO, "Nhận được request cập nhật supplier - ID: {0}, Name: {1}, Status: {2}",
                 new Object[]{supplierId, supplierName, status});
 
-            // Validate input
-            if (supplierName == null || supplierName.trim().length() < 2) {
-                request.getSession().setAttribute("error", "Tên nhà cung cấp phải có ít nhất 2 ký tự");
-                response.sendRedirect(request.getContextPath() + "/suppliers?action=edit&id=" + supplierId);
+            // Validate tên nhà cung cấp
+            if (supplierName == null || supplierName.trim().isEmpty()) {
+                request.setAttribute("error", "Tên nhà cung cấp không được để trống");
+                request.setAttribute("supplierId", supplierId);
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                showEditForm(request, response);
+                return;
+            }
+            if (supplierName.trim().length() < 2) {
+                request.setAttribute("error", "Tên nhà cung cấp phải có ít nhất 2 ký tự");
+                request.setAttribute("supplierId", supplierId);
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                showEditForm(request, response);
+                return;
+            }
+            if (supplierName.trim().replaceAll(" ", "").isEmpty()) {
+                request.setAttribute("error", "Tên nhà cung cấp không được chỉ chứa khoảng trắng");
+                request.setAttribute("supplierId", supplierId);
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                showEditForm(request, response);
+                return;
+            }
+            if (!supplierName.trim().matches("^[\\p{L}0-9 ]+$")) {
+                request.setAttribute("error", "Tên nhà cung cấp chỉ được chứa chữ, số và khoảng trắng");
+                request.setAttribute("supplierId", supplierId);
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                showEditForm(request, response);
+                return;
+            }
+            // Kiểm tra tên trùng (trừ chính nó)
+            if (supplierDAO.getAllSuppliers().stream().anyMatch(s -> s.getSupplierName().equalsIgnoreCase(supplierName.trim()) && s.getSupplierId() != supplierId)) {
+                request.setAttribute("error", "Tên nhà cung cấp đã tồn tại. Vui lòng nhập tên khác.");
+                request.setAttribute("supplierId", supplierId);
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                showEditForm(request, response);
                 return;
             }
 
-            if (contactPerson == null || contactPerson.trim().length() < 2) {
-                request.getSession().setAttribute("error", "Tên người liên hệ phải có ít nhất 2 ký tự");
-                response.sendRedirect(request.getContextPath() + "/suppliers?action=edit&id=" + supplierId);
+            // Validate tên người liên hệ
+            if (contactPerson == null || contactPerson.trim().isEmpty()) {
+                request.setAttribute("error", "Tên người liên hệ không được để trống");
+                request.setAttribute("supplierId", supplierId);
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                showEditForm(request, response);
+                return;
+            }
+            if (contactPerson.trim().length() < 2) {
+                request.setAttribute("error", "Tên người liên hệ phải có ít nhất 2 ký tự");
+                request.setAttribute("supplierId", supplierId);
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                showEditForm(request, response);
+                return;
+            }
+            if (!contactPerson.trim().matches("^[\\p{L}0-9 ]+$")) {
+                request.setAttribute("error", "Tên người liên hệ chỉ được chứa chữ, số và khoảng trắng");
+                request.setAttribute("supplierId", supplierId);
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                showEditForm(request, response);
+                return;
+            }
+            // Nếu trùng người liên hệ thì chỉ báo lỗi nếu số điện thoại cũng trùng (trừ chính nó)
+            boolean duplicateContact = supplierDAO.getAllSuppliers().stream()
+                .anyMatch(s -> s.getContactPerson().equalsIgnoreCase(contactPerson.trim()) && s.getSupplierPhone().equals(supplierPhone) && s.getSupplierId() != supplierId);
+            if (duplicateContact) {
+                request.setAttribute("error", "Người liên hệ và số điện thoại đã tồn tại");
+                request.setAttribute("supplierId", supplierId);
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                showEditForm(request, response);
                 return;
             }
 
+            // Validate số điện thoại
             if (supplierPhone == null || !supplierPhone.matches("^[0-9]{10,11}$")) {
-                request.getSession().setAttribute("error", "Số điện thoại phải có 10-11 chữ số");
-                response.sendRedirect(request.getContextPath() + "/suppliers?action=edit&id=" + supplierId);
+                request.setAttribute("error", "Số điện thoại phải là số và có 10-11 chữ số");
+                request.setAttribute("supplierId", supplierId);
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                showEditForm(request, response);
                 return;
             }
 
+            // Validate địa chỉ
             if (address == null || address.trim().length() < 5) {
-                request.getSession().setAttribute("error", "Địa chỉ phải có ít nhất 5 ký tự");
-                response.sendRedirect(request.getContextPath() + "/suppliers?action=edit&id=" + supplierId);
+                request.setAttribute("error", "Địa chỉ phải có ít nhất 5 ký tự");
+                request.setAttribute("supplierId", supplierId);
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                showEditForm(request, response);
                 return;
             }
 
+            // Validate trạng thái
             if (status == null || (!status.equals("active") && !status.equals("inactive"))) {
-                request.getSession().setAttribute("error", "Trạng thái không hợp lệ");
-                response.sendRedirect(request.getContextPath() + "/suppliers?action=edit&id=" + supplierId);
+                request.setAttribute("error", "Trạng thái không hợp lệ");
+                request.setAttribute("supplierId", supplierId);
+                request.setAttribute("supplierName", supplierName);
+                request.setAttribute("contactPerson", contactPerson);
+                request.setAttribute("supplierPhone", supplierPhone);
+                request.setAttribute("address", address);
+                request.setAttribute("status", status);
+                showEditForm(request, response);
                 return;
             }
 

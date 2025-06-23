@@ -13,8 +13,8 @@
 <body>
     <div class="container">
         <!-- Back button -->
-        <div class="back-section">
-            <a href="http://localhost:8080/Material_Management/suppliers" class="back-btn">Quay lại danh sách nhà cung cấp</a>
+        <div style="position:fixed; bottom:32px; left:32px; z-index:1000;">
+            <a href="http://localhost:8080/Material_Management/suppliers" class="btn-cancel" style="background:#4a90e2; color:#fff; font-weight:bold; padding:10px 28px; border-radius:4px; text-decoration:none; font-size:16px;">&larr; Quay lại danh sách nhà cung cấp</a>
         </div>
         
         <h1>Danh sách vật tư theo nhà cung cấp</h1>

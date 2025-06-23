@@ -17,16 +17,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Vật Tư</title>
-    <link rel="stylesheet" href="css/sidebar.css">
     <link rel="stylesheet" href="css/category.css">
     <link rel="stylesheet" href="css/footer.css">
 </head>
 <body>
-    <jsp:include page="sidebar.jsp" />
-    <div class="main-content">
-        <div class="page-content">
-            <div class="content-header">
-                <h1>Quản Lý Vật Tư</h1>
+    <div class="main-content" style="width:100vw; min-height:100vh; margin:0; padding:0;">
+        <div class="page-content" style="max-width:100vw; margin:0;">
+            <div class="content-header" style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:16px;">
+                    <h1 style="margin:0;">Quản Lý Vật Tư</h1>
+                </div>
                 <div class="header-actions">
                     <a href="categories?action=add" class="btn-add">+ Thêm danh mục mới</a>
                     <a href="${pageContext.request.contextPath}/MaterialListServlet" class="btn-new">Danh sách vật liệu</a>
@@ -111,33 +111,40 @@
             <!-- Phân trang -->
             <c:if test="${totalPages > 1}">
                 <div class="pagination">
+                  <div class="pagination-form">
                     <!-- Nút Previous -->
                     <c:choose>
                         <c:when test="${currentPage > 1}">
-                            <a href="categories?page=${currentPage - 1}${not empty keyword ? '&keyword=' : ''}${not empty keyword ? keyword : ''}${not empty param.parentId ? '&parentId=' : ''}${not empty param.parentId ? param.parentId : ''}${not empty sortBy ? '&sortBy=' : ''}${not empty sortBy ? sortBy : ''}">&laquo;</a>
+                            <a href="categories?page=${currentPage - 1}${not empty keyword ? '&keyword=' : ''}${not empty keyword ? keyword : ''}${not empty param.parentId ? '&parentId=' : ''}${not empty param.parentId ? param.parentId : ''}${not empty sortBy ? '&sortBy=' : ''}${not empty sortBy ? sortBy : ''}"
+                               class="page-button" aria-label="Trang trước">&laquo;</a>
                         </c:when>
                         <c:otherwise>
-                            <a class="disabled">&laquo;</a>
+                            <button class="page-button" disabled aria-label="Trang trước">&laquo;</button>
                         </c:otherwise>
                     </c:choose>
 
                     <!-- Các số trang -->
                     <c:forEach begin="${startPage}" end="${endPage}" var="i">
                         <a href="categories?page=${i}${not empty keyword ? '&keyword=' : ''}${not empty keyword ? keyword : ''}${not empty param.parentId ? '&parentId=' : ''}${not empty param.parentId ? param.parentId : ''}${not empty sortBy ? '&sortBy=' : ''}${not empty sortBy ? sortBy : ''}"
-                           class="${i == currentPage ? 'active' : ''}">${i}</a>
+                           class="page-button${i == currentPage ? ' active' : ''}">${i}</a>
                     </c:forEach>
 
                     <!-- Nút Next -->
                     <c:choose>
                         <c:when test="${currentPage < totalPages}">
-                            <a href="categories?page=${currentPage + 1}${not empty keyword ? '&keyword=' : ''}${not empty keyword ? keyword : ''}${not empty param.parentId ? '&parentId=' : ''}${not empty param.parentId ? param.parentId : ''}${not empty sortBy ? '&sortBy=' : ''}${not empty sortBy ? sortBy : ''}">&raquo;</a>
+                            <a href="categories?page=${currentPage + 1}${not empty keyword ? '&keyword=' : ''}${not empty keyword ? keyword : ''}${not empty param.parentId ? '&parentId=' : ''}${not empty param.parentId ? param.parentId : ''}${not empty sortBy ? '&sortBy=' : ''}${not empty sortBy ? sortBy : ''}"
+                               class="page-button" aria-label="Trang sau">&raquo;</a>
                         </c:when>
                         <c:otherwise>
-                            <a class="disabled">&raquo;</a>
+                            <button class="page-button" disabled aria-label="Trang sau">&raquo;</button>
                         </c:otherwise>
                     </c:choose>
+                  </div>
                 </div>
             </c:if>
+        </div>
+        <div style="position:fixed; bottom:32px; left:32px; z-index:1000;">
+            <a href="adminDashboard.jsp" class="btn-cancel" style="background:#4a90e2; color:#fff; font-weight:bold; padding:10px 28px; border-radius:4px; text-decoration:none; font-size:16px;">&larr; Về trang chủ</a>
         </div>
         <jsp:include page="footer.jsp" />
     </div>
