@@ -22,24 +22,19 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @WebServlet(name = "CreateMaterialDetailServlet", urlPatterns = {"/CreateMaterialDetail"})
-@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB
-        maxFileSize = 1024 * 1024 * 10,      // 10MB
-        maxRequestSize = 1024 * 1024 * 50)   // 50MB
+@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2,
+        maxFileSize = 1024 * 1024 * 10,
+        maxRequestSize = 1024 * 1024 * 50)
 public class CreateMaterialDetailServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Load categories
         CategoryDAO categoryDAO = new CategoryDAO();
         List<Category> categories = categoryDAO.getAllCategories();
         request.setAttribute("categories", categories);
-
-        // Load suppliers
         SupplierDAO supplierDAO = new SupplierDAO();
         List<Supplier> suppliers = supplierDAO.getAllSuppliers();
         request.setAttribute("suppliers", suppliers);
-
-        // Load units
         UnitConversionDao unitDao = new UnitConversionDao();
         List<UnitConversion> units = unitDao.getAll(1);
         request.setAttribute("units", units);
@@ -50,6 +45,7 @@ public class CreateMaterialDetailServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        MaterialDAO materialDAO = new MaterialDAO();
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
         String materialIdStr = request.getParameter("materialId");
@@ -62,7 +58,6 @@ public class CreateMaterialDetailServlet extends HttpServlet {
 
         String errorMessage = null;
         try {
-            // Validate required fields
             if (materialIdStr == null || materialIdStr.isEmpty() ||
                 name == null || name.trim().isEmpty() ||
                 categoryIdStr == null || categoryIdStr.isEmpty() ||
@@ -74,15 +69,20 @@ public class CreateMaterialDetailServlet extends HttpServlet {
             int materialId = Integer.parseInt(materialIdStr);
             int categoryId = Integer.parseInt(categoryIdStr);
             int supplierId = Integer.parseInt(supplierIdStr);
-            BigDecimal price = new BigDecimal(priceStr);
+            if (priceStr == null || priceStr.trim().isEmpty()) {
+                throw new Exception("Vui lòng nhập giá vật tư.");
+            }
+            if (!priceStr.matches("^\\d+$")) {
+                throw new Exception("Giá vật tư phải là số nguyên dương (không nhập số lẻ hoặc ký tự đặc biệt).");
+            }
+            long price = Long.parseLong(priceStr);
+            if (price <= 0) {
+                throw new Exception("Giá vật tư phải lớn hơn 0.");
+            }
 
-            // Check duplicate ID
-            MaterialDAO materialDAO = new MaterialDAO();
             if (materialDAO.getMaterialById(materialId) != null) {
                 throw new Exception("ID vật tư đã tồn tại. Vui lòng chọn ID khác.");
             }
-
-            // Handle image upload
             String imageUrl = null;
             if (imagePart != null && imagePart.getSize() > 0) {
                 String fileName = new File(imagePart.getSubmittedFileName()).getName();
@@ -93,7 +93,6 @@ public class CreateMaterialDetailServlet extends HttpServlet {
                 imageUrl = fileName;
             }
 
-            // Create Material object
             Material material = new Material();
             material.setMaterialId(materialId);
             material.setName(name);
@@ -103,7 +102,6 @@ public class CreateMaterialDetailServlet extends HttpServlet {
             material.setImageUrl(imageUrl);
             material.setDescription(description);
 
-            // Save to DB
             boolean success = materialDAO.addMaterialWithId(material);
             if (success) {
                 response.sendRedirect("MaterialListServlet");
@@ -114,15 +112,27 @@ public class CreateMaterialDetailServlet extends HttpServlet {
         } catch (Exception e) {
             errorMessage = e.getMessage();
         }
+        finally {
+            materialDAO.closeConnection();
+        }
 
-        // Reload dropdowns and show error
         CategoryDAO categoryDAO = new CategoryDAO();
-        request.setAttribute("categories", categoryDAO.getAllCategories());
         SupplierDAO supplierDAO = new SupplierDAO();
-        request.setAttribute("suppliers", supplierDAO.getAllSuppliers());
         UnitConversionDao unitDao = new UnitConversionDao();
-        request.setAttribute("units", unitDao.getAll(1));
-        request.setAttribute("errorMessage", errorMessage);
-        request.getRequestDispatcher("CreateMaterialDetail").forward(request, response);
+
+        try {
+            request.setAttribute("categories", categoryDAO.getAllCategories());
+            request.setAttribute("suppliers", supplierDAO.getAllSuppliers());
+            request.setAttribute("units", unitDao.getAll(1));
+            request.setAttribute("errorMessage", errorMessage);
+
+            request.getRequestDispatcher("createMaterialDetail.jsp").forward(request, response);
+        } finally {
+            categoryDAO.closeConnection();
+            supplierDAO.closeConnection();
+            unitDao.closeConnection();
+        }
     }
+    
+    
 } 

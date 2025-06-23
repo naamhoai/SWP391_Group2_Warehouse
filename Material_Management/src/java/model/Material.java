@@ -1,7 +1,5 @@
 package model;
 
-import java.math.BigDecimal;
-
 public class Material {
 
     private int materialId;
@@ -13,7 +11,7 @@ public class Material {
     private int conversionId;
     private String imageUrl;
     private String materialCondition;
-    private BigDecimal price;
+    private long price;
     private String description;
     private int quantity; // Đây là total_inventory
     private String unit;
@@ -21,7 +19,7 @@ public class Material {
     public Material() {
     }
 
-    public Material(int materialId, String name, int categoryId, String categoryName, int supplierId, String supplierName, int conversionId, String imageUrl, String materialCondition, BigDecimal price, String description, int quantity, String unit) {
+    public Material(int materialId, String name, int categoryId, String categoryName, int supplierId, String supplierName, int conversionId, String imageUrl, String materialCondition, long price, String description, int quantity, String unit) {
         this.materialId = materialId;
         this.name = name;
         this.categoryId = categoryId;
@@ -111,11 +109,11 @@ public class Material {
         this.materialCondition = materialCondition;
     }
 
-    public BigDecimal getPrice() {
+    public long getPrice() {
         return price;
     }
 
-    public void setPrice(BigDecimal price) {
+    public void setPrice(long price) {
         this.price = price;
     }
 

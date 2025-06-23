@@ -57,6 +57,24 @@ public class ResetPasswordServlet extends HttpServlet {
             return;
         }
 
+        if (password == null || password.trim().isEmpty() || confirmPassword == null || confirmPassword.trim().isEmpty()) {
+            request.setAttribute("mess", "Vui lòng nhập đầy đủ mật khẩu mới và xác nhận!");
+            request.setAttribute("email", email);
+            request.getRequestDispatcher("resetPassword.jsp").forward(request, response);
+            return;
+        }
+        if (password.length() < 8 || password.length() > 32) {
+            request.setAttribute("mess", "Mật khẩu mới phải từ 8 đến 32 ký tự!");
+            request.setAttribute("email", email);
+            request.getRequestDispatcher("resetPassword.jsp").forward(request, response);
+            return;
+        }
+        if (!password.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) {
+            request.setAttribute("mess", "Mật khẩu mới phải chứa ít nhất 1 ký tự đặc biệt!");
+            request.setAttribute("email", email);
+            request.getRequestDispatcher("resetPassword.jsp").forward(request, response);
+            return;
+        }
         if (!password.equals(confirmPassword)) {
             request.setAttribute("mess", "Mật khẩu xác nhận không khớp.");
             request.setAttribute("email", email);
@@ -75,10 +93,7 @@ public class ResetPasswordServlet extends HttpServlet {
             return;
         }
 
-        // Chỉ update password theo email
         daoUser.updatePassword(email, password);
-
-        // Gửi email mật khẩu mới cho user
         User user = daoUser.getUserByEmail(email);
         service.sendPasswordEmail(email, user.getFullname(), password);
 

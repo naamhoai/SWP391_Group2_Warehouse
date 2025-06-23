@@ -9,12 +9,9 @@
     <meta charset="UTF-8">
     <title>Quản Lý Danh Sách Vật Tư</title>
     <link rel="stylesheet" href="css/materiallist.css">
-    <link rel="stylesheet" href="css/sidebar.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
-    <jsp:include page="sidebar.jsp" />
-
     <div id="main-content">
         <div class="container">
             <div class="top-bar">
@@ -127,40 +124,90 @@
                 </tbody>
             </table>
 
-            <%-- Phân trang --%>
             <c:if test="${totalPages > 1}">
                 <div class="pagination">
-                    <c:url var="baseUrl" value="materialDetailList.jsp">
-                        <c:if test="${not empty searchQuery}"><c:param name="search" value="${searchQuery}"/></c:if>
-                        <c:if test="${categoryFilter ne 'All'}"><c:param name="category" value="${categoryFilter}"/></c:if>
-                        <c:if test="${supplierFilter ne 'All'}"><c:param name="supplier" value="${supplierFilter}"/></c:if>
-                        <c:param name="itemsPerPage" value="${itemsPerPage}"/>
-                        <c:param name="sort" value="${sortField}"/>
-                        <c:param name="dir" value="${sortDir}"/>
-                    </c:url>
-                    
-                    <a href="${currentPage > 1 ? baseUrl.concat('&page=').concat(currentPage - 1) : '#'}" class="page-button ${currentPage <= 1 ? 'disabled' : ''}">Lùi</a>
-                    
+                    <c:if test="${currentPage > 1}">
+                        <c:url var="prevUrl" value="MaterialListServlet">
+                            <c:if test="${not empty searchQuery}"><c:param name="search" value="${searchQuery}"/></c:if>
+                            <c:if test="${categoryFilter ne 'All'}"><c:param name="category" value="${categoryFilter}"/></c:if>
+                            <c:if test="${supplierFilter ne 'All'}"><c:param name="supplier" value="${supplierFilter}"/></c:if>
+                            <c:param name="itemsPerPage" value="${itemsPerPage}"/>
+                            <c:param name="sort" value="${sortField}"/>
+                            <c:param name="dir" value="${sortDir}"/>
+                            <c:param name="page" value="${currentPage - 1}"/>
+                        </c:url>
+                        <a href="${prevUrl}" class="page-button">Lùi</a>
+                    </c:if>
+                    <c:if test="${currentPage <= 1}">
+                        <span class="page-button disabled">Lùi</span>
+                    </c:if>
+
                     <c:if test="${startPage > 1}">
-                        <a href="${baseUrl}&page=1" class="page-button">1</a>
+                        <c:url var="firstUrl" value="MaterialListServlet">
+                            <c:if test="${not empty searchQuery}"><c:param name="search" value="${searchQuery}"/></c:if>
+                            <c:if test="${categoryFilter ne 'All'}"><c:param name="category" value="${categoryFilter}"/></c:if>
+                            <c:if test="${supplierFilter ne 'All'}"><c:param name="supplier" value="${supplierFilter}"/></c:if>
+                            <c:param name="itemsPerPage" value="${itemsPerPage}"/>
+                            <c:param name="sort" value="${sortField}"/>
+                            <c:param name="dir" value="${sortDir}"/>
+                            <c:param name="page" value="1"/>
+                        </c:url>
+                        <a href="${firstUrl}" class="page-button">1</a>
                         <c:if test="${startPage > 2}"><span class="page-ellipsis">...</span></c:if>
                     </c:if>
 
                     <c:forEach begin="${startPage}" end="${endPage}" var="i">
-                        <a href="${baseUrl}&page=${i}" class="page-button ${i == currentPage ? 'active' : ''}">${i}</a>
+                        <c:url var="pageUrl" value="MaterialListServlet">
+                            <c:if test="${not empty searchQuery}"><c:param name="search" value="${searchQuery}"/></c:if>
+                            <c:if test="${categoryFilter ne 'All'}"><c:param name="category" value="${categoryFilter}"/></c:if>
+                            <c:if test="${supplierFilter ne 'All'}"><c:param name="supplier" value="${supplierFilter}"/></c:if>
+                            <c:param name="itemsPerPage" value="${itemsPerPage}"/>
+                            <c:param name="sort" value="${sortField}"/>
+                            <c:param name="dir" value="${sortDir}"/>
+                            <c:param name="page" value="${i}"/>
+                        </c:url>
+                        <a href="${pageUrl}" class="page-button ${i == currentPage ? 'active' : ''}">${i}</a>
                     </c:forEach>
 
                     <c:if test="${endPage < totalPages}">
                         <c:if test="${endPage < totalPages - 1}"><span class="page-ellipsis">...</span></c:if>
-                        <a href="${baseUrl}&page=${totalPages}" class="page-button">${totalPages}</a>
+                        <c:url var="lastUrl" value="MaterialListServlet">
+                            <c:if test="${not empty searchQuery}"><c:param name="search" value="${searchQuery}"/></c:if>
+                            <c:if test="${categoryFilter ne 'All'}"><c:param name="category" value="${categoryFilter}"/></c:if>
+                            <c:if test="${supplierFilter ne 'All'}"><c:param name="supplier" value="${supplierFilter}"/></c:if>
+                            <c:param name="itemsPerPage" value="${itemsPerPage}"/>
+                            <c:param name="sort" value="${sortField}"/>
+                            <c:param name="dir" value="${sortDir}"/>
+                            <c:param name="page" value="${totalPages}"/>
+                        </c:url>
+                        <a href="${lastUrl}" class="page-button">${totalPages}</a>
                     </c:if>
 
-                    <a href="${currentPage < totalPages ? baseUrl.concat('&page=').concat(currentPage + 1) : '#'}" class="page-button ${currentPage >= totalPages ? 'disabled' : ''}">Tiến</a>
+                    <c:if test="${currentPage < totalPages}">
+                        <c:url var="nextUrl" value="MaterialListServlet">
+                            <c:if test="${not empty searchQuery}"><c:param name="search" value="${searchQuery}"/></c:if>
+                            <c:if test="${categoryFilter ne 'All'}"><c:param name="category" value="${categoryFilter}"/></c:if>
+                            <c:if test="${supplierFilter ne 'All'}"><c:param name="supplier" value="${supplierFilter}"/></c:if>
+                            <c:param name="itemsPerPage" value="${itemsPerPage}"/>
+                            <c:param name="sort" value="${sortField}"/>
+                            <c:param name="dir" value="${sortDir}"/>
+                            <c:param name="page" value="${currentPage + 1}"/>
+                        </c:url>
+                        <a href="${nextUrl}" class="page-button">Tiến</a>
+                    </c:if>
+                    <c:if test="${currentPage >= totalPages}">
+                        <span class="page-button disabled">Tiến</span>
+                    </c:if>
                 </div>
-                 <div class="pagination-info">
+                <div class="pagination-info">
                     Trang ${currentPage} / ${totalPages}
                 </div>
             </c:if>
+        </div>
+        <div class="material-back-btn-wrapper">
+            <a href="categories" class="material-back-btn">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
         </div>
     </div>
 </body>

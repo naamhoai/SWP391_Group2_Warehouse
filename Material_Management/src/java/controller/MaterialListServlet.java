@@ -109,7 +109,6 @@ public class MaterialListServlet extends HttpServlet {
                     MaterialDAO dao = new MaterialDAO();
                     dao.deleteMaterial(materialId);
                 } catch (Exception e) {
-                    // Có thể log lỗi hoặc set thông báo lỗi
                 }
             }
             response.sendRedirect("MaterialListServlet");
@@ -121,6 +120,6 @@ public class MaterialListServlet extends HttpServlet {
     @Override
     public String getServletInfo() {
         return "Short description";
-    }// </editor-fold>
+    }
 
 }

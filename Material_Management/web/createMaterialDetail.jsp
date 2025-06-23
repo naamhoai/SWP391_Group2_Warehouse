@@ -7,13 +7,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Thêm Mới Vật Tư</title>
-    <link rel="stylesheet" href="css/sidebar.css">
     <link rel="stylesheet" href="css/addMaterialDetail.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
-    <jsp:include page="sidebar.jsp" />
-
     <div id="main-content">
         <div class="container">
             <h1 class="page-title">Thêm Mới Vật Tư</h1>
@@ -30,7 +27,7 @@
                     <h3 class="form-section-title">Thông Tin Bắt Buộc</h3>
                     <div class="form-group">
                         <label for="materialId">ID vật tư <span class="required">*</span></label>
-                        <input type="number" id="materialId" name="materialId" placeholder="Nhập ID vật tư" required>
+                        <input type="number" id="materialId" name="materialId" placeholder="Nhập ID vật tư" min="1" required>
                     </div>
                     <div class="form-group">
                         <label for="name">Tên vật tư <span class="required">*</span></label>
@@ -61,7 +58,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="price">Giá (VNĐ) <span class="required">*</span></label>
-                            <input type="number" id="price" name="price" value="0" step="0.01" min="0" required>
+                            <input type="number" id="price" name="price" value="0" step="1" min="0" required>
                         </div>
                     </div>
                 </div>
@@ -88,7 +85,7 @@
                 </div>
 
                 <div class="form-actions">
-                    <a href="CreateMaterialDetail" class="btn btn-secondary">
+                    <a href="MaterialListServlet" class="btn btn-secondary">
                         <i class="fas fa-times"></i> Hủy Bỏ
                     </a>
                     <button type="submit" class="btn btn-primary">

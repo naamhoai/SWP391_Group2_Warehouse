@@ -19,9 +19,9 @@ import java.sql.SQLException;
 
 @WebServlet("/updateMaterialServlet")
 @MultipartConfig(
-        fileSizeThreshold = 1024 * 1024 * 1, // 1 MB
-        maxFileSize = 1024 * 1024 * 10, // 10 MB
-        maxRequestSize = 1024 * 1024 * 15 // 15 MB
+        fileSizeThreshold = 1024 * 1024 * 1,
+        maxFileSize = 1024 * 1024 * 10,
+        maxRequestSize = 1024 * 1024 * 15
 )
 public class UpdateMaterialServlet extends HttpServlet {
 
@@ -29,20 +29,23 @@ public class UpdateMaterialServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         try {
-            // Lấy dữ liệu từ các trường của form
             int materialId = Integer.parseInt(request.getParameter("materialId"));
             String name = request.getParameter("name");
             int categoryId = Integer.parseInt(request.getParameter("categoryId"));
             int supplierId = Integer.parseInt(request.getParameter("supplierId"));
-            BigDecimal price = new BigDecimal(request.getParameter("price"));
+            String priceStr = request.getParameter("price");
+            if (priceStr == null || priceStr.trim().isEmpty()) {
+                throw new Exception("Giá vật tư không được để trống.");
+            }
+            if (!priceStr.matches("^\\d+$")) {
+                throw new Exception("Giá vật tư phải là số nguyên dương (không nhập số lẻ hoặc ký tự đặc biệt).");
+            }
+            long price = Long.parseLong(priceStr);
+            if (price <= 0) {
+                throw new Exception("Giá vật tư phải lớn hơn 0.");
+            }
             String description = request.getParameter("description");
-
-            // Lấy URL ảnh hiện tại (nếu có) để giữ lại nếu không có ảnh mới được upload
-            // Có thể cần lấy từ DB hoặc từ một trường ẩn trong form nếu không thay đổi
-            // Hiện tại, chúng ta sẽ bỏ qua trường hợp này và chỉ xử lý khi có upload mới.
-            String imageUrl = null; // Mặc định là null, sẽ được cập nhật nếu có file mới
-
-            // Lấy conversionId hiện tại từ DB để giữ nguyên đơn vị
+            String imageUrl = null;
             MaterialDAO dao = new MaterialDAO();
             Material existingMaterial = dao.getMaterialById(materialId);
             int conversionId = 0;
@@ -50,8 +53,7 @@ public class UpdateMaterialServlet extends HttpServlet {
                 conversionId = existingMaterial.getConversionId();
             }
 
-            // Xử lý upload ảnh mới
-            Part filePart = request.getPart("imageUpload"); // Tên input trong JSP
+            Part filePart = request.getPart("imageUpload");
             String fileName = getFileName(filePart);
 
             if (fileName != null && !fileName.isEmpty()) {
@@ -71,7 +73,16 @@ public class UpdateMaterialServlet extends HttpServlet {
                 }
             }
 
-            // Tạo đối tượng Material mới với dữ liệu cập nhật
+            if (name == null || name.trim().isEmpty()) {
+                throw new Exception("Tên vật tư không được để trống.");
+            }
+            if (name.length() > 100) {
+                throw new Exception("Tên vật tư không được vượt quá 100 ký tự.");
+            }
+            if (description != null && description.length() > 255) {
+                throw new Exception("Mô tả không được vượt quá 255 ký tự.");
+            }
+
             Material material = new Material();
             material.setMaterialId(materialId);
             material.setName(name);
@@ -82,17 +93,12 @@ public class UpdateMaterialServlet extends HttpServlet {
             material.setImageUrl(imageUrl);
             material.setConversionId(conversionId);
 
-            // Gọi DAO để cập nhật vào DB
             boolean success = dao.updateMaterial(material);
-
-            // Chuyển hướng người dùng về trang danh sách với thông báo
             if (success) {
                 response.sendRedirect("MaterialListServlet");
             } else {
                 request.setAttribute("errorMessage", "Cập nhật vật tư thất bại, vui lòng thử lại.");
-                // Cần load lại dữ liệu cho form nếu thất bại
-                request.setAttribute("material", material); // Giữ lại dữ liệu người dùng đã nhập
-                // Lấy lại các dropdown data nếu cần
+                request.setAttribute("material", material);
                 MaterialInfoDAO infoDAO = new MaterialInfoDAO();
                 request.setAttribute("categories", infoDAO.getAllCategoriesForDropdown());
                 request.setAttribute("suppliers", infoDAO.getAllSuppliersForDropdown());

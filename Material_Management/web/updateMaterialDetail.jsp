@@ -7,13 +7,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Cập Nhật Vật Tư</title>
-    <link rel="stylesheet" href="css/sidebar.css">
     <link rel="stylesheet" href="css/addMaterialDetail.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
-    <jsp:include page="sidebar.jsp" />
-
     <div id="main-content">
         <div class="container">
             <h1 class="page-title">Cập Nhật Vật Tư</h1>
@@ -63,7 +60,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="price">Giá (VNĐ) <span class="required">*</span></label>
-                            <input type="number" id="price" name="price" value="${material.price}" step="0.01" min="0" required>
+                            <input type="number" id="price" name="price" value="${material.price}" step="1" min="1" required>
                         </div>
                     </div>
                 </div>

@@ -1,15 +1,18 @@
-/* add-material.css */
-/* Sử dụng lại hầu hết các style từ edit-material.css để nhất quán */
-/* Bạn có thể tạo một file base.css và import vào cả hai trang */
-
 body {
     font-family: Arial, sans-serif;
     background-color: #f8f9fa;
+    background: #f8f8f8;
+    margin: 0;
+    padding: 0;
 }
 
 #main-content {
     margin-left: 250px;
     padding: 20px 30px;
+    max-width: none;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
 }
 
 .container {
@@ -19,6 +22,11 @@ body {
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     padding: 30px;
+    max-width: none;
+    width: 100vw;
+    margin: 0;
+    padding: 24px 32px;
+    box-sizing: border-box;
 }
 
 .page-title {
@@ -119,3 +127,7 @@ body {
 .btn-primary:hover { background-color: #0069d9; }
 .btn-secondary { background-color: #6c757d; color: white; }
 .btn-secondary:hover { background-color: #5a6268; }
+
+.top-bar {
+    margin-top: 0;
+}

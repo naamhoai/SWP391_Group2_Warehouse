@@ -9,8 +9,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MaterialInfoDAO {
-    private DBContext dbContext = new DBContext();
+public class MaterialInfoDAO extends DBContext{
 
     public List<String> getAllCategories() {
         List<String> categories = new ArrayList<>();
@@ -90,5 +89,29 @@ public class MaterialInfoDAO {
             }
         }
         return units;
+    }
+
+    public List<Category> getParentCategories() {
+        List<Category> list = new ArrayList<>();
+        String sql = "SELECT * FROM categories WHERE parent_id IS NULL ORDER BY name ASC";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Category cat = new Category();
+                cat.setCategoryId(rs.getInt("category_id"));
+                cat.setName(rs.getString("name"));
+                cat.setParentId(null);
+                list.add(cat);
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi lấy danh sách danh mục vật tư: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
+    public void close(){
+        super.closeConnection();
     }
 } 
