@@ -112,7 +112,7 @@ public class LoginServlet extends HttpServlet {
                                 response.getWriter().print("day la so 2");
                                 break;
                             case 3:
-                                response.sendRedirect("requestMaterial.jsp");
+                                response.sendRedirect("warehouseStaffDashboard.jsp");
                                 break;
                             case 4:
                                 response.getWriter().print("day la so 4");
