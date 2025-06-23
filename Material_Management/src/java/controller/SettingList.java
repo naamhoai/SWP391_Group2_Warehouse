@@ -6,7 +6,6 @@ package controller;
 
 import model.*;
 
-import dao.*;
 import dao.DAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -124,8 +123,7 @@ public class SettingList extends HttpServlet {
         } finally {
             dao.close();
         }
-
-        request.getRequestDispatcher("settinglist.jsp").forward(request, response);
+        request.getRequestDispatcher("settingList.jsp").forward(request, response);
     }
 
     /**

@@ -7,19 +7,14 @@ package controller;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.Map;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import dao.NotificationDAO;
 import dao.RequestDAO;
-import dao.DashboardDAO;
 import java.io.PrintWriter;
-import java.sql.SQLException;
 import model.Notification;
 import model.Request;
 
@@ -76,28 +71,28 @@ public class StaffDashboardServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
-        
+
         int userId = (int) userIdObj;
 
         // Lấy thông báo từ chối của nhân viên
         NotificationDAO notificationDAO = new NotificationDAO();
-RequestDAO requestDAO = new RequestDAO();
-        
+        RequestDAO requestDAO = new RequestDAO();
+
         List<Notification> allNotifications = notificationDAO.getAllNotifications(userId);
         List<Notification> notifications = allNotifications.stream()
-            .filter(noti -> {
-                try {
-                    // Lấy thông tin yêu cầu
-                    Request req = requestDAO.getRequestById(noti.getRequestId());
-                    // Chỉ hiển thị thông báo của yêu cầu bị từ chối và chưa đọc
-                    return !noti.isRead() && 
-                           req != null && 
-                           "Rejected".equals(req.getRequestStatus());
-                } catch (Exception e) {
-                    return false;
-                }
-            })
-            .collect(Collectors.toList());
+                .filter(noti -> {
+                    try {
+                        // Lấy thông tin yêu cầu
+                        Request req = requestDAO.getRequestById(noti.getRequestId());
+                        // Chỉ hiển thị thông báo của yêu cầu bị từ chối và chưa đọc
+                        return !noti.isRead()
+                                && req != null
+                                && "Rejected".equals(req.getRequestStatus());
+                    } catch (Exception e) {
+                        return false;
+                    }
+                })
+                .collect(Collectors.toList());
 
         // Truyền sang JSP
         request.setAttribute("notifications", notifications);

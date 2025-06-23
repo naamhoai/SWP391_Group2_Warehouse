@@ -35,7 +35,7 @@ public class DeliveryServlet extends HttpServlet {
                 ? deliveryDAO.getDeliveriesByStatus(status)
                 : deliveryDAO.getAllDeliveries();
         request.setAttribute("deliveries", deliveries);
-        request.getRequestDispatcher("/delivery.jsp").forward(request, response);
+        request.getRequestDispatcher("delivery.jsp").forward(request, response);
     }
 
     private void addDelivery(HttpServletRequest request, HttpServletResponse response)

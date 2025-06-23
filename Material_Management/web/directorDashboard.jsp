@@ -21,7 +21,7 @@
     </head>
     <body>
         <!-- Include Sidebar -->
-        <jsp:include page="../sidebar.jsp" />
+        <jsp:include page="sidebar.jsp" />
 
         <!-- Main Content -->
         <div id="main-content">
@@ -238,9 +238,8 @@
                     </tbody>
                 </table>
             </div>
-
             <!-- Include Footer -->
-            <jsp:include page="../footer.jsp" />
+            <jsp:include page="footer.jsp" />
         </div>
 
         <!-- Hidden data for charts -->
@@ -279,4 +278,3 @@
 
     </body>
 </html>
-

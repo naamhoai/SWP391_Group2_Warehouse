@@ -19,11 +19,6 @@
                     <h2 class="page-title">
                         <i class="fas fa-history"></i> Lịch sử thay đổi quyền
                     </h2>
-                    <div class="theme-toggle">
-                        <button id="themeToggle" aria-label="Toggle theme">
-                            <i class="fas fa-moon"></i>
-                        </button>
-                    </div>
                 </div>
 
                 <c:if test="${not empty error}">
@@ -93,24 +88,5 @@
                 </div>
             </div>
         </div>
-
-        <script>
-            const themeToggle = document.getElementById('themeToggle');
-            if (themeToggle) {
-                themeToggle.addEventListener('click', function() {
-                    document.body.classList.toggle('dark-theme');
-                    const isDark = document.body.classList.contains('dark-theme');
-                    themeToggle.innerHTML = isDark
-                        ? '<i class="fas fa-sun"></i>'
-                        : '<i class="fas fa-moon"></i>';
-                    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-                });
-
-                if (localStorage.getItem('theme') === 'dark') {
-                    document.body.classList.add('dark-theme');
-                    themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
-                }
-            }
-        </script>
     </body>
 </html>

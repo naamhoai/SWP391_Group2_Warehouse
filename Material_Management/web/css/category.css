@@ -156,7 +156,7 @@ h2 {
 .form-field input:focus,
 .form-field select:focus {
     outline: none;
-    border-color: #4a90e2;
+border-color: #4a90e2;
     box-shadow: 0 0 5px rgba(74, 144, 226, 0.2);
 }
 
@@ -321,7 +321,7 @@ h2 {
 
 .filter-select {
     min-width: 180px;
-    padding: 8px 12px;
+padding: 8px 12px;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     font-size: 14px;
@@ -477,8 +477,7 @@ h2 {
         padding: 0 12px;
         font-size: 14px;
     }
-
-    .pagination a:first-child,
+.pagination a:first-child,
     .pagination a:last-child {
         min-width: 45px;
         font-size: 16px;
@@ -659,7 +658,7 @@ h2 {
     }
 
     .category-table th,
-    .category-table td {
+.category-table td {
         border: 1px solid #000;
     }
-} 
+}

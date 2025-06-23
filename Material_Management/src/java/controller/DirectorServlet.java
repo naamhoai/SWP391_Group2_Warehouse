@@ -30,12 +30,11 @@ public class DirectorServlet extends HttpServlet {
 
             if (userId != null) {
                 UserDAO userDAO = new UserDAO();
-                User user = userDAO.getUserById(userId); // ✅ lấy user theo userId
+                User user = userDAO.getUserById(userId);
 
                 if (user != null) {
-                    request.setAttribute("user", user); // ✅ gán user vào request để dùng ở JSP
+                    request.setAttribute("user", user);
 
-                    // Lấy thông báo theo chính user đang đăng nhập
                     NotificationDAO notificationDAO = new NotificationDAO();
                     List<Notification> notifications = notificationDAO.getAllNotifications(userId);
                     request.setAttribute("notifications", notifications);
@@ -49,7 +48,7 @@ public class DirectorServlet extends HttpServlet {
             List<Request> requests = requestDAO.getPendingRequests();
             request.setAttribute("requests", requests);
 
-            request.getRequestDispatcher("/view/directorDashboard.jsp").forward(request, response);
+            request.getRequestDispatcher("directorDashboard.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,

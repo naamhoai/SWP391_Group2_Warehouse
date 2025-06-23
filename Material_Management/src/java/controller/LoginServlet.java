@@ -87,7 +87,6 @@ public class LoginServlet extends HttpServlet {
 
             for (User user2 : users) {
                 if (gmail.equals(user2.getEmail())) {
-                     
                     if (!"active".equalsIgnoreCase(user2.getStatus())) {
                         request.setAttribute("mess", "Tài khoản đã bị khóa.");
                         request.getRequestDispatcher("login.jsp").forward(request, response);
@@ -110,13 +109,13 @@ public class LoginServlet extends HttpServlet {
                                 response.sendRedirect("adminDashboard.jsp");
                                 break;
                             case 2:
-                                response.sendRedirect("directorDashboard.jsp");
+                                response.sendRedirect("director");
                                 break;
                             case 3:
                                 response.sendRedirect("warehouseStaffDashboard.jsp");
                                 break;
                             case 4:
-                                response.sendRedirect("day la so 4");
+                                response.sendRedirect("staffDashboard");
                                 break;
                             default:
                                 response.sendRedirect("login.jsp");
