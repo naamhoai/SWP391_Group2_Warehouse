@@ -40,7 +40,7 @@
                 </form>
                 <div class="imgsp">
                     <span class="hotline">Support</span>
-                    <a href="requestpassword.jsp"><img src="./image/customer-support-1714.png" alt="Customer Support"/></a>
+                    <a href="requestPassword.jsp"><img src="./image/customer-support-1714.png" alt="Customer Support"/></a>
                     
                 </div>
 

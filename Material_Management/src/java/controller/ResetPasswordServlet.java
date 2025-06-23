@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.mindrot.jbcrypt.BCrypt;
 
 @WebServlet(name="resetPassword", urlPatterns={"/resetPassword"})
 public class ResetPasswordServlet extends HttpServlet {
@@ -93,13 +94,14 @@ public class ResetPasswordServlet extends HttpServlet {
             return;
         }
 
-        daoUser.updatePassword(email, password);
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+        daoUser.updatePassword(email, hashedPassword);
         User user = daoUser.getUserByEmail(email);
         service.sendPasswordEmail(email, user.getFullname(), password);
 
         tokenObj.setUsed(true);
         daoToken.updateStatus(tokenObj);
 
-        request.getRequestDispatcher("dashboard.jsp").forward(request, response);
+        request.getRequestDispatcher("adminDashboard.jsp").forward(request, response);
     }
 }
