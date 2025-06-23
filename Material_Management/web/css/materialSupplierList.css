@@ -1,346 +1,247 @@
-/* CSS cho trang Danh sách vật tư theo nhà cung cấp */
-
-/* Reset và base styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
+/* Reset & base */
+* { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f5f5f5;
-    color: #333;
-    line-height: 1.6;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f6f8fa;
+    color: #222;
 }
-
 .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
+    width: 100%;
+    max-width: none;
+    margin: 32px 0 0 0;
+    padding: 0 32px;
 }
-
-/* Back button styles - Professional Design */
-.back-section {
-    margin-bottom: 30px;
-    padding: 0;
-}
-
-.back-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: 500;
-    font-size: 14px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-    border: none;
-    position: relative;
-    overflow: hidden;
+h1 {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #222;
     letter-spacing: 0.5px;
 }
-
-.back-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
+hr.divider {
+    width: 220px;
+    height: 3px;
+    background: #2196f3;
+    margin: 0 auto 24px auto;
+    border-radius: 2px;
+    border: none;
 }
-
-.back-btn:hover {
-    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-    text-decoration: none;
-    color: white;
-}
-
-.back-btn:hover::before {
-    left: 100%;
-}
-
-.back-btn:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
-}
-
-.back-btn::after {
-    content: '←';
-    font-size: 16px;
-    font-weight: bold;
-    margin-right: 4px;
-}
-
-/* Header styles */
-h1 {
-    color: #2c3e50;
-    margin-bottom: 30px;
-    font-size: 2.2em;
-    text-align: center;
-    border-bottom: 3px solid #3498db;
-    padding-bottom: 10px;
-}
-
-/* Filter form styles */
 .filter-form {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 2px 12px #0001;
+    padding: 14px 18px;
+    margin-bottom: 18px;
     display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    align-items: end;
+    flex-wrap: nowrap;
+    gap: 16px;
+    align-items: flex-end;
+    justify-content: center;
+    overflow-x: auto;
 }
-
 .filter-group {
     display: flex;
     flex-direction: column;
-    min-width: 200px;
+    min-width: 150px;
+    flex: 1 1 0;
+    max-width: 220px;
 }
-
 .filter-group label {
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: #2c3e50;
+    font-weight: 500;
+    margin-bottom: 3px;
+    color: #444;
+    font-size: 0.93rem;
 }
-
 .filter-group select,
 .filter-group input[type="text"] {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
+    padding: 7px 12px;
+    border-radius: 7px;
+    border: 1.2px solid #e0e0e0;
+    font-size: 0.98rem;
+    background: #f8fafd;
+    transition: border 0.2s;
+    height: 34px;
 }
-
+.filter-group input[type="text"] {
+    min-width: 120px;
+}
+.filter-group select:focus,
+.filter-group input[type="text"]:focus {
+    border: 1.2px solid #2196f3;
+    outline: none;
+}
 .search-group {
     display: flex;
-    gap: 10px;
+    gap: 7px;
+    align-items: flex-end;
+    flex: 1 1 0;
+    max-width: 320px;
+    justify-content: flex-end;
 }
-
 .search-group input[type="text"] {
-    flex: 1;
-    min-width: 200px;
+    min-width: 240px;
+    height: 42px;
+    font-size: 1.08rem;
+    padding: 0 18px;
+    border-radius: 10px;
+    border: 1.5px solid #e0e0e0;
+    background: #f8fafd;
+    transition: border 0.2s;
+    margin-right: 0;
 }
-
+.search-group input[type="text"]:focus {
+    border: 1.5px solid #2196f3;
+    outline: none;
+}
 .search-btn {
-    padding: 8px 16px;
-    background-color: #3498db;
-    color: white;
+    height: 42px;
+    padding: 0 28px;
+    font-size: 1.08rem;
+    border-radius: 10px;
+    margin-left: 0;
+    background: #2196f3;
+    color: #fff;
     border: none;
-    border-radius: 4px;
+    font-weight: 600;
     cursor: pointer;
-    font-weight: 500;
-    transition: background-color 0.3s ease;
+    transition: background 0.2s;
+    box-shadow: 0 1px 4px #2196f322;
 }
-
 .search-btn:hover {
-    background-color: #2980b9;
+    background: #1769aa;
 }
-
-/* Table styles */
 table {
     width: 100%;
-    border-collapse: collapse;
-    background: white;
-    border-radius: 8px;
+    box-sizing: border-box;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+    border-radius: 14px;
     overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
+    box-shadow: 0 2px 12px #0001;
+    margin-bottom: 14px;
 }
-
 thead {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: #2196f3;
     color: white;
 }
-
+th, td {
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 0.98rem;
+}
 th {
-    padding: 15px;
-    text-align: left;
-    font-weight: 600;
-    font-size: 14px;
-}
-
-td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #eee;
-    font-size: 14px;
-}
-
-tbody tr:hover {
-    background-color: #f8f9fa;
-}
-
-/* Sortable column styles */
-.sortable {
-    position: relative;
-}
-
-.sort-form {
-    margin: 0;
-    padding: 0;
-}
-
-.sort-button {
-    background: none;
+    font-weight: 700;
     border: none;
-    color: white;
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-    padding: 0;
-    width: 100%;
-    text-align: left;
-    position: relative;
+    background: #2196f3;
+    color: #fff;
 }
-
-.sort-button:hover {
-    text-decoration: underline;
+tr:not(:first-child):hover td {
+    background: #f0f7ff;
 }
-
-.sort-button.asc::after {
-    content: " ▲";
-    font-size: 12px;
+td {
+    background: #fff;
+    border-bottom: 1px solid #f0f0f0;
 }
-
-.sort-button.desc::after {
-    content: " ▼";
-    font-size: 12px;
+tr:last-child td {
+    border-bottom: none;
 }
-
-/* Status styles */
 .status-active {
-    color: #27ae60;
-    font-weight: 600;
+    color: #1ca97c;
+    font-weight: 700;
+    font-size: 0.97rem;
 }
-
-.status-inactive {
-    color: #e74c3c;
-    font-weight: 600;
+.no-data {
+    color: #888;
+    text-align: center;
+    font-style: italic;
+    padding: 18px 0;
+    font-size: 0.98rem;
 }
-
-/* Pagination styles */
 .pagination {
+    margin-top: 20px;
     display: flex;
     justify-content: center;
-    margin: 20px 0;
+    gap: 8px;
 }
-
-.pagination-form {
-    display: flex;
-    gap: 5px;
-    align-items: center;
-}
-
 .page-button {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    background: white;
+    padding: 6px 12px;
+    border: 1px solid #dee2e6;
+    background-color: white;
     color: #333;
-    text-decoration: none;
     border-radius: 4px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 14px;
+    font-size: 1rem;
+    font-weight: 500;
+    min-width: 36px;
+    transition: background 0.18s;
+    box-shadow: none;
 }
-
-.page-button:hover:not(:disabled) {
-    background-color: #3498db;
-    color: white;
-    border-color: #3498db;
+.page-button:hover:not([disabled]) {
+    background-color: #e9ecef;
 }
-
 .page-button.active {
-    background-color: #3498db;
+    background-color: #69b9ff;
     color: white;
-    border-color: #3498db;
+    border-color: #69b9ff;
 }
-
-.page-button:disabled {
+.page-button[disabled] {
     opacity: 0.5;
     cursor: not-allowed;
+    background: #f3f3f3;
+    color: #b0b0b0;
+    border-color: #e0e0e0;
 }
-
 .page-ellipsis {
-    padding: 8px 12px;
+    padding: 6px 12px;
     color: #666;
 }
-
 .pagination-info {
     text-align: center;
-    color: #666;
-    font-size: 14px;
     margin-top: 10px;
+    color: #666;
+    font-size: 1rem;
 }
-
-/* Message styles */
-.error {
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 15px;
-    border-radius: 5px;
-    margin-bottom: 20px;
-    border: 1px solid #f5c6cb;
+.back-btn {
+    margin-left: 0;
+    display: block;
+    padding: 10px 26px;
+    background: #2196f3;
+    color: #fff;
+    border-radius: 9px;
+    font-size: 1.02rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 0.2s;
+    width: fit-content;
+    box-shadow: 0 1px 4px #2196f322;
 }
-
-.info {
-    background-color: #d1ecf1;
-    color: #0c5460;
-    padding: 15px;
-    border-radius: 5px;
-    margin-bottom: 20px;
-    border: 1px solid #bee5eb;
-    text-align: center;
+.back-btn:hover {
+    background: #1769aa;
 }
-
-/* Responsive design */
-@media (max-width: 768px) {
-    .container {
-        padding: 10px;
-    }
-    
-    .back-btn {
-        padding: 10px 16px;
-        font-size: 13px;
-    }
-    
-    .filter-form {
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .filter-group {
-        min-width: auto;
-    }
-    
-    .search-group {
-        flex-direction: column;
-    }
-    
-    .search-group input[type="text"] {
-        min-width: auto;
-    }
-    
-    table {
-        font-size: 12px;
-    }
-    
-    th, td {
-        padding: 8px;
-    }
-    
-    .pagination-form {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-} 
+@media (max-width: 900px) {
+    .container { padding: 0 8px; }
+    .filter-form { flex-wrap: wrap; }
+    .filter-group, .search-group { flex: 1 1 100%; max-width: 100%; }
+}
+@media (max-width: 600px) {
+    .container { padding: 0 2px; }
+    .filter-form { flex-direction: column; align-items: stretch; gap: 7px; padding: 7px; }
+    th, td { padding: 6px 4px; font-size: 0.93rem; }
+    .back-btn { margin: 14px 0 0 0; padding: 7px 12px; font-size: 0.93rem; }
+}
+/* Làm rộng tối đa ô chọn công ty (nhà cung cấp) */
+.filter-group.supplier-group {
+    flex-basis: 480px;
+    max-width: 600px;
+    width: 100%;
+}
+.filter-group.supplier-group select {
+    min-width: 420px;
+    width: 100%;
+    font-size: 1.08rem;
+    max-width: 100%;
+}

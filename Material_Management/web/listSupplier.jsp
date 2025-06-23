@@ -102,7 +102,7 @@
                                                class="btn-view">Xem</a>
                                             <a href="${pageContext.request.contextPath}/suppliers?action=edit&id=${s.supplierId}" 
                                                class="btn-edit">Sửa</a>
-                                            <a href="${pageContext.request.contextPath}/materialSupplierList.jsp?supplierId=${s.supplierId}" 
+                                            <a href="${pageContext.request.contextPath}/material-suppliers?supplier_id=${s.supplierId}" 
                                                class="btn-view" style="background-color:#ffc107; color:#212529; margin-left:5px;">Vật tư</a>
                                         </td>
                                     </tr>
