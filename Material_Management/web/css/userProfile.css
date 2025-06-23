@@ -1,158 +1,101 @@
-/* Reset và Base Styles */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
+/* General Body and Layout */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f5f7fa;
+    background-color: #f4f6f8; /* A light, neutral background */
     color: #333;
-    line-height: 1.6;
-    overflow-x: hidden;
-}
-
-/* Layout chính */
-.layout {
+    margin: 0;
     display: flex;
+    justify-content: center;
+    align-items: center;
     min-height: 100vh;
-    width: 100%;
+    padding: 20px 0;
 }
 
-/* Sidebar */
-
-.sidebar {
-    padding: 0px !important;
-}
-
-.sidebar.collapsed {
-    width: 70px;
-}
-
-/* Nội dung chính */
-.main-content {
-    margin-left: 250px;
-    padding: 20px;
-    width: calc(100vw - 250px);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    min-height: 100vh;
-}
-
-.sidebar.collapsed ~ .main-content {
-    margin-left: 70px;
-    width: calc(100vw - 70px);
-}
-
-/* Form wrapper */
+/* Form Wrapper */
 .form-wrapper {
     background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-    margin: 20px auto;
-    max-width: 900px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    margin: 20px;
+    max-width: 850px;
+    width: 100%;
     border: 1px solid #e2e8f0;
-    transition: all 0.3s ease;
 }
 
-/* Form container */
-.page-header {
-    background: transparent;
-    padding: 0;
-}
-
+/* Form Title */
 .form-title {
     text-align: center;
     font-size: 2rem;
+    font-weight: 600;
     margin-bottom: 30px;
-    color: #1a237e;
+    color: #1e3a8a; /* A deep blue for titles */
 }
 
-/* Avatar Container Styles */
+/* Avatar Styles */
 .avatar-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-bottom: 2rem;
-    padding: 1rem;
 }
 
 .avatar-container img {
-    width: 150px;
-    height: 150px;
+    width: 140px;
+    height: 140px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid #3b82f6;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 4px solid #3b82f6;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     margin-bottom: 1rem;
-    transition: all 0.3s ease;
-}
-
-.avatar-container img:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
 }
 
 .avatar-container span {
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: #6b7280;
-    margin-top: 0.5rem;
 }
 
 .avatar-container input[type="file"] {
-    display: none;
+    display: none; /* Hide the default input */
 }
 
-/* Edit Button Styles */
-a[href*="UpdateUserProfileServlet"] {
-    display: inline-block;
-    padding: 0.75rem 2rem;
+.custom-file-label {
     background-color: #3b82f6;
     color: white;
-    text-decoration: none;
+    padding: 10px 15px;
     border-radius: 6px;
+    cursor: pointer;
     font-weight: 500;
-    margin-top: 1.5rem;
-    transition: all 0.3s ease;
-    border: none;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+    transition: background-color 0.3s;
 }
 
-a[href*="UpdateUserProfileServlet"]:hover {
+.custom-file-label:hover {
     background-color: #2563eb;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
 }
 
-a[href*="UpdateUserProfileServlet"]:active {
-    transform: translateY(0);
+.custom-file-label i {
+    margin-right: 8px;
 }
 
-/* Form layout */
+/* Form Layout */
 .row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 15px;
-    gap: 20px;
-}
-
-.full-width {
-    flex-direction: column;
+    margin-bottom: 1.2rem;
+    gap: 25px;
 }
 
 .column {
-    width: 48%;
+    width: 100%;
     display: flex;
     flex-direction: column;
 }
 
-/* Form elements */
+/* Form Elements */
 label {
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     font-weight: 600;
-    color: #3949ab;
+    color: #334155; /* Darker text for labels */
 }
 
 input[type="text"],
@@ -160,239 +103,126 @@ input[type="password"],
 input[type="email"],
 input[type="tel"],
 input[type="date"],
-input[type="number"],
-select,
-textarea {
-    padding: 10px 12px;
-    border-radius: 5px;
-    border: 1.5px solid #ccc;
+select {
+    padding: 12px 15px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
     font-family: inherit;
     font-size: 1rem;
-    transition: all 0.3s ease;
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 input:focus,
-select:focus,
-textarea:focus {
-    border-color: #1a237e;
+select:focus {
+    border-color: #3b82f6;
     outline: none;
-    background-color: #f7f8fc;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
 input[readonly] {
-    background-color: #e8eaf6;
+    background-color: #f1f5f9;
     cursor: not-allowed;
+    color: #64748b;
 }
 
-/* Alert messages */
+/* Alerts */
 .alert {
-    padding: 12px 15px;
-    border-radius: 5px;
-    margin-bottom: 20px;
-    font-weight: 600;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    border: 1px solid transparent;
 }
 
 .alert.error {
-    background-color: #fddede;
-    color: #d93025;
-    border: 1px solid #d93025;
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border-color: #fca5a5;
 }
 
 .alert.success {
-    background-color: #ddf5dd;
-    color: #2e7d32;
-    border: 1px solid #2e7d32;
+    background-color: #dcfce7;
+    color: #166534;
+    border-color: #86efac;
 }
 
-/* Buttons */
-.center-button {
-    text-align: center;
-    margin-top: 25px;
+/* Buttons Container */
+.action-buttons {
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 1.5rem;
 }
 
-button[type="submit"] {
+/* General Button Style */
+.btn-edit, .btn-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     padding: 10px 20px;
-    font-size: 16px;
-    background-color: #3f51b5;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
     color: white;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
 }
 
-button[type="submit"]:hover {
-    background-color: #303f9f;
+.btn-edit i, .btn-back i {
+    font-size: 1.1em;
+}
+
+/* Edit Button */
+.btn-edit {
+    background-color: #2563eb;
+}
+
+.btn-edit:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+}
+
+/* Back Button */
+.btn-back {
+    background-color: #64748b;
+}
+
+.btn-back:hover {
+    background-color: #475569;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(100, 116, 139, 0.2);
 }
 
 /* Responsive */
-@media (max-width: 992px) {
-    .form-wrapper {
-        padding: 25px;
-    }
-}
-
 @media (max-width: 768px) {
-    .main-content {
-        margin-left: 0 !important;
-        width: 100vw !important;
-        padding: 15px;
+    body {
+        padding: 0;
     }
-
-    .sidebar {
-        transform: translateX(-100%);
-    }
-
-    .sidebar.collapsed {
-        transform: translateX(0);
-        width: 70px;
+    .form-wrapper {
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+        border: none;
+        min-height: 100vh;
     }
 
     .row {
         flex-direction: column;
-        gap: 15px;
+        gap: 1.2rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.8rem;
     }
 
-    .column {
+    .btn-edit, .btn-back {
         width: 100%;
     }
-}
-
-@media (max-width: 576px) {
-    .form-wrapper {
-        padding: 20px;
-        margin: 15px auto;
-    }
-
-    .form-title {
-        font-size: 1.75rem;
-    }
-
-    button[type="submit"] {
-        padding: 8px 16px;
-        font-size: 15px;
-    }
-}
-
-/* Nút chỉnh sửa nổi bật và căn giữa */
-.edit-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0.85rem 2.2rem;
-    background: linear-gradient(90deg, #3b82f6 60%, #2563eb 100%);
-    color: #fff !important;
-    text-decoration: none;
-    border-radius: 999px;
-    font-weight: 700;
-    font-size: 1.15rem;
-    margin: 2rem auto 0 auto;
-    transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
-    border: none;
-    text-align: center;
-    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.18);
-    letter-spacing: 0.5px;
-    cursor: pointer;
-    justify-content: center;
-}
-
-.edit-btn:before {
-    content: '\f044'; /* FontAwesome icon: fa-edit */
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    font-size: 1.1em;
-    margin-right: 8px;
-}
-
-.edit-btn:hover {
-    background: linear-gradient(90deg, #2563eb 60%, #3b82f6 100%);
-    transform: translateY(-2px) scale(1.04);
-    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.25);
-}
-
-.edit-btn:active {
-    transform: scale(0.98);
-}
-
-.center-button {
-    display: flex;
-    justify-content: center;
-}
-
-/* Custom file label styles */
-.custom-file-label {
-    display: inline-block;
-    padding: 8px 18px;
-    background-color: #3b82f6;
-    color: #fff;
-    border-radius: 6px;
-    cursor: pointer;
-    margin-top: 10px;
-    font-weight: 500;
-    transition: background 0.2s;
-    font-size: 1rem;
-}
-
-.custom-file-label i {
-    margin-right: 8px;
-}
-
-.custom-file-label:hover {
-    background-color: #2563eb;
-}
-
-.profile-actions .edit-btn {
-    background-color: #4CAF50;
-    color: white;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    text-decoration: none;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin-top: 15px;
-    display: inline-block;
-}
-
-.profile-actions .edit-btn:hover {
-    background-color: #45a049;
-}
-
-.buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.btn {
-    padding: 8px 16px;
-    border-radius: 4px;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    text-decoration: none;
-    text-align: center;
-    transition: background-color 0.3s ease;
-}
-
-.edit-btn {
-    background-color: #007bff; /* Blue */
-    color: white;
-}
-
-.edit-btn:hover {
-    background-color: #0056b3;
-}
-
-.back-btn {
-    background-color: #6c757d; /* Gray */
-    color: white;
-}
-
-.back-btn:hover {
-    background-color: #5a6268;
 }

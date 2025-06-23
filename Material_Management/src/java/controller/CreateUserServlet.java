@@ -13,9 +13,9 @@ import java.nio.file.Path;
 import java.util.List;
 
 @MultipartConfig(
-    fileSizeThreshold = 1024 * 1024 * 1,
-    maxFileSize = 1024 * 1024 * 10,
-    maxRequestSize = 1024 * 1024 * 15
+        fileSizeThreshold = 1024 * 1024 * 1,
+        maxFileSize = 1024 * 1024 * 10,
+        maxRequestSize = 1024 * 1024 * 15
 )
 public class CreateUserServlet extends HttpServlet {
 
@@ -78,24 +78,14 @@ public class CreateUserServlet extends HttpServlet {
             return;
         }
 
-        int roleId;
-        try {
-            roleId = Integer.parseInt(roleIdStr);
-            if (roleId == 1) {
-                request.setAttribute("error", "Không được tạo người dùng với vai trò Admin.");
-                doGet(request, response);
-                return;
-            }
-        } catch (NumberFormatException e) {
-            request.setAttribute("error", "Vai trò không hợp lệ.");
-            doGet(request, response);
-            return;
-        }
+        int roleId = Integer.parseInt(roleIdStr); 
 
         int priority;
         try {
             priority = Integer.parseInt(priorityStr);
-            if (priority < 0) throw new NumberFormatException();
+            if (priority < 0) {
+                throw new NumberFormatException();
+            }
         } catch (NumberFormatException e) {
             request.setAttribute("error", "Mức ưu tiên phải là số nguyên không âm.");
             doGet(request, response);

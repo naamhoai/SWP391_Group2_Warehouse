@@ -10,9 +10,9 @@ import java.io.File;
 import java.nio.file.Path;
 
 @MultipartConfig(
-    fileSizeThreshold = 1024 * 1024 * 1,
-    maxFileSize = 1024 * 1024 * 10,
-    maxRequestSize = 1024 * 1024 * 15
+        fileSizeThreshold = 1024 * 1024 * 1,
+        maxFileSize = 1024 * 1024 * 10,
+        maxRequestSize = 1024 * 1024 * 15
 )
 public class UpdateUserProfileServlet extends HttpServlet {
 
@@ -125,10 +125,19 @@ public class UpdateUserProfileServlet extends HttpServlet {
             String hashedPassword = userDAO.hashPassword(password);
             user.setPassword(hashedPassword);
         }
-
+        
         Part imagePart = request.getPart("imageFile");
         if (imagePart != null && imagePart.getSize() > 0) {
-            String imagePath = "/image/" + Path.of(imagePart.getSubmittedFileName()).getFileName().toString();
+            String fileName = Path.of(imagePart.getSubmittedFileName()).getFileName().toString();
+
+            if (!fileName.matches("(?i)^.+\\.(jpg|jpeg|png|gif)$")) {
+                request.setAttribute("error", "File ảnh không hợp lệ. Chỉ cho phép jpg, jpeg, png, gif.");
+                request.setAttribute("user", user);
+                request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);
+                return;
+            }
+
+            String imagePath = "/image/" + fileName;
             imagePart.write(getServletContext().getRealPath(imagePath));
             user.setImage(imagePath);
         }

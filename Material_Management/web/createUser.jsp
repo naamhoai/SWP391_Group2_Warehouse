@@ -9,13 +9,11 @@
         <meta charset="UTF-8" />
         <title>Tạo người dùng mới</title>
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/createUser.css" />
-        <link rel="stylesheet" href="css/sidebar.css">
         
     </head>
     <body>
         <div class="layout">
             <!-- Include Sidebar -->
-            <jsp:include page="sidebar.jsp" />
             <div class="main-content">
                 <div class="form-wrapper">
                     <div class="page-header">
