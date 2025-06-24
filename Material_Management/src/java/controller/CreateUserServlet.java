@@ -134,6 +134,13 @@ public class CreateUserServlet extends HttpServlet {
                 doGet(request, response);
                 return;
             }
+            
+            java.time.LocalDate minDate = java.time.LocalDate.now().minusYears(120);
+            if (dob.isBefore(minDate)) {
+                request.setAttribute("error", "Ngày sinh không hợp lệ. Tuổi không được vượt quá 120.");
+                doGet(request, response);
+                return;
+            }
         } catch (java.time.format.DateTimeParseException e) {
             request.setAttribute("error", "Ngày sinh không hợp lệ.");
             doGet(request, response);

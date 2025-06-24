@@ -108,6 +108,14 @@ public class UpdateUserProfileServlet extends HttpServlet {
                 request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);
                 return;
             }
+            
+            java.time.LocalDate minDate = java.time.LocalDate.now().minusYears(120);
+            if (dob.isBefore(minDate)) {
+                request.setAttribute("error", "Ngày sinh không hợp lệ. Tuổi không được vượt quá 120.");
+                request.setAttribute("user", user);
+                request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);
+                return;
+            }
         } catch (java.time.format.DateTimeParseException e) {
             request.setAttribute("error", "Ngày sinh không hợp lệ.");
             request.setAttribute("user", user);
