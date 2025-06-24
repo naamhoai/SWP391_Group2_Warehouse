@@ -217,7 +217,23 @@ public class MaterialDAO extends DBContext{
         return list;
     }
     
+        public List<String> getAllMaterialNames() {
+        List<String> names = new ArrayList<>();
+        String sql = "SELECT name FROM materials";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                names.add(rs.getString("name"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return names;
+    }
+
     public void close(){
         super.closeConnection();
     }
+
 }

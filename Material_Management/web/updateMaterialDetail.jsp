@@ -33,7 +33,7 @@
 
                     <div class="form-group">
                         <label for="name">Tên vật tư <span class="required">*</span></label>
-                        <input type="text" id="name" name="name" placeholder="Ví dụ: Dây điện Cadivi CV 1.5mm" value="${material.name}" required>
+                        <input type="text" id="name" name="name" placeholder="Ví dụ: Dây điện Cadivi CV 1.5mm" value="${material.name}" maxlength="50" required>
                     </div>
 
                     <div class="form-row">
@@ -60,7 +60,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="price">Giá (VNĐ) <span class="required">*</span></label>
-                            <input type="number" id="price" name="price" value="${material.price}" step="1" min="1" required>
+                            <input type="number" id="price" name="price" value="${material.price}" step="1" min="1" max="10000000000" required>
                         </div>
                     </div>
                 </div>

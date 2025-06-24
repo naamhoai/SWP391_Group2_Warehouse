@@ -42,7 +42,7 @@ public class MaterialListServlet extends HttpServlet {
         String categoryFilter = request.getParameter("category") == null ? "All" : request.getParameter("category");
         String supplierFilter = request.getParameter("supplier") == null ? "All" : request.getParameter("supplier");
         String sortField = request.getParameter("sort") == null ? "material_id" : request.getParameter("sort");
-        String sortDir = request.getParameter("dir") == null ? "desc" : request.getParameter("dir");
+        String sortDir = request.getParameter("dir") == null ? "asc" : request.getParameter("dir");
 
         int currentPage = 1;
         int itemsPerPage = 10;
@@ -77,6 +77,8 @@ public class MaterialListServlet extends HttpServlet {
         List<String> suppliers = infoDAO.getAllSuppliers();
         List<Integer> itemsPerPageOptions = Arrays.asList(5, 10, 20, 50);
 
+        List<String> allMaterialNames = dao.getAllMaterialNames();
+        request.setAttribute("allMaterialNames", allMaterialNames);
         request.setAttribute("materials", materials);
         request.setAttribute("categories", categories);
         request.setAttribute("suppliers", suppliers);

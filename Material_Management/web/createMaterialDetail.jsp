@@ -27,11 +27,11 @@
                     <h3 class="form-section-title">Thông Tin Bắt Buộc</h3>
                     <div class="form-group">
                         <label for="materialId">ID vật tư <span class="required">*</span></label>
-                        <input type="number" id="materialId" name="materialId" placeholder="Nhập ID vật tư" min="1" required>
+                        <input type="number" id="materialId" name="materialId" placeholder="Nhập ID vật tư" min="1" max="99999" value="${materialId}" required>
                     </div>
                     <div class="form-group">
                         <label for="name">Tên vật tư <span class="required">*</span></label>
-                        <input type="text" id="name" name="name" placeholder="Ví dụ: Dây điện Cadivi CV 1.5mm" required>
+                        <input type="text" id="name" name="name" placeholder="Ví dụ: Dây điện Cadivi CV 1.5mm" maxlength="50" value="${name}" required>
                     </div>
 
                     <div class="form-row">
@@ -40,7 +40,7 @@
                             <select id="category" name="category" required>
                                 <option value="">-- Chọn danh mục --</option>
                                 <c:forEach items="${categories}" var="cat">
-                                    <option value="${cat.categoryId}">${cat.name}</option>
+                                    <option value="${cat.categoryId}" ${category eq cat.categoryId ? 'selected' : ''}>${cat.name}</option>
                                 </c:forEach>
                             </select>
                         </div>
@@ -49,7 +49,7 @@
                             <select id="supplier" name="supplier" required>
                                 <option value="">-- Chọn nhà cung cấp --</option>
                                 <c:forEach items="${suppliers}" var="sup">
-                                    <option value="${sup.supplierId}">${sup.supplierName}</option>
+                                    <option value="${sup.supplierId}" ${supplier eq sup.supplierId ? 'selected' : ''}>${sup.supplierName}</option>
                                 </c:forEach>
                             </select>
                         </div>
@@ -58,7 +58,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="price">Giá (VNĐ) <span class="required">*</span></label>
-                            <input type="number" id="price" name="price" value="0" step="1" min="0" required>
+                            <input type="number" id="price" name="price" value="${price}" step="1" min="0" max="10000000000" required>
                         </div>
                     </div>
                 </div>
@@ -71,7 +71,7 @@
                     </div>
                     <div class="form-group">
                         <label for="description">Mô tả chi tiết</label>
-                        <textarea id="description" name="description" rows="5" placeholder="Nhập mô tả, thông số kỹ thuật, quy cách..."></textarea>
+                        <textarea id="description" name="description" rows="5" placeholder="Nhập mô tả, thông số kỹ thuật, quy cách...">${description}</textarea>
                     </div>
                     <div class="form-group">
                         <label for="materialCondition">Tình trạng vật tư</label>
@@ -79,7 +79,6 @@
                             <option value="">-- Chọn tình trạng --</option>
                             <option value="Mới">Mới</option>
                             <option value="Đã qua sử dụng">Đã qua sử dụng</option>
-                            <option value="Hỏng">Hỏng</option>
                         </select>
                     </div>
                 </div>

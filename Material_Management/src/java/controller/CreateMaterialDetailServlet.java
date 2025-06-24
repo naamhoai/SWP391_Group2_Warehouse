@@ -69,6 +69,15 @@ public class CreateMaterialDetailServlet extends HttpServlet {
             int materialId = Integer.parseInt(materialIdStr);
             int categoryId = Integer.parseInt(categoryIdStr);
             int supplierId = Integer.parseInt(supplierIdStr);
+ 
+            if (materialId < 1 || materialId > 99999) {
+                throw new Exception("ID vật tư phải là số nguyên dương tối đa 5 chữ số (1-99999).");
+            }
+
+            if (name.length() > 50) {
+                throw new Exception("Tên vật tư không được vượt quá 50 ký tự.");
+            }
+            
             if (priceStr == null || priceStr.trim().isEmpty()) {
                 throw new Exception("Vui lòng nhập giá vật tư.");
             }
@@ -78,6 +87,10 @@ public class CreateMaterialDetailServlet extends HttpServlet {
             long price = Long.parseLong(priceStr);
             if (price <= 0) {
                 throw new Exception("Giá vật tư phải lớn hơn 0.");
+            }
+
+            if (price > 10000000000L) {
+                throw new Exception("Giá vật tư không được vượt quá 10 tỷ VNĐ.");
             }
 
             if (materialDAO.getMaterialById(materialId) != null) {
@@ -114,6 +127,20 @@ public class CreateMaterialDetailServlet extends HttpServlet {
         }
         finally {
             materialDAO.closeConnection();
+        }
+        if (errorMessage != null) {
+            if (!errorMessage.contains("ID vật tư")) {
+                request.setAttribute("materialId", materialIdStr);
+            }
+            if (!errorMessage.contains("Tên vật tư")) {
+                request.setAttribute("name", name);
+            }
+            if (!errorMessage.contains("Giá vật tư")) {
+                request.setAttribute("price", priceStr);
+            }
+            request.setAttribute("category", categoryIdStr);
+            request.setAttribute("supplier", supplierIdStr);
+            request.setAttribute("description", description);
         }
 
         CategoryDAO categoryDAO = new CategoryDAO();

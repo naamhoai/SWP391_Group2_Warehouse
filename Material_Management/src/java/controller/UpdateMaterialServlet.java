@@ -76,11 +76,14 @@ public class UpdateMaterialServlet extends HttpServlet {
             if (name == null || name.trim().isEmpty()) {
                 throw new Exception("Tên vật tư không được để trống.");
             }
-            if (name.length() > 100) {
-                throw new Exception("Tên vật tư không được vượt quá 100 ký tự.");
+            if (name.length() > 50) {
+                throw new Exception("Tên vật tư không được vượt quá 50 ký tự.");
             }
             if (description != null && description.length() > 255) {
                 throw new Exception("Mô tả không được vượt quá 255 ký tự.");
+            }
+            if (price > 10000000000L) {
+                throw new Exception("Giá vật tư không được vượt quá 10 tỷ VNĐ.");
             }
 
             Material material = new Material();

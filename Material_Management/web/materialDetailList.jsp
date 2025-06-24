@@ -65,7 +65,12 @@
                     <div class="filter-item">
                         <label>Tìm kiếm</label>
                         <div class="search-group">
-                            <input type="text" name="search" placeholder="Tìm theo tên vật tư" value="${not empty searchQuery ? searchQuery : ''}"/>
+                            <input type="text" name="search" list="materialSuggestions" placeholder="Tìm theo tên vật tư" value="${not empty searchQuery ? searchQuery : ''}"/>
+                            <datalist id="materialSuggestions">
+                                <c:forEach var="mat" items="${allMaterialNames}">
+                                    <option value="${mat}"/>
+                                </c:forEach>
+                            </datalist>
                             <button type="submit" class="search-btn">Tìm</button>
                         </div>
                     </div>
@@ -136,10 +141,10 @@
                             <c:param name="dir" value="${sortDir}"/>
                             <c:param name="page" value="${currentPage - 1}"/>
                         </c:url>
-                        <a href="${prevUrl}" class="page-button">Lùi</a>
+                        <a href="${prevUrl}" class="page-button"><i class="fas fa-arrow-left"></i></a>
                     </c:if>
                     <c:if test="${currentPage <= 1}">
-                        <span class="page-button disabled">Lùi</span>
+                        <span class="page-button disabled"><i class="fas fa-arrow-left"></i></span>
                     </c:if>
 
                     <c:if test="${startPage > 1}">
@@ -193,10 +198,10 @@
                             <c:param name="dir" value="${sortDir}"/>
                             <c:param name="page" value="${currentPage + 1}"/>
                         </c:url>
-                        <a href="${nextUrl}" class="page-button">Tiến</a>
+                        <a href="${nextUrl}" class="page-button"><i class="fas fa-arrow-right"></i></a>
                     </c:if>
                     <c:if test="${currentPage >= totalPages}">
-                        <span class="page-button disabled">Tiến</span>
+                        <span class="page-button disabled"><i class="fas fa-arrow-right"></i></span>
                     </c:if>
                 </div>
                 <div class="pagination-info">
@@ -204,8 +209,8 @@
                 </div>
             </c:if>
         </div>
-        <div class="material-back-btn-wrapper">
-            <a href="categories" class="material-back-btn">
+        <div class="material-back-btn-wrapper" style="text-align: left; margin-top: 18px;">
+            <a href="#" class="back-link" onclick="history.back(); return false;">
                 <i class="fas fa-arrow-left"></i> Quay lại
             </a>
         </div>
