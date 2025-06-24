@@ -17,7 +17,7 @@ public class DAO extends dal.DBContext {
 
     public List<Role> getRoles() {
         List<Role> role = new ArrayList<>();
-        String sql = "SELECT * FROM roles";
+        String sql = "SELECT * FROM roles WHERE role_id != 1 ";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             ResultSet rs = st.executeQuery();
@@ -97,6 +97,7 @@ public class DAO extends dal.DBContext {
     public List<User> SettingList(int pages) {
         List<User> list = new ArrayList<>();
         String sql = "select user_id,full_name,r.role_name,r.role_id,status,priority,description from roles r join users u on r.role_id = u.role_id\n"
+                + "WHERE r.role_id != 1 \n"
                 + "ORDER BY user_id \n"
                 + "LIMIT 5 offset ?";
         try {
@@ -234,6 +235,7 @@ public class DAO extends dal.DBContext {
         String sql = "SELECT u.user_id,u.full_name,r.role_name,r.role_id,u.priority,u.status,u.description \n"
                 + "FROM users u \n"
                 + "join roles r on u.role_id = r.role_id\n"
+                + "WHERE r.role_id != 1 \n"
                 + "where 1 = 1";
 
         if (status != null && !status.equalsIgnoreCase("all")) {
@@ -307,6 +309,7 @@ public class DAO extends dal.DBContext {
         try {
             String sql = "select u.user_id,r.role_name,u.full_name,u.status,u.priority \n"
                     + "from users u join roles r \n"
+                    + "WHERE r.role_id != 1 \n"
                     + "on u.role_id = r.role_id " + sqlsecon.trim() + " LIMIT 5 OFFSET ?";
             PreparedStatement st = connection.prepareStatement(sql);
             st.setInt(1, (page - 1) * 5);
