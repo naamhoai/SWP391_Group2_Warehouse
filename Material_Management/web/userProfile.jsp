@@ -13,7 +13,7 @@
 
         <!-- Font Awesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-        
+
     </head>
     <body>
         <div class="form-wrapper">
@@ -33,7 +33,7 @@
                             <img src="${pageContext.request.contextPath}${user.image}" alt="Avatar" />
                         </c:when>
                         <c:otherwise>
-                             <img src="${pageContext.request.contextPath}/image/boy.png" alt="Default Avatar" />
+                            <img src="${pageContext.request.contextPath}/image/boy.png" alt="Default Avatar" />
                         </c:otherwise>
                     </c:choose>
                 </div>
@@ -65,14 +65,14 @@
                         <label for="dayofbirth">Ngày sinh:</label>
                         <input type="date" id="dayofbirth" value="${user.dayofbirth}" readonly />
                     </div>
-                     <div class="column">
+                    <div class="column">
                         <label for="role_name">Vai trò:</label>
                         <input type="text" id="role_name" value="${user.role.rolename}" readonly />
                     </div>
                 </div>
 
                 <div class="row">
-                   
+
                     <div class="column">
                         <label for="status">Trạng thái:</label>
                         <input type="text" id="status" value="${user.status}" readonly />
@@ -80,12 +80,34 @@
                 </div>
 
                 <div class="action-buttons">
-                    <a href="javascript:history.back()" class="btn-back"><i class="fas fa-arrow-left"></i> Quay lại</a>
+                    <c:choose>
+                        <c:when test="${sessionScope.roleId == 1}">
+                            <a class="btn-back" href="adminDashboard.jsp"><i class="fas fa-arrow-left"></i> Quay lại</a>
+                        </c:when>
+                        <c:when test="${sessionScope.roleId == 2}">
+                            <a class="btn-back" href="director"><i class="fas fa-arrow-left"></i> Quay lại</a>
+                        </c:when>
+                        <c:when test="${sessionScope.roleId == 3}">
+                            <a class="btn-back" href="warehouseEmployeeDashboard"><i class="fas fa-arrow-left"></i> Quay lại</a>
+                        </c:when>
+                        <c:when test="${sessionScope.roleId == 4}">
+                            <a class="btn-back" href="staffDashboard"><i class="fas fa-arrow-left"></i> Quay lại</a>
+                        </c:when>
+                        
+                    </c:choose>
+
                     <a href="${pageContext.request.contextPath}/UpdateUserProfileServlet?userId=${user.user_id}" class="btn-edit">
                         <i class="fas fa-edit"></i> Chỉnh sửa
                     </a>
                 </div>
             </form>
         </div>
+
+        <c:if test="${param.updated == 'true'}">
+            <script>
+                var dashboardUrl = '${dashboardUrl}';
+                history.replaceState(null, '', dashboardUrl);
+            </script>
+        </c:if>
     </body>
 </html>

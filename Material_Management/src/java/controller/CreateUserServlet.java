@@ -53,9 +53,32 @@ public class CreateUserServlet extends HttpServlet {
         request.setAttribute("dayofbirth", dayofbirth);
         request.setAttribute("description", description);
         request.setAttribute("email", email);
+        request.setAttribute("roleId", roleIdStr);
+        request.setAttribute("password", password);
+        request.setAttribute("roleList", roleDAO.getAllRolesExceptAdmin());
 
         if (fullName == null || fullName.trim().isEmpty() || fullName.length() > 100 || !fullName.matches("^[a-zA-ZÀ-ỹ\\s]+$")) {
             request.setAttribute("error", "Họ và tên không hợp lệ.");
+            doGet(request, response);
+            return;
+        }
+
+        String[] words = fullName.trim().split("\\s+");
+        if (words.length < 2) {
+            request.setAttribute("error", "Họ và tên phải có ít nhất 2 từ.");
+            doGet(request, response);
+            return;
+        }
+        
+        boolean validFormat = true;
+        for (String word : words) {
+            if (!word.isEmpty() && !Character.isUpperCase(word.charAt(0))) {
+                validFormat = false;
+                break;
+            }
+        }
+        if (!validFormat) {
+            request.setAttribute("error", "Mỗi từ trong họ tên phải viết hoa chữ cái đầu.");
             doGet(request, response);
             return;
         }
@@ -83,11 +106,11 @@ public class CreateUserServlet extends HttpServlet {
         int priority;
         try {
             priority = Integer.parseInt(priorityStr);
-            if (priority < 0) {
+            if (priority < 2 || priority > 4) {
                 throw new NumberFormatException();
             }
         } catch (NumberFormatException e) {
-            request.setAttribute("error", "Mức ưu tiên phải là số nguyên không âm.");
+            request.setAttribute("error", "Mức ưu tiên chỉ được nhập từ 2 đến 4 (Giám đốc-2, Nhân viên kho-3, Nhân viên-4).");
             doGet(request, response);
             return;
         }

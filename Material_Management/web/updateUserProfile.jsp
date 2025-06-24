@@ -89,7 +89,7 @@
                 </div>
                 
                 <div class="buttons">
-                    <a href="javascript:history.back()" class="btn-back"><i class="fas fa-arrow-left"></i> Quay lại</a>
+                    <a href="userProfile.jsp" class="btn-back"><i class="fas fa-arrow-left"></i> Quay lại</a>
                     <button type="submit" class="save-btn"><i class="fas fa-save"></i> Lưu thay đổi</button>
                 </div>
                     

@@ -9,6 +9,7 @@
         <meta charset="UTF-8" />
         <title>Tạo người dùng mới</title>
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/createUser.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
         
     </head>
     <body>
@@ -44,7 +45,12 @@
                             <div class="row">
                                 <div class="column">
                                     <label for="password">Mật khẩu: <span class="required">*</span></label>
-                                    <input type="password" id="password" name="password" required />
+                                    <div style="position: relative;">
+                                        <input type="password" id="password" name="password" required value="${fn:escapeXml(password)}" />
+                                        <span class="toggle-password" onclick="togglePassword()" style="position:absolute;top:50%;right:10px;transform:translateY(-50%);cursor:pointer;">
+                                            <i id="eyeIcon" class="fas fa-eye"></i>
+                                        </span>
+                                    </div>
                                     <div class="error-message" id="passwordError"></div>
                                     <div class="password-requirements">
                                         <small>Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt</small>
@@ -81,7 +87,7 @@
                             <div class="row">
                                 <div class="column">
                                     <label for="phone">Số điện thoại:</label>
-                                    <input type="tel" id="phone" name="phone" value="${fn:escapeXml(userPhone)}" placeholder="VD: 0123456789" />
+                                    <input type="tel" id="phone" name="phone" value="${fn:escapeXml(phone)}" placeholder="VD: 0123456789" />
                                     <div class="error-message" id="phoneError"></div>
                                 </div>
                                 <div class="column">
@@ -89,7 +95,7 @@
                                     <select id="roleId" name="roleId">
                                         <option value="">Chọn vai trò</option>
                                         <c:forEach var="role" items="${roleList}">
-                                            <option value="${role.roleid}" <c:if test="${role.roleid == selectedRoleId}">selected</c:if>>
+                                            <option value="${role.roleid}" <c:if test="${role.roleid == roleId}">selected</c:if>>
                                                 ${role.rolename}
                                             </option>
                                         </c:forEach>
@@ -106,16 +112,14 @@
                                             <input type="radio" name="status" value="active" 
                                                    <c:if test="${status == 'active' || status == null}">checked</c:if> /> Active
                                             </label>
-                                            <label>
-                                                <input type="radio" name="status" value="inactive" 
-                                                <c:if test="${status == 'inactive'}">selected</c:if> /> Inactive
-                                            </label>
+                                            
                                         </div>
                                     </div>
                                     <div class="column">
                                         <label for="priority">Mức ưu tiên:</label>
-                                        <input type="number" id="priority" name="priority" min="0" value="${priority}" />
+                                        <input type="number" id="priority" name="priority" min="2" max="4" value="${priority}" />
                                         <div class="error-message" id="priorityError"></div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -202,7 +206,47 @@
                 if (fullName.length >= 2) {
                     generateEmail();
                 }
+                
+                // Set priority based on selected role when page loads (for error cases)
+                const roleSelect = document.getElementById('roleId');
+                const priorityInput = document.getElementById('priority');
+                if (roleSelect && priorityInput && roleSelect.value) {
+                    const selectedRole = roleSelect.value;
+                    if (rolePriorityMap[selectedRole]) {
+                        priorityInput.value = rolePriorityMap[selectedRole];
+                    }
+                }
             });
+
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const roleSelect = document.getElementById('roleId');
+                const priorityInput = document.getElementById('priority');
+                if (roleSelect && priorityInput) {
+                    roleSelect.addEventListener('change', function() {
+                        const selectedRole = roleSelect.value;
+                        if (rolePriorityMap[selectedRole]) {
+                            priorityInput.value = rolePriorityMap[selectedRole];
+                        } else {
+                            priorityInput.value = '';
+                        }
+                    });
+                }
+            });
+
+            function togglePassword() {
+                var pwd = document.getElementById('password');
+                var icon = document.getElementById('eyeIcon');
+                if (pwd.type === 'password') {
+                    pwd.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    pwd.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            }
         </script>
     </body>
 </html>
