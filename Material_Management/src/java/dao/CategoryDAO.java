@@ -11,7 +11,7 @@ public class CategoryDAO extends DBContext {
 
     public List<Category> getAllCategories() {
         List<Category> list = new ArrayList<>();
-        String sql = "SELECT * FROM categories";
+        String sql = "SELECT * FROM categories ORDER BY hidden ASC, category_id ASC";
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -70,7 +70,7 @@ public class CategoryDAO extends DBContext {
         return list;
     }
 
-    public List<Category> getFilteredCategories(String keyword, Integer parentId, String sortBy) {
+    public List<Category> getFilteredCategories(String keyword, Integer parentId, String sortBy, String hiddenFilter) {
         List<Category> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM categories WHERE 1=1");
         List<Object> params = new ArrayList<>();
@@ -85,18 +85,27 @@ public class CategoryDAO extends DBContext {
             params.add(parentId);
         }
 
+        if (hiddenFilter != null && !hiddenFilter.equals("all")) {
+            if (hiddenFilter.equals("visible")) {
+                sql.append(" AND hidden = 0");
+            } else if (hiddenFilter.equals("hidden")) {
+                sql.append(" AND hidden = 1");
+            }
+        }
+
+        sql.append(" ORDER BY hidden ASC");
         if (sortBy != null) {
             switch (sortBy.toLowerCase()) {
                 case "name":
-                    sql.append(" ORDER BY name ASC");
+                    sql.append(", name ASC");
                     break;
                 case "id":
                 default:
-                    sql.append(" ORDER BY category_id ASC");
+                    sql.append(", category_id ASC");
                     break;
             }
         } else {
-            sql.append(" ORDER BY category_id ASC");
+            sql.append(", category_id ASC");
         }
 
         Connection conn = null;
@@ -279,56 +288,6 @@ public class CategoryDAO extends DBContext {
         }
     }
 
-    public boolean deleteCategory(int id) {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try {
-            conn = getConnection();
-            
-            String checkChildrenSql = "SELECT COUNT(*) as count FROM categories WHERE parent_id = ?";
-            stmt = conn.prepareStatement(checkChildrenSql);
-            stmt.setInt(1, id);
-            rs = stmt.executeQuery();
-            
-            if (rs.next() && rs.getInt("count") > 0) {
-                System.err.println("Không thể xóa danh mục này vì có danh mục con");
-                return false;
-            }
-            
-            rs.close();
-            stmt.close();
-
-            String sql = "DELETE FROM categories WHERE category_id = ?";
-            stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, id);
-            int rowsAffected = stmt.executeUpdate();
-            return rowsAffected > 0;
-
-        } catch (SQLException e) {
-            System.err.println("Lỗi khi xóa danh mục: " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (stmt != null) stmt.close();
-            } catch (SQLException e) {
-                System.err.println("Lỗi đóng kết nối: " + e.getMessage());
-            }
-        }
-    }
-
-    private Category mapResultSetToCategory(ResultSet rs) throws SQLException {
-        int id = rs.getInt("category_id");
-        String name = rs.getString("name");
-        int parentIdValue = rs.getInt("parent_id");
-        Integer parentId = rs.wasNull() ? null : parentIdValue;
-
-        return new Category(id, name, parentId);
-    }
-
     public List<Category> getAvailableParentCategories(Integer excludeId) {
         List<Category> list = new ArrayList<>();
         String sql = "SELECT * FROM categories WHERE parent_id IS NULL" + (excludeId != null ? " AND category_id != ?" : "") + " ORDER BY name ASC";
@@ -395,7 +354,7 @@ public class CategoryDAO extends DBContext {
         return null;
     }
 
-    public List<Category> getFilteredCategoriesWithPaging(String keyword, Integer parentId, String sortBy, int page, int pageSize) {
+    public List<Category> getFilteredCategoriesWithPaging(String keyword, Integer parentId, String sortBy, String hiddenFilter, int page, int pageSize) {
         List<Category> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM categories WHERE parent_id IS NOT NULL");
         List<Object> params = new ArrayList<>();
@@ -410,18 +369,27 @@ public class CategoryDAO extends DBContext {
             params.add(parentId);
         }
 
+        if (hiddenFilter != null && !hiddenFilter.equals("all")) {
+            if (hiddenFilter.equals("visible")) {
+                sql.append(" AND hidden = 0");
+            } else if (hiddenFilter.equals("hidden")) {
+                sql.append(" AND hidden = 1");
+            }
+        }
+
+        sql.append(" ORDER BY hidden ASC");
         if (sortBy != null) {
             switch (sortBy.toLowerCase()) {
                 case "name":
-                    sql.append(" ORDER BY name ASC");
+                    sql.append(", name ASC");
                     break;
                 case "id":
                 default:
-                    sql.append(" ORDER BY category_id ASC");
+                    sql.append(", category_id ASC");
                     break;
             }
         } else {
-            sql.append(" ORDER BY category_id ASC");
+            sql.append(", category_id ASC");
         }
 
         sql.append(" LIMIT ? OFFSET ?");
@@ -505,5 +473,65 @@ public class CategoryDAO extends DBContext {
         }
 
         return (int) Math.ceil((double) totalRecords / pageSize);
+    }
+
+    public boolean hideCategory(int id) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = getConnection();
+            String sql = "UPDATE categories SET hidden = 1 WHERE category_id = ?";
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, id);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi ẩn danh mục: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                System.err.println("Lỗi đóng kết nối: " + e.getMessage());
+            }
+        }
+    }
+
+    public boolean unhideCategory(int id) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = getConnection();
+            String sql = "UPDATE categories SET hidden = 0 WHERE category_id = ?";
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, id);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi hiện lại danh mục: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                System.err.println("Lỗi đóng kết nối: " + e.getMessage());
+            }
+        }
+    }
+
+    private Category mapResultSetToCategory(ResultSet rs) throws SQLException {
+        int id = rs.getInt("category_id");
+        String name = rs.getString("name");
+        int parentIdValue = rs.getInt("parent_id");
+        Integer parentId = rs.wasNull() ? null : parentIdValue;
+        boolean hidden = false;
+        try {
+            hidden = rs.getBoolean("hidden");
+        } catch (SQLException | IllegalArgumentException e) {
+            // Nếu cột không tồn tại (cũ), giữ false
+        }
+        return new Category(id, name, parentId, hidden);
     }
 } 

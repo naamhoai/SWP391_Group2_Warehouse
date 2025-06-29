@@ -45,8 +45,11 @@ public class CategoryServlet extends HttpServlet {
                 case "edit":
                     showEditForm(request, response);
                     break;
-                case "delete":
-                    deleteCategory(request, response);
+                case "hide":
+                    hideCategory(request, response);
+                    break;
+                case "unhide":
+                    unhideCategory(request, response);
                     break;
                 default:
                     listCategories(request, response);
@@ -95,6 +98,7 @@ public class CategoryServlet extends HttpServlet {
         String parentIdParam = request.getParameter("parentId");
         String sortBy = request.getParameter("sortBy");
         String pageStr = request.getParameter("page");
+        String hiddenFilter = request.getParameter("hiddenFilter");
 
         // Clean up keyword
         if (keyword != null) {
@@ -129,7 +133,7 @@ public class CategoryServlet extends HttpServlet {
         }
 
         // Lấy danh sách category cho trang hiện tại (chỉ lấy danh mục con)
-        List<Category> categories = categoryDAO.getFilteredCategoriesWithPaging(keyword, parentId, sortBy, currentPage, PAGE_SIZE);
+        List<Category> categories = categoryDAO.getFilteredCategoriesWithPaging(keyword, parentId, sortBy, hiddenFilter, currentPage, PAGE_SIZE);
         
         // Lấy danh sách danh mục vật tư cho dropdown filter
         List<Category> parentCategories = categoryDAO.getParentCategories();
@@ -157,6 +161,7 @@ public class CategoryServlet extends HttpServlet {
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("startPage", startPage);
         request.setAttribute("endPage", endPage);
+        request.setAttribute("hiddenFilter", hiddenFilter);
 
         request.getRequestDispatcher("listCategory.jsp").forward(request, response);
     }
@@ -363,20 +368,36 @@ public class CategoryServlet extends HttpServlet {
         }
     }
 
-    private void deleteCategory(HttpServletRequest request, HttpServletResponse response)
+    private void hideCategory(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
-            boolean success = categoryDAO.deleteCategory(id);
-            
+            boolean success = categoryDAO.hideCategory(id);
             if (success) {
-                request.getSession().setAttribute("message", "Xóa danh mục thành công");
+                request.getSession().setAttribute("message", "Ẩn danh mục thành công");
             } else {
-                request.getSession().setAttribute("error", "Không thể xóa danh mục. Vui lòng kiểm tra xem danh mục có chứa danh mục con không.");
+                request.getSession().setAttribute("error", "Không thể ẩn danh mục. Vui lòng kiểm tra xem danh mục có chứa danh mục con không.");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            request.getSession().setAttribute("error", "Có lỗi xảy ra khi xóa danh mục: " + e.getMessage());
+            request.getSession().setAttribute("error", "Có lỗi xảy ra khi ẩn danh mục: " + e.getMessage());
+        }
+        response.sendRedirect("categories");
+    }
+
+    private void unhideCategory(HttpServletRequest request, HttpServletResponse response)
+            throws IOException, ServletException {
+        try {
+            int id = Integer.parseInt(request.getParameter("id"));
+            boolean success = categoryDAO.unhideCategory(id);
+            if (success) {
+                request.getSession().setAttribute("message", "Hiện lại danh mục thành công");
+            } else {
+                request.getSession().setAttribute("error", "Không thể hiện lại danh mục.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.getSession().setAttribute("error", "Có lỗi xảy ra khi hiện lại danh mục: " + e.getMessage());
         }
         response.sendRedirect("categories");
     }

@@ -4,13 +4,15 @@ public class Category {
     private Integer categoryId;
     private String name;
     private Integer parentId;
+    private boolean hidden;
 
     public Category() {}
 
-    public Category(Integer categoryId, String name, Integer parentId) {
+    public Category(Integer categoryId, String name, Integer parentId, boolean hidden) {
         this.categoryId = categoryId;
         this.name = name;
         this.parentId = parentId;
+        this.hidden = hidden;
     }
 
     public Integer getCategoryId() {
@@ -37,8 +39,16 @@ public class Category {
         this.parentId = parentId;
     }
 
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
+    }
+
     @Override
     public String toString() {
-        return "Category{" + "categoryId=" + categoryId + ", name=" + name + ", parentId=" + parentId + '}';
+        return "Category{" + "categoryId=" + categoryId + ", name=" + name + ", parentId=" + parentId + ", hidden=" + hidden + '}';
     }
 }

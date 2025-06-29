@@ -6,26 +6,6 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Thêm danh mục mới</title>
         <link rel="stylesheet" href="css/category.css">
-        <style>
-            .message.error {
-                color: #fff;
-                background: #e74c3c;
-                padding: 10px 15px;
-                border-radius: 4px;
-                margin-bottom: 15px;
-                font-weight: bold;
-                text-align: center;
-            }
-            .message.success {
-                color: #fff;
-                background: #27ae60;
-                padding: 10px 15px;
-                border-radius: 4px;
-                margin-bottom: 15px;
-                font-weight: bold;
-                text-align: center;
-            }
-        </style>
     </head>
     <body>
         <div class="container">
