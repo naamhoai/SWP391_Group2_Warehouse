@@ -1,12 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Get DOM elements
+
     const sidebar = document.querySelector('.sidebar');
     const mainContent = document.querySelector('#main-content');
-    const logoContainer = document.getElementById('sidebarToggle');
     const menuItemsWithSubmenu = document.querySelectorAll('.has-submenu');
     const menuLinks = document.querySelectorAll('.menu-link');
 
-    // Function to toggle sidebar
     function toggleSidebar() {
         if (sidebar && mainContent) {
             const isCollapsed = !sidebar.classList.contains('collapsed'); // Đảo ngược trạng thái
@@ -25,16 +23,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Add click event to logo container
-    if (logoContainer) {
-        logoContainer.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleSidebar();
-        });
-    }
-
-    // Function to set active menu item based on current URL
     function setActiveMenuItem() {
         const currentPath = window.location.pathname.split('/').pop();
         menuLinks.forEach(link => {
@@ -61,10 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Initial active state setup
     setActiveMenuItem();
-
-    // Handle menu items active state on click
     menuLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             if (!this.getAttribute('href') || this.getAttribute('href') === '#') {
@@ -85,7 +70,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Handle submenu toggle
     menuItemsWithSubmenu.forEach(item => {
         const link = item.querySelector('.menu-link');
         const submenu = item.querySelector('.submenu');
@@ -101,7 +85,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Add window resize handler
     window.addEventListener('resize', function() {
         if (window.innerWidth <= 768 && sidebar) {
             sidebar.classList.add('collapsed');
@@ -131,7 +114,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Restore sidebar state from localStorage on load
     const savedState = localStorage.getItem('sidebarCollapsed');
     if (savedState === 'true' && sidebar && mainContent) {
         sidebar.classList.add('collapsed');
