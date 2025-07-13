@@ -27,8 +27,8 @@ public class UserDAO {
 
     public boolean insertUser(User user) {
         String sql = "INSERT INTO users "
-                + "(full_name, email, password, phone, role_id, status, priority, image, gender, dayofbirth, description) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + "(full_name, email, password, phone, role_id, status, image, gender, dayofbirth) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getFullname());
             ps.setString(2, user.getEmail());
@@ -40,11 +40,9 @@ public class UserDAO {
                 ps.setInt(5, user.getRole().getRoleid());
             }
             ps.setString(6, user.getStatus());
-            ps.setInt(7, user.getPriority());
-            ps.setString(8, user.getImage());
-            ps.setString(9, user.getGender());
-            ps.setString(10, user.getDayofbirth());
-            ps.setString(11, user.getDescription());
+            ps.setString(7, user.getImage());
+            ps.setString(8, user.getGender());
+            ps.setString(9, user.getDayofbirth());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -53,7 +51,7 @@ public class UserDAO {
     }
 
     public boolean updateUser(User user) {
-        String sql = "UPDATE users SET full_name=?, email=?, password=?, phone=?, role_id=?, status=?, priority=?, image=?, gender=?, dayofbirth=?, description=? WHERE user_id=?";
+        String sql = "UPDATE users SET full_name=?, email=?, password=?, phone=?, role_id=?, status=?, image=?, gender=?, dayofbirth=? WHERE user_id=?";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getFullname());
             ps.setString(2, user.getEmail());
@@ -65,12 +63,10 @@ public class UserDAO {
                 ps.setNull(5, Types.INTEGER);
             }
             ps.setString(6, user.getStatus());
-            ps.setInt(7, user.getPriority());
-            ps.setString(8, user.getImage());
-            ps.setString(9, user.getGender());
-            ps.setString(10, user.getDayofbirth());
-            ps.setString(11, user.getDescription());
-            ps.setInt(12, user.getUser_id());
+            ps.setString(7, user.getImage());
+            ps.setString(8, user.getGender());
+            ps.setString(9, user.getDayofbirth());
+            ps.setInt(10, user.getUser_id());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -79,7 +75,7 @@ public class UserDAO {
     }
 
     public User getUserById(int userId) {
-        String sql = "SELECT u.user_id, u.full_name, u.email, u.password, u.phone, u.role_id, r.role_name, u.status, u.priority, u.image, u.gender, u.dayofbirth, u.description "
+        String sql = "SELECT u.user_id, u.full_name, u.email, u.password, u.phone, u.role_id, r.role_name, u.status, u.image, u.gender, u.dayofbirth "
                 + "FROM users u "
                 + "INNER JOIN roles r ON u.role_id = r.role_id "
                 + "WHERE u.user_id = ?";
@@ -98,11 +94,9 @@ public class UserDAO {
                     role.setRolename(rs.getString("role_name"));
                     user.setRole(role);
                     user.setStatus(rs.getString("status"));
-                    user.setPriority(rs.getInt("priority"));
                     user.setImage(rs.getString("image"));
                     user.setGender(rs.getString("gender"));
                     user.setDayofbirth(rs.getString("dayofbirth"));
-                    user.setDescription(rs.getString("description"));
                     return user;
                 }
             }

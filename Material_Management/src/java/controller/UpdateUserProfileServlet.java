@@ -8,6 +8,9 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 @MultipartConfig(
         fileSizeThreshold = 1024 * 1024 * 1,
@@ -34,7 +37,7 @@ public class UpdateUserProfileServlet extends HttpServlet {
             request.setAttribute("user", user);
             request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);
         } else {
-            request.setAttribute("error", "User not found.");
+            request.setAttribute("error", "User không tồn tại.");
             request.getRequestDispatcher("userProfile.jsp").forward(request, response);
         }
     }
@@ -61,100 +64,73 @@ public class UpdateUserProfileServlet extends HttpServlet {
         String phone = request.getParameter("phone");
         String gender = request.getParameter("gender");
         String dobInput = request.getParameter("dayofbirth");
-        String password = request.getParameter("password");
 
-        user.setFullname(fullname);
-        user.setPhone(phone);
-        user.setGender(gender);
-        user.setDayofbirth(dobInput);
+        boolean changed = false;
 
-        if (fullname == null || fullname.trim().isEmpty()) {
-            request.setAttribute("error", "Họ và tên không được để trống.");
-            request.setAttribute("user", user);
-            request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);
-            return;
-        }
-        if (fullname.length() > 100) {
-            request.setAttribute("error", "Họ và tên không được vượt quá 100 ký tự.");
-            request.setAttribute("user", user);
-            request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);
-            return;
-        }
-        if (!fullname.matches("^[a-zA-ZÀ-ỹ\\s]+$")) {
-            request.setAttribute("error", "Họ và tên chỉ được chứa chữ cái và khoảng trắng.");
-            request.setAttribute("user", user);
-            request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);
-            return;
-        }
-
-        if (phone != null && !phone.trim().isEmpty() && !phone.matches("^[0-9]{10,11}$")) {
-            request.setAttribute("error", "Số điện thoại phải có 10-11 chữ số.");
-            request.setAttribute("user", user);
-            request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);
-            return;
-        }
-
-        if (dobInput == null || dobInput.trim().isEmpty()) {
-            request.setAttribute("error", "Ngày sinh không được để trống.");
-            request.setAttribute("user", user);
-            request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);
-            return;
-        }
-        try {
-            java.time.LocalDate dob = java.time.LocalDate.parse(dobInput);
-            if (dob.isAfter(java.time.LocalDate.now())) {
-                request.setAttribute("error", "Ngày sinh không được lớn hơn ngày hiện tại.");
+        if (!fullname.equals(user.getFullname())) {
+            if (fullname.trim().split("\\s+").length < 2) {
+                request.setAttribute("error", "Họ và tên phải có ít nhất 2 từ.");
                 request.setAttribute("user", user);
                 request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);
                 return;
             }
-            
-            java.time.LocalDate minDate = java.time.LocalDate.now().minusYears(120);
-            if (dob.isBefore(minDate)) {
-                request.setAttribute("error", "Ngày sinh không hợp lệ. Tuổi không được vượt quá 120.");
-                request.setAttribute("user", user);
-                request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);
-                return;
-            }
-        } catch (java.time.format.DateTimeParseException e) {
-            request.setAttribute("error", "Ngày sinh không hợp lệ.");
-            request.setAttribute("user", user);
-            request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);
-            return;
+            user.setFullname(fullname);
+            changed = true;
+        }
+        if (!phone.equals(user.getPhone())) {
+            user.setPhone(phone);
+            changed = true;
+        }
+        if (!gender.equals(user.getGender())) {
+            user.setGender(gender);
+            changed = true;
+        }
+        if (!dobInput.equals(user.getDayofbirth())) {
+            user.setDayofbirth(dobInput);
+            changed = true;
         }
 
-        if (password != null && !password.trim().isEmpty()) {
-            if (!userDAO.isValidPassword(password)) {
-                request.setAttribute("error", "Mật khẩu không hợp lệ! Cần có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.");
-                request.setAttribute("user", user);
-                request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);
-                return;
-            }
-            String hashedPassword = userDAO.hashPassword(password);
-            user.setPassword(hashedPassword);
-        }
-        
+
         Part imagePart = request.getPart("imageFile");
         if (imagePart != null && imagePart.getSize() > 0) {
             String fileName = Path.of(imagePart.getSubmittedFileName()).getFileName().toString();
-
-            if (!fileName.matches("(?i)^.+\\.(jpg|jpeg|png|gif)$")) {
-                request.setAttribute("error", "File ảnh không hợp lệ. Chỉ cho phép jpg, jpeg, png, gif.");
-                request.setAttribute("user", user);
-                request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);
-                return;
-            }
-
             String imagePath = "/image/" + fileName;
-            imagePart.write(getServletContext().getRealPath(imagePath));
-            user.setImage(imagePath);
+            if (!imagePath.equals(user.getImage())) {
+                String buildImageDir = request.getServletContext().getRealPath("/image");
+                File uploadDirFile = new File(buildImageDir);
+                if (!uploadDirFile.exists()) {
+                    uploadDirFile.mkdirs();
+                }
+                imagePart.write(buildImageDir + File.separator + fileName);
+
+                File buildImageDirFile = new File(buildImageDir);
+                File projectRoot = buildImageDirFile.getParentFile().getParentFile().getParentFile(); // build/web/image -> build/web -> build -> Material_Management
+                File sourceImageDirFile = new File(projectRoot, "web/image");
+                if (!sourceImageDirFile.exists()) {
+                    sourceImageDirFile.mkdirs();
+                }
+                Path source = Paths.get(buildImageDir, fileName);
+                Path target = Paths.get(sourceImageDirFile.getAbsolutePath(), fileName);
+                Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+
+                user.setImage(imagePath);
+                changed = true;
+            }
+        }
+        
+
+        if (!changed) {
+            request.setAttribute("success", "Không có thông tin nào được thay đổi.");
+            request.setAttribute("user", user);
+            request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);
+            return;
         }
 
         boolean updated = userDAO.updateUser(user);
         if (updated) {
-            response.sendRedirect("UserDetailServlet?user_id=" + user.getUser_id());
+            response.sendRedirect("UserDetailServlet?userId=" + user.getUser_id() + "&success=1");
         } else {
-            request.setAttribute("error", "Update failed.");
+            request.setAttribute("error", "Cập nhật thất bại. Vui lòng thử lại.");
             request.setAttribute("user", user);
             request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);
         }

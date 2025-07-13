@@ -9,7 +9,12 @@ import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @MultipartConfig(
@@ -57,19 +62,17 @@ public class CreateUserServlet extends HttpServlet {
         request.setAttribute("password", password);
         request.setAttribute("roleList", roleDAO.getAllRolesExceptAdmin());
 
-        if (fullName == null || fullName.trim().isEmpty() || fullName.length() > 100 || !fullName.matches("^[a-zA-ZÀ-ỹ\\s]+$")) {
+        if (fullName == null || fullName.trim().isEmpty() || fullName.length() > 100 || !fullName.matches("^[a-zA-ZÀ-ỹ\s]+$")) {
             request.setAttribute("error", "Họ và tên không hợp lệ.");
             doGet(request, response);
             return;
         }
-
         String[] words = fullName.trim().split("\\s+");
         if (words.length < 2) {
             request.setAttribute("error", "Họ và tên phải có ít nhất 2 từ.");
             doGet(request, response);
             return;
         }
-        
         boolean validFormat = true;
         for (String word : words) {
             if (!word.isEmpty() && !Character.isUpperCase(word.charAt(0))) {
@@ -82,79 +85,57 @@ public class CreateUserServlet extends HttpServlet {
             doGet(request, response);
             return;
         }
-
         if (email == null || email.trim().isEmpty() || userDAO.existsEmail(email)) {
             request.setAttribute("error", "Email không hợp lệ hoặc đã tồn tại.");
             doGet(request, response);
             return;
         }
-
         if (phone != null && !phone.trim().isEmpty() && !phone.matches("^[0-9]{10,11}$")) {
             request.setAttribute("error", "Số điện thoại phải có 10-11 chữ số.");
             doGet(request, response);
             return;
         }
-
-        if (description != null && description.length() > 500) {
-            request.setAttribute("error", "Mô tả không được vượt quá 500 ký tự.");
-            doGet(request, response);
-            return;
-        }
-
-        int roleId = Integer.parseInt(roleIdStr); 
-
-        int priority;
-        try {
-            priority = Integer.parseInt(priorityStr);
-            if (priority < 2 || priority > 4) {
-                throw new NumberFormatException();
-            }
-        } catch (NumberFormatException e) {
-            request.setAttribute("error", "Mức ưu tiên chỉ được nhập từ 2 đến 4 (Giám đốc-2, Nhân viên kho-3, Nhân viên-4).");
-            doGet(request, response);
-            return;
-        }
-
+        int roleId = Integer.parseInt(roleIdStr);
         if (gender == null || gender.trim().isEmpty()) {
             request.setAttribute("error", "Giới tính là bắt buộc.");
             doGet(request, response);
             return;
         }
-
         if (dayofbirth == null || dayofbirth.trim().isEmpty()) {
             request.setAttribute("error", "Ngày sinh không được để trống.");
             doGet(request, response);
             return;
         }
-
         try {
-            java.time.LocalDate dob = java.time.LocalDate.parse(dayofbirth);
-            if (dob.isAfter(java.time.LocalDate.now())) {
+            LocalDate dob = LocalDate.parse(dayofbirth);
+            LocalDate today = LocalDate.now();
+            LocalDate minDate = today.minusYears(120);
+            LocalDate mustBeAtLeast = today.minusYears(18);
+            if (dob.isAfter(today)) {
                 request.setAttribute("error", "Ngày sinh không được lớn hơn ngày hiện tại.");
                 doGet(request, response);
                 return;
             }
-            
-            java.time.LocalDate minDate = java.time.LocalDate.now().minusYears(120);
             if (dob.isBefore(minDate)) {
                 request.setAttribute("error", "Ngày sinh không hợp lệ. Tuổi không được vượt quá 120.");
                 doGet(request, response);
                 return;
             }
-        } catch (java.time.format.DateTimeParseException e) {
+            if (dob.isAfter(mustBeAtLeast)) {
+                request.setAttribute("error", "Người dùng phải đủ 18 tuổi trở lên.");
+                doGet(request, response);
+                return;
+            }
+        } catch (DateTimeParseException e) {
             request.setAttribute("error", "Ngày sinh không hợp lệ.");
             doGet(request, response);
             return;
         }
-
         if (password == null || password.trim().isEmpty() || password.length() < 8 || password.length() > 50 || !userDAO.isValidPassword(password)) {
             request.setAttribute("error", "Mật khẩu không hợp lệ.");
             doGet(request, response);
             return;
         }
-
-        String hashedPassword = userDAO.hashPassword(password);
-
         Part filePart = request.getPart("imageFile");
         String imagePath = null;
         if (filePart != null && filePart.getSize() > 0) {
@@ -169,14 +150,25 @@ public class CreateUserServlet extends HttpServlet {
                 doGet(request, response);
                 return;
             }
-            String uploadDir = getServletContext().getRealPath("/image");
-            File uploadDirFile = new File(uploadDir);
-            if (!uploadDirFile.exists()) {
-                uploadDirFile.mkdirs();
-            }
-            filePart.write(uploadDir + File.separator + originalFileName);
             imagePath = "/image/" + originalFileName;
+            String buildImageDir = request.getServletContext().getRealPath("/image");
+            File buildDirFile = new File(buildImageDir);
+            if (!buildDirFile.exists()) {
+                buildDirFile.mkdirs();
+            }
+            filePart.write(buildImageDir + File.separator + originalFileName);
+            File buildImageDirFile = new File(buildImageDir);
+            File projectRoot = buildImageDirFile.getParentFile().getParentFile().getParentFile(); // build/web/image -> build/web -> build -> project
+            File sourceImageDirFile = new File(projectRoot, "web/image");
+            if (!sourceImageDirFile.exists()) {
+                sourceImageDirFile.mkdirs();
+            }
+            Path source = Paths.get(buildImageDir, originalFileName);
+            Path target = Paths.get(sourceImageDirFile.getAbsolutePath(), originalFileName);
+            Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
         }
+
+        String hashedPassword = userDAO.hashPassword(password);
 
         User newUser = new User();
         Role role = new Role();
@@ -187,16 +179,14 @@ public class CreateUserServlet extends HttpServlet {
         newUser.setPhone(phone);
         newUser.setRole(role);
         newUser.setStatus(status);
-        newUser.setPriority(priority);
         newUser.setImage(imagePath);
         newUser.setGender(gender);
         newUser.setDayofbirth(dayofbirth);
-        newUser.setDescription(description);
 
         boolean success = userDAO.insertUser(newUser);
 
         if (success) {
-            response.sendRedirect(request.getContextPath() + "/settinglist");
+            response.sendRedirect(request.getContextPath() + "/settinglist?success=add");
         } else {
             request.setAttribute("error", "Tạo người dùng thất bại. Vui lòng thử lại!");
             request.setAttribute("roleList", roleDAO.getAllRolesExceptAdmin());
