@@ -1,146 +1,103 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller;
 
 import dao.UnitConversionDao;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import java.util.List;
+import jakarta.servlet.http.HttpSession;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import model.*;
+import java.sql.Timestamp;
 
-/**
- *
- * @author kien3
- */
 @WebServlet(name = "unitConversionSeverlet", urlPatterns = {"/unitConversionSeverlet"})
 public class UnitConversionServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet unitConversionSeverlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet unitConversionSeverlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        List<UnitConversion> displayList;
+        UnitConversionDao dao = new UnitConversionDao();
 
-        UnitConversionDao n = new UnitConversionDao();
-        String sta = request.getParameter("cvid");
-        String baseunit = request.getParameter("baseunit");
-        String convertedunit = request.getParameter("convertedunit");
-        String search = request.getParameter("search");
-        String status = request.getParameter("status");
-        String page_raw = request.getParameter("page");
+        String cvid = request.getParameter("cvid");
         String action = request.getParameter("action");
+        String search = request.getParameter("search");
+
+        HttpSession session = request.getSession();
+        User nameandid = (User) session.getAttribute("Admin");
+
+        String username = (nameandid != null) ? nameandid.getFullname() : "Rỗng";
+        String role = (nameandid != null && nameandid.getRole() != null) ? nameandid.getRole().getRolename() : "Rỗng";
+
         int page = 1;
         try {
-            page = Integer.parseInt(page_raw);
-        } catch (Exception e) {
-            page = 1;
+            page = Integer.parseInt(request.getParameter("page"));
+        } catch (Exception ignored) {
         }
-        if (sta != null && action != null) {
 
-            int stas = Integer.parseInt(sta);
+        if (cvid != null && action != null) {
+            try {
+                int unitId = Integer.parseInt(cvid);
+                String oldStatus = dao.getOldStatus(unitId);
+                if ("Hoạt động".equalsIgnoreCase(action) || "Không hoạt động".equalsIgnoreCase(action)) {
+                    dao.updateStUnit(action, unitId);
+                    request.setAttribute("messUpdate", "Trạng thái đã được cập nhật.");
+                    
+                    String unitName = dao.getUnitNameById(unitId);
+                    UnitChangeHistory history = new UnitChangeHistory();
+                    history.setUnitId(unitId);
+                    history.setUnitName(unitName);
+                    history.setActionType("Đổi trạng thái");
+                    history.setOldValue(oldStatus);
+                    history.setNewValue(action);
+                    history.setChangedBy(username);
+                    history.setRole(role);
+                    history.setNote("Thay đổi trạng thái từ '" + oldStatus + " sang " + action + "");
+                    history.setChangedAt(new Timestamp(System.currentTimeMillis()));
 
-            if ("Active".equalsIgnoreCase(action) || "Inactive".equalsIgnoreCase(action)) {
-                n.updateStUnit(action, stas);
-                request.setAttribute("messUpdate", "Status has been updated! ");
+                    dao.insertHistory(history);
+
+                }
+            } catch (NumberFormatException e) {
+                request.setAttribute("error", "ID không hợp lệ.");
+            } catch (SQLException ex) {
+                Logger.getLogger(UnitConversionServlet.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
-        int count = n.getcountPage();
-        List<Category> listcat = n.getAllpre();
-        List<UnitConversion> listconverted = n.getAllunitconverted();
-        List<UnitConversion> listbase = n.getAllunitbase();
+        int totalPages = dao.getcountPage();
 
-        boolean isFiltering
-                = (baseunit != null && !baseunit.isEmpty())
-                || (convertedunit != null && !convertedunit.isEmpty())
-                || (search != null && !search.isEmpty())
-                || (status != null && !status.isEmpty());
-        if (isFiltering) {
-            displayList = n.getFilter(baseunit, convertedunit, search, status, page);
+        List<UnitConversion> list;
+        if (search != null && !search.trim().isEmpty()) {
+            list = dao.searchUnit(search, page);
+            if (list.isEmpty()) {
+                request.setAttribute("messUpdate", "Đơn vị không tồn tại!");
+            }
         } else {
-            displayList = n.getAll(page);
+            list = dao.getAllUnit(page);
         }
 
-        request.setAttribute("baseunit", baseunit);
-        request.setAttribute("convertedunit", convertedunit);
+        request.setAttribute("list", list);
         request.setAttribute("search", search);
-        request.setAttribute("status", status);
-        request.setAttribute("pages", count);
+        request.setAttribute("pages", totalPages);
         request.setAttribute("currentPage", page);
-
-        request.setAttribute("list", displayList);
-        request.setAttribute("listcat", listcat);
-        request.setAttribute("listbase", listbase);
-        request.setAttribute("listconverted", listconverted);
 
         request.getRequestDispatcher("unitManagements.jsp").forward(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "Unit management servlet";
+    }
 }
