@@ -1,129 +1,95 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<html lang="en">
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<html lang="vi">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Quản lý đơn vị</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <title>Quản Lý Đơn Vị Tính</title>
+        <link rel="stylesheet" href="css/sidebar.css">
         <link rel="stylesheet" href="./css/unitMmanagement.css">
-        <link rel="stylesheet" href="./css/unitmanga.css">
-       
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     </head>
     <body>
-        
-    
+       <jsp:include page="sidebar.jsp"/>
         <div class="container">
-            <h2 class="page-title">Quản lý đơn vị</h2>
+            <div class="header">
+                <div class="header-content">
+                    <h1 class="page-title">
+                        <i class="fas fa-ruler"></i> Quản Lý Đơn Vị Tính
+                        <span class="unit-count">(${list.size()})</span>
+                    </h1>
+                    <p class="subtitle">Danh mục các đơn vị đo lường trong hệ thống</p>
+                </div>
+                <div class="header-actions">
+                    <a href="createUnit.jsp" class="btn-add">
+                        <i class="fas fa-plus"></i> Thêm mới đơn vị
+                    </a>
+                    <a href="UnitChangeHistoryServlet" class="btn-add">
+                        <i class="fas fa-history"></i> Lịch sử chỉnh sửa
+                    </a>
+                    <a href="unitEditseverlet" class="btn-add">
+                        <i class="fas fa-pencil-alt"></i> Chỉnh sửa tỉ lệ đơn vị
+                    </a>
+                </div>
+            </div>
 
+                        <h2 style="color: red">${requestScope.messUpdate}</h2>
             <form action="unitConversionSeverlet" method="get">
-                <div class="filter-section">
-                    <div class="search-filters">
-                        <div class="filter-group">
-                            <label>Đơn vị gốc:</label>
-                            <select name="baseunit">
-                                <option value="all">All</option>
-                                <c:forEach var="m" items="${requestScope.listbase}">
-                                    <option value="${m.baseunit}">${m.baseunit}</option>
-                                </c:forEach>
-                            </select>
-                        </div>
-
-                        <div class="filter-group">
-                            <label>Đơn vị chuẩn:</label>
-                            <select name="convertedunit">
-                                <option value="all">All</option>
-                                <c:forEach var="uni" items="${requestScope.listconverted}">
-                                    <option value="${uni.convertedunit}">${uni.convertedunit}</option>
-                                </c:forEach>
-                            </select>
-                        </div>
-
-                        <div class="filter-group">
-                            <label>Trạng thái:</label>
-                            <select name="status">
-                                <option value="all">All</option>
-                                <option value="Active">Active</option>
-                                <option value="Inactive">Inactive</option>
-                            </select>
-                        </div>
-
-                        <div class="search-group">
-                            <input type="text" name="search" placeholder="Tìm kiếm..." class="search-input">
-                            <button class="search-btn" type="submit">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
+                <div class="search-section">
+                    <div class="search-box">
+                     
+                        <input type="text" name="search" value="${search}" placeholder="Tìm kiếm theo tên đơn vị...">
+                        <button type="submit">Tìm kiếm</button>
+                        <button><a href="unitConversionSeverlet">Làm mới</a></button>
                     </div>
-
+                     
                 </div>
             </form>
 
-            <div class="action-buttons">
-                <div class="add-button">
-                    <a href="CreateUnitServlet">Thêm vật tư</a>
-                </div>
-                <div class="add-button">
-                    <a href="#">Lịch sử thay đổi đơn vị</a>
-                </div>
-            </div>
-          
+            <!-- Bảng đơn vị -->
             <div class="table-container">
-                <table>
+                <table class="units-table">
                     <thead>
                         <tr>
-                            <th>Tên hiển thị</th>
-                            <th>Đơn vị gốc</th>
-                            <th>Đơn vị chuẩn</th>
-                            <th>Tỷ lệ quy đổi</th>
+                            <th>STT</th>
+                            <th>Tên đơn vị</th>
+                            <th>Tên đơn vị lưu kho</th>
                             <th>Trạng thái</th>
-                            <th>Ghi chú</th>
+                            <th>Tỉ lệ quy đổi</th>
                             <th>Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <c:forEach var="v" items="${requestScope.list}">
+                        <c:forEach var="u" items="${list}" varStatus="status">
                             <tr>
-
-                                <td>${v.material.name}</td>
-                                <td>${v.baseunit}</td>
-                                <td>${v.convertedunit}</td>
-                                <td>${v.conversionfactor}</td>
-                                <td>${v.status}</td>
-                                <td>${v.note}</td>
-
+                                <td>${u.conversionid}</td>
+                                <td>${u.units.unit_name}</td>
+                                <td>${u.units.unit_namePr}</td>
+                                <td>${u.status}</td>
+                                <td>${u.conversionfactor}</td>
                                 <td>
+                                   
+                                    <a href="unitConversionSeverlet?action=${u.status == 'Hoạt động' ? 'Không hoạt động' : 'Hoạt động'}&cvid=${u.conversionid}" 
+                                       class="btn-toggle" title="Đổi trạng thái">
 
-                                    <a href="unitConversionSeverlet?cvid=${v.conversionid}&action=Active"><button>Hoạt động</button></a>
-                                    <a href="unitConversionSeverlet?cvid=${v.conversionid}&action=Inactive"><button>Không hoạt động</button></a>
-                                    
-                                    <a href="unitEditseverlet?baseunitid=${v.conversionid}&materialid=${v.material.materialId}&materialname=${v.material.name}">
-                                      chỉnh sửa
+                                        <i class="fas fa-toggle-${u.status == 'Hoạt động' ? 'on' : 'off'}"></i>
                                     </a>
                                 </td>
                             </tr>
                         </c:forEach>
                     </tbody>
                 </table>
-                
-                <div class="pagination-container">
-                    <c:forEach begin="1" end="${pages}" var="p">
-                        <form action="unitConversionSeverlet" method="get">
-                            <input type="hidden" name="baseunit" value="${baseunit}">
-                            <input type="hidden" name="convertedunit" value="${convertedunit}">
-                            <input type="hidden" name="status" value="${status}">
-                            <input type="hidden" name="search" value="${search}">
-                            <input type="hidden" name="page" value="${p}">
-                            <button type="submit" ${p == currentPage ? 'disabled' : ''}>${p}</button>
-                        </form>
-                       
-                    </c:forEach>
-                    
-                </div>
-               
             </div>
-            <a href="adminDashboard.jsp">Trở lại</a>
+            <div class="pagination">
+                <c:forEach begin="1" end="${pages}" var="p">
+                    <form method="get" action="unitConversionSeverlet" style="display:inline;">
+                        <input type="hidden" name="page" value="${p}" />
+                        <input type="hidden" name="search" value="${search}" />
+                        <button type="submit" class="${p == currentPage ? 'active-page' : ''}">
+                            ${p}
+                        </button>
+                    </form>
+                </c:forEach>
+            </div>
         </div>
-        
     </body>
 </html>
