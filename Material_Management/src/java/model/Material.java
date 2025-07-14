@@ -8,31 +8,29 @@ public class Material {
     private String categoryName;
     private int supplierId;
     private String supplierName;
-    private int conversionId;
+    private int unitId;
     private String imageUrl;
-    private String materialCondition;
     private long price;
     private String description;
-    private int quantity; // Đây là total_inventory
-    private String unit;
+    private String unitName;
+    private String status;
 
     public Material() {
     }
 
-    public Material(int materialId, String name, int categoryId, String categoryName, int supplierId, String supplierName, int conversionId, String imageUrl, String materialCondition, long price, String description, int quantity, String unit) {
+    public Material(int materialId, String name, int categoryId, String categoryName, int supplierId, String supplierName, int unitId, String imageUrl, long price, String description, String unitName, String status) {
         this.materialId = materialId;
         this.name = name;
         this.categoryId = categoryId;
         this.categoryName = categoryName;
         this.supplierId = supplierId;
         this.supplierName = supplierName;
-        this.conversionId = conversionId;
+        this.unitId = unitId;
         this.imageUrl = imageUrl;
-        this.materialCondition = materialCondition;
         this.price = price;
         this.description = description;
-        this.quantity = quantity;
-        this.unit = unit;
+        this.unitName = unitName;
+        this.status = status;
     }
     
     public int getMaterialId() {
@@ -84,12 +82,12 @@ public class Material {
     }
 
 
-    public int getConversionId() {
-        return conversionId;
+    public int getUnitId() {
+        return unitId;
     }
 
-    public void setConversionId(int conversionId) {
-        this.conversionId = conversionId;
+    public void setUnitId(int unitId) {
+        this.unitId = unitId;
     }
 
 
@@ -99,14 +97,6 @@ public class Material {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
-    }
-
-    public String getMaterialCondition() {
-        return materialCondition;
-    }
-
-    public void setMaterialCondition(String materialCondition) {
-        this.materialCondition = materialCondition;
     }
 
     public long getPrice() {
@@ -125,25 +115,25 @@ public class Material {
         this.description = description;
     }
 
-    public int getQuantity() {
-        return quantity;
+    public String getUnitName() {
+        return unitName;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
     }
 
-    public String getUnit() {
-        return unit;
+    public String getStatus() {
+        return status;
     }
 
-    public void setUnit(String unit) {
-        this.unit = unit;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     @Override
     public String toString() {
-        return "Material{" + "materialId=" + materialId + ", name=" + name + ", categoryId=" + categoryId + ", categoryName=" + categoryName + ", supplierId=" + supplierId + ", supplierName=" + supplierName + ", conversionId=" + conversionId + ", imageUrl=" + imageUrl + ", materialCondition=" + materialCondition + ", price=" + price + ", description=" + description + ", quantity=" + quantity + ", unit=" + unit + '}';
+        return "Material{" + "materialId=" + materialId + ", name=" + name + ", categoryId=" + categoryId + ", categoryName=" + categoryName + ", supplierId=" + supplierId + ", supplierName=" + supplierName + ", unitId=" + unitId + ", imageUrl=" + imageUrl + ", price=" + price + ", description=" + description + ", unitName=" + unitName + ", status=" + status + '}';
     }
     
 }
