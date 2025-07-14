@@ -3,62 +3,92 @@
 <html lang="vi">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Thêm mới đơn vị đơn giản</title>
+        <title>Thêm đơn vị quy đổi</title>
         <link rel="stylesheet" href="./css/createUnit.css">
+        <link rel="stylesheet" href="add-unit-conversion.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     </head>
     <body>
         <div class="container">
-            <div class="header">
-                <h1 class="page-title">Thêm mới đơn vị</h1>
-                <h2 style="color: red">${requestScope.mess}</h2>
-                
-            </div>
+            <h1><i class="fas fa-plus-circle"></i> Thêm đơn vị quy đổi mới</h1>
+            <p class="subtitle">Tạo các đơn vị mới và quy đổi về 1 trong 4 đơn vị gốc: cái, lít, kg, mét</p>
+            <h2 style="color: red">${requestScope.mess}</h2>
+            <form id="conversion-form" action="CreateUnitServlet" method="post">
+                <table class="conversion-table">
+                    <thead>
+                        <tr>
+                            <th>TÊN ĐƠN VỊ MỚI</th>
+                            <th>MÔ TẢ</th>
+                            <th>ĐƠN VỊ LƯU KHO</th>
+                            <th>TỈ LỆ QUY ĐỔI</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="conversion-tbody">
+                        <tr>
+                            <td><input type="text" name="unitName" placeholder="VD: Thùng, Hộp..."
+                                       required maxlength="10"
+                                       pattern="^[\p{L}0-9\s]{1,10}$"
+                                       title="Chỉ nhập chữ, số, không nhập kí tự đặc biệt, tối đa 10 ký tự."
+                                       ></td>
+                            <td><input type="text" name="unitDesc" placeholder="Mô tả"></td>
+                            <td>
+                                <select name="baseUnitID" required>
+                                    <option value="">Chọn đơn vị lưu kho</option>
+                                    <option value="1">Cái</option>
+                                    <option value="2">Mét</option>
+                                    <option value="3">Kg</option>
+                                    <option value="4">Lít</option>
 
-            <div class="card">
-                <form action="CreateUnitServlet" method="post">
-                    <div class="form-group">
-                        <label class="form-label" for="materials">Tên vật tư:</label>
-                        <input class="form-control" list="materials" id="materials-input" name="materialid" placeholder="Nhập tên vật tư..." required>
-                        <datalist id="materials">
-                            <c:forEach var="item" items="${list}">
-                                <option value="${item.materialId}-${item.name}" />
-                            </c:forEach>
-                        </datalist>
-                    </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="baseunit">Tên đơn vị nhập vào:</label>
-                        <input type="text" class="form-control" id="baseunit" name="baseunit" placeholder="Nhập tên đơn vị..." required>
-                    </div>
+                                </select>
+                            </td>
+                            <td><input type="number" name="ratio" min="1" step="any" placeholder="Tỉ lệ" required></td>
 
-                    <div class="form-group">
-                        <label class="form-label" for="ratio">Tỉ lệ quy đổi:</label>
-                        <div class="ratio-input">
-                            <input type="text" class="form-control" id="ratio" name="unit1" min="1" step="1" placeholder="Nhập tỷ lệ" required>
-                            <span class="ratio-separator">:</span>
-                            <input type="text" class="form-control" id="ratio2" name="unit2" min="1" step="1" placeholder="Nhập tỷ lệ" required>
-                        </div>
-                    </div>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="form-actions">
+                    <button type="submit"  class="btn-add-row"><i class="fas fa-plus"></i>Tạo mới </button>
+                    <button type="button"  class="btn-add-row"> <a href="unitConversionSeverlet" class="btn-add-row">
+                            <i class="fas fa-plus"></i> Trở về
+                        </a> </button>
+                </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="convertedunit">Đơn vị quy đổi ra:</label>
-                        <input type="text" class="form-control" id="convertedunit" name="convertedunit" placeholder="Nhập đơn vị quy đổi..." required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="note">Ghi chú:</label>
-                        <textarea class="form-control" id="note" name="note" rows="3" placeholder="Nhập ghi chú..."></textarea>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn-primary">Lưu</button>
-                        <a href="unitConversionSeverlet"><button type="button" class="btn-secondary">Hủy</button></a>
-                    </div>
-                </form>
-            </div>
+            </form>
         </div>
+        <script>
+            document.getElementById('btn-add-row').onclick = function () {
+            const tbody = document.getElementById('conversion-tbody');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" name="unitName[]" placeholder="VD: Thùng, Hộp..." required></td>
+                <td><input type="text" name="unitDesc[]" placeholder="Mô tả"></td>
+                <td>
+                    <select name="baseUnit[]" required>
+                        <option value="">Chọn đơn vị gốc</option>
+                        <option value="cái">Cái</option>
+                        <option value="lít">Lít</option>
+                        <option value="kg">Kg</option>
+                        <option value="mét">Mét</option>
+                    </select>
+                </td>
+                <td><input type="number" name="ratio[]" min="0" step="any" placeholder="Tỉ lệ" required></td>
+                <td><button type="button" class="btn-remove" title="Xóa dòng"><i class="fas fa-trash"></i></button></td>
+            `;
+            tbody.appendChild(tr);
+            };
+            document.getElementById('conversion-tbody').onclick = function (e) {
+            if (e.target.closest('.btn-remove')) {
+            const row = e.target.closest('tr');
+            if (document.querySelectorAll('#conversion-tbody tr').length > 1)
+                    row.remove();
+            }
+            };
+            document.getElementById('conversion-form').onsubmit = function (e) {
+            e.preventDefault();
+            alert('Lưu thành công (demo)!');
+            };
+        </script>
     </body>
-</html> 
 </html> 
