@@ -13,11 +13,10 @@ import java.util.List;
 
 public class DAO extends dal.DBContext {
 
-
-
     public List<Role> getRoles() {
         List<Role> role = new ArrayList<>();
-        String sql = "SELECT * FROM roles WHERE role_id != 1 ";
+        String sql = "SELECT * FROM roles \n"
+                + "order by role_id asc";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             ResultSet rs = st.executeQuery();
@@ -68,7 +67,7 @@ public class DAO extends dal.DBContext {
 
     public List<User> userAccount() {
         List<User> account = new ArrayList<>();
-        String sql = "SELECT  u.user_id,u.email,u.password,r.role_id,u.status\n"
+        String sql = "SELECT  u.user_id,u.email,u.password,r.role_id,u.status,r.role_name,u.full_name\n"
                 + "FROM users u \n"
                 + "join roles r on u.role_id = r.role_id;";
         try {
@@ -81,8 +80,10 @@ public class DAO extends dal.DBContext {
                 acc.setEmail(rs.getString("email"));
                 acc.setPassword(rs.getString("password"));
                 rcc.setRoleid(rs.getInt("role_id"));
+                rcc.setRolename(rs.getString("role_name"));
                 acc.setRole(rcc);
                 acc.setStatus(rs.getString("status"));
+                acc.setFullname(rs.getString("full_name"));
                 account.add(acc);
 
             }
@@ -97,7 +98,6 @@ public class DAO extends dal.DBContext {
     public List<User> SettingList(int pages) {
         List<User> list = new ArrayList<>();
         String sql = "select user_id,full_name,r.role_name,r.role_id,status,priority,description from roles r join users u on r.role_id = u.role_id\n"
-                + "WHERE r.role_id != 1 \n"
                 + "ORDER BY user_id \n"
                 + "LIMIT 5 offset ?";
         try {
@@ -174,26 +174,18 @@ public class DAO extends dal.DBContext {
 
     }
 
-    public User userUpdate(String fullname, int priority, String status, String description, String email, String pass, int roleid, int userid) {
+    public User userUpdate(String fullname, String status, int roleid, int userid) {
         String sql = "UPDATE Users \n"
                 + "SET full_name=?, \n"
-                + "priority=?, \n"
-                + "status= ?, \n"
-                + "description= ?,\n"
-                + "email= ?, \n"
-                + "password= ?, \n"
-                + "role_id=?\n"
-                + "WHERE user_id=?;";
+                + "status= ?,              \n"
+                + "role_id=?           \n"
+                + "WHERE user_id=?; ";
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setString(1, fullname);
-            st.setInt(2, priority);
-            st.setString(3, status);
-            st.setString(4, description);
-            st.setString(5, email);
-            st.setString(6, pass);
-            st.setInt(7, roleid);
-            st.setInt(8, userid);
+            st.setString(2, status);
+            st.setInt(3, roleid);
+            st.setInt(4, userid);
             st.executeUpdate();
 
         } catch (SQLException e) {
@@ -356,13 +348,27 @@ public class DAO extends dal.DBContext {
 
     }
 
+    public Role insertRole(String Rolename) {
+        String sql = "insert into roles (role_name)\n"
+                + "value (?)";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, Rolename);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return null;
+
+    }
+
     public void close() {
         super.closeConnection();
     }
 
     public static void main(String[] args) {
         DAO dao = new DAO();
-        User i = dao.userID(1, 1);
-        System.out.println(i);
+        List<User> li = dao.getUser();
+        System.out.println(li);
     }
 }
