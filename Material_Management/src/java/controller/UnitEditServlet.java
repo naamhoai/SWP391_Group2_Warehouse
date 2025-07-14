@@ -12,9 +12,15 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
-import model.Category;
-import model.UnitConversion;
+import java.util.Map;
+import model.*;
+import java.sql.Timestamp;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -49,27 +55,6 @@ public class UnitEditServlet extends HttpServlet {
         }
     }
 
-    private void data(HttpServletRequest request) {
-        String baseunitid = request.getParameter("baseunitid");
-        String materialid = request.getParameter("materialid");
-        String materialname = request.getParameter("materialname");
-
-        request.setAttribute("baseunitid", baseunitid);
-        request.setAttribute("materialid", materialid);
-        UnitConversionDao n = new UnitConversionDao();
-
-        List<UnitConversion> listconverted = n.getAllunitconverted();
-        List<UnitConversion> listbase = n.getAllunitbase();
-        List<Category> listcat = n.getAllpre();
-        request.setAttribute("listcat", listcat);
-        request.setAttribute("listbase", listbase);
-        request.setAttribute("listconverted", listconverted);
-        request.setAttribute("baseunitid", baseunitid);
-        request.setAttribute("materialid", materialid);
-        request.setAttribute("materialname", materialname);
-
-    }
-
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -82,7 +67,20 @@ public class UnitEditServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        data(request);
+        UnitConversionDao dao = new UnitConversionDao();
+
+        List<Units> supplierUnits = dao.getSupplierUnits();
+        Map<Integer, List<UnitConversion>> mapBaseUnits = new HashMap<>();
+
+        for (Units supplier : supplierUnits) {
+            List<UnitConversion> baseUnits = dao.getBaseUnitsBySupplier(supplier.getUnit_id());
+            System.out.println("supplier.getUnit_id()" + supplier.getUnit_id());
+            mapBaseUnits.put(supplier.getUnit_id(), baseUnits);
+        }
+
+        request.setAttribute("supplierUnits", supplierUnits);
+        request.setAttribute("mapBaseUnits", mapBaseUnits);
+
         request.getRequestDispatcher("editUnit.jsp").forward(request, response);
     }
 
@@ -98,70 +96,71 @@ public class UnitEditServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         UnitConversionDao dao = new UnitConversionDao();
-        String baseunitid = request.getParameter("baseunitid");
-        String materialid = request.getParameter("materialid");
-        String materialname = request.getParameter("materialname");
+        request.setCharacterEncoding("UTF-8");
+        HttpSession session = request.getSession();
+        User nameandid = (User) session.getAttribute("Admin");  
 
-        String baseunit = request.getParameter("baseunit");
-        String convertedunit = request.getParameter("convertedunit");
-        String unit1 = request.getParameter("unit1");
-        String unit2 = request.getParameter("unit2");
-        String note = request.getParameter("note");
-        String mess = "";
+        String username = (nameandid != null) ? nameandid.getFullname() : "Rỗng";
+        String role = (nameandid != null && nameandid.getRole() != null) ? nameandid.getRole().getRolename() : "Rỗng";
+        
 
-        boolean validate = true;
-        if (!unit1.matches("\\d+(\\.\\d+)?") || !unit2.matches("\\d+(\\.\\d+)?")) {
-            mess = "đơn vị nhập vào phải là số dương!";
-            validate = false;
-            request.setAttribute("mess", mess);
-            request.setAttribute("materialname", materialname);
-            data(request);
-            request.setAttribute("messss", mess);
-            request.getRequestDispatcher("editUnit.jsp").forward(request, response);
+        Map<String, String[]> paramMap = request.getParameterMap();
 
+        for (String paramName : paramMap.keySet()) {
+            if (paramName.startsWith("conversion_")) {
+                try {
+                    String unitIdStr = paramName.substring("conversion_".length());
+                    int supplierUnitId = Integer.parseInt(unitIdStr);
+
+                    String conversionStr = request.getParameter("conversion_" + unitIdStr);
+                    if (conversionStr == null || conversionStr.trim().isEmpty()) {
+                        continue;
+                    }
+
+                    String warehouseStr = request.getParameter("warehouse_" + unitIdStr);
+                    if (warehouseStr == null || warehouseStr.trim().isEmpty()) {
+                        continue;
+                    }
+                    int warehouseUnitId = Integer.parseInt(warehouseStr);
+
+                   
+                    String oldValue = dao.getOldConversionValue(warehouseUnitId, supplierUnitId);
+
+                   
+                    if (!conversionStr.equals(oldValue)) {
+                      
+                        dao.Update(conversionStr, supplierUnitId, warehouseUnitId);
+
+                     
+                        String unitName = dao.getUnitNameById(supplierUnitId);
+                        String unitName2 = dao.getUnitNameById(warehouseUnitId);
+                      
+                        UnitChangeHistory history = new UnitChangeHistory();
+                        history.setUnitId(supplierUnitId);
+                        history.setUnitName(unitName);
+                        history.setActionType("Cập nhật tỉ lệ.");
+                        history.setOldValue(oldValue);
+                        history.setNewValue(conversionStr);
+                        history.setChangedBy(username); // Có thể lấy từ session
+                        history.setRole(role);
+                        history.setNote("1 " + unitName + " = " + conversionStr +" "+ unitName2 );
+                        history.setChangedAt(new Timestamp(System.currentTimeMillis()));
+
+                        dao.insertHistory(history);
+                    }
+
+                } catch (SQLException | NumberFormatException ex) {
+                    Logger.getLogger(UnitEditServlet.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
         }
 
-        try {
-            int baseunitids = Integer.parseInt(baseunitid);
-            int materialidids = Integer.parseInt(materialid);
-
-            Double a = Double.parseDouble(unit1);
-            Double b = Double.parseDouble(unit2);
-
-            double result = a * b;
-            if (result <= 0) {
-                mess = "Tỉ lệ chuyển đổi phải > 0!";
-                validate = false;
-                data(request);
-                request.setAttribute("messss", mess);
-                request.setAttribute("materialname", materialname);
-                request.getRequestDispatcher("editUnit.jsp").forward(request, response);
-
-            }
-            if (validate) {
-                String results = String.valueOf(result);
-                dao.Update(materialidids, baseunit, convertedunit, results, note, baseunitids);
-                response.sendRedirect("unitConversionSeverlet");
-            }
-
-        } catch (NumberFormatException e) {
-            mess = "Đã có lỗi!";
-            request.setAttribute("materialname", materialname);
-            request.setAttribute("mess", mess);
-            data(request);
-            request.getRequestDispatcher("editUnit.jsp").forward(request, response);
-        }
-
+        // Chuyển hướng sau khi xử lý xong
+        response.sendRedirect("unitConversionSeverlet");
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "Servlet xử lý chỉnh sửa đơn vị và lưu lịch sử thay đổi.";
+    }
 }

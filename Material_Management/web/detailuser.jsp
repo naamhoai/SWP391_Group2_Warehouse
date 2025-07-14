@@ -12,7 +12,7 @@
     </head>
     <body>
         <div class="container">
-            <h2>Setting Details</h2>
+            <h2>Cài đặt người dùng</h2>
             <h3 style="color: red">${messkk}</h3>
 
             <form action="detailuser" method="post">
@@ -20,32 +20,25 @@
                 <div class="row">
                     <div>
                         <label>Tên</label>
-                        <input type="text" name="name" value="${user.fullname}"required>
+                        <input type="text" name="name" value="${user.fullname}"readonly maxlength="20">
 
                     </div>
                     <div>
                         <label>Kiểu vai trò</label>
                         <select name="role">
                             <c:forEach var="i" items="${requestScope.lits}">
-                                <option value="${i.roleid}">${i.rolename}</option>
+                                <c:if test="${i.roleid !=1 && i.roleid !=2}">
+                                    <option value="${i.roleid}">${i.rolename}</option>
+                                </c:if>
                             </c:forEach>
                         </select>
                     </div>
                 </div>
-                <div>
-                    <label>gmail</label>
-                    <input type="text" name="email" value="${user.email}"required>
-                </div>
-                <div>
-                    <label>Mật khẩu </label>
-                    <input type="password" name="pass" value="${user.password}"readonly>
-                </div>
+
+
 
                 <div class="row">
-                    <div>
-                        <label>Ưu tiên</label>
-                        <input type="text" name="priority" value="${user.priority}"required>
-                    </div>
+
                     <div>
                         <label>Trạng thái</label>
                         <div class="radio-group">
@@ -56,10 +49,7 @@
                 </div>
 
                 <div class="row">
-                    <div style="width: 100%;">
-                        <label>Mô tả</label>
-                        <textarea rows="3" name="description">${user.description}</textarea>
-                    </div>
+
                 </div>
                 <input type="hidden" name="userid" value="${user.user_id}">
                 <input type="hidden" name="roleid" value="${user.role.roleid}">

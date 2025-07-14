@@ -123,7 +123,7 @@ public class SettingList extends HttpServlet {
         } finally {
             dao.close();
         }
-        request.getRequestDispatcher("settingList.jsp").forward(request, response);
+        request.getRequestDispatcher("settinglist.jsp").forward(request, response);
     }
 
     /**
