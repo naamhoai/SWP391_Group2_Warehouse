@@ -66,8 +66,8 @@ public class DetailUser extends HttpServlet {
         String userid = request.getParameter("userid");
         String roleid = request.getParameter("roleid");
         List<Role> list = dao.getRoles();
-        System.out.println("userid " +  userid);
-        System.out.println("roleid " +  roleid);
+        System.out.println("userid " + userid);
+        System.out.println("roleid " + roleid);
 
         try {
             if (list != null && !list.isEmpty() && userid != null && roleid != null) {
@@ -75,7 +75,7 @@ public class DetailUser extends HttpServlet {
                 int rid = Integer.parseInt(roleid);
 
                 User usid = dao.userID(id, rid);
-                
+
                 System.out.println("usid" + usid);
                 request.setAttribute("user", usid);
                 request.setAttribute("lits", list);
@@ -101,13 +101,9 @@ public class DetailUser extends HttpServlet {
             throws ServletException, IOException {
         HttpSession se = request.getSession();
         String name = request.getParameter("name");
-        String priority = request.getParameter("priority");
         String status = request.getParameter("status");
         String role = request.getParameter("role");
-        String description = request.getParameter("description");
         String userid = request.getParameter("userid");
-        String pass = request.getParameter("pass");
-        String email = request.getParameter("email");
 
         DAO dao = new DAO();
         String mess = "";
@@ -118,26 +114,21 @@ public class DetailUser extends HttpServlet {
 
             int id = Integer.parseInt(userid);
             int rid = Integer.parseInt(role);
-            int pri = Integer.parseInt(priority);
-            if (pri > 0) {
-                dao.userUpdate(name, pri, status, description, email, pass, rid, id);
-                System.out.println(dao.userUpdate(name, pri, status, description, email, pass, rid, id));
-                System.out.println(role);
-                mess = "Successfully updated";
-                se.setAttribute("messUpdate", mess);
 
-                response.sendRedirect("settinglist");
-            } else {
-                mess = "Priority Invalied!";
-                User usid = dao.userID(id, rid);
+            dao.userUpdate(name, status, rid, id);
+            mess = "Cập nhật trạng thái thành công!";
+            se.setAttribute("messUpdate", mess);
+            response.sendRedirect("settinglist");
+        
 
-                request.setAttribute("user", usid);
-                request.setAttribute("messkk", mess);
-                request.getRequestDispatcher("detailuser.jsp").forward(request, response);
-            }
+//            User usid = dao.userID(id, rid);
+//            request.setAttribute("user", usid);
+//            request.setAttribute("messkk", mess);
+//            request.getRequestDispatcher("detailuser.jsp").forward(request, response);
 
         } catch (NumberFormatException e) {
             e.printStackTrace();
+
             mess = "Failed to update.";
             se.setAttribute("messkk", mess);
             response.sendRedirect("detailuser");

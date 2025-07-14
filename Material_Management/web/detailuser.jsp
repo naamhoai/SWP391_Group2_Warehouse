@@ -5,73 +5,55 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Cài đặt người dùng</title>
-
+        <title>Cấu hình người dùng</title>
         <link rel="stylesheet" href="css/detailuser.css">
 
     </head>
     <body>
         <div class="container">
-            <h2>Setting Details</h2>
+            <h2>Cấu hình người dùng</h2>
             <h3 style="color: red">${messkk}</h3>
-
             <form action="detailuser" method="post">
-
                 <div class="row">
                     <div>
                         <label>Tên</label>
-                        <input type="text" name="name" value="${user.fullname}"required>
-
+                        <input type="text" name="name" value="${user.fullname}" readonly maxlength="20">
                     </div>
                     <div>
                         <label>Kiểu vai trò</label>
                         <select name="role">
                             <c:forEach var="i" items="${requestScope.lits}">
-                                <option value="${i.roleid}">${i.rolename}</option>
+                                <c:if test="${i.roleid != 1 && i.roleid != 2}">
+                                    <option value="${i.roleid}"
+                                            <c:if test="${i.roleid == user.role.roleid}">selected</c:if>>
+                                        ${i.rolename}
+                                    </option>
+                                </c:if>
                             </c:forEach>
                         </select>
                     </div>
                 </div>
-                <div>
-                    <label>gmail</label>
-                    <input type="text" name="email" value="${user.email}"required>
-                </div>
-                <div>
-                    <label>Mật khẩu </label>
-                    <input type="password" name="pass" value="${user.password}"readonly>
-                </div>
-
-                <div class="row">
-                    <div>
-                        <label>Ưu tiên</label>
-                        <input type="text" name="priority" value="${user.priority}"required>
-                    </div>
-                    <div>
-                        <label>Trạng thái</label>
-                        <div class="radio-group">
-                            <label><input type="radio" name="status" value="active"> Active</label>
-                            <label><input type="radio" name="status" value="inactive"> Inactive</label>
+                <div class="row radio-row">
+                    <label>Trạng thái</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="status" value="Hoạt động"
+                                   <c:if test="${user.status == 'Hoạt động'}">checked</c:if> > Hoạt động
+                            </label>
+                            <label>
+                                <input type="radio" name="status" value="Không hoạt động"
+                                <c:if test="${user.status == 'Không hoạt động'}">checked</c:if> > Không hoạt động
+                            </label>
                         </div>
                     </div>
-                </div>
-
-                <div class="row">
-                    <div style="width: 100%;">
-                        <label>Mô tả</label>
-                        <textarea rows="3" name="description">${user.description}</textarea>
-                    </div>
-                </div>
-                <input type="hidden" name="userid" value="${user.user_id}">
+                    <input type="hidden" name="userid" value="${user.user_id}">
                 <input type="hidden" name="roleid" value="${user.role.roleid}">
 
                 <div class="hopbut">
-
                     <a href="settinglist">Trở lại </a>
                     <button type="submit">Lưu</button>
                 </div>
             </form>
-
-
         </div>
 
 

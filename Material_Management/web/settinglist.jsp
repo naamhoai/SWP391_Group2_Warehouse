@@ -23,9 +23,9 @@
                 <c:if test="${not empty messUpdate}">
                     <div class="success-message">${messUpdate}</div>
                 </c:if>
-            </div>
-            <div>
-                <button><a href="${pageContext.request.contextPath}/CreateUserServlet">Thêm mới </a></button>
+                <c:if test="${param.success == 'add'}">
+                    <div class="success-message">Thêm người dùng mới thành công!</div>
+                </c:if>
             </div>
 
             <form action="settinglist" method="get">
@@ -37,11 +37,11 @@
                         </c:forEach>
                     </select>
                     <select name="status">
-                        <option value="All">All Statuses</option>
-                        <option value="active">Hoạt động</option>
-                        <option value="inactive">Không hoặc động</option>
+                        <option value="All">Tất cả </option>
+                        <option value="Hoạt động">Hoạt động</option>
+                        <option value="Không hoạt động">Không hoạt động</option>
                     </select>
-                    <input type="text" placeholder="Enter number to search" name="priority">
+
                     <input type="text" placeholder="Enter keyword(s) to search" name="searchname">
 
 
@@ -49,18 +49,13 @@
 
                         <i class="fas fa-search"></i> Tìm Kiếm
                     </button>
-                    <select name="sortBy">
-                        <option value="">Săp xếp</option>
-                        <option value="idasc">ID (Giảm dần)</option>
-                        <option value="iddesc">ID (Tăng dần)</option>
-                        <option value="nameasc">Tên (A-Z)</option>
-                        <option value="namedesc">Tên (Z-A)</option>
-                        <option value="priorityasc">Ưu tiên (thấp-cao)</option>
-                        <option value="prioritydesc">Ưu tiên (cao-thấp)</option>
-                    </select>
 
-                    <button type="submit" value="sort" name="save">
-                        Sort
+                    <div>
+                        <button><a href="${pageContext.request.contextPath}/settinglist">Làm mới </a></button>
+                    </div>
+
+
+
                     </button>
                 </div>
             </form>
@@ -72,9 +67,7 @@
                             <th> </th>
                             <th>Id</th>
                             <th>Tên</th>
-                            <th>Kiểu</th>
-                            <th>Mô tả</th>
-                            <th>Ưu tiên</th>
+                            <th>Vai Trò</th>
                             <th>Trạng thái</th>
                             <th>Hành động</th>
                         </tr>
@@ -82,25 +75,18 @@
                     <tbody>
                         <c:forEach var="u" items="${requestScope.list}">
                             <tr>
-                                <td>
-
-                                </td>
+                                <td></td>
                                 <td>${u.user_id}</td>
                                 <td>${u.fullname}</td>
                                 <td>${u.role.rolename}</td>
-                                <td>${u.description}</td>
-                                <td>${u.priority}</td>
+
                                 <td>${u.status}</td>
                                 <td class="action">
-                                    <a href="detailuser?roleid=${u.role.roleid}&userid=${u.user_id}">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </a>
-                                    <a href="settinglist?sta=${u.user_id}&action=inactive" class="inactive">
-                                        <i class="fas fa-ban"></i> Inactive
-                                    </a>
-                                    <a href="settinglist?sta=${u.user_id}&action=active" class="active">
-                                        <i class="fas fa-check"></i> Active
-                                    </a>
+                                    <c:if test="${u.role.roleid != 1 && u.role.roleid != 2}">
+                                        <a href="detailuser?roleid=${u.role.roleid}&userid=${u.user_id}">
+                                            <i class="fas fa-edit"></i> chỉnh sửa
+                                        </a>
+                                    </c:if>
                                 </td>
                             </tr>
                         </c:forEach>

@@ -70,9 +70,9 @@ public class SettingList extends HttpServlet {
         String action = request.getParameter("action");
         String status = request.getParameter("status");
         String type = request.getParameter("type");
-        String priority = request.getParameter("priority");
+
         String searchname = request.getParameter("searchname");
-        String sortby = request.getParameter("sortBy");
+
         String sumbit = request.getParameter("save");
 
         try {
@@ -81,9 +81,9 @@ public class SettingList extends HttpServlet {
                 int stas = Integer.parseInt(sta);
                 System.out.println("sta" + sta);
                 System.out.println("action" + action);
-                if ("active".equalsIgnoreCase(action) || "inactive".equalsIgnoreCase(action)) {
+                if ("Hoạt động".equalsIgnoreCase(action) || "Không hoạt động".equalsIgnoreCase(action)) {
                     dao.updateSt(action, stas);
-                    request.setAttribute("messUpdate", "Status has been updated! ");
+                    request.setAttribute("messUpdate", "Trạng thái cập nhật thành công! ");
                 }
             }
             int pagesCount = dao.getcountPage();
@@ -92,29 +92,18 @@ public class SettingList extends HttpServlet {
             request.setAttribute("pages", pagesCount);
             request.setAttribute("listrole", role);
             Integer pri = null;
-            if (priority != null && !priority.trim().isEmpty()) {
-                try {
-                    pri = Integer.parseInt(priority.trim());
-                } catch (NumberFormatException e) {
-                    System.out.println(e.getMessage());
-                    request.setAttribute("mess", "Priority not valid.");
-                }
-            }
+         
             List<User> list = dao.SettingList(pages);
-            
+
             if ("filter".equalsIgnoreCase(sumbit)) {
-                list = dao.getFilter(status, type, (pri == null ? -1 : pri), searchname, pages);
-                System.out.println("fl  "  + list);
-            }
-            if ("sort".equalsIgnoreCase(sumbit)) {
-                list = dao.getSort(sortby, pages);
-                 System.out.println("sr  "  + list);
+                list = dao.getFilter(status, type, searchname, pages);
+                System.out.println("fl  " + list);
             }
 
             if (list != null && !list.isEmpty()) {
                 request.setAttribute("list", list);
             } else {
-                request.setAttribute("mess", "No data");
+                request.setAttribute("mess", "Không có dữ liệu!");
             }
         } catch (NumberFormatException e) {
             System.out.println(e.getMessage());
@@ -123,7 +112,7 @@ public class SettingList extends HttpServlet {
         } finally {
             dao.close();
         }
-        request.getRequestDispatcher("settingList.jsp").forward(request, response);
+        request.getRequestDispatcher("settinglist.jsp").forward(request, response);
     }
 
     /**
