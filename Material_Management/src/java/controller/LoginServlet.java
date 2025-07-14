@@ -87,13 +87,13 @@ public class LoginServlet extends HttpServlet {
 
             for (User user2 : users) {
                 if (gmail.equals(user2.getEmail())) {
-                    if (!"active".equalsIgnoreCase(user2.getStatus())) {
+                    if (!"Hoạt động".equalsIgnoreCase(user2.getStatus())) {
                         request.setAttribute("mess", "Tài khoản đã bị khóa.");
                         request.getRequestDispatcher("login.jsp").forward(request, response);
                         return;
                     }
-                       //BCrypt.checkpw(pass, user.getPassword())
-                    if (pass.equals(user2.getPassword())){
+                    //BCrypt.checkpw(pass, user2.getPassword())
+                    if (pass.equals(user2.getPassword())) {
                         session.setAttribute("Admin", user2);
                         session.setAttribute("userId", user2.getUser_id());
                         session.setAttribute("roleId", user2.getRole().getRoleid());
@@ -134,8 +134,8 @@ public class LoginServlet extends HttpServlet {
             }
         }
 
-        request.setAttribute("mess", " Sai thông tin tài khoản.");
-        request.getRequestDispatcher("login.jsp").forward(request, response);
+        session.setAttribute("mess", "Sai mật khẩu");
+        response.sendRedirect("login.jsp");
     }
 
     /**
