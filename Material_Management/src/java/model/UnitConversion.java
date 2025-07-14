@@ -10,64 +10,27 @@ package model;
  */
 public class UnitConversion {
 
-    private Category category;
 
-    private Material material;
-    private String baseunit;
-    private String convertedunit;
     private String conversionfactor;
     private String note;
-    private String categorypar;
+
     private int conversionid;
-    private int materialid;
+    private int SupplierUnitId;
+    private int warehouseunitid;
     private String status;
+    private Unit units;
 
     public UnitConversion() {
     }
 
-    public UnitConversion(Category category, Material material, String baseunit, String convertedunit, String conversionfactor, String note, String categorypar, int conversionid, int materialid, String status) {
-        this.category = category;
-        this.material = material;
-        this.baseunit = baseunit;
-        this.convertedunit = convertedunit;
+    public UnitConversion(String conversionfactor, String note, int conversionid, int SupplierUnitId, int warehouseunitid, String status, Unit units) {
         this.conversionfactor = conversionfactor;
         this.note = note;
-        this.categorypar = categorypar;
         this.conversionid = conversionid;
-        this.materialid = materialid;
+        this.SupplierUnitId = SupplierUnitId;
+        this.warehouseunitid = warehouseunitid;
         this.status = status;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public Material getMaterial() {
-        return material;
-    }
-
-    public void setMaterial(Material material) {
-        this.material = material;
-    }
-
-    public String getBaseunit() {
-        return baseunit;
-    }
-
-    public void setBaseunit(String baseunit) {
-        this.baseunit = baseunit;
-    }
-
-    public String getConvertedunit() {
-        return convertedunit;
-    }
-
-    public void setConvertedunit(String convertedunit) {
-        this.convertedunit = convertedunit;
+        this.units = units;
     }
 
     public String getConversionfactor() {
@@ -86,14 +49,6 @@ public class UnitConversion {
         this.note = note;
     }
 
-    public String getCategorypar() {
-        return categorypar;
-    }
-
-    public void setCategorypar(String categorypar) {
-        this.categorypar = categorypar;
-    }
-
     public int getConversionid() {
         return conversionid;
     }
@@ -102,12 +57,20 @@ public class UnitConversion {
         this.conversionid = conversionid;
     }
 
-    public int getMaterialid() {
-        return materialid;
+    public int getSupplierUnitId() {
+        return SupplierUnitId;
     }
 
-    public void setMaterialid(int materialid) {
-        this.materialid = materialid;
+    public void setSupplierUnitId(int SupplierUnitId) {
+        this.SupplierUnitId = SupplierUnitId;
+    }
+
+    public int getWarehouseunitid() {
+        return warehouseunitid;
+    }
+
+    public void setWarehouseunitid(int warehouseunitid) {
+        this.warehouseunitid = warehouseunitid;
     }
 
     public String getStatus() {
@@ -118,13 +81,24 @@ public class UnitConversion {
         this.status = status;
     }
 
-    @Override
-    public String toString() {
-        return "UnitConversion{" + "category=" + category + ", material=" + material + ", baseunit=" + baseunit + ", convertedunit=" + convertedunit + ", conversionfactor=" + conversionfactor + ", note=" + note + ", categorypar=" + categorypar + ", conversionid=" + conversionid + ", materialid=" + materialid + ", status=" + status + '}';
+    public Unit getUnits() {
+        return units;
     }
 
-   
-   
+    public void setUnits(Unit units) {
+        this.units = units;
+    }
+
+    @Override
+    public String toString() {
+        return "UnitConversion{" + "conversionfactor=" + conversionfactor + ", note=" + note + ", conversionid=" + conversionid + ", SupplierUnitId=" + SupplierUnitId + ", warehouseunitid=" + warehouseunitid + ", status=" + status + ", units=" + units + '}';
+    }
+
+    
    
 
+   
+   
+   
+   
 }
