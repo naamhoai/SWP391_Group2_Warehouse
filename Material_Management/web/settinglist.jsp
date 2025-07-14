@@ -23,8 +23,10 @@
                 <c:if test="${not empty messUpdate}">
                     <div class="success-message">${messUpdate}</div>
                 </c:if>
+                <c:if test="${param.success == 'add'}">
+                    <div class="success-message">Thêm người dùng mới thành công!</div>
+                </c:if>
             </div>
-
 
             <form action="settinglist" method="get">
                 <div class="filter-section">
@@ -35,9 +37,9 @@
                         </c:forEach>
                     </select>
                     <select name="status">
-                        <option value="All">All Statuses</option>
+                        <option value="All">Tất cả </option>
                         <option value="Hoạt động">Hoạt động</option>
-                        <option value="Không hoặc động">Không hoặc động</option>
+                        <option value="Không hoạt động">Không hoạt động</option>
                     </select>
 
                     <input type="text" placeholder="Enter keyword(s) to search" name="searchname">
@@ -49,11 +51,9 @@
                     </button>
 
                     <div>
-                        <button><a href="${pageContext.request.contextPath}/CreateUserServlet">Thêm mới người dùng </a></button>
+                        <button><a href="${pageContext.request.contextPath}/settinglist">Làm mới </a></button>
                     </div>
-                    <div>
-                        <button><a href="CreateRoleServlet">Thêm mới quyền </a></button>
-                    </div>
+
 
 
                     </button>

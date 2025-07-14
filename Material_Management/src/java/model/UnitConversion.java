@@ -18,12 +18,12 @@ public class UnitConversion {
     private int SupplierUnitId;
     private int warehouseunitid;
     private String status;
-    private Units units;
+    private Unit units;
 
     public UnitConversion() {
     }
 
-    public UnitConversion(String conversionfactor, String note, int conversionid, int SupplierUnitId, int warehouseunitid, String status, Units units) {
+    public UnitConversion(String conversionfactor, String note, int conversionid, int SupplierUnitId, int warehouseunitid, String status, Unit units) {
         this.conversionfactor = conversionfactor;
         this.note = note;
         this.conversionid = conversionid;
@@ -81,11 +81,11 @@ public class UnitConversion {
         this.status = status;
     }
 
-    public Units getUnits() {
+    public Unit getUnits() {
         return units;
     }
 
-    public void setUnits(Units units) {
+    public void setUnits(Unit units) {
         this.units = units;
     }
 

@@ -93,7 +93,7 @@ public class LoginServlet extends HttpServlet {
                         return;
                     }
                     //BCrypt.checkpw(pass, user2.getPassword())
-                    if (pass.equals(user2.getPassword())) {
+                    if (pass.equals(user2.getPassword())||BCrypt.checkpw(pass, user2.getPassword())) {
                         session.setAttribute("Admin", user2);
                         session.setAttribute("userId", user2.getUser_id());
                         session.setAttribute("roleId", user2.getRole().getRoleid());

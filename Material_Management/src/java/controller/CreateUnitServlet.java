@@ -90,7 +90,6 @@ public class CreateUnitServlet extends HttpServlet {
 
         HttpSession session = request.getSession();
         User nameandid = (User) session.getAttribute("Admin");  
-
         String username = (nameandid != null) ? nameandid.getFullname() : "Rỗng";
         String role = (nameandid != null && nameandid.getRole() != null) ? nameandid.getRole().getRolename() : "Rỗng";
         int base = Integer.parseInt(baseUnitID);

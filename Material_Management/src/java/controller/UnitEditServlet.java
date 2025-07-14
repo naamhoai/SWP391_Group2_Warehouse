@@ -69,10 +69,10 @@ public class UnitEditServlet extends HttpServlet {
             throws ServletException, IOException {
         UnitConversionDao dao = new UnitConversionDao();
 
-        List<Units> supplierUnits = dao.getSupplierUnits();
+        List<Unit> supplierUnits = dao.getSupplierUnits();
         Map<Integer, List<UnitConversion>> mapBaseUnits = new HashMap<>();
 
-        for (Units supplier : supplierUnits) {
+        for (Unit supplier : supplierUnits) {
             List<UnitConversion> baseUnits = dao.getBaseUnitsBySupplier(supplier.getUnit_id());
             System.out.println("supplier.getUnit_id()" + supplier.getUnit_id());
             mapBaseUnits.put(supplier.getUnit_id(), baseUnits);
@@ -98,7 +98,7 @@ public class UnitEditServlet extends HttpServlet {
         UnitConversionDao dao = new UnitConversionDao();
         request.setCharacterEncoding("UTF-8");
         HttpSession session = request.getSession();
-        User nameandid = (User) session.getAttribute("Admin");  
+        User nameandid = (User) session.getAttribute("Admin");  // đảm bảo đã login và lưu "Admin" là Users
 
         String username = (nameandid != null) ? nameandid.getFullname() : "Rỗng";
         String role = (nameandid != null && nameandid.getRole() != null) ? nameandid.getRole().getRolename() : "Rỗng";
@@ -123,18 +123,18 @@ public class UnitEditServlet extends HttpServlet {
                     }
                     int warehouseUnitId = Integer.parseInt(warehouseStr);
 
-                   
+                    // Lấy giá trị cũ từ DB
                     String oldValue = dao.getOldConversionValue(warehouseUnitId, supplierUnitId);
 
-                   
+                    // Nếu giá trị mới khác với cũ → cập nhật + ghi lịch sử
                     if (!conversionStr.equals(oldValue)) {
-                      
+                        // Cập nhật giá trị mới
                         dao.Update(conversionStr, supplierUnitId, warehouseUnitId);
 
-                     
+                        // Lấy tên đơn vị động từ DB
                         String unitName = dao.getUnitNameById(supplierUnitId);
                         String unitName2 = dao.getUnitNameById(warehouseUnitId);
-                      
+                        // Ghi lịch sử
                         UnitChangeHistory history = new UnitChangeHistory();
                         history.setUnitId(supplierUnitId);
                         history.setUnitName(unitName);
@@ -155,7 +155,7 @@ public class UnitEditServlet extends HttpServlet {
             }
         }
 
-        // Chuyển hướng sau khi xử lý xong
+        
         response.sendRedirect("unitConversionSeverlet");
     }
 

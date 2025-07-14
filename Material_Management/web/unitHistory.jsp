@@ -41,8 +41,8 @@
                             <select id="operationFilter" name="operationFilter" class="filter-select">
                                 <option value="">Tất cả thao tác</option>
                                 <option value="Thêm mới" ${param.operationFilter == 'Thêm mới' ? 'selected' : ''}>Thêm mới</option>
-                                <option value="Quy đổi" ${param.operationFilter == 'convert' ? 'selected' : ''}>Quy đổi</option>
-                                <option value="Đổi trạng thái" ${param.operationFilter == 'Đổi trạng thái' ? 'selected' : ''}>Thay đổi trạng thái</option>
+                                <option value="Cập nhật tỉ lệ." ${param.operationFilter == 'Cập nhật tỉ lệ.' ? 'selected' : ''}>Cập nhật tỉ lệ.</option>
+                                <option value="Đổi trạng thái" ${param.operationFilter == 'Đổi trạng thái' ? 'selected' : ''}>Đổi trạng thái</option>
 
                             </select>
                         </div>
@@ -51,7 +51,7 @@
                             <label for="userFilter">Vai trò:</label>
                             <select id="userFilter" name="userFilter" class="filter-select">
                                 <option value="">Tất cả vai trò</option>
-                                <option value="Quản trị viên" ${param.userFilter == 'Quản trị viên' ? 'selected' : ''}>Quản trị viên</option>
+                                <option value="Admin" ${param.userFilter == 'Admin' ? 'selected' : ''}>Quản trị viên</option>
                                 <option value="Quản lý kho" ${param.userFilter == 'Quản lý kho' ? 'selected' : ''}>Quản lý kho</option>
 
                             </select>

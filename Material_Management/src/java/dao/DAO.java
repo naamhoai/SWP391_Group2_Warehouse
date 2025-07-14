@@ -48,12 +48,13 @@ public class DAO extends dal.DBContext {
                 u.setPassword(rs.getString("password"));
                 u.setPhone(rs.getString("phone"));
                 u.setEmail(rs.getString("email"));
-                u.setPriority(rs.getInt("priority"));
+                u.setStatus(rs.getString("status"));
+                u.setImage(rs.getString("image"));
+               
                 rcc.setRoleid(rs.getInt("role_id"));
                 rcc.setRolename(rs.getString("role_name"));
                 u.setRole(rcc);
-                u.setStatus(rs.getString("status"));
-                u.setImage(rs.getString("image"));
+                
                 user.add(u);
 
             }
@@ -97,7 +98,7 @@ public class DAO extends dal.DBContext {
 
     public List<User> SettingList(int pages) {
         List<User> list = new ArrayList<>();
-        String sql = "select user_id,full_name,r.role_name,r.role_id,status,priority,description from roles r join users u on r.role_id = u.role_id\n"
+        String sql = "select user_id,full_name,r.role_name,r.role_id,status from roles r join users u on r.role_id = u.role_id\n"
                 + "ORDER BY user_id \n"
                 + "LIMIT 5 offset ?";
         try {
@@ -113,8 +114,7 @@ public class DAO extends dal.DBContext {
                 rcc.setRolename(rs.getString("role_name"));
                 acc.setRole(rcc);
                 acc.setStatus(rs.getString("status"));
-                acc.setDescription(rs.getString("description"));
-                acc.setPriority(rs.getInt("priority"));
+                
                 list.add(acc);
 
             }
@@ -127,7 +127,7 @@ public class DAO extends dal.DBContext {
     }
 
     public User userID(int user_ID, int role_id) {
-        String sql = "select u.user_id,r.role_id,u.full_name,u.priority,u.description,u.email,u.password \n"
+        String sql = "select u.user_id,r.role_id,u.full_name,u.email,u.password,u.status \n"
                 + "from users u join roles r \n"
                 + "on u.role_id = r.role_id\n"
                 + "where u.user_id = ? and r.role_id = ?";
@@ -142,8 +142,7 @@ public class DAO extends dal.DBContext {
                 acc.setUser_id(rs.getInt("user_id"));
                 rcc.setRoleid(rs.getInt("role_id"));
                 acc.setFullname(rs.getString("full_name"));
-                acc.setPriority(rs.getInt("priority"));
-                acc.setDescription(rs.getString("description"));
+               acc.setStatus(rs.getString("status"));
                 acc.setEmail(rs.getString("email"));
                 acc.setPassword(rs.getString("password"));
                 acc.setRole(rcc);
@@ -221,13 +220,12 @@ public class DAO extends dal.DBContext {
 
     }
 
-    public List<User> getFilter(String status, String role_name, int priority, String full_name, int pages) {
+    public List<User> getFilter(String status, String role_name, String full_name, int pages) {
         List<User> list = new ArrayList<>();
         List<Object> param = new ArrayList<>();
-        String sql = "SELECT u.user_id,u.full_name,r.role_name,r.role_id,u.priority,u.status,u.description \n"
+        String sql = "SELECT u.user_id,u.full_name,r.role_name,r.role_id,u.status \n"
                 + "FROM users u \n"
                 + "join roles r on u.role_id = r.role_id\n"
-                + "WHERE r.role_id != 1 \n"
                 + "where 1 = 1";
 
         if (status != null && !status.equalsIgnoreCase("all")) {
@@ -238,11 +236,7 @@ public class DAO extends dal.DBContext {
             sql += " and r.role_name = ?";
             param.add(role_name.trim());
         }
-        if (priority != -1) {
-
-            sql += " and u.priority = ?";
-            param.add(priority);
-        }
+      
         if (full_name != null && !full_name.equalsIgnoreCase("all")) {
             sql += " and u.full_name like ?";
             param.add("%" + full_name.trim() + "%");
@@ -265,8 +259,7 @@ public class DAO extends dal.DBContext {
                 u.setUser_id(rs.getInt("user_id"));
                 u.setStatus(rs.getString("status"));
                 u.setRole(rcc);
-                u.setDescription(rs.getString("description"));
-                u.setPriority(rs.getInt("priority"));
+               
                 u.setFullname(rs.getString("full_name"));
 
                 list.add(u);
@@ -280,51 +273,8 @@ public class DAO extends dal.DBContext {
 
     }
 
-    public List<User> getSort(String sort, int page) {
-        String sqlsecon = "";
-        List<User> list = new ArrayList<>();
-
-        if (sort != null && sort.equalsIgnoreCase("idasc")) {
-            sqlsecon += " ORDER BY user_id asc";
-        } else if (sort.equalsIgnoreCase("iddesc")) {
-            sqlsecon += " ORDER BY user_id desc";
-        } else if (sort.equalsIgnoreCase("nameasc")) {
-            sqlsecon += " ORDER BY full_name asc";
-        } else if (sort.equalsIgnoreCase("namedesc")) {
-            sqlsecon += " ORDER BY full_name desc";
-        } else if (sort.equalsIgnoreCase("priorityasc")) {
-            sqlsecon += " ORDER BY priority asc";
-        } else if (sort.equalsIgnoreCase("prioritydesc")) {
-            sqlsecon += " ORDER BY priority desc";
-        }
-
-        try {
-            String sql = "select u.user_id,r.role_name,u.full_name,u.status,u.priority \n"
-                    + "from users u join roles r \n"
-                    + "WHERE r.role_id != 1 \n"
-                    + "on u.role_id = r.role_id " + sqlsecon.trim() + " LIMIT 5 OFFSET ?";
-            PreparedStatement st = connection.prepareStatement(sql);
-            st.setInt(1, (page - 1) * 5);
-            ResultSet rs = st.executeQuery();
-            while (rs.next()) {
-                User u = new User();
-                Role rcc = new Role();
-                u.setUser_id(rs.getInt("user_id"));
-                u.setStatus(rs.getString("status"));
-                rcc.setRolename(rs.getString("role_name"));
-                u.setRole(rcc);
-                u.setPriority(rs.getInt("priority"));
-                u.setFullname(rs.getString("full_name"));
-
-                list.add(u);
-            }
-
-        } catch (SQLException e) {
-            System.out.println(e);
-        }
-        return list;
-
-    }
+   
+    
 
     public int getcountPage() {
         String sql = "SELECT COUNT(*) FROM users";

@@ -3,16 +3,18 @@
 <html lang="vi">
     <head>
         <meta charset="UTF-8">
-        <title>Quản lý đơn vị tính</title>
+        <title>Quản Lý Đơn Vị Tính</title>
+        <link rel="stylesheet" href="css/sidebar.css">
         <link rel="stylesheet" href="./css/unitMmanagement.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     </head>
     <body>
+       <jsp:include page="sidebar.jsp"/>
         <div class="container">
             <div class="header">
                 <div class="header-content">
                     <h1 class="page-title">
-                        <i class="fas fa-ruler"></i> Quản lý đơn vị tính
+                        <i class="fas fa-ruler"></i> Quản Lý Đơn Vị Tính
                         <span class="unit-count">(${list.size()})</span>
                     </h1>
                     <p class="subtitle">Danh mục các đơn vị đo lường trong hệ thống</p>

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
  body {
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 background: #f5f5f5;
@@ -115,3 +116,158 @@
                     gap: 8px;
                 }
             }
+=======
+body {
+    background: #f5f6fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 500px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    padding: 32px 28px 24px 28px;
+    position: relative;
+    padding-bottom: 40px;
+    box-sizing: border-box;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 18px;
+    color: #2d3436;
+}
+
+h3 {
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+form {
+    width: 100%;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 18px;
+}
+
+.row > div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #636e72;
+}
+
+input[type="text"], select {
+    padding: 8px 10px;
+    border: 1px solid #dfe6e9;
+    border-radius: 5px;
+    font-size: 15px;
+    background: #f9f9f9;
+    margin-bottom: 4px;
+}
+
+input[readonly] {
+    background: #f1f2f6;
+    color: #636e72;
+}
+
+.hopbut {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 40px;
+    padding: 0;
+    gap: 0;
+    box-sizing: border-box;
+    position: static;
+}
+
+.hopbut a {
+    text-decoration: none;
+    color: #636e72;
+    background: #dfe6e9;
+    padding: 7px 18px;
+    border-radius: 5px;
+    transition: background 0.2s;
+}
+
+.hopbut a:hover {
+    background: #b2bec3;
+}
+
+button[type="submit"] {
+    background: #0984e3;
+    color: #fff;
+    border: none;
+    padding: 8px 22px;
+    border-radius: 5px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+button[type="submit"]:hover {
+    background: #74b9ff;
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 16px 6px;
+        padding-bottom: 16px;
+    }
+    .row {
+        flex-direction: column;
+        gap: 8px;
+    }
+    .hopbut {
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+        margin-top: 18px;
+    }
+    .radio-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    margin-top: 6px;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.radio-group label {
+    margin-bottom: 0;
+    font-weight: 400;
+    color: #636e72;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+input[type="radio"] {
+    margin-right: 5px;
+} 
+>>>>>>> 84f434c9bd9dd41c9b30ccdc8f1be085d56e6cd2

@@ -4,9 +4,7 @@
  */
 package controller;
 
-import model.*;
-
-import dao.*;
+import dao.UnitConversionDao;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -16,13 +14,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
+import model.*;
 
 /**
  *
  * @author kien3
  */
-@WebServlet(name = "detailuser", urlPatterns = {"/detailuser"})
-public class DetailUser extends HttpServlet {
+@WebServlet(name = "ImportWarehouseServlet", urlPatterns = {"/ImportWarehouseServlet"})
+public class ImportWarehouseServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -41,10 +40,10 @@ public class DetailUser extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet DetailUser</title>");
+            out.println("<title>Servlet ImportWarehouseServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet DetailUser at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet ImportWarehouseServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -62,30 +61,16 @@ public class DetailUser extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        DAO dao = new DAO();
-        String userid = request.getParameter("userid");
-        String roleid = request.getParameter("roleid");
-        List<Role> list = dao.getRoles();
-        System.out.println("userid " + userid);
-        System.out.println("roleid " + roleid);
+        HttpSession session = request.getSession();
+        User nameandid = (User) session.getAttribute("Admin");
+        String username = (nameandid != null) ? nameandid.getFullname() : "Rỗng";
+        String role = (nameandid != null && nameandid.getRole() != null) ? nameandid.getRole().getRolename() : "Rỗng";
+        UnitConversionDao dao = new UnitConversionDao();
+        List<Material> list = dao.getALls();
+        request.setAttribute("materialList", list);
 
-        try {
-            if (list != null && !list.isEmpty() && userid != null && roleid != null) {
-                int id = Integer.parseInt(userid);
-                int rid = Integer.parseInt(roleid);
-
-                User usid = dao.userID(id, rid);
-
-                System.out.println("usid" + usid);
-                request.setAttribute("user", usid);
-                request.setAttribute("lits", list);
-
-                request.getRequestDispatcher("detailuser.jsp").forward(request, response);
-            }
-        } catch (IOException e) {
-            System.out.println(e);
-        }
-
+        request.setAttribute("username", username);
+        request.getRequestDispatcher("importWarehouse.jsp").forward(request, response);
     }
 
     /**
@@ -99,42 +84,41 @@ public class DetailUser extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession se = request.getSession();
+        UnitConversionDao dao = new UnitConversionDao();
         String name = request.getParameter("name");
+        String namevt = request.getParameter("namevt");
+        String number = request.getParameter("number");
+        String unit = request.getParameter("unit");
         String status = request.getParameter("status");
-        String role = request.getParameter("role");
-        String userid = request.getParameter("userid");
-
-        DAO dao = new DAO();
-        String mess = "";
-
-        try {
-            List<Role> list = dao.getRoles();
-            request.setAttribute("lits", list);
-
-            int id = Integer.parseInt(userid);
-            int rid = Integer.parseInt(role);
-
-            dao.userUpdate(name, status, rid, id);
-            mess = "Cập nhật trạng thái thành công!";
-            se.setAttribute("messUpdate", mess);
-            response.sendRedirect("settinglist");
-        
-
-//            User usid = dao.userID(id, rid);
-//            request.setAttribute("user", usid);
-//            request.setAttribute("messkk", mess);
-//            request.getRequestDispatcher("detailuser.jsp").forward(request, response);
-
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-
-            mess = "Failed to update.";
-            se.setAttribute("messkk", mess);
-            response.sendRedirect("detailuser");
-
+        String materialId = request.getParameter("materialId");
+        HttpSession session = request.getSession();
+        User nameandid = (User) session.getAttribute("Admin");
+        int materi = 0;
+        if (namevt != null && namevt.contains("-")) {
+            String[] parts = namevt.split("-");
+            materi = Integer.parseInt(parts[0].trim());
+        } else if (namevt != null) {
+            materi = Integer.parseInt(namevt.trim());
         }
 
+        String username = (nameandid != null) ? nameandid.getFullname() : "Rỗng";
+        String role = (nameandid != null && nameandid.getRole() != null) ? nameandid.getRole().getRolename() : "Rỗng";
+
+        int num = Integer.parseInt(number);
+        boolean success = dao.updateQuantity(materi, status, num);
+
+        if (success) {
+            request.setAttribute("mess", "Nhập đơn vị thành công!");
+            List<Material> list = dao.getALls();
+            request.setAttribute("materialList", list);
+            request.setAttribute("username", username);
+            
+            
+            request.getRequestDispatcher("importWarehouse.jsp").forward(request, response);
+
+        } else {
+            response.sendRedirect("error.jsp");
+        }
     }
 
     /**

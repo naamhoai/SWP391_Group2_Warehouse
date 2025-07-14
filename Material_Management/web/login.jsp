@@ -26,10 +26,6 @@
                         <input type="password" id="pass" name="pass" required placeholder="Enter your password">
                     </div>
 
-
-
-
-
                     <button type="submit" class="login-btn">Sign In</button>
                 </form>
 
