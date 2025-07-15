@@ -29,7 +29,7 @@ public class ResetPasswordServlet extends HttpServlet {
             ResetServiceServlet service = new ResetServiceServlet();
 
             if (tokenObj == null || tokenObj.isUsed() || service.isExpired(tokenObj.getExpiryTime())) {
-                request.setAttribute("mess", "Token is invalid or expired.");
+                request.setAttribute("mess", "Token không hợp lệ hoặc đã hết hạn.");
                 request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
                 return;
             }
@@ -52,7 +52,7 @@ public class ResetPasswordServlet extends HttpServlet {
         String password = request.getParameter("password");
         String confirmPassword = request.getParameter("confirm_password");
         if (fullname == null || fullname.trim().isEmpty()) {
-            request.setAttribute("mess", "Full name không được để trống.");
+            request.setAttribute("mess", "Tên không được để trống.");
             request.setAttribute("email", email);
             request.getRequestDispatcher("resetPassword.jsp").forward(request, response);
             return;

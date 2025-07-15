@@ -13,6 +13,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import model.*;
+import java.util.ArrayList;
+import dao.CategoryDAO;
 
 @WebServlet(name = "MaterialListServlet", urlPatterns = {"/MaterialListServlet"})
 public class MaterialListServlet extends HttpServlet {
@@ -39,8 +41,20 @@ public class MaterialListServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String searchQuery = request.getParameter("search");
-        String categoryFilter = request.getParameter("category") == null ? "All" : request.getParameter("category");
+        Integer categoryId = null;
+        if (request.getParameter("category") != null && !request.getParameter("category").isEmpty()) {
+            try {
+                categoryId = Integer.parseInt(request.getParameter("category"));
+            } catch (NumberFormatException e) {
+                categoryId = null;
+            }
+        }
+        String categoryFilter = "All";
+        if (categoryId != null) {
+            categoryFilter = String.valueOf(categoryId);
+        }
         String supplierFilter = request.getParameter("supplier") == null ? "All" : request.getParameter("supplier");
+        String statusFilter = request.getParameter("status") == null ? "All" : request.getParameter("status");
         String sortField = request.getParameter("sort") == null ? "material_id" : request.getParameter("sort");
         String sortDir = request.getParameter("dir") == null ? "asc" : request.getParameter("dir");
 
@@ -60,7 +74,7 @@ public class MaterialListServlet extends HttpServlet {
         }
 
         MaterialDAO dao = new MaterialDAO();
-        int totalItems = dao.getTotalMaterialsForAdmin(searchQuery, categoryFilter, supplierFilter);
+        int totalItems = dao.getTotalMaterialsForAdmin(searchQuery, categoryId, supplierFilter, statusFilter);
         int totalPages = (int) Math.ceil((double) totalItems / itemsPerPage);
 
         if (currentPage > totalPages && totalPages > 0) {
@@ -70,15 +84,14 @@ public class MaterialListServlet extends HttpServlet {
             currentPage = 1;
         }
 
-        List<Material> materials = dao.getMaterialsForAdmin(searchQuery, categoryFilter, supplierFilter, currentPage, itemsPerPage, sortField, sortDir);
+        List<Material> materials = dao.getMaterialsForAdmin(searchQuery, categoryId, supplierFilter, statusFilter, currentPage, itemsPerPage, sortField, sortDir);
 
+        CategoryDAO categoryDAO = new CategoryDAO();
         MaterialInfoDAO infoDAO = new MaterialInfoDAO();
-        List<String> categories = infoDAO.getAllCategories();
+        List<Category> categories = categoryDAO.getAllCategories();
         List<String> suppliers = infoDAO.getAllSuppliers();
         List<Integer> itemsPerPageOptions = Arrays.asList(5, 10, 20, 50);
 
-        List<String> allMaterialNames = dao.getAllMaterialNames();
-        request.setAttribute("allMaterialNames", allMaterialNames);
         request.setAttribute("materials", materials);
         request.setAttribute("categories", categories);
         request.setAttribute("suppliers", suppliers);
@@ -89,34 +102,50 @@ public class MaterialListServlet extends HttpServlet {
         request.setAttribute("searchQuery", searchQuery);
         request.setAttribute("categoryFilter", categoryFilter);
         request.setAttribute("supplierFilter", supplierFilter);
+        request.setAttribute("statusFilter", statusFilter);
         request.setAttribute("sortField", sortField);
         request.setAttribute("sortDir", sortDir);
+        request.setAttribute("categoryId", categoryId);
 
         int startPage = Math.max(1, currentPage - 2);
         int endPage = Math.min(totalPages, currentPage + 2);
         request.setAttribute("startPage", startPage);
         request.setAttribute("endPage", endPage);
         request.getRequestDispatcher("materialDetailList.jsp").forward(request, response);
+        categoryDAO.closeConnection();
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String action = request.getParameter("action");
-        if ("delete".equals(action)) {
-            String idStr = request.getParameter("materialId");
-            if (idStr != null) {
+        if ("toggleStatus".equals(action)) {
+            String[] idArr = request.getParameterValues("materialIds");
+            if (idArr != null && idArr.length > 0) {
                 try {
-                    int materialId = Integer.parseInt(idStr);
                     MaterialDAO dao = new MaterialDAO();
-                    dao.deleteMaterial(materialId);
+                    List<Integer> ids = new ArrayList<>();
+                    String newStatus = null;
+                    for (String idStr : idArr) {
+                        int materialId = Integer.parseInt(idStr);
+                        String currentStatus = dao.getMaterialById(materialId).getStatus();
+                        // Lấy trạng thái của vật tư đầu tiên để xác định trạng thái chuyển đổi
+                        if (newStatus == null) {
+                            newStatus = "active".equalsIgnoreCase(currentStatus) ? "inactive" : "active";
+                        }
+                        ids.add(materialId);
+                    }
+                    dao.updateMultipleMaterialsStatus(ids, newStatus);
+                    response.sendRedirect("MaterialListServlet?actionStatus=deleteSuccess");
                 } catch (Exception e) {
+                    response.sendRedirect("MaterialListServlet?actionStatus=deleteError");
                 }
+            } else {
+                response.sendRedirect("MaterialListServlet");
             }
-            response.sendRedirect("MaterialListServlet");
             return;
         }
-        processRequest(request, response);
+        doGet(request, response);
     }
 
     @Override

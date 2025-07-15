@@ -2,6 +2,7 @@ package controller;
 
 import dao.MaterialDAO;
 import dao.MaterialInfoDAO;
+import dao.UnitDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -10,7 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.Category;
 import model.Material;
 import model.Supplier;
-import model.UnitConversion;
+import model.Unit;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -32,12 +33,13 @@ public class EditMaterialDetailServlet extends HttpServlet {
             // Lấy danh sách các danh mục, nhà cung cấp, đơn vị tính cho dropdown
             List<Category> categories = infoDAO.getAllCategoriesForDropdown();
             List<Supplier> suppliers = infoDAO.getAllSuppliersForDropdown();
-            List<UnitConversion> units = infoDAO.getAllUnitConversions();
+            List<Unit> units = new UnitDAO().getWarehouseUnits();
 
             // Đặt các đối tượng vào request scope
             request.setAttribute("material", material);
             request.setAttribute("categories", categories);
             request.setAttribute("suppliers", suppliers);
+            request.setAttribute("units", units);
 
             // Chuyển tiếp đến trang JSP chỉnh sửa
             request.getRequestDispatcher("/updateMaterialDetail.jsp").forward(request, response);

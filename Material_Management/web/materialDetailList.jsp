@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -10,41 +10,50 @@
     <title>Quản Lý Danh Sách Vật Tư</title>
     <link rel="stylesheet" href="css/materiallist.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <script src="https://kit.fontawesome.com/4b7b2b6e8b.js" crossorigin="anonymous"></script>
+    <script src="js/sidebar.js"></script>
 </head>
 <body>
-    <div id="main-content">
-        <div class="container">
-            <div class="top-bar">
-                <h1 class="page-title">Quản Lý Danh Sách Vật Tư</h1>
-                <a href="CreateMaterialDetail" class="add-button">+ Thêm Vật Tư Mới</a>
+    <jsp:include page="sidebar.jsp" />
+    <div class="main-content">
+        <div class="header-section">
+            <h1 class="page-title">Quản Lý Danh Sách Vật Tư</h1>
+            <div class="header-buttons">
+                <a href="CreateMaterialDetail" class="btn btn-primary"><i class="fas fa-plus"></i> Thêm Vật Tư Mới</a>
+                <button type="submit" form="bulkActionForm" name="action" value="toggleStatus" class="btn btn-secondary" id="bulkToggleBtn">
+                    <i class="fas fa-toggle-on"></i> Chỉnh trạng thái
+                </button>
             </div>
-            
-            <c:if test="${not empty param.status}">
-                <div class="alert ${param.status.contains('Success') ? 'alert-success' : 'alert-danger'}" 
-                     style="padding: 10px; margin-bottom: 15px; border-radius: 4px; border: 1px solid; color: ${param.status.contains('Success') ? 'green' : 'red'};">
-                    <c:choose>
-                        <c:when test="${param.status == 'addSuccess'}">Thêm vật tư mới thành công!</c:when>
-                        <c:when test="${param.status == 'updateSuccess'}">Cập nhật vật tư thành công!</c:when>
-                        <c:when test="${param.status == 'deleteSuccess'}">Xóa vật tư thành công!</c:when>
-                        <c:otherwise>Có lỗi xảy ra. Vui lòng thử lại.</c:otherwise>
-                    </c:choose>
-                </div>
-            </c:if>
+        </div>
 
-            <form method="get" action="MaterialListServlet" id="filterForm">
-                <div class="filters">
-                    <div class="filter-item">
-                        <label>Danh mục</label>
+        <c:if test="${not empty param.actionStatus}">
+            <div class="alert ${param.actionStatus.contains('Success') ? 'alert-success' : 'alert-danger'}">
+                <c:choose>
+                    <c:when test="${param.actionStatus == 'addSuccess'}">Thêm vật tư mới thành công!</c:when>
+                    <c:when test="${param.actionStatus == 'updateSuccess'}">Cập nhật vật tư thành công!</c:when>
+                    <c:when test="${param.actionStatus == 'deleteSuccess'}">Đã cập nhật trạng thái vật tư thành công!</c:when>
+                    <c:otherwise>Có lỗi xảy ra. Vui lòng thử lại.</c:otherwise>
+                </c:choose>
+            </div>
+        </c:if>
+
+        <div class="content-card">
+            <form method="get" action="MaterialListServlet" id="filterForm" class="filter-form">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <i class="fas fa-filter"></i>
                         <select name="category" onchange="this.form.submit()">
-                            <option value="All">Tất cả danh mục</option>
+                            <option value="" <c:if test="${empty categoryId}">selected</c:if>>Tất cả danh mục</option>
                             <c:forEach items="${categories}" var="cat">
-                                <option value="${cat}" <c:if test="${cat eq categoryFilter}">selected</c:if>>${cat}</option>
+                                <c:if test="${cat.parentId != null}">
+                                    <option value="${cat.categoryId}" <c:if test="${cat.categoryId == categoryId}">selected</c:if>>${cat.name}</option>
+                                </c:if>
                             </c:forEach>
                         </select>
                     </div>
-
-                    <div class="filter-item">
-                        <label>Nhà cung cấp</label>
+                    <div class="filter-group">
+                        <i class="fas fa-truck"></i>
                         <select name="supplier" onchange="this.form.submit()">
                             <option value="All">Tất cả nhà cung cấp</option>
                             <c:forEach items="${suppliers}" var="sup">
@@ -52,168 +61,156 @@
                             </c:forEach>
                         </select>
                     </div>
-
-                    <div class="filter-item">
-                        <label>Hiển thị</label>
+                    <div class="filter-group">
+                        <i class="fas fa-toggle-on"></i>
+                        <select name="status" onchange="this.form.submit()">
+                            <option value="All" <c:if test="${statusFilter == null || statusFilter == 'All'}">selected</c:if>>Tất cả trạng thái</option>
+                            <option value="active" <c:if test="${statusFilter == 'active'}">selected</c:if>>Đang kinh doanh</option>
+                            <option value="inactive" <c:if test="${statusFilter == 'inactive'}">selected</c:if>>Ngừng kinh doanh</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <i class="fas fa-list-ol"></i>
                         <select name="itemsPerPage" onchange="this.form.submit()">
                             <c:forEach items="${itemsPerPageOptions}" var="size">
-                                <option value="${size}" <c:if test="${itemsPerPage == size}">selected</c:if>>${size} mục</option>
+                                <option value="${size}" <c:if test="${itemsPerPage == size}">selected</c:if>>Hiển thị ${size}</option>
                             </c:forEach>
                         </select>
                     </div>
-
-                    <div class="filter-item">
-                        <label>Tìm kiếm</label>
-                        <div class="search-group">
-                            <input type="text" name="search" list="materialSuggestions" placeholder="Tìm theo tên vật tư" value="${not empty searchQuery ? searchQuery : ''}"/>
-                            <datalist id="materialSuggestions">
-                                <c:forEach var="mat" items="${allMaterialNames}">
-                                    <option value="${mat}"/>
-                                </c:forEach>
-                            </datalist>
-                            <button type="submit" class="search-btn">Tìm</button>
-                        </div>
+                </div>
+                <div class="filter-row">
+                     <div class="filter-group search-group">
+                        <i class="fas fa-search"></i>
+                        <input type="text" name="search" placeholder="Tìm kiếm theo tên vật tư..." value="${not empty searchQuery ? searchQuery : ''}"/>
+                        <button type="submit" class="btn btn-secondary">Tìm</button>
                     </div>
                 </div>
             </form>
+        </div>
 
-            <table class="product-table">
-                <thead>
-                    <tr>
-                        <th>Mã VT</th>
-                        <th>Hình ảnh</th>
-                        <th>Tên vật tư</th>
-                        <th>Danh mục</th>
-                        <th>Nhà cung cấp</th>
-                        <th>Đơn vị</th>
-                        <th>Giá</th>
-                        <th style="width: 15%;">Hành động</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <c:choose>
-                        <c:when test="${empty materials}">
-                            <tr><td colspan="8" class="no-data">Không tìm thấy vật tư nào.</td></tr>
-                        </c:when>
-                        <c:otherwise>
-                            <c:forEach items="${materials}" var="material">
-                                <tr>
-                                    <td>${material.materialId}</td>
-                                    <td>
-                                        <img src="image/${not empty material.imageUrl ? material.imageUrl : 'default.png'}" alt="${material.name}" class="product-image"/>
-                                    </td>
-                                    <td>
-                                        ${material.name}
-                                    </td>
-                                    <td>${material.categoryName}</td>
-                                    <td>${material.supplierName}</td>
-                                    <td>${material.unit}</td>
-                                    <td>
-                                        <fmt:setLocale value="vi_VN"/>
-                                        <fmt:formatNumber value="${material.price}" type="currency"/>
-                                    </td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <a href="editMaterialDetail?id=${material.materialId}" class="table-button edit-button">Sửa</a>
-                                            <form method="post" action="MaterialListServlet" onsubmit="return confirm('Bạn có chắc chắn muốn xóa vật tư #${material.materialId} - ${material.name}? Thao tác này không thể hoàn tác.')" style="display: inline;">
-                                                <input type="hidden" name="action" value="delete">
-                                                <input type="hidden" name="materialId" value="${material.materialId}">
-                                                <button type="submit" class="table-button delete-button">Xóa</button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                        </c:otherwise>
-                    </c:choose>
-                </tbody>
-            </table>
-
-            <c:if test="${totalPages > 1}">
-                <div class="pagination">
-                    <c:if test="${currentPage > 1}">
-                        <c:url var="prevUrl" value="MaterialListServlet">
-                            <c:if test="${not empty searchQuery}"><c:param name="search" value="${searchQuery}"/></c:if>
-                            <c:if test="${categoryFilter ne 'All'}"><c:param name="category" value="${categoryFilter}"/></c:if>
-                            <c:if test="${supplierFilter ne 'All'}"><c:param name="supplier" value="${supplierFilter}"/></c:if>
-                            <c:param name="itemsPerPage" value="${itemsPerPage}"/>
-                            <c:param name="sort" value="${sortField}"/>
-                            <c:param name="dir" value="${sortDir}"/>
-                            <c:param name="page" value="${currentPage - 1}"/>
-                        </c:url>
-                        <a href="${prevUrl}" class="page-button"><i class="fas fa-arrow-left"></i></a>
-                    </c:if>
-                    <c:if test="${currentPage <= 1}">
-                        <span class="page-button disabled"><i class="fas fa-arrow-left"></i></span>
-                    </c:if>
-
-                    <c:if test="${startPage > 1}">
-                        <c:url var="firstUrl" value="MaterialListServlet">
-                            <c:if test="${not empty searchQuery}"><c:param name="search" value="${searchQuery}"/></c:if>
-                            <c:if test="${categoryFilter ne 'All'}"><c:param name="category" value="${categoryFilter}"/></c:if>
-                            <c:if test="${supplierFilter ne 'All'}"><c:param name="supplier" value="${supplierFilter}"/></c:if>
-                            <c:param name="itemsPerPage" value="${itemsPerPage}"/>
-                            <c:param name="sort" value="${sortField}"/>
-                            <c:param name="dir" value="${sortDir}"/>
-                            <c:param name="page" value="1"/>
-                        </c:url>
-                        <a href="${firstUrl}" class="page-button">1</a>
-                        <c:if test="${startPage > 2}"><span class="page-ellipsis">...</span></c:if>
-                    </c:if>
-
-                    <c:forEach begin="${startPage}" end="${endPage}" var="i">
-                        <c:url var="pageUrl" value="MaterialListServlet">
-                            <c:if test="${not empty searchQuery}"><c:param name="search" value="${searchQuery}"/></c:if>
-                            <c:if test="${categoryFilter ne 'All'}"><c:param name="category" value="${categoryFilter}"/></c:if>
-                            <c:if test="${supplierFilter ne 'All'}"><c:param name="supplier" value="${supplierFilter}"/></c:if>
-                            <c:param name="itemsPerPage" value="${itemsPerPage}"/>
-                            <c:param name="sort" value="${sortField}"/>
-                            <c:param name="dir" value="${sortDir}"/>
-                            <c:param name="page" value="${i}"/>
-                        </c:url>
-                        <a href="${pageUrl}" class="page-button ${i == currentPage ? 'active' : ''}">${i}</a>
-                    </c:forEach>
-
-                    <c:if test="${endPage < totalPages}">
-                        <c:if test="${endPage < totalPages - 1}"><span class="page-ellipsis">...</span></c:if>
-                        <c:url var="lastUrl" value="MaterialListServlet">
-                            <c:if test="${not empty searchQuery}"><c:param name="search" value="${searchQuery}"/></c:if>
-                            <c:if test="${categoryFilter ne 'All'}"><c:param name="category" value="${categoryFilter}"/></c:if>
-                            <c:if test="${supplierFilter ne 'All'}"><c:param name="supplier" value="${supplierFilter}"/></c:if>
-                            <c:param name="itemsPerPage" value="${itemsPerPage}"/>
-                            <c:param name="sort" value="${sortField}"/>
-                            <c:param name="dir" value="${sortDir}"/>
-                            <c:param name="page" value="${totalPages}"/>
-                        </c:url>
-                        <a href="${lastUrl}" class="page-button">${totalPages}</a>
-                    </c:if>
-
-                    <c:if test="${currentPage < totalPages}">
-                        <c:url var="nextUrl" value="MaterialListServlet">
-                            <c:if test="${not empty searchQuery}"><c:param name="search" value="${searchQuery}"/></c:if>
-                            <c:if test="${categoryFilter ne 'All'}"><c:param name="category" value="${categoryFilter}"/></c:if>
-                            <c:if test="${supplierFilter ne 'All'}"><c:param name="supplier" value="${supplierFilter}"/></c:if>
-                            <c:param name="itemsPerPage" value="${itemsPerPage}"/>
-                            <c:param name="sort" value="${sortField}"/>
-                            <c:param name="dir" value="${sortDir}"/>
-                            <c:param name="page" value="${currentPage + 1}"/>
-                        </c:url>
-                        <a href="${nextUrl}" class="page-button"><i class="fas fa-arrow-right"></i></a>
-                    </c:if>
-                    <c:if test="${currentPage >= totalPages}">
-                        <span class="page-button disabled"><i class="fas fa-arrow-right"></i></span>
-                    </c:if>
+        <div class="content-card">
+            <form method="post" action="MaterialListServlet" id="bulkActionForm">
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="selectAll"></th>
+                                <th>Mã VT</th>
+                                <th>Tên vật tư</th>
+                                <th>Danh mục</th>
+                                <th>Nhà cung cấp</th>
+                                <th>Trạng thái</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:choose>
+                                <c:when test="${empty materials}">
+                                    <tr><td colspan="7" class="no-data">Không tìm thấy vật tư nào.</td></tr>
+                                </c:when>
+                                <c:otherwise>
+                                    <c:forEach items="${materials}" var="material">
+                                        <tr class="${material.status == 'inactive' ? 'inactive-row' : ''}">
+                                            <td><input type="checkbox" name="materialIds" value="${material.materialId}" class="material-checkbox"></td>
+                                            <td>#${material.materialId}</td>
+                                            <td>${material.name}</td>
+                                            <td>${material.categoryName}</td>
+                                            <td>${material.supplierName}</td>
+                                            <td>
+                                                <span class="status-badge status-${material.status}">
+                                                    ${material.status == 'active' ? 'Đang kinh doanh' : 'Ngừng kinh doanh'}
+                                                </span>
+                                            </td>
+                                            <td class="action-buttons">
+                                                <a href="viewMaterialDetail?id=${material.materialId}" class="btn-action btn-view tooltip-parent">
+                                                    <i class="fas fa-eye"></i>
+                                                    <span class="custom-tooltip">Xem chi tiết</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
+                                </c:otherwise>
+                            </c:choose>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="pagination-info">
-                    Trang ${currentPage} / ${totalPages}
+            </form>
+            <c:if test="${totalPages > 0}">
+                <div class="pagination-container">
+                     <div class="pagination-info">
+                        Hiển thị <strong>${materials.size()}</strong> trên <strong>${totalMaterials}</strong> kết quả
+                    </div>
+                    <div class="pagination">
+                        <!-- Nút về trang đầu -->
+                        <c:if test="${currentPage > 1}">
+                            <c:url var="firstUrl" value="MaterialListServlet">
+                                <c:param name="search" value="${searchQuery}"/>
+                                <c:param name="category" value="${categoryFilter}"/>
+                                <c:param name="supplier" value="${supplierFilter}"/>
+                                <c:param name="page" value="1"/>
+                            </c:url>
+                            <a href="${firstUrl}" class="page-link" title="Trang đầu">&laquo;&laquo;</a>
+                        </c:if>
+                        <!-- Nút về trang trước -->
+                        <c:if test="${currentPage > 1}">
+                            <c:url var="prevUrl" value="MaterialListServlet">
+                                <c:param name="search" value="${searchQuery}"/>
+                                <c:param name="category" value="${categoryFilter}"/>
+                                <c:param name="supplier" value="${supplierFilter}"/>
+                                <c:param name="page" value="${currentPage - 1}"/>
+                            </c:url>
+                            <a href="${prevUrl}" class="page-link">&laquo;</a>
+                        </c:if>
+
+                        <c:forEach begin="${startPage}" end="${endPage}" var="i">
+                            <c:url var="pageUrl" value="MaterialListServlet">
+                                <c:param name="search" value="${searchQuery}"/>
+                                <c:param name="category" value="${categoryFilter}"/>
+                                <c:param name="supplier" value="${supplierFilter}"/>
+                                <c:param name="page" value="${i}"/>
+                            </c:url>
+                            <a href="${pageUrl}" class="page-link ${i == currentPage ? 'active' : ''}">${i}</a>
+                        </c:forEach>
+
+                        <!-- Nút về trang sau -->
+                        <c:if test="${currentPage < totalPages}">
+                            <c:url var="nextUrl" value="MaterialListServlet">
+                                <c:param name="search" value="${searchQuery}"/>
+                                <c:param name="category" value="${categoryFilter}"/>
+                                <c:param name="supplier" value="${supplierFilter}"/>
+                                <c:param name="page" value="${currentPage + 1}"/>
+                            </c:url>
+                            <a href="${nextUrl}" class="page-link">&raquo;</a>
+                        </c:if>
+                        <!-- Nút về trang cuối -->
+                        <c:if test="${currentPage < totalPages}">
+                            <c:url var="lastUrl" value="MaterialListServlet">
+                                <c:param name="search" value="${searchQuery}"/>
+                                <c:param name="category" value="${categoryFilter}"/>
+                                <c:param name="supplier" value="${supplierFilter}"/>
+                                <c:param name="page" value="${totalPages}"/>
+                            </c:url>
+                            <a href="${lastUrl}" class="page-link" title="Trang cuối">&raquo;&raquo;</a>
+                        </c:if>
+                    </div>
                 </div>
             </c:if>
         </div>
-        <div class="material-back-btn-wrapper" style="text-align: left; margin-top: 18px;">
-            <a href="#" class="back-link" onclick="history.back(); return false;">
-                <i class="fas fa-arrow-left"></i> Quay lại
-            </a>
-        </div>
     </div>
+    <script>
+        document.getElementById('bulkToggleBtn').addEventListener('click', function(e) {
+            var checkboxes = document.querySelectorAll('.material-checkbox:checked');
+            if (checkboxes.length === 0) {
+                e.preventDefault();
+                alert('Vui lòng chọn ít nhất một vật tư để chuyển trạng thái!');
+            }
+        });
+        document.getElementById('selectAll').addEventListener('change', function(e) {
+            var checkboxes = document.querySelectorAll('.material-checkbox');
+            checkboxes.forEach(function(checkbox) {
+                checkbox.checked = e.target.checked;
+            });
+        });
+    </script>
 </body>
 </html>

@@ -3,24 +3,20 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>Reset Password</title>
+        <title>Yêu cầu đặt lại mật khẩu</title>
         <link rel="stylesheet" href="./css/requestpassword.css">
     </head>
     <body>
         <div class="container">
-            <h2>Reset Password</h2>
+            <h2>Yêu cầu đặt lại mật khẩu</h2>
             <form action="requestPassword" method="POST">
                 <div class="form-group">
-                    <label for="fullname">Full Name</label>
-                    <input type="text" name="fullname" id="fullname" class="form-control" required placeholder="Enter your full name">
+                    <label for="email">Địa chỉ Email</label>
+                    <input type="email" name="email" id="email" class="form-control" required placeholder="Nhập email của bạn">
                 </div>
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" name="email" id="email" class="form-control" required placeholder="Enter your email">
-                </div>
-                <button type="submit" class="btn-submit">Reset Password</button>
+                <button type="submit" class="btn-submit">Gửi yêu cầu</button>
             </form>
-            <a href="login.jsp" class="back-link">← Back to Login</a>
+            <a href="login.jsp" class="back-link">← Quay lại đăng nhập</a>
             <p class="text-danger">${mess}</p>
         </div>
     </body>

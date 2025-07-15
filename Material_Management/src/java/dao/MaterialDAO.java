@@ -15,18 +15,18 @@ import java.sql.Connection;
 
 public class MaterialDAO extends DBContext{
 
-    public List<Material> getMaterialsForAdmin(String searchQuery, String categoryFilter, String supplierFilter,
+    public List<Material> getMaterialsForAdmin(String searchQuery, Integer categoryId, String supplierFilter, String statusFilter,
             int page, int itemsPerPage, String sortField, String sortDir) {
         List<Material> materials = new ArrayList<>();
-        String sql = "SELECT m.*, c.name as category_name, s.supplier_name, uc.base_unit " +
+        String sql = "SELECT m.*, c.name as category_name, s.supplier_name, u.unit_name " +
                 "FROM materials m " +
                 "LEFT JOIN categories c ON m.category_id = c.category_id " +
                 "LEFT JOIN supplier s ON m.supplier_id = s.supplier_id " +
-                "LEFT JOIN unit_conversion uc ON m.conversion_id = uc.conversion_id " +
+                "LEFT JOIN units u ON m.unit_id = u.unit_id " +
                 "WHERE 1=1 ";
         ArrayList<Object> params = new ArrayList<>();
-        sql = buildWhereClauses(sql, params, searchQuery, categoryFilter, supplierFilter);
-        sql += "ORDER BY " + getSafeSortField(sortField) + (sortDir.equalsIgnoreCase("asc") ? " ASC" : " DESC");
+        sql = buildWhereClauses(sql, params, searchQuery, categoryId, supplierFilter, statusFilter);
+        sql += "ORDER BY CASE WHEN m.status = 'active' THEN 0 ELSE 1 END, " + getSafeSortField(sortField) + (sortDir.equalsIgnoreCase("asc") ? " ASC" : " DESC");
         sql += " LIMIT ? OFFSET ?";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -47,13 +47,13 @@ public class MaterialDAO extends DBContext{
         return materials;
     }
 
-    public int getTotalMaterialsForAdmin(String searchQuery, String categoryFilter, String supplierFilter) {
+    public int getTotalMaterialsForAdmin(String searchQuery, Integer categoryId, String supplierFilter, String statusFilter) {
         String sql = "SELECT COUNT(*) as total FROM materials m " +
                 "LEFT JOIN categories c ON m.category_id = c.category_id " +
                 "LEFT JOIN supplier s ON m.supplier_id = s.supplier_id " +
                 "WHERE 1=1 ";
         ArrayList<Object> params = new ArrayList<>();
-        sql = buildWhereClauses(sql, params, searchQuery, categoryFilter, supplierFilter);
+        sql = buildWhereClauses(sql, params, searchQuery, categoryId, supplierFilter, statusFilter);
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             for (int i = 0; i < params.size(); i++) {
@@ -71,11 +71,11 @@ public class MaterialDAO extends DBContext{
     }
 
     public Material getMaterialById(int materialId) throws SQLException {
-        String sql = "SELECT m.*, c.name as category_name, s.supplier_name, uc.base_unit "
+        String sql = "SELECT m.*, c.name as category_name, s.supplier_name, u.unit_name "
                 + "FROM materials m "
                 + "LEFT JOIN categories c ON m.category_id = c.category_id "
                 + "LEFT JOIN supplier s ON m.supplier_id = s.supplier_id "
-                + "LEFT JOIN unit_conversion uc ON m.conversion_id = uc.conversion_id "
+                + "LEFT JOIN units u ON m.unit_id = u.unit_id "
                 + "WHERE m.material_id = ?";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -90,7 +90,7 @@ public class MaterialDAO extends DBContext{
     }
 
     public boolean addMaterial(Material material) throws SQLException {
-        String sql = "INSERT INTO materials (name, category_id, image_url, description, price, supplier_id, conversion_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO materials (name, category_id, image_url, description, price, supplier_id, unit_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, material.getName());
@@ -99,14 +99,14 @@ public class MaterialDAO extends DBContext{
             ps.setString(4, material.getDescription());
             ps.setLong(5, material.getPrice());
             ps.setInt(6, material.getSupplierId());
-            ps.setInt(7, material.getConversionId());
+            ps.setInt(7, material.getUnitId());
             return ps.executeUpdate() > 0;
         }
     }
 
     public boolean updateMaterial(Material material) throws SQLException {
         String sql = "UPDATE materials SET name = ?, category_id = ?, supplier_id = ?, price = ?, "
-                + "conversion_id = ?, material_condition = ?, description = ?, image_url = ? "
+                + "unit_id = ?, description = ?, image_url = ?, status = ? "
                 + "WHERE material_id = ?";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -114,26 +114,21 @@ public class MaterialDAO extends DBContext{
             ps.setInt(2, material.getCategoryId());
             ps.setInt(3, material.getSupplierId());
             ps.setLong(4, material.getPrice());
-            ps.setInt(5, material.getConversionId());
-            ps.setString(6, material.getMaterialCondition());
-            ps.setString(7, material.getDescription());
-            ps.setString(8, material.getImageUrl());
+            ps.setInt(5, material.getUnitId());
+            ps.setString(6, material.getDescription());
+            ps.setString(7, material.getImageUrl());
+            ps.setString(8, material.getStatus());
             ps.setInt(9, material.getMaterialId());
             return ps.executeUpdate() > 0;
         }
     }
 
     public boolean deleteMaterial(int materialId) throws SQLException {
-        String sql = "DELETE FROM materials WHERE material_id = ?";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, materialId);
-            return ps.executeUpdate() > 0;
-        }
+        return updateMaterialStatus(materialId, "inactive");
     }
 
     public boolean addMaterialWithId(Material material) throws SQLException {
-        String sql = "INSERT INTO materials (material_id, name, category_id, image_url, description, price, supplier_id, conversion_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO materials (material_id, name, category_id, image_url, description, price, supplier_id, unit_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, material.getMaterialId());
@@ -143,23 +138,58 @@ public class MaterialDAO extends DBContext{
             ps.setString(5, material.getDescription());
             ps.setLong(6, material.getPrice());
             ps.setInt(7, material.getSupplierId());
-            ps.setInt(8, material.getConversionId());
+            ps.setInt(8, material.getUnitId());
+            ps.setString(9, material.getStatus());
             return ps.executeUpdate() > 0;
         }
     }
 
-    private String buildWhereClauses(String sql, List<Object> params, String searchQuery, String categoryFilter, String supplierFilter) {
+    public boolean updateMaterialStatus(int materialId, String status) throws SQLException {
+        String sql = "UPDATE materials SET status = ? WHERE material_id = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setInt(2, materialId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    public boolean updateMultipleMaterialsStatus(List<Integer> materialIds, String status) throws SQLException {
+        if (materialIds == null || materialIds.isEmpty()) {
+            return false;
+        }
+        String sql = "UPDATE materials SET status = ? WHERE material_id IN (";
+        for (int i = 0; i < materialIds.size(); i++) {
+            sql += (i == 0 ? "?" : ", ?");
+        }
+        sql += ")";
+        
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, status);
+            for (int i = 0; i < materialIds.size(); i++) {
+                ps.setInt(i + 2, materialIds.get(i));
+            }
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    private String buildWhereClauses(String sql, List<Object> params, String searchQuery, Integer categoryId, String supplierFilter, String statusFilter) {
         if (searchQuery != null && !searchQuery.trim().isEmpty()) {
             sql += "AND m.name LIKE ? ";
             params.add("%" + searchQuery.trim() + "%");
         }
-        if (categoryFilter != null && !categoryFilter.trim().isEmpty() && !categoryFilter.equals("All")) {
-            sql += "AND c.name = ? ";
-            params.add(categoryFilter.trim());
+        if (categoryId != null) {
+            sql += "AND c.category_id = ? ";
+            params.add(categoryId);
         }
         if (supplierFilter != null && !supplierFilter.trim().isEmpty() && !supplierFilter.equals("All")) {
             sql += "AND s.supplier_name = ? ";
             params.add(supplierFilter.trim());
+        }
+        if (statusFilter != null && !statusFilter.trim().isEmpty() && !statusFilter.equals("All")) {
+            sql += "AND m.status = ? ";
+            params.add(statusFilter.trim());
         }
         return sql;
     }
@@ -172,6 +202,8 @@ public class MaterialDAO extends DBContext{
                 return "m.name";
             case "price":
                 return "m.price";
+            case "status":
+                return "m.status";
             default:
                 return "m.material_id";
         }
@@ -183,14 +215,14 @@ public class MaterialDAO extends DBContext{
         material.setName(rs.getString("name"));
         material.setCategoryId(rs.getInt("category_id"));
         material.setSupplierId(rs.getInt("supplier_id"));
-        material.setConversionId(rs.getInt("conversion_id"));
+        material.setUnitId(rs.getInt("unit_id"));
         material.setCategoryName(rs.getString("category_name"));
         material.setSupplierName(rs.getString("supplier_name"));
         material.setImageUrl(rs.getString("image_url"));
-        material.setMaterialCondition(rs.getString("material_condition"));
         material.setPrice(rs.getLong("price"));
         material.setDescription(rs.getString("description"));
-        material.setUnit(rs.getString("base_unit"));
+        material.setUnitName(rs.getString("unit_name"));
+        material.setStatus(rs.getString("status"));
         return material;
     }
 

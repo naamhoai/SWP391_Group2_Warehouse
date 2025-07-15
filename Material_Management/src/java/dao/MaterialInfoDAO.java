@@ -3,7 +3,7 @@ package dao;
 import dal.DBContext;
 import model.Category;
 import model.Supplier;
-import model.UnitConversion;
+import model.Unit;
 import model.Material;
 import java.sql.*;
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class MaterialInfoDAO extends DBContext{
 
     public List<Category> getAllCategoriesForDropdown() throws SQLException {
         List<Category> categories = new ArrayList<>();
-        String sql = "SELECT category_id, name FROM categories ORDER BY name";
+        String sql = "SELECT category_id, name, parent_id FROM categories ORDER BY name";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
@@ -51,6 +51,8 @@ public class MaterialInfoDAO extends DBContext{
                 Category cat = new Category();
                 cat.setCategoryId(rs.getInt("category_id"));
                 cat.setName(rs.getString("name"));
+                Object parentIdObj = rs.getObject("parent_id");
+                cat.setParentId(parentIdObj != null ? rs.getInt("parent_id") : null);
                 categories.add(cat);
             }
         }
@@ -73,18 +75,18 @@ public class MaterialInfoDAO extends DBContext{
         return suppliers;
     }
 
-    public List<UnitConversion> getAllUnitConversions() throws SQLException {
-        List<UnitConversion> units = new ArrayList<>();
-        String sql = "SELECT conversion_id, base_unit FROM unit_conversion ORDER BY base_unit";
+    public List<Unit> getAllWarehouseUnits() throws SQLException {
+        List<Unit> units = new ArrayList<>();
+        String sql = "SELECT unit_id, unit_name, is_system_unit, status FROM units WHERE is_system_unit = 1 AND status = 'Hoạt động' ORDER BY unit_name";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                UnitConversion unit = new UnitConversion();
-                Material material = new Material();
-                material.setConversionId(rs.getInt("conversion_id"));
-                unit.setMaterial(material);
-                unit.setBaseunit(rs.getString("base_unit"));
+                Unit unit = new Unit();
+                unit.setUnit_id(rs.getInt("unit_id"));
+                unit.setUnit_name(rs.getString("unit_name"));
+                unit.setIs_system_unit(rs.getBoolean("is_system_unit"));
+                unit.setStatus(rs.getString("status"));
                 units.add(unit);
             }
         }

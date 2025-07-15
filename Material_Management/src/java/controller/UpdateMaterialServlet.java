@@ -2,6 +2,7 @@ package controller;
 
 import dao.MaterialDAO;
 import dao.MaterialInfoDAO;
+import dao.UnitDAO;
 import model.Material;
 
 import jakarta.servlet.ServletException;
@@ -33,6 +34,7 @@ public class UpdateMaterialServlet extends HttpServlet {
             String name = request.getParameter("name");
             int categoryId = Integer.parseInt(request.getParameter("categoryId"));
             int supplierId = Integer.parseInt(request.getParameter("supplierId"));
+            int unitId = Integer.parseInt(request.getParameter("unit"));
             String priceStr = request.getParameter("price");
             if (priceStr == null || priceStr.trim().isEmpty()) {
                 throw new Exception("Giá vật tư không được để trống.");
@@ -45,29 +47,49 @@ public class UpdateMaterialServlet extends HttpServlet {
                 throw new Exception("Giá vật tư phải lớn hơn 0.");
             }
             String description = request.getParameter("description");
+            String status = request.getParameter("status");
             String imageUrl = null;
             MaterialDAO dao = new MaterialDAO();
             Material existingMaterial = dao.getMaterialById(materialId);
-            int conversionId = 0;
-            if (existingMaterial != null) {
-                conversionId = existingMaterial.getConversionId();
-            }
 
             Part filePart = request.getPart("imageUpload");
             String fileName = getFileName(filePart);
-
-            if (fileName != null && !fileName.isEmpty()) {
-                imageUrl = fileName;
-                String applicationPath = getServletContext().getRealPath("");
-                String uploadFilePath = applicationPath + File.separator + "image";
-
-                File uploadDir = new File(uploadFilePath);
-                if (!uploadDir.exists()) {
-                    uploadDir.mkdirs();
+            if (filePart != null && filePart.getSize() > 0) {
+                if (fileName == null) fileName = java.nio.file.Path.of(filePart.getSubmittedFileName()).getFileName().toString();
+                if (!fileName.matches("(?i)^.+\\.(jpg|jpeg|png|gif)$")) {
+                    request.setAttribute("errorMessage", "File ảnh không hợp lệ. Chỉ cho phép jpg, jpeg, png, gif.");
+                    request.setAttribute("material", existingMaterial);
+                    MaterialInfoDAO infoDAO = new MaterialInfoDAO();
+                    request.setAttribute("categories", infoDAO.getAllCategoriesForDropdown());
+                    request.setAttribute("suppliers", infoDAO.getAllSuppliersForDropdown());
+                    UnitDAO unitDAO = new UnitDAO();
+                    request.setAttribute("units", unitDAO.getWarehouseUnits());
+                    request.getRequestDispatcher("/updateMaterialDetail.jsp").forward(request, response);
+                    return;
                 }
-                filePart.write(uploadFilePath + File.separator + fileName);
+                String imagePath = fileName; // chỉ lưu tên file
+                String buildImageDir = request.getServletContext().getRealPath("/image");
+                java.io.File uploadDirFile = new java.io.File(buildImageDir);
+                if (!uploadDirFile.exists()) {
+                    uploadDirFile.mkdirs();
+                }
+                filePart.write(buildImageDir + java.io.File.separator + fileName);
+                // Copy sang source (web/image)
+                try {
+                    java.io.File buildImageDirFile = new java.io.File(buildImageDir);
+                    java.io.File projectRoot = buildImageDirFile.getParentFile().getParentFile().getParentFile();
+                    java.io.File sourceImageDirFile = new java.io.File(projectRoot, "web/image");
+                    if (!sourceImageDirFile.exists()) {
+                        sourceImageDirFile.mkdirs();
+                    }
+                    java.nio.file.Path source = java.nio.file.Paths.get(buildImageDir, fileName);
+                    java.nio.file.Path target = java.nio.file.Paths.get(sourceImageDirFile.getAbsolutePath(), fileName);
+                    java.nio.file.Files.copy(source, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                } catch (Exception ex) {
+                    ex.printStackTrace(); // log lỗi copy
+                }
+                imageUrl = imagePath; // chỉ lưu tên file
             } else {
-                // Nếu không upload ảnh mới, giữ lại ảnh cũ
                 if (existingMaterial != null) {
                     imageUrl = existingMaterial.getImageUrl();
                 }
@@ -85,16 +107,21 @@ public class UpdateMaterialServlet extends HttpServlet {
             if (price > 10000000000L) {
                 throw new Exception("Giá vật tư không được vượt quá 10 tỷ VNĐ.");
             }
+            
+            if (status == null || status.trim().isEmpty()) {
+                throw new Exception("Vui lòng chọn trạng thái vật tư.");
+            }
 
             Material material = new Material();
             material.setMaterialId(materialId);
             material.setName(name);
             material.setCategoryId(categoryId);
             material.setSupplierId(supplierId);
+            material.setUnitId(unitId);
             material.setPrice(price);
             material.setDescription(description);
             material.setImageUrl(imageUrl);
-            material.setConversionId(conversionId);
+            material.setStatus(status);
 
             boolean success = dao.updateMaterial(material);
             if (success) {
@@ -105,7 +132,8 @@ public class UpdateMaterialServlet extends HttpServlet {
                 MaterialInfoDAO infoDAO = new MaterialInfoDAO();
                 request.setAttribute("categories", infoDAO.getAllCategoriesForDropdown());
                 request.setAttribute("suppliers", infoDAO.getAllSuppliersForDropdown());
-                request.setAttribute("units", infoDAO.getAllUnitConversions());
+                UnitDAO unitDAO = new UnitDAO();
+                request.setAttribute("units", unitDAO.getWarehouseUnits());
                 request.getRequestDispatcher("/updateMaterialDetail.jsp").forward(request, response);
             }
 

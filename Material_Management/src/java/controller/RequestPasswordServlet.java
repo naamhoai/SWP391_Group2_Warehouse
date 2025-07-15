@@ -23,20 +23,13 @@ public class RequestPasswordServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String fullname = request.getParameter("fullname");
         String email = request.getParameter("email");
 
-        if (fullname == null || fullname.trim().isEmpty()) {
-            request.setAttribute("mess", "Full name không được để trống.");
-            request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
-            return;
-        }
-
         ResetPasswordDAO daoUser = new ResetPasswordDAO();
-        User user = daoUser.getUserByEmailAndFullname(email, fullname);
+        User user = daoUser.getUserByEmail(email);
 
         if (user == null) {
-            request.setAttribute("mess", "Email hoặc họ tên không đúng.");
+            request.setAttribute("mess", "Email không đúng hoặc không tồn tại.");
             request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
             return;
         }
