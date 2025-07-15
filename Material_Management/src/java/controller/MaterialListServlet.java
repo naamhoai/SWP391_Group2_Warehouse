@@ -40,6 +40,11 @@ public class MaterialListServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        if ("true".equals(request.getParameter("reset"))) {
+            response.sendRedirect("MaterialListServlet");
+            return;
+        }
+
         String searchQuery = request.getParameter("search");
         Integer categoryId = null;
         if (request.getParameter("category") != null && !request.getParameter("category").isEmpty()) {

@@ -10,7 +10,100 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 
 public class InventoryDAO extends DBContext {
+    private Connection conn;
+    public InventoryDAO(Connection conn) {
+        this.conn = conn;
+    }
+    public InventoryDAO(){
+    }
+    public List<Inventory> getInventoryList(Integer categoryId, Integer supplierId, String search, String condition, int page, int pageSize) throws SQLException {
+        List<Inventory> list = new ArrayList<>();
+        String sql = "SELECT i.inventory_id, i.material_id, i.material_condition, i.quantity_on_hand, i.last_updated, " +
+                "m.name AS material_name, c.name AS category_name, s.supplier_name, u.unit_name, m.price " +
+                "FROM inventory i " +
+                "JOIN materials m ON i.material_id = m.material_id " +
+                "JOIN categories c ON m.category_id = c.category_id " +
+                "JOIN supplier s ON m.supplier_id = s.supplier_id " +
+                "JOIN units u ON m.unit_id = u.unit_id WHERE 1=1 ";
+        List<Object> params = new ArrayList<>();
+        if (categoryId != null && categoryId > 0) {
+            sql += " AND c.category_id = ?";
+            params.add(categoryId);
+        }
+        if (supplierId != null && supplierId > 0) {
+            sql += " AND s.supplier_id = ?";
+            params.add(supplierId);
+        }
+        if (search != null && !search.trim().isEmpty()) {
+            sql += " AND LOWER(m.name) LIKE ?";
+            params.add("%" + search.trim().toLowerCase() + "%");
+        }
+        if (condition != null && !condition.isEmpty()) {
+            sql += " AND i.material_condition = ?";
+            params.add(condition);
+        }
+        sql += " ORDER BY i.material_id ASC LIMIT ? OFFSET ?";
+        params.add(pageSize);
+        params.add((page - 1) * pageSize);
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Inventory inv = new Inventory();
+                    inv.setInventoryId(rs.getInt("inventory_id"));
+                    inv.setMaterialId(rs.getInt("material_id"));
+                    inv.setMaterialCondition(rs.getString("material_condition"));
+                    inv.setQuantityOnHand(rs.getInt("quantity_on_hand"));
+                    inv.setLastUpdated(rs.getTimestamp("last_updated"));
+                    inv.setMaterialName(rs.getString("material_name"));
+                    inv.setCategoryName(rs.getString("category_name"));
+                    inv.setSupplierName(rs.getString("supplier_name"));
+                    inv.setUnitName(rs.getString("unit_name"));
+                    inv.setPrice(rs.getLong("price"));
+                    list.add(inv);
+                }
+            }
+        }
+        return list;
+    }
 
+    public int countInventory(Integer categoryId, Integer supplierId, String search, String condition) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM inventory i " +
+                "JOIN materials m ON i.material_id = m.material_id " +
+                "JOIN categories c ON m.category_id = c.category_id " +
+                "JOIN supplier s ON m.supplier_id = s.supplier_id WHERE 1=1 ";
+        List<Object> params = new ArrayList<>();
+        if (categoryId != null && categoryId > 0) {
+            sql += " AND c.category_id = ?";
+            params.add(categoryId);
+        }
+        if (supplierId != null && supplierId > 0) {
+            sql += " AND s.supplier_id = ?";
+            params.add(supplierId);
+        }
+        if (search != null && !search.trim().isEmpty()) {
+            sql += " AND LOWER(m.name) LIKE ?";
+            params.add("%" + search.trim().toLowerCase() + "%");
+        }
+        if (condition != null && !condition.isEmpty()) {
+            sql += " AND i.material_condition = ?";
+            params.add(condition);
+        }
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
+    
     public List<Inventory> getInventoryWithMaterialInfo() {
         List<Inventory> inventories = new ArrayList<>();
         String sql = "SELECT i.inventory_id, i.material_id, i.material_condition, i.quantity_on_hand, i.last_updated, "

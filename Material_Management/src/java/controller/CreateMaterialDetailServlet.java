@@ -43,6 +43,10 @@ public class CreateMaterialDetailServlet extends HttpServlet {
             units = List.of();
         }
         request.setAttribute("units", units);
+        MaterialDAO materialDAO = new MaterialDAO();
+        int nextMaterialId = materialDAO.getNextMaterialId();
+        request.setAttribute("materialId", nextMaterialId);
+        materialDAO.closeConnection();
         request.getRequestDispatcher("createMaterialDetail.jsp").forward(request, response);
     }
 
@@ -64,8 +68,7 @@ public class CreateMaterialDetailServlet extends HttpServlet {
 
         String errorMessage = null;
         try {
-            if (materialIdStr == null || materialIdStr.isEmpty() ||
-                name == null || name.trim().isEmpty() ||
+            if (name == null || name.trim().isEmpty() ||
                 categoryIdStr == null || categoryIdStr.isEmpty() ||
                 supplierIdStr == null || supplierIdStr.isEmpty() ||
                 unitIdStr == null || unitIdStr.isEmpty() ||
@@ -77,10 +80,6 @@ public class CreateMaterialDetailServlet extends HttpServlet {
             int categoryId = Integer.parseInt(categoryIdStr);
             int supplierId = Integer.parseInt(supplierIdStr);
             int unitId = Integer.parseInt(unitIdStr);
-
-            if (materialId < 1 || materialId > 99999) {
-                throw new Exception("ID vật tư phải là số nguyên dương tối đa 5 chữ số (1-99999).");
-            }
 
             if (name.length() > 50) {
                 throw new Exception("Tên vật tư không được vượt quá 50 ký tự.");
@@ -109,9 +108,6 @@ public class CreateMaterialDetailServlet extends HttpServlet {
                 throw new Exception("Giá vật tư không được vượt quá 10 tỷ VNĐ.");
             }
 
-            if (materialDAO.getMaterialById(materialId) != null) {
-                throw new Exception("ID vật tư đã tồn tại. Vui lòng chọn ID khác.");
-            }
             String imageUrl = null;
             if (imagePart != null && imagePart.getSize() > 0) {
                 String fileName = java.nio.file.Path.of(imagePart.getSubmittedFileName()).getFileName().toString();

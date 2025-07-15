@@ -77,6 +77,7 @@
                             </c:forEach>
                         </select>
                     </div>
+                    <button type="submit" name="reset" value="true" class="btn btn-secondary">Đặt lại</button>
                 </div>
                 <div class="filter-row">
                      <div class="filter-group search-group">
@@ -112,7 +113,7 @@
                                     <c:forEach items="${materials}" var="material">
                                         <tr class="${material.status == 'inactive' ? 'inactive-row' : ''}">
                                             <td><input type="checkbox" name="materialIds" value="${material.materialId}" class="material-checkbox"></td>
-                                            <td>#${material.materialId}</td>
+                                            <td>${material.materialId}</td>
                                             <td>${material.name}</td>
                                             <td>${material.categoryName}</td>
                                             <td>${material.supplierName}</td>
@@ -124,7 +125,6 @@
                                             <td class="action-buttons">
                                                 <a href="viewMaterialDetail?id=${material.materialId}" class="btn-action btn-view tooltip-parent">
                                                     <i class="fas fa-eye"></i>
-                                                    <span class="custom-tooltip">Xem chi tiết</span>
                                                 </a>
                                             </td>
                                         </tr>
@@ -149,19 +149,9 @@
                                 <c:param name="supplier" value="${supplierFilter}"/>
                                 <c:param name="page" value="1"/>
                             </c:url>
-                            <a href="${firstUrl}" class="page-link" title="Trang đầu">&laquo;&laquo;</a>
+                            <a href="${firstUrl}" class="page-link" title="Trang đầu">&laquo;</a>
                         </c:if>
-                        <!-- Nút về trang trước -->
-                        <c:if test="${currentPage > 1}">
-                            <c:url var="prevUrl" value="MaterialListServlet">
-                                <c:param name="search" value="${searchQuery}"/>
-                                <c:param name="category" value="${categoryFilter}"/>
-                                <c:param name="supplier" value="${supplierFilter}"/>
-                                <c:param name="page" value="${currentPage - 1}"/>
-                            </c:url>
-                            <a href="${prevUrl}" class="page-link">&laquo;</a>
-                        </c:if>
-
+                        <!-- Dải số phân trang -->
                         <c:forEach begin="${startPage}" end="${endPage}" var="i">
                             <c:url var="pageUrl" value="MaterialListServlet">
                                 <c:param name="search" value="${searchQuery}"/>
@@ -171,17 +161,6 @@
                             </c:url>
                             <a href="${pageUrl}" class="page-link ${i == currentPage ? 'active' : ''}">${i}</a>
                         </c:forEach>
-
-                        <!-- Nút về trang sau -->
-                        <c:if test="${currentPage < totalPages}">
-                            <c:url var="nextUrl" value="MaterialListServlet">
-                                <c:param name="search" value="${searchQuery}"/>
-                                <c:param name="category" value="${categoryFilter}"/>
-                                <c:param name="supplier" value="${supplierFilter}"/>
-                                <c:param name="page" value="${currentPage + 1}"/>
-                            </c:url>
-                            <a href="${nextUrl}" class="page-link">&raquo;</a>
-                        </c:if>
                         <!-- Nút về trang cuối -->
                         <c:if test="${currentPage < totalPages}">
                             <c:url var="lastUrl" value="MaterialListServlet">
@@ -190,7 +169,7 @@
                                 <c:param name="supplier" value="${supplierFilter}"/>
                                 <c:param name="page" value="${totalPages}"/>
                             </c:url>
-                            <a href="${lastUrl}" class="page-link" title="Trang cuối">&raquo;&raquo;</a>
+                            <a href="${lastUrl}" class="page-link" title="Trang cuối">&raquo;</a>
                         </c:if>
                     </div>
                 </div>
@@ -211,6 +190,17 @@
                 checkbox.checked = e.target.checked;
             });
         });
+
+        function resetFilters() {
+            var form = document.getElementById('filterForm');
+            Array.from(form.elements).forEach(function(el) {
+                if (el.tagName === 'SELECT' || el.tagName === 'INPUT') {
+                    if (el.type === 'text') el.value = '';
+                    if (el.tagName === 'SELECT') el.selectedIndex = 0;
+                }
+            });
+            form.submit();
+        }
     </script>
 </body>
 </html>

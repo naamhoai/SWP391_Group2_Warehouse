@@ -264,6 +264,20 @@ public class MaterialDAO extends DBContext{
         return names;
     }
 
+    public int getNextMaterialId() {
+        String sql = "SELECT COALESCE(MAX(material_id), 0) + 1 AS next_id FROM materials";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("next_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 1;
+    }
+
     public void close(){
         super.closeConnection();
     }
