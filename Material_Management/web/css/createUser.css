@@ -1,4 +1,3 @@
-/* Professional Create User Form Styles */
 
 .layout {
     background: #f8fafc;
@@ -31,7 +30,6 @@
     letter-spacing: -0.3px;
 }
 
-/* Alert Styles */
 .alert {
     padding: 16px 20px;
     border-radius: 12px;
@@ -57,7 +55,6 @@
     }
 }
 
-/* Avatar Section */
 .avatar-container {
     display: flex;
     flex-direction: column;
@@ -105,7 +102,6 @@ input[type="file"] {
     display: none;
 }
 
-/* Form Layout */
 .row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -119,7 +115,6 @@ input[type="file"] {
     position: relative;
 }
 
-/* Labels */
 label {
     font-weight: 600;
     color: #2d3748;
@@ -129,7 +124,6 @@ label {
     text-align: left;
 }
 
-/* Input Fields */
 input, select {
     border: 1px solid #d1d5db;
     border-radius: 8px;
@@ -156,7 +150,6 @@ input:hover, select:hover {
     background-color: #f9fafb;
 }
 
-/* Special Input States */
 input[readonly] {
     background: #f7fafc;
     color: #718096;
@@ -169,19 +162,16 @@ input[readonly]:focus {
     transform: none;
 }
 
-/* Ensure consistent width for all inputs */
 input[type="text"], input[type="password"], input[type="email"], input[type="tel"], input[type="date"], select {
     width: 100%;
     box-sizing: border-box;
 }
 
-/* Required Field Indicator */
 .required {
     color: #e53e3e;
     font-weight: 700;
 }
 
-/* Error Messages */
 .error-message {
     color: #e53e3e;
     font-size: 0.875rem;
@@ -191,7 +181,6 @@ input[type="text"], input[type="password"], input[type="email"], input[type="tel
     text-align: left;
 }
 
-/* Info Text */
 .password-requirements, .email-info {
     font-size: 0.875rem;
     color: #718096;
@@ -200,7 +189,6 @@ input[type="text"], input[type="password"], input[type="email"], input[type="tel
     text-align: left;
 }
 
-/* Status Radio Buttons */
 .status-group {
     display: flex;
     gap: 24px;
@@ -227,7 +215,6 @@ input[type="text"], input[type="password"], input[type="email"], input[type="tel
     accent-color: #3b82f6;
 }
 
-/* Password Toggle */
 .toggle-password {
     position: absolute;
     top: 50%;
@@ -244,7 +231,6 @@ input[type="text"], input[type="password"], input[type="email"], input[type="tel
     color: #3b82f6;
 }
 
-/* Password field container */
 .password-container {
     position: relative;
     display: flex;
@@ -255,7 +241,6 @@ input[type="text"], input[type="password"], input[type="email"], input[type="tel
     padding-right: 45px;
 }
 
-/* Buttons */
 .buttons {
     display: flex;
     justify-content: flex-end;
@@ -305,7 +290,6 @@ input[type="text"], input[type="password"], input[type="email"], input[type="tel
     border-color: #9ca3af;
 }
 
-/* Image Error Styling */
 #imageError {
     color: #e53e3e;
     font-size: 0.875rem;
@@ -313,7 +297,6 @@ input[type="text"], input[type="password"], input[type="email"], input[type="tel
     font-weight: 500;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .layout {
         padding: 20px 16px;
@@ -348,23 +331,6 @@ input[type="text"], input[type="password"], input[type="email"], input[type="tel
     }
 }
 
-@media (max-width: 480px) {
-    .form-wrapper {
-        padding: 24px 16px;
-    }
-
-    .form-title {
-        font-size: 1.75rem;
-    }
-
-    .status-group {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-    }
-}
-
-/* Loading State for Form */
 .form-wrapper.loading {
     pointer-events: none;
     opacity: 0.7;
@@ -393,7 +359,6 @@ input[type="text"], input[type="password"], input[type="email"], input[type="tel
     }
 }
 
-/* Focus Indicators for Accessibility */
 .btn:focus-visible {
     outline: 2px solid #667eea;
     outline-offset: 2px;

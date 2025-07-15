@@ -258,7 +258,6 @@ input[readonly] {
     transition: margin-left 0.3s;
 }
 
-/* Khi sidebar thu nhỏ hoặc đóng, form vào giữa toàn màn hình */
 .sidebar.collapsed ~ .user-center-wrapper #main-content,
 .sidebar.closed ~ .user-center-wrapper #main-content {
     margin-left: 0 !important;
