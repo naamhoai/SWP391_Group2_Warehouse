@@ -5,138 +5,174 @@
 <html>
     <head>
         <title>Chỉnh sửa yêu cầu vật tư</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="css/sidebar.css">
+        <link rel="stylesheet" href="css/footer.css">
         <link rel="stylesheet" href="css/requestForm.css">
-        <style>
-            .info-message {
-                padding: 15px;
-                background-color: #e7f3fe;
-                border-left: 6px solid #2196F3;
-                margin-bottom: 20px;
-                border-radius: 4px;
-            }
-            .info-message p {
-                margin: 0;
-                font-size: 15px;
-            }
-        </style>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vi.js"></script>
     </head>
+
     <body>
-        <c:set var="isEditable" value="${sessionScope.roleId == 4 && request.requestStatus == 'Rejected'}" />
 
-        <div class="request-form-container">
-            <c:if test="${!isEditable}">
-                <div class="info-message">
-                    <p><strong>Thông báo:</strong> Bạn chỉ có thể xem nội dung. Việc chỉnh sửa yêu cầu chỉ được phép khi bạn là nhân viên và yêu cầu ở trạng thái "Đã từ chối".</p>
-                </div>
-            </c:if>
+        <c:set var="isEditable" value="${sessionScope.roleId == 4 && request.requestStatus == 'Từ chối'}" />
 
-            <h2>Chỉnh sửa yêu cầu vật tư</h2>
-            <form action="editRequest" method="post" id="requestForm">
-                <input type="hidden" name="requestId" value="${request.requestId}">
-                <div class="form-group">
-                    <label class="form-label">Người làm đơn:</label>
-                    <input type="text" class="input-text" value="${userName}" readonly>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Loại yêu cầu:</label>
-                    <select name="requestType" class="input-select" required ${!isEditable ? 'disabled' : ''}>
-                        <option value="Mua Vật Tư" ${request.requestType == 'Mua Vật Tư' ? 'selected' : ''}>Mua Vật Tư</option>
-                        <option value="Xuất Kho" ${request.requestType == 'Xuất Kho' ? 'selected' : ''}>Xuất Kho</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Lý do:</label>
-                    <textarea name="reason" class="input-textarea" required ${!isEditable ? 'disabled' : ''}>${request.reason}</textarea>
-                </div>
+        <div class="main-layout">
+            <div class="sidebar">
+                <jsp:include page="sidebar.jsp" />
+            </div>
+            <div class="main-content">
+                <div class="request-form-container">
+                    <c:if test="${!isEditable}">
+                        <div class="info-message" style="background: #fdecea; border: 1px solid #f5c6cb; padding: 12px; color: #721c24; border-radius: 6px;">
+                            <strong>Thông báo:</strong> Bạn không có quyền chỉnh sửa yêu cầu này.
+                        </div>
+                    </c:if>
 
-                <c:if test="${request.directorNote != null && !empty request.directorNote}">
-                    <div class="form-group">
-                        <label class="form-label">Ghi chú từ giám đốc:</label>
-                        <textarea class="input-textarea" readonly>${request.directorNote}</textarea>
-                    </div>
-                </c:if>
+                    <h2>Chỉnh sửa yêu cầu xuất kho vật tư</h2>
+                    <form action="editRequest" method="post" id="requestForm">
+                        <input type="hidden" name="requestId" value="${request.requestId}">
+                        <!-- Lý do -->
+                        <div class="form-section section-request-info">
+                            <h3><i class="fas fa-clipboard-list"></i> Thông tin yêu cầu</h3>
+                            <div class="form-group">
+                                <label class="form-label">Người làm đơn:</label>
+                                <input type="text" class="input-text" value="${userName}" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Lý do yêu cầu:</label>
+                                <textarea name="reason" id="reason" class="input-textarea" 
+                                          ${!isEditable ? 'readonly' : ''} 
+                                          required maxlength="500" pattern="[^<>\"']*"
+                                          title="Không chứa ký tự < > &quot; '">${request.reason}</textarea>
+                            </div>
+                        </div>
 
-                <div class="form-group">
-                    <h4>Danh sách vật tư</h4>
-                    <table class="request-items-table" id="itemsTable">
-                        <thead>
-                            <tr>
-                                <th>Tên vật tư</th>
-                                <th>Số lượng</th>
-                                <th>Đơn vị</th>
-                                <th>Tình trạng</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="itemsBody">
-                            <c:forEach var="d" items="${details}" varStatus="loop">
-                                <tr>
-                                    <td>
-                                        <input type="text" name="materialName" class="input-text" value="${d.materialName}" required ${!isEditable ? 'disabled' : ''} list="materialNameList" autocomplete="off" />
-                                    </td>
-                                    <td><input type="number" name="quantity" class="input-text" value="${d.quantity}" required min="1" ${!isEditable ? 'disabled' : ''}></td>
-                                    <td>
-                                        <input type="text" name="unit" class="input-text" value="${d.unitName}" required ${!isEditable ? 'disabled' : ''} list="unitDataList" autocomplete="off" />
-                                    </td>
-                                    <td>
-                                        <select name="materialCondition" class="input-select" required ${!isEditable ? 'disabled' : ''}>
-                                            <option value="Mới" ${d.materialCondition == 'Mới' ? 'selected' : ''}>Mới</option>
-                                            <option value="Cũ" ${d.materialCondition == 'Cũ' ? 'selected' : ''}>Cũ</option>
-                                            <option value="Hỏng" ${d.materialCondition == 'Hỏng' ? 'selected' : ''}>Hỏng</option>
-                                        </select>
-                                    </td>
-                                    <td><button type="button" class="btn-remove" onclick="removeRow(this)" ${!isEditable ? 'disabled' : ''}>Xóa</button></td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                    <datalist id="materialNameList">
-                        <c:forEach var="m" items="${materialList}">
-                            <option value="${m.name}" />
-                        </c:forEach>
-                    </datalist>
-                    <datalist id="unitDataList">
-                        <c:forEach var="u" items="${unitList}">
-                            <option value="${u.baseunit}" />
-                        </c:forEach>
-                    </datalist>
-                    <button type="button" class="btn-add" onclick="addRow()" ${!isEditable ? 'disabled' : ''}>Thêm vật tư</button>
+                        <div class="form-section section-recipient-info">
+                            <h3><i class="fas fa-user"></i> Thông tin người nhận</h3>
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label class="form-label">Tên dự án:</label>
+                                        <input type="text" name="recipientName" class="input-text" 
+                                               value="${request.recipientName}" ${!isEditable ? 'readonly' : ''}
+                                               required maxlength="255" pattern="[^<>\"']*">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Địa chỉ giao hàng:</label>
+                                        <textarea name="deliveryAddress" class="input-textarea"
+                                                  ${!isEditable ? 'readonly' : ''}
+                                                  required maxlength="500" pattern="[^<>\"']*">${request.deliveryAddress}</textarea>
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="form-group">
+                                        <label class="form-label">Người liên hệ:</label>
+                                        <input type="text" name="contactPerson" class="input-text"
+                                               value="${request.contactPerson}" ${!isEditable ? 'readonly' : ''}
+                                               required maxlength="255" pattern="[^<>\"']*">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">SĐT người liên hệ:</label>
+                                        <input type="tel" name="contactPhone" class="input-text"
+                                               value="${request.contactPhone}" ${!isEditable ? 'readonly' : ''}
+                                               pattern="[0-9+\-\s()]{10,15}" maxlength="15"
+                                               required title="10-15 số, có thể dùng + - ( ) và khoảng trắng">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <c:if test="${not empty request.directorNote}">
+                            <div class="form-section">
+                                <h3><i class="fas fa-comment"></i> Ghi chú từ giám đốc</h3>
+                                <textarea class="input-textarea" readonly>${request.directorNote}</textarea>
+                            </div>
+                        </c:if>
+
+                        <div class="form-section section-material-list">
+                            <h3><i class="fas fa-boxes"></i> Danh sách vật tư</h3>
+                            <table class="request-items-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tên vật tư</th>
+                                        <th>Số lượng</th>
+                                        <th>Đơn vị</th>
+                                        <th>Tình trạng</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itemsBody">
+                                    <c:forEach var="d" items="${details}" varStatus="loop">
+                                        <tr>
+                                            <td>
+                                                <input type="text" name="materialName" class="input-text materialNameInput"
+                                                       value="${d.materialName}" ${!isEditable ? 'readonly' : ''}
+                                                       autocomplete="off" required pattern="[^<>\"']*" maxlength="100">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="quantity" class="input-text"
+                                                       value="${d.quantity}" min="1" max="999999" 
+                                                       ${!isEditable ? 'readonly' : ''} required>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="unit" class="input-text unitInput"
+                                                       value="${d.unitName}" ${!isEditable ? 'readonly' : ''} readonly>
+                                            </td>
+                                            <td>
+                                                <select name="materialCondition" class="input-select" ${!isEditable ? 'disabled' : ''}>
+                                                    <option value="Mới" ${d.materialCondition == 'Mới' ? 'selected' : ''}>Mới</option>
+                                                    <option value="Cũ" ${d.materialCondition == 'Cũ' ? 'selected' : ''}>Cũ</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn-remove" onclick="removeRow(this)" 
+                                                        ${!isEditable ? 'disabled' : ''}>Xóa</button>
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
+                            <button type="button" class="btn-add" onclick="addRow()" ${!isEditable ? 'disabled' : ''}>Thêm vật tư</button>
+                        </div>
+
+                        <input type="hidden" name="itemCount" id="itemCount" value="${fn:length(details)}">
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-submit" ${!isEditable ? 'disabled' : ''}>Gửi lại yêu cầu</button>
+                            <button type="button" class="btn-back" onclick="window.history.back()">Quay lại</button>
+                        </div>
+                    </form>
                 </div>
-                <input type="hidden" name="itemCount" id="itemCount" value="${fn:length(details)}">
-                <button type="submit" class="btn-submit" ${!isEditable ? 'disabled' : ''}>Gửi lại yêu cầu</button>
-                <a href="javascript:history.back()" class="btn-back">Quay lại</a>
-            </form>
+            </div>
         </div>
 
         <script>
-            function addRow() {
-                const tbody = document.getElementById('itemsBody');
-                const newRow = tbody.insertRow();
-                newRow.innerHTML = `
-                    <td><input type="text" name="materialName" class="input-text" required list="materialNameList" autocomplete="off"></td>
-                    <td><input type="number" name="quantity" class="input-text" required min="1"></td>
-                    <td>
-                        <input type="text" name="unit" class="input-text" required list="unitDataList" autocomplete="off">
-                    </td>
-                    <td>
-                        <select name="materialCondition" class="input-select" required>
-                            <option value="Mới">Mới</option>
-                            <option value="Cũ">Cũ</option>
-                            <option value="Hỏng">Hỏng</option>
-                        </select>
-                    </td>
-                    <td><button type="button" class="btn-remove" onclick="removeRow(this)">Xóa</button></td>
-                `;
-            }
+            window.materialNames = [
+            <c:forEach var="m" items="${materialList}" varStatus="loop">
+            "${fn:escapeXml(m.materialName)}"<c:if test="${!loop.last}">,</c:if>
+            </c:forEach>
+            ];
+            window.materialUnitMap = {
+            <c:forEach var="m" items="${materialList}" varStatus="loop">
+            "${fn:escapeXml(m.materialName)}": "${fn:escapeXml(m.unitName)}"<c:if test="${!loop.last}">,</c:if>
+            </c:forEach>
+            };
+            window.materialInventoryMap = {
+            <c:forEach var="m" items="${materialList}" varStatus="loop">
+            "${fn:escapeXml(m.materialName)}": ${m.quantityOnHand}<c:if test="${!loop.last}">,</c:if>
+            </c:forEach>
+            };</script>
 
-            function removeRow(button) {
-                const row = button.closest('tr');
-                if (document.getElementById('itemsBody').rows.length > 1) {
-                    row.remove();
-                } else {
-                    alert('Phải có ít nhất một vật tư trong yêu cầu.');
-                }
-            }
-        </script>
+        <!-- Scripts -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script>
+        <script src="js/requestForm.js"></script>
+        <script src="js/sidebar.js"></script>
     </body>
 </html>
