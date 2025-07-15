@@ -9,18 +9,22 @@ import java.util.List;
 public class RequestDAO extends DBContext {
 
     public int addRequest(Request request) throws SQLException {
-        String sql = "INSERT INTO requests (request_type, user_id, reason, request_status, created_at) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO requests (user_id, reason, recipient_name, delivery_address, contact_person, contact_phone, request_status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, request.getRequestType());
-            stmt.setInt(2, request.getUserId());
-            stmt.setString(3, request.getReason());
-            stmt.setString(4, request.getRequestStatus());
-            stmt.setTimestamp(5, request.getCreatedAt());
+
+            stmt.setInt(1, request.getUserId());
+            stmt.setString(2, request.getReason());
+            stmt.setString(3, request.getRecipientName());
+            stmt.setString(4, request.getDeliveryAddress());
+            stmt.setString(5, request.getContactPerson());
+            stmt.setString(6, request.getContactPhone());
+            stmt.setString(7, request.getRequestStatus());
+            stmt.setTimestamp(8, request.getCreatedAt());
             stmt.executeUpdate();
 
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
-                return rs.getInt(1); // Trả về request_id vừa tạo
+                return rs.getInt(1);
             }
         }
         return -1;
@@ -31,7 +35,7 @@ public class RequestDAO extends DBContext {
         String sql = "SELECT r.*, u.full_name as requester_name "
                 + "FROM requests r "
                 + "LEFT JOIN users u ON r.user_id = u.user_id "
-                + "WHERE r.request_status = 'Pending' "
+                + "WHERE r.request_status = 'Chờ duyệt' "
                 + "ORDER BY r.created_at DESC";
 
         try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -40,7 +44,6 @@ public class RequestDAO extends DBContext {
             while (rs.next()) {
                 Request request = new Request();
                 request.setRequestId(rs.getInt("request_id"));
-                request.setRequestType(rs.getString("request_type"));
                 request.setUserId(rs.getInt("user_id"));
                 request.setReason(rs.getString("reason"));
                 request.setRequestStatus(rs.getString("request_status"));
@@ -64,9 +67,12 @@ public class RequestDAO extends DBContext {
             if (rs.next()) {
                 Request request = new Request();
                 request.setRequestId(rs.getInt("request_id"));
-                request.setRequestType(rs.getString("request_type"));
                 request.setUserId(rs.getInt("user_id"));
                 request.setReason(rs.getString("reason"));
+                request.setRecipientName(rs.getString("recipient_name"));
+                request.setDeliveryAddress(rs.getString("delivery_address"));
+                request.setContactPerson(rs.getString("contact_person"));
+                request.setContactPhone(rs.getString("contact_phone"));
                 request.setRequestStatus(rs.getString("request_status"));
                 request.setCreatedAt(rs.getTimestamp("created_at"));
                 request.setDirectorNote(rs.getString("director_note"));
@@ -107,20 +113,47 @@ public class RequestDAO extends DBContext {
         return -1;
     }
 
-    public boolean updateRequestTypeAndReason(int requestId, String requestType, String reason) throws SQLException {
-        String sql = "UPDATE requests SET request_type = ?, reason = ? WHERE request_id = ?";
+    public boolean updateRequestReasonAndRecipient(int requestId, String reason, String recipientName, String deliveryAddress, String contactPerson, String contactPhone) throws SQLException {
+        String sql = "UPDATE requests SET reason = ?, recipient_name = ?, delivery_address = ?, contact_person = ?, contact_phone = ? WHERE request_id = ?";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, requestType);
-            stmt.setString(2, reason);
-            stmt.setInt(3, requestId);
+            stmt.setString(1, reason);
+            stmt.setString(2, recipientName);
+            stmt.setString(3, deliveryAddress);
+            stmt.setString(4, contactPerson);
+            stmt.setString(5, contactPhone);
+            stmt.setInt(6, requestId);
             return stmt.executeUpdate() > 0;
         }
     }
 
-    public int getWarehouseStaffId() {
+    public boolean createRequest(int userId, String reason, String recipientName, String deliveryAddress, String contactPerson, String contactPhone) throws SQLException {
+        String sql = "INSERT INTO requests (user_id, reason, recipient_name, delivery_address, contact_person, contact_phone, request_status, created_at) VALUES (?, ?, ?, ?, ?, ?, 'Chờ duyệt', NOW())";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.setString(2, reason);
+            stmt.setString(3, recipientName);
+            stmt.setString(4, deliveryAddress);
+            stmt.setString(5, contactPerson);
+            stmt.setString(6, contactPhone);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    public int getLastInsertedRequestId() throws SQLException {
+        String sql = "SELECT LAST_INSERT_ID() as request_id";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("request_id");
+            }
+        }
+        return -1;
+    }
+
+    public int getStaffId() {
         String sql = "SELECT u.user_id FROM users u "
                 + "JOIN roles r ON u.role_id = r.role_id "
-                + "WHERE r.role_name = 'Warehouse Staff' "
+                + "WHERE r.role_name = 'Nhân viên công ty' "
                 + "LIMIT 1";
 
         try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -137,7 +170,7 @@ public class RequestDAO extends DBContext {
     public int getDirectorId() {
         String sql = "SELECT u.user_id FROM users u "
                 + "JOIN roles r ON u.role_id = r.role_id "
-                + "WHERE r.role_name = 'Director' "
+                + "WHERE r.role_name = 'Giám đốc' "
                 + "LIMIT 1";
 
         try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -151,7 +184,27 @@ public class RequestDAO extends DBContext {
         return -1;
     }
 
-    public List<Request> getFilteredRequests(Integer userId, String status, String requestType, String startDate, String endDate, String sort, int page, int pageSize) {
+    public int getWarehouseStaffId() {
+        String sql = "SELECT u.user_id FROM users u "
+                + "JOIN roles r ON u.role_id = r.role_id "
+                + "WHERE r.role_name = 'Nhân viên kho' "
+                + "LIMIT 1";
+
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("user_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public List<Request> getFilteredRequests(
+            Integer userId, String status, String startDate, String endDate, String projectName,
+            String sortBy, String order, int page, int pageSize
+    ) {
         List<Request> requests = new ArrayList<>();
         StringBuilder sql = new StringBuilder(
                 "SELECT r.*, u.full_name as creator_name, ro.role_name as creator_role "
@@ -170,10 +223,6 @@ public class RequestDAO extends DBContext {
             sql.append(" AND r.request_status = ?");
             params.add(status);
         }
-        if (requestType != null && !requestType.isEmpty()) {
-            sql.append(" AND r.request_type = ?");
-            params.add(requestType);
-        }
         if (startDate != null && !startDate.isEmpty()) {
             sql.append(" AND r.created_at >= ?");
             params.add(startDate);
@@ -182,8 +231,25 @@ public class RequestDAO extends DBContext {
             sql.append(" AND r.created_at <= ?");
             params.add(endDate + " 23:59:59");
         }
+        if (projectName != null && !projectName.isEmpty()) {
+            sql.append(" AND r.recipient_name LIKE ?");
+            params.add("%" + projectName + "%");
+        }
 
-        sql.append(" ORDER BY r.request_id ").append("desc".equalsIgnoreCase(sort) ? "DESC" : "ASC");
+        String sortColumn;
+        switch (sortBy != null ? sortBy : "") {
+            case "name":
+                sortColumn = "r.recipient_name";
+                break;
+            case "date":
+                sortColumn = "r.created_at";
+                break;
+            default:
+                sortColumn = "r.request_id";
+        }
+        String sortOrder = "desc".equalsIgnoreCase(order) ? "DESC" : "ASC";
+        sql.append(" ORDER BY ").append(sortColumn).append(" ").append(sortOrder);
+
         sql.append(" LIMIT ? OFFSET ?");
         params.add(pageSize);
         params.add((page - 1) * pageSize);
@@ -196,14 +262,13 @@ public class RequestDAO extends DBContext {
                 while (rs.next()) {
                     Request r = new Request();
                     r.setRequestId(rs.getInt("request_id"));
-                    r.setRequestType(rs.getString("request_type"));
-                    r.setUserId(rs.getInt("user_id"));
                     r.setReason(rs.getString("reason"));
                     r.setRequestStatus(rs.getString("request_status"));
                     r.setCreatedAt(rs.getTimestamp("created_at"));
                     r.setDirectorNote(rs.getString("director_note"));
                     r.setCreatorName(rs.getString("creator_name"));
                     r.setCreatorRole(rs.getString("creator_role"));
+                    r.setRecipientName(rs.getString("recipient_name"));
                     requests.add(r);
                 }
             }
@@ -213,7 +278,7 @@ public class RequestDAO extends DBContext {
         return requests;
     }
 
-    public int countFilteredRequests(Integer userId, String status, String requestType, String startDate, String endDate) {
+    public int countFilteredRequests(Integer userId, String status, String startDate, String endDate, String projectName) {
         StringBuilder sql = new StringBuilder(
                 "SELECT COUNT(*) FROM requests r WHERE 1=1"
         );
@@ -227,10 +292,6 @@ public class RequestDAO extends DBContext {
             sql.append(" AND r.request_status = ?");
             params.add(status);
         }
-        if (requestType != null && !requestType.isEmpty()) {
-            sql.append(" AND r.request_type = ?");
-            params.add(requestType);
-        }
         if (startDate != null && !startDate.isEmpty()) {
             sql.append(" AND r.created_at >= ?");
             params.add(startDate);
@@ -238,6 +299,10 @@ public class RequestDAO extends DBContext {
         if (endDate != null && !endDate.isEmpty()) {
             sql.append(" AND r.created_at <= ?");
             params.add(endDate + " 23:59:59");
+        }
+        if (projectName != null && !projectName.isEmpty()) {
+            sql.append(" AND r.recipient_name LIKE ?");
+            params.add("%" + projectName + "%");
         }
 
         try (Connection conn = new DBContext().getConnection(); PreparedStatement st = conn.prepareStatement(sql.toString())) {
@@ -254,4 +319,168 @@ public class RequestDAO extends DBContext {
         }
         return 0;
     }
+
+    public boolean updateRequestStatusToPartialExport(int requestId, String note) throws SQLException {
+        String sql = "UPDATE requests SET director_note = ? WHERE request_id = ?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, note);
+            stmt.setInt(2, requestId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    public List<Request> getApprovedRequestsWithPendingExport(
+            String projectName,
+            Timestamp fromDate,
+            Timestamp toDate,
+            String sortBy,
+            String sortDir,
+            int page,
+            int pageSize
+    ) throws SQLException {
+        List<Request> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+                "SELECT DISTINCT r.*, u.full_name as creator_name "
+                + "FROM requests r "
+                + "JOIN users u ON r.user_id = u.user_id "
+                + "WHERE r.request_status = 'Đã duyệt' "
+                + "AND ( "
+                + "    NOT EXISTS (SELECT 1 FROM export_forms ef WHERE ef.request_id = r.request_id) "
+                + "    OR EXISTS ( "
+                + "        SELECT 1 "
+                + "        FROM request_details rd "
+                + "        LEFT JOIN ( "
+                + "            SELECT ef.request_id, em.material_id, SUM(em.quantity) as total_exported "
+                + "            FROM export_forms ef "
+                + "            JOIN export_materials em ON ef.export_id = em.export_id "
+                + "            GROUP BY ef.request_id, em.material_id "
+                + "        ) exported ON exported.request_id = rd.request_id AND exported.material_id = rd.material_id "
+                + "        WHERE rd.request_id = r.request_id "
+                + "        AND (rd.quantity > IFNULL(exported.total_exported, 0)) "
+                + "    ) "
+                + ") "
+        );
+
+        // Điều kiện tìm kiếm
+        List<Object> params = new ArrayList<>();
+        if (projectName != null && !projectName.trim().isEmpty()) {
+            sql.append(" AND r.recipient_name LIKE ? ");
+            params.add("%" + projectName.trim() + "%");
+        }
+        if (fromDate != null) {
+            sql.append(" AND r.created_at >= ? ");
+            params.add(fromDate);
+        }
+        if (toDate != null) {
+            sql.append(" AND r.created_at <= ? ");
+            params.add(toDate);
+        }
+
+        // Sắp xếp
+        String sortField = "created_at";
+        if ("request_id".equals(sortBy) || "recipient_name".equals(sortBy) || "created_at".equals(sortBy)) {
+            sortField = sortBy;
+        }
+        String sortOrder = "DESC";
+        if ("ASC".equalsIgnoreCase(sortDir)) {
+            sortOrder = "ASC";
+        }
+        sql.append(" ORDER BY r.").append(sortField).append(" ").append(sortOrder);
+
+        // Phân trang
+        sql.append(" LIMIT ? OFFSET ? ");
+        params.add(pageSize);
+        params.add((page - 1) * pageSize);
+
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            int idx = 1;
+            for (Object param : params) {
+                stmt.setObject(idx++, param);
+            }
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Request r = new Request();
+                r.setRequestId(rs.getInt("request_id"));
+                r.setReason(rs.getString("reason"));
+                r.setRequestStatus(rs.getString("request_status"));
+                r.setCreatedAt(rs.getTimestamp("created_at"));
+                r.setRecipientName(rs.getString("recipient_name"));
+                r.setDeliveryAddress(rs.getString("delivery_address"));
+                r.setCreatorName(rs.getString("creator_name"));
+                list.add(r);
+            }
+        }
+        return list;
+    }
+
+    public int countApprovedRequestsWithPendingExport(
+            String projectName,
+            Timestamp fromDate,
+            Timestamp toDate
+    ) throws SQLException {
+        StringBuilder sql = new StringBuilder(
+                "SELECT COUNT(DISTINCT r.request_id) "
+                + "FROM requests r "
+                + "JOIN users u ON r.user_id = u.user_id "
+                + "WHERE r.request_status = 'Đã duyệt' "
+                + "AND ( "
+                + "    NOT EXISTS (SELECT 1 FROM export_forms ef WHERE ef.request_id = r.request_id) "
+                + "    OR EXISTS ( "
+                + "        SELECT 1 "
+                + "        FROM request_details rd "
+                + "        LEFT JOIN ( "
+                + "            SELECT ef.request_id, em.material_id, SUM(em.quantity) as total_exported "
+                + "            FROM export_forms ef "
+                + "            JOIN export_materials em ON ef.export_id = em.export_id "
+                + "            GROUP BY ef.request_id, em.material_id "
+                + "        ) exported ON exported.request_id = rd.request_id AND exported.material_id = rd.material_id "
+                + "        WHERE rd.request_id = r.request_id "
+                + "        AND (rd.quantity > IFNULL(exported.total_exported, 0)) "
+                + "    ) "
+                + ") "
+        );
+
+        List<Object> params = new ArrayList<>();
+        if (projectName != null && !projectName.trim().isEmpty()) {
+            sql.append(" AND r.recipient_name LIKE ? ");
+            params.add("%" + projectName.trim() + "%");
+        }
+        if (fromDate != null) {
+            sql.append(" AND r.created_at >= ? ");
+            params.add(fromDate);
+        }
+        if (toDate != null) {
+            sql.append(" AND r.created_at <= ? ");
+            params.add(toDate);
+        }
+
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            int idx = 1;
+            for (Object param : params) {
+                stmt.setObject(idx++, param);
+            }
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
+    }
+
+    
+
+    // Đếm tổng số yêu cầu (tức là số lượng xuất kho)
+    public int countAllRequests() {
+        String sql = "SELECT COUNT(*) FROM requests";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
 }

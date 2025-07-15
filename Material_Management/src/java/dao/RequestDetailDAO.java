@@ -9,7 +9,7 @@ import java.util.List;
 public class RequestDetailDAO {
 
     public void addRequestDetail(RequestDetail detail) throws SQLException {
-        String sql = "INSERT INTO request_details (request_id, material_id, material_name, quantity, unit_name, material_condition, description) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO request_details (request_id, material_id, material_name, quantity, warehouse_unit_id, material_condition) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, detail.getRequestId());
             if (detail.getMaterialId() != null) {
@@ -19,16 +19,15 @@ public class RequestDetailDAO {
             }
             stmt.setString(3, detail.getMaterialName());
             stmt.setInt(4, detail.getQuantity());
-            stmt.setString(5, detail.getUnitName());
+            stmt.setInt(5, detail.getWarehouseUnitId());
             stmt.setString(6, detail.getMaterialCondition());
-            stmt.setString(7, detail.getDescription());
             stmt.executeUpdate();
         }
     }
 
     public List<RequestDetail> getRequestDetailsByRequestId(int requestId) throws SQLException {
         List<RequestDetail> details = new ArrayList<>();
-        String sql = "SELECT * FROM request_details WHERE request_id = ?";
+        String sql = "SELECT rd.*, u.unit_name FROM request_details rd JOIN units u ON rd.warehouse_unit_id = u.unit_id WHERE rd.request_id = ?";
 
         try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, requestId);
@@ -46,9 +45,9 @@ public class RequestDetailDAO {
                 }
                 detail.setMaterialName(rs.getString("material_name"));
                 detail.setQuantity(rs.getInt("quantity"));
-                detail.setUnitName(rs.getString("unit_name"));
+                detail.setWarehouseUnitId(rs.getInt("warehouse_unit_id"));
                 detail.setMaterialCondition(rs.getString("material_condition"));
-                detail.setDescription(rs.getString("description"));
+                detail.setUnitName(rs.getString("unit_name"));
                 details.add(detail);
             }
         }
