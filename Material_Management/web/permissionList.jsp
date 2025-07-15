@@ -8,8 +8,12 @@
         <title>Quản lý quyền hệ thống</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
         <link rel="stylesheet" href="css/permissionList.css">
+        <link rel="stylesheet" href="css/sidebar.css"/>
     </head>
     <body>
+        
+        <jsp:include page="sidebar.jsp" />
+        
         <div class="main-content">
             <div class="permission-list-container">
                 <div class="header-section">
@@ -17,11 +21,6 @@
                         <i class="fas fa-key"></i>
                         Quản lý quyền hệ thống
                     </h2>
-                    <div class="theme-toggle">
-                        <button id="themeToggle" aria-label="Toggle theme">
-                            <i class="fas fa-moon"></i>
-                        </button>
-                    </div>
                 </div>
                 <div style="overflow-x:auto;">
                     <table class="permission-table">
@@ -73,23 +72,6 @@
                 </div>
             </div>
         </div>
-        <script>
-            const themeToggle = document.getElementById('themeToggle');
-            if (themeToggle) {
-                themeToggle.addEventListener('click', function () {
-                    document.body.classList.toggle('dark-theme');
-                    const isDark = document.body.classList.contains('dark-theme');
-                    themeToggle.innerHTML = isDark
-                            ? '<i class="fas fa-sun"></i>'
-                            : '<i class="fas fa-moon"></i>';
-                    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-                });
 
-                if (localStorage.getItem('theme') === 'dark') {
-                    document.body.classList.add('dark-theme');
-                    themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
-                }
-            }
-        </script>
     </body>
 </html>
