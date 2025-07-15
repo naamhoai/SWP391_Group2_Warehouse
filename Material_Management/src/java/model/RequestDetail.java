@@ -7,19 +7,22 @@ public class RequestDetail {
     private Integer materialId; 
     private String materialName; 
     private int quantity;
+    private int warehouseUnitId;
     private String unitName;
     private String materialCondition;
     private String description;
+    private int categoryId;
 
-    public RequestDetail(int requestDetailId, int requestId, Integer materialId, String materialName, int quantity, String unitName, String materialCondition, String description) {
+    public RequestDetail(int requestDetailId, int requestId, Integer materialId, String materialName, int quantity, int warehouseUnitId, String materialCondition, String description, int categoryId) {
         this.requestDetailId = requestDetailId;
         this.requestId = requestId;
         this.materialId = materialId;
         this.materialName = materialName;
         this.quantity = quantity;
-        this.unitName = unitName;
+        this.warehouseUnitId = warehouseUnitId;
         this.materialCondition = materialCondition;
         this.description = description;
+        this.categoryId = categoryId;
     }
 
     // Constructors
@@ -75,6 +78,14 @@ public class RequestDetail {
         this.quantity = quantity;
     }
 
+    public int getWarehouseUnitId() {
+        return warehouseUnitId;
+    }
+
+    public void setWarehouseUnitId(int warehouseUnitId) {
+        this.warehouseUnitId = warehouseUnitId;
+    }
+
     public String getUnitName() {
         return unitName;
     }
@@ -98,5 +109,12 @@ public class RequestDetail {
     public void setDescription(String description) {
         this.description = description;
     }
-    
+
+    public int getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(int categoryId) {
+        this.categoryId = categoryId;
+    }
 }

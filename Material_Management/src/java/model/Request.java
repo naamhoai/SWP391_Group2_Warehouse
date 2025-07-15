@@ -5,9 +5,12 @@ import java.sql.Timestamp;
 public class Request {
 
     private int requestId;
-    private String requestType; 
     private int userId;
     private String reason;
+    private String recipientName;
+    private String deliveryAddress;
+    private String contactPerson;
+    private String contactPhone;
     private String requestStatus; 
     private Timestamp createdAt;
     private String directorNote;
@@ -17,11 +20,16 @@ public class Request {
     public Request() {
     }
 
-    public Request(int requestId, String requestType, int userId, String reason, String requestStatus, Timestamp createdAt, String directorNote, String creatorName, String creatorRole) {
+    public Request(int requestId, int userId, String reason, String recipientName, 
+                   String deliveryAddress, String contactPerson, String contactPhone, String requestStatus, 
+                   Timestamp createdAt, String directorNote, String creatorName, String creatorRole) {
         this.requestId = requestId;
-        this.requestType = requestType;
         this.userId = userId;
         this.reason = reason;
+        this.recipientName = recipientName;
+        this.deliveryAddress = deliveryAddress;
+        this.contactPerson = contactPerson;
+        this.contactPhone = contactPhone;
         this.requestStatus = requestStatus;
         this.createdAt = createdAt;
         this.directorNote = directorNote;
@@ -29,12 +37,16 @@ public class Request {
         this.creatorRole = creatorRole;
     }
 
-    
-    public Request(int requestId, String requestType, int userId, String reason, String requestStatus, Timestamp createdAt, String directorNote) {
+    public Request(int requestId, int userId, String reason, String recipientName, 
+                   String deliveryAddress, String contactPerson, String contactPhone, String requestStatus, 
+                   Timestamp createdAt, String directorNote) {
         this.requestId = requestId;
-        this.requestType = requestType;
         this.userId = userId;
         this.reason = reason;
+        this.recipientName = recipientName;
+        this.deliveryAddress = deliveryAddress;
+        this.contactPerson = contactPerson;
+        this.contactPhone = contactPhone;
         this.requestStatus = requestStatus;
         this.createdAt = createdAt;
         this.directorNote = directorNote;
@@ -46,14 +58,6 @@ public class Request {
 
     public void setRequestId(int requestId) {
         this.requestId = requestId;
-    }
-
-    public String getRequestType() {
-        return requestType;
-    }
-
-    public void setRequestType(String requestType) {
-        this.requestType = requestType;
     }
 
     public int getUserId() {
@@ -70,6 +74,38 @@ public class Request {
 
     public void setReason(String reason) {
         this.reason = reason;
+    }
+
+    public String getRecipientName() {
+        return recipientName;
+    }
+
+    public void setRecipientName(String recipientName) {
+        this.recipientName = recipientName;
+    }
+
+    public String getDeliveryAddress() {
+        return deliveryAddress;
+    }
+
+    public void setDeliveryAddress(String deliveryAddress) {
+        this.deliveryAddress = deliveryAddress;
+    }
+
+    public String getContactPerson() {
+        return contactPerson;
+    }
+
+    public void setContactPerson(String contactPerson) {
+        this.contactPerson = contactPerson;
+    }
+
+    public String getContactPhone() {
+        return contactPhone;
+    }
+
+    public void setContactPhone(String contactPhone) {
+        this.contactPhone = contactPhone;
     }
 
     public String getRequestStatus() {

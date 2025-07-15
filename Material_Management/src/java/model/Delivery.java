@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 public class Delivery {
 
     private int id;
-    private int purchaseOrderId; 
+    private int exportId; 
     private int userId; 
     private String recipientName;
     private String deliveryAddress; 
@@ -13,6 +13,8 @@ public class Delivery {
     private Timestamp deliveryDate; 
     private String description; 
     private String materialName; 
+    private String contactPerson; 
+    private String contactPhone;  
 
     // Getters and Setters
     public int getId() {
@@ -23,12 +25,12 @@ public class Delivery {
         this.id = id;
     }
 
-    public int getPurchaseOrderId() {
-        return purchaseOrderId;
+    public int getExportId() {
+        return exportId;
     }
 
-    public void setPurchaseOrderId(int purchaseOrderId) {
-        this.purchaseOrderId = purchaseOrderId;
+    public void setExportId(int exportId) {
+        this.exportId = exportId;
     }
 
     public int getUserId() {
@@ -85,5 +87,21 @@ public class Delivery {
 
     public void setMaterialName(String materialName) {
         this.materialName = materialName;
+    }
+
+    public String getContactPerson() { // Thêm getter
+        return contactPerson;
+    }
+
+    public void setContactPerson(String contactPerson) { // Thêm setter
+        this.contactPerson = contactPerson;
+    }
+
+    public String getContactPhone() { // Thêm getter
+        return contactPhone;
+    }
+
+    public void setContactPhone(String contactPhone) { // Thêm setter
+        this.contactPhone = contactPhone;
     }
 }
