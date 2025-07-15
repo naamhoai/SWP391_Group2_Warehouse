@@ -27,52 +27,8 @@
     </head>
     <body>
         <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-container" id="sidebarToggle">
-                    <i class="fas fa-bars menu-icon"></i>
-                    <span class="logo-text">Danh Mục</span>
-                </div>
-            </div>
-            <ul class="sidebar-menu">
-                <li class="menu-item">
-                    <a href="${pageContext.request.contextPath}/UserDetailServlet?userId=${sessionScope.userId}" class="menu-link">
-                        <i class="fas fa-tachometer-alt menu-icon"></i>
-                        <span class="menu-text">Thông tin người dùng</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="${pageContext.request.contextPath}/MaterialListServlet" class="menu-link">
-                        <i class="fas fa-clipboard-list menu-icon"></i>
-                        <span class="menu-text">Danh Sách Vật Tư</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="${pageContext.request.contextPath}/suppliers" class="menu-link">
-                        <i class="fas fa-shopping-cart menu-icon"></i>
-                        <span class="menu-text">Nhà Cung Cấp</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="${pageContext.request.contextPath}/createRequest" class="menu-link">
-                        <i class="fas fa-warehouse menu-icon"></i>
-                        <span class="menu-text">Tạo yêu cầu</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="${pageContext.request.contextPath}/RequestListServlet" class="menu-link">
-                        <i class="fas fa-truck menu-icon"></i>
-                        <span class="menu-text">Lịch sử yêu cầu</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="homepage.jsp" class="menu-link">
-                        <i class="fas fa-sign-out-alt menu-icon"></i>
-                        <span class="menu-text">Đăng Xuất</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
+        <%@include file="sidebar.jsp" %>
+        
         <!-- Main Content -->
         <div id="main-content">
             <!-- Header -->
