@@ -85,44 +85,17 @@
                     </c:if>
                 </div>
                 <div class="user-info">
-                    <div class="notification relative" id="notificationBell" style="cursor:pointer;">
-                        <i class="fas fa-bell text-gray-500 hover:text-primary-600 cursor-pointer text-xl"></i>
-                        <c:if test="${not empty notifications}">
-                            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                                ${fn:length(notifications)}
-                            </span>
-                        </c:if>
+                    <div class="notification" id="notificationBell" style="cursor:pointer;position:relative;">
+                        <i class="fas fa-bell" style="font-size:20px;color:#333;"></i>
+                        <span class="badge" style="display:none;position:absolute;top:-4px;right:-4px;background:red;color:white;border-radius:50%;padding:1px 5px;font-size:11px;"></span>
                         <div id="notificationDropdown" style="display:none;position:absolute;right:0;top:30px;z-index:1000;background:#fff;border:1px solid #ccc;width:350px;box-shadow:0 2px 5px rgba(0,0,0,0.1);border-radius:8px;">
-                            <div style="padding:15px;border-bottom:1px solid #eee;background:#f8f9fa;border-radius:8px 8px 0 0;">
-                                <h3 style="margin:0;font-size:16px;color:#333;font-weight:600;">Yêu cầu bị từ chối</h3>
-                            </div>
+                            <div style="padding:12px;border-bottom:1px solid #eee;background:#f8f9fa;font-weight:600;">Thông báo mới</div>
                             <div style="max-height:400px;overflow-y:auto;">
-                                <ul style="list-style:none;padding:0;margin:0;">
-                                    <c:if test="${empty notifications}">
-                                        <li style="padding:15px;color:#666;text-align:center;">
-                                            <i class="fas fa-check-circle" style="font-size:24px;color:#28a745;margin-bottom:8px;"></i>
-                                            <p style="margin:0;">Không có yêu cầu nào bị từ chối</p>
-                                        </li>
-                                    </c:if>
-                                    <c:forEach var="noti" items="${notifications}">
-                                        <li style="padding:15px;border-bottom:1px solid #eee;transition:all 0.3s ease;cursor:pointer;"
-                                            onclick="window.location.href = 'editRequest?requestId=${noti.requestId}'">
-                                            <div style="margin-bottom:8px;">
-                                                <div style="display:flex;align-items:center;margin-bottom:5px;">
-                                                    <i class="fas fa-times-circle" style="color:#dc3545;margin-right:8px;"></i>
-                                                    <span style="flex:1;font-weight:600;color:#000;">${noti.message}</span>
-                                                </div>
-                                                <div style="font-size:12px;color:#000;font-weight:500;">
-                                                    <i class="far fa-clock" style="margin-right:4px;"></i>
-                                                    ${noti.createdAt}
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </c:forEach>
-                                </ul>
+                                <ul style="list-style:none;padding:0;margin:0;"></ul>
                             </div>
                         </div>
                     </div>
+
                     <div class="user-avatar">
                         ${sessionScope.Admin.fullname != null ? sessionScope.Admin.fullname.charAt(0) : 'N'}
                     </div>
@@ -352,16 +325,79 @@ var categoryLabels = [<c:forEach var="item" items="${categoryStats}" varStatus="
         </script>
         --%>
         <script>
-            document.getElementById("notificationBell").addEventListener("click", function (e) {
-                e.stopPropagation();
-                const dropdown = document.getElementById("notificationDropdown");
-                dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
-            });
+            const contextPath = "${pageContext.request.contextPath}";
 
-            document.addEventListener("click", function () {
-                const dropdown = document.getElementById("notificationDropdown");
-                if (dropdown)
-                    dropdown.style.display = "none";
+            document.addEventListener('DOMContentLoaded', () => {
+                const bell = document.getElementById('notificationBell');
+                const dropdown = document.getElementById('notificationDropdown');
+                const ul = dropdown?.querySelector('ul');
+                const badge = document.querySelector('.badge');
+
+                bell?.addEventListener('click', e => {
+                    e.stopPropagation();
+                    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                });
+
+                document.addEventListener('click', () => dropdown.style.display = 'none');
+                dropdown?.addEventListener('click', e => e.stopPropagation());
+
+                function updateNotifications() {
+                    fetch('getNotifications')
+                            .then(res => res.json())
+                            .then(data => {
+                                data.sort((a, b) => {
+                                    if (a.read !== b.read)
+                                        return a.read ? 1 : -1;
+                                    return new Date(b.createdAt) - new Date(a.createdAt);
+                                });
+                                badge.style.display = data.length ? 'block' : 'none';
+                                badge.textContent = data.length || '';
+                                ul.innerHTML = data.length ? '' : '<li style="padding:8px;color:#666;">Không có thông báo</li>';
+
+                                data.forEach(n => {
+                                    const li = document.createElement('li');
+                                    li.style = `padding:8px 0;border-bottom:1px solid #eee;${n.read ? 'opacity:0.7;' : ''}`;
+
+                                    const a = document.createElement('a');
+                                    const isRejected = n.message && n.message.includes('bị từ chối');
+                                    const linkUrl = isRejected ? 'editRequest?requestId=' + n.requestId : n.link;
+                                    a.href = linkUrl || "#";
+                                    a.style = 'color:#007bff;text-decoration:none;display:block;';
+                                    a.onclick = e => {
+                                        e.preventDefault();
+                                        fetch(`markNotificationRead?notificationId=${n.id}&requestId=${n.requestId}`)
+                                                .then(() => location.href = a.href);
+                                    };
+
+                                    const message = document.createElement('div');
+                                    message.textContent = n.message;
+                                    message.style = 'font-weight:500;margin-bottom:4px';
+
+                                    const bottom = document.createElement('div');
+                                    bottom.style = 'display:flex;justify-content:space-between;align-items:center';
+
+                                    const time = document.createElement('span');
+                                    time.textContent = (n.createdAt && n.createdAt !== "0") ? n.createdAt : "";
+                                    time.style = 'font-size:12px;color:gray';
+
+                                    if (!n.read) {
+                                        const newBadge = document.createElement('span');
+                                        newBadge.textContent = 'Mới';
+                                        newBadge.style = 'background:#007bff;color:white;padding:2px 6px;border-radius:10px;font-size:10px;';
+                                        bottom.appendChild(newBadge);
+                                    }
+
+                                    bottom.appendChild(time);
+                                    a.append(message, bottom);
+                                    li.appendChild(a);
+                                    ul.appendChild(li);
+                                });
+                            })
+                            .catch(err => console.error("Lỗi khi cập nhật thông báo:", err));
+                }
+
+                updateNotifications();
+                setInterval(updateNotifications, 5000);
             });
         </script>
 

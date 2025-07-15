@@ -38,7 +38,7 @@
                     <h1>Bảng Điều Khiển</h1>
                 </div>
                 <div class="date-filter">
-                    <form action="dashboard" method="get" class="filter-form">
+                    <form action="adminDashboard" method="get" class="filter-form">
                         <button type="submit" name="timeFilter" value="today" 
                                 class="filter-btn ${timeFilter == 'today' ? 'active' : ''}">Hôm Nay</button>
                         <button type="submit" name="timeFilter" value="week" 
@@ -53,6 +53,8 @@
 
             <!-- Stats Grid -->
             <div class="stats-grid">
+                <!-- Tổng Vật Tư clickable -->
+                <a href="materialDetailList.jsp" class="stat-card-link">
                 <div class="stat-card">
                     <div class="stat-icon" style="background-color: #6dbdf2;">
                         <i class="fas fa-box"></i>
@@ -65,26 +67,9 @@
                         </p>
                     </div>
                 </div>
+                </a>
 
-                <div class="stat-card">
-                    <div class="stat-icon" style="background-color: #2ecc71;">
-                        <i class="fas fa-shopping-cart"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>Yêu Cầu</h3>
-                        <p class="stat-number">${monthlyOrders}</p>
-                        <p class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i> 
-                            <c:choose>
-                                <c:when test="${timeFilter == 'today'}">Hôm Nay</c:when>
-                                <c:when test="${timeFilter == 'week'}">Tuần Này</c:when>
-                                <c:when test="${timeFilter == 'year'}">Năm Nay</c:when>
-                                <c:otherwise>Tháng Này</c:otherwise>
-                            </c:choose>
-                        </p>
-                    </div>
-                </div>
-
+                
                 <div class="stat-card">
                     <div class="stat-icon" style="background-color: #e74c3c;">
                         <i class="fas fa-exclamation-triangle"></i>
@@ -110,53 +95,109 @@
                         </p>
                     </div>
                 </div>
+                <!-- Tổng Giá Trị Tồn Kho -->
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #8e44ad;">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Tổng Giá Trị Tồn Kho</h3>
+                        <p class="stat-number">
+                            <fmt:formatNumber value="${totalInventoryValue}" type="currency" currencySymbol="₫"/>
+                        </p>
+                        <p class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i> Đã Cập Nhật
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <!-- Charts Grid -->
             <div class="charts-grid">
-                <div class="chart-card">
-                    <h3>Phân Bổ Yêu Cầu</h3>
-                    <canvas id="requestDistributionChart"></canvas>
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <h3>Phân Bổ Yêu Cầu</h3>
+                        <canvas id="requestDistributionChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Xu Hướng Tồn Kho</h3>
+                        <canvas id="inventoryTrendChart"></canvas>
+                    </div>
                 </div>
-                <div class="chart-card">
-                    <h3>Xu Hướng Chi Phí</h3>
-                    <canvas id="costTrendChart"></canvas>
-                </div>
-                <div class="chart-card">
-                    <h3>Phân Bổ Vật Tư Theo Danh Mục</h3>
-                    <canvas id="materialCategoryChart"></canvas>
-                </div>
-                <div class="chart-card">
-                    <h3>Xu Hướng Tồn Kho</h3>
-                    <canvas id="inventoryTrendChart"></canvas>
-                </div>
-                <div class="calendar-card">
-                    <h3>Lịch</h3>
-                    <div class="calendar-container">
-                        <div class="calendar-header">
-                            <span class="month-year">
-                                <span class="month" id="currentMonth"></span>
-                                <span class="year" id="currentYear"></span>
-                            </span>
-                        </div>
-                        <table class="calendar-table" id="calendarTable">
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <h3>Top 5 Vật Tư Xuất Nhiều Nhất</h3>
+                        <table>
                             <thead>
                                 <tr>
-                                    <th>CN</th>
-                                    <th>T2</th>
-                                    <th>T3</th>
-                                    <th>T4</th>
-                                    <th>T5</th>
-                                    <th>T6</th>
-                                    <th>T7</th>
+                                    <th>Vật Tư</th>
+                                    <th>Số Lượng Xuất</th>
                                 </tr>
                             </thead>
                             <tbody>
+                                <c:forEach var="item" items="${topExportedItems}">
+                                    <tr>
+                                        <td>${item.materialName}</td>
+                                        <td>${item.quantity}</td>
+                                    </tr>
+                                </c:forEach>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Top 5 Vật Tư Nhập Nhiều Nhất</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Vật Tư</th>
+                                    <th>Số Lượng Nhập</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <c:forEach var="item" items="${topImportedItems}">
+                                    <tr>
+                                        <td>${item.materialName}</td>
+                                        <td>${item.quantity}</td>
+                                    </tr>
+                                </c:forEach>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
+            <style>
+                .charts-grid {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 24px;
+                }
+                .charts-row {
+                    display: flex;
+                    flex-direction: row;
+                    gap: 24px;
+                }
+                .chart-card {
+                    flex: 1;
+                    background: #fff;
+                    border-radius: 16px;
+                    padding: 24px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+                    min-width: 0;
+                }
+                .stat-card-link {
+                    text-decoration: none;
+                    color: inherit;
+                    display: block;
+                }
+                .stat-card-link .stat-card {
+                    transition: box-shadow 0.2s, transform 0.2s;
+                    cursor: pointer;
+                }
+                .stat-card-link .stat-card:hover {
+                    box-shadow: 0 4px 16px rgba(53,120,229,0.10);
+                    transform: translateY(-2px) scale(1.02);
+                }
+            </style>
 
             <!-- Low Stock Items Table -->
             <div class="table-card">
@@ -225,19 +266,87 @@
 
         <!-- Chart Data -->
         <script>
-            var requestLabels = ["Mua Vật Tư", "Xuất Kho", "Sửa Chữa"];
+            var requestLabels = ["Mua Vật Tư", "Xuất Kho"];
             var requestData = [<c:out value="${requestStats.purchaseCount}" default="0"/>,
-            <c:out value="${requestStats.outgoingCount}" default="0"/>,
-            <c:out value="${requestStats.repairCount}" default="0"/>];
+            <c:out value="${requestStats.outgoingCount}" default="0"/>];
             var costLabels = ["01/06", "04/06", "08/06", "12/06"];
             var costData = [<c:out value="${costTrend[0]}" default="0"/>,
             <c:out value="${costTrend[1]}" default="0"/>,
             <c:out value="${costTrend[2]}" default="0"/>,
             <c:out value="${costTrend[3]}" default="0"/>];
-                    var categoryLabels = [<c:forEach var="item" items="${categoryStats}" varStatus="loop">"${item.categoryName}"<c:if test="${!loop.last}">,</c:if></c:forEach>];
+            var categoryLabels = [<c:forEach var="item" items="${categoryStats}" varStatus="loop">"${item.categoryName}"<c:if test="${!loop.last}">,</c:if></c:forEach>];
             var categoryData = [<c:forEach var="item" items="${categoryStats}" varStatus="loop">${item.itemCount}<c:if test="${!loop.last}">,</c:if></c:forEach>];
-                    var inventoryTrendLabels = [<c:forEach var="label" items="${inventoryTrendLabels}" varStatus="loop">"${label}"<c:if test="${!loop.last}">,</c:if></c:forEach>];
+            var inventoryTrendLabels = [<c:forEach var="label" items="${inventoryTrendLabels}" varStatus="loop">"${label}"<c:if test="${!loop.last}">,</c:if></c:forEach>];
             var inventoryTrendData = [<c:forEach var="value" items="${inventoryTrend}" varStatus="loop">${value}<c:if test="${!loop.last}">,</c:if></c:forEach>];
+
+            // Vẽ biểu đồ phân bổ yêu cầu
+            var ctx = document.getElementById('requestDistributionChart').getContext('2d');
+            var requestDistributionChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: requestLabels,
+                    datasets: [{
+                        label: 'Phân bổ Yêu Cầu',
+                        data: requestData,
+                        backgroundColor: [
+                            '#3578e5', // Mua Vật Tư
+                            '#2ecc71'  // Xuất Kho
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Số lượng'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Vẽ biểu đồ xu hướng tồn kho
+            var ctxInventory = document.getElementById('inventoryTrendChart').getContext('2d');
+            var inventoryTrendChart = new Chart(ctxInventory, {
+                type: 'line',
+                data: {
+                    labels: inventoryTrendLabels,
+                    datasets: [{
+                        label: 'Tổng tồn kho',
+                        data: inventoryTrendData,
+                        borderColor: '#3578e5',
+                        backgroundColor: 'rgba(53,120,229,0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Số lượng tồn kho'
+                            }
+                        }
+                    }
+                }
+            });
         </script>
 
         <script src="js/adminDashboard.js"></script>
