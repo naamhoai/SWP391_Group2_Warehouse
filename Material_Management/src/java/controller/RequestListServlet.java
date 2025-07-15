@@ -2,14 +2,18 @@ package controller;
 
 import dao.RequestDAO;
 import dao.UserDAO;
+import dao.RequestHistoryDAO;
 import model.Request;
 import model.User;
+import model.RequestHistory;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @WebServlet(name = "RequestListServlet", urlPatterns = {"/RequestListServlet"})
 public class RequestListServlet extends HttpServlet {
@@ -44,14 +48,11 @@ public class RequestListServlet extends HttpServlet {
         }
 
         String status = request.getParameter("status");
-        String requestType = request.getParameter("requestType");
         String startDate = request.getParameter("startDate");
         String endDate = request.getParameter("endDate");
-        String sort = request.getParameter("sort") != null ? request.getParameter("sort") : "desc";
+        String sort = request.getParameter("sort") != null ? request.getParameter("sort") : "asc";
+        String projectName = request.getParameter("projectName");
 
-        if (status != null && !status.isEmpty() && !isValidStatus(status)) {
-            status = null;
-        }
         if (startDate != null && !startDate.isEmpty() && !isValidDate(startDate)) {
             startDate = null;
         }
@@ -61,13 +62,20 @@ public class RequestListServlet extends HttpServlet {
 
         try {
             Integer filterUserId = (roleId <= 2) ? null : userId;
-
+            String sortBy = request.getParameter("sortBy");
+            String order = request.getParameter("order");
+            if (sortBy == null) {
+                sortBy = "id";
+            }
+            if (order == null) {
+                order = "asc";
+            }
             List<Request> requests = requestDAO.getFilteredRequests(
-                filterUserId, status, requestType, startDate, endDate, sort, page, pageSize
+                    userId, status, startDate, endDate, projectName, sortBy, order, page, pageSize
             );
 
             int totalRequests = requestDAO.countFilteredRequests(
-                filterUserId, status, requestType, startDate, endDate
+                    filterUserId, status, startDate, endDate, projectName
             );
 
             int totalPages = (int) Math.ceil((double) totalRequests / pageSize);
@@ -75,6 +83,14 @@ public class RequestListServlet extends HttpServlet {
             request.setAttribute("requests", requests);
             request.setAttribute("currentPage", page);
             request.setAttribute("totalPages", totalPages);
+
+            RequestHistoryDAO historyDAO = new RequestHistoryDAO();
+            Map<Integer, List<RequestHistory>> requestHistoryMap = new HashMap<>();
+            for (Request r : requests) {
+                List<RequestHistory> historyList = historyDAO.getRequestHistoryByRequestId(r.getRequestId());
+                requestHistoryMap.put(r.getRequestId(), historyList);
+            }
+            request.setAttribute("requestHistoryMap", requestHistoryMap);
 
             request.getRequestDispatcher("requestList.jsp").forward(request, response);
 
@@ -94,11 +110,6 @@ public class RequestListServlet extends HttpServlet {
     @Override
     public String getServletInfo() {
         return "Request List Servlet";
-    }
-
-    private boolean isValidStatus(String status) {
-        List<String> validStatuses = List.of("Pending", "Approved", "Rejected");
-        return validStatuses.contains(status);
     }
 
     private boolean isValidDate(String dateStr) {
