@@ -10,7 +10,9 @@ public class UserPermissionDAO {
         Map<String, Boolean> rolePermissions = new LinkedHashMap<>();
 
         List<String> allPermissionNames = new ArrayList<>();
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement("SELECT permission_name FROM permissions ORDER BY permission_name"); ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = new DBContext().getConnection(); 
+                PreparedStatement stmt = conn.prepareStatement("SELECT permission_name FROM permissions ORDER BY permission_name"); 
+                ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 allPermissionNames.add(rs.getString("permission_name"));
             }

@@ -44,7 +44,7 @@
                         <input type="button" class="back-btn" value="Quay lại danh sách quyền"
                                onclick="window.location.href = 'permissionList'" />
                         <input type="button" class="back-btn" value="Xem lịch sử"
-                               onclick="window.location.href = 'permissionLogs?roleId=${role.roleid}'" />
+                               onclick="window.location.href = 'permissionLogs?role=${role.roleid}'" />
                     </div>
                 </form>
             </div>

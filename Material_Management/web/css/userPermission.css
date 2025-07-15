@@ -1,9 +1,8 @@
-
 *{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Roboto', sans-serif;;
 }
 
 body {
@@ -19,7 +18,6 @@ body.dark-mode {
     color: #f1f5f9;
 }
 
-/* Main container */
 .main-content {
     display: flex;
     justify-content: center;
@@ -34,7 +32,6 @@ body.dark-mode {
     background-color: #1e293b;
 }
 
-/* Permission container */
 .permission-container {
     max-width: 1000px;
     width: 100%;
@@ -80,7 +77,6 @@ body.dark-mode {
     color: #f1f5f9;
 }
 
-/* Theme toggle and buttons */
 .theme-toggle {
     display: flex;
     align-items: center;
@@ -138,7 +134,6 @@ body.dark-mode {
     background-color: #94a3b8;
 }
 
-/* User info card */
 .user-info-card {
     margin-bottom: 25px;
     padding: 20px;
@@ -197,7 +192,6 @@ gap: 8px;
     border-left-color: #93c5fd;
 }
 
-/* Permission grid */
 .permission-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -277,7 +271,6 @@ gap: 8px;
     color: #f1f5f9;
 }
 
-/* Table styling */
 table {
     width: 100%;
     border-collapse: separate;
@@ -307,14 +300,12 @@ tr:hover {
     transition: background 0.2s;
 }
 
-/* Checkbox centering */
 td input[type="checkbox"] {
     transform: scale(1.2);
     accent-color: #3b82f6;
     cursor: pointer;
 }
 
-/* Error message styling */
 .error {
     color: #ef4444;
     background: #fee2e2;
@@ -326,7 +317,6 @@ td input[type="checkbox"] {
     font-size: 15px;
 }
 
-/* Form actions styling */
 .form-actions {
     display: flex;
     gap: 14px;
@@ -361,7 +351,6 @@ td input[type="checkbox"] {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Loading overlay */
 .loading {
     position: fixed;
     top: 0;
@@ -393,7 +382,6 @@ td input[type="checkbox"] {
     color: #f1f5f9;
 }
 
-/* Responsive design */
 @media screen and (max-width: 1024px) {
     .main-content {
         margin-left: 0;
