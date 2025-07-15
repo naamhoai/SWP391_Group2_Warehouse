@@ -2,10 +2,19 @@ package controller;
 
 import dao.NotificationDAO;
 import dao.RequestDAO;
+import dao.RequestHistoryDAO;
+import dao.RequestDetailDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import model.RequestHistory;
+import model.RequestDetail;
+import model.RequestHistoryDetail;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @WebServlet(name = "ApproveOrRejectRequestServlet", urlPatterns = {"/approveOrRejectRequest"})
 public class ApproveOrRejectRequestServlet extends HttpServlet {
@@ -49,40 +58,94 @@ public class ApproveOrRejectRequestServlet extends HttpServlet {
                 return;
             }
 
-            if (!directorNote.matches("^[a-zA-Z0-9À-ỹ\\s\\-_\\(\\)\\.,!?;:]+$")) {
-                request.setAttribute("error", "Lý do chứa ký tự không hợp lệ. Chỉ cho phép chữ cái, số, khoảng trắng, dấu câu và một số ký tự đặc biệt.");
-                request.getRequestDispatcher("viewRequestDetail.jsp?requestId=" + requestId).forward(request, response);
-                return;
-            }
-
             RequestDAO requestDAO = new RequestDAO();
             NotificationDAO notificationDAO = new NotificationDAO();
 
             if ("approve".equals(action)) {
-                requestDAO.updateStatusAndNote(requestId, "Approved", directorNote);
+                requestDAO.updateStatusAndNote(requestId, "Đã duyệt", directorNote);
                 int warehouseStaffId = requestDAO.getWarehouseStaffId();
                 if (warehouseStaffId != -1) {
                     notificationDAO.addNotification(
                             warehouseStaffId,
-                            "Yêu cầu vật tư #" + requestId + " đã được phê duyệt. Vui lòng tiến hành nhập hàng.",
+                            "Yêu cầu vật tư #" + requestId + " đã được phê duyệt. Vui lòng tiến hành xuất kho.",
                             requestId
                     );
                 }
+
+                int directorId = (Integer) request.getSession().getAttribute("userId");
+                RequestHistoryDAO historyDAO = new RequestHistoryDAO();
+                String lastEmployeeReason = historyDAO.getLastEmployeeChangeReason(requestId, 2);
+                RequestHistory history = new RequestHistory();
+                history.setRequestId(requestId);
+                history.setChangedBy(directorId);
+                history.setOldStatus("Chờ duyệt");
+                history.setNewStatus("Đã duyệt");
+                history.setAction("Duyệt yêu cầu");
+                history.setChangeReason(lastEmployeeReason);
+                history.setDirectorNote(directorNote);
+
+                RequestDetailDAO detailDAO = new RequestDetailDAO();
+                List<RequestDetail> requestDetails = detailDAO.getRequestDetailsByRequestId(requestId);
+                List<RequestHistoryDetail> historyDetails = requestDetails.stream().map(d -> {
+                    RequestHistoryDetail hd = new RequestHistoryDetail();
+                    hd.setMaterialId(d.getMaterialId() != null ? d.getMaterialId() : 0);
+                    hd.setMaterialName(d.getMaterialName());
+                    hd.setQuantity(d.getQuantity());
+                    hd.setWarehouseUnitId(d.getWarehouseUnitId());
+                    hd.setMaterialCondition(d.getMaterialCondition());
+                    return hd;
+                }).collect(Collectors.toList());
+                history.setHistoryDetails(historyDetails);
+                historyDAO.addRequestHistory(history);
+
+                String successMsg = "Yêu cầu đã được duyệt thành công!";
+                String encodedMsg = URLEncoder.encode(successMsg, StandardCharsets.UTF_8.toString());
+                response.sendRedirect(request.getContextPath() + "/viewRequestDetail?requestId=" + requestId + "&success=" + encodedMsg);
+                return;
+
             } else if ("reject".equals(action)) {
-                requestDAO.updateStatusAndNote(requestId, "Rejected", directorNote);
+                requestDAO.updateStatusAndNote(requestId, "Từ chối", directorNote);
                 int staffUserId = requestDAO.getRequestCreatorId(requestId);
                 notificationDAO.addNotification(
                         staffUserId,
                         "Yêu cầu vật tư #" + requestId + " đã bị từ chối. Lý do: " + directorNote + " Vui lòng chỉnh sửa và gửi lại.",
                         requestId
                 );
+
+                int directorId = (Integer) request.getSession().getAttribute("userId");
+                RequestHistoryDAO historyDAO = new RequestHistoryDAO();
+                String lastEmployeeReason = historyDAO.getLastEmployeeChangeReason(requestId, 2);
+                RequestHistory history = new RequestHistory();
+                history.setRequestId(requestId);
+                history.setChangedBy(directorId);
+                history.setOldStatus("Chờ duyệt");
+                history.setNewStatus("Từ chối");
+                history.setAction("Từ chối yêu cầu");
+                history.setChangeReason(lastEmployeeReason);
+                history.setDirectorNote(directorNote);
+                RequestDetailDAO detailDAO = new RequestDetailDAO();
+                List<RequestDetail> requestDetails = detailDAO.getRequestDetailsByRequestId(requestId);
+                List<RequestHistoryDetail> historyDetails = requestDetails.stream().map(d -> {
+                    RequestHistoryDetail hd = new RequestHistoryDetail();
+                    hd.setMaterialId(d.getMaterialId() != null ? d.getMaterialId() : 0);
+                    hd.setMaterialName(d.getMaterialName());
+                    hd.setQuantity(d.getQuantity());
+                    hd.setWarehouseUnitId(d.getWarehouseUnitId());
+                    hd.setMaterialCondition(d.getMaterialCondition());
+                    return hd;
+                }).collect(Collectors.toList());
+                history.setHistoryDetails(historyDetails);
+                historyDAO.addRequestHistory(history);
+                String rejectMsg = "Yêu cầu đã bị từ chối thành công!";
+                String encodedRejectMsg = URLEncoder.encode(rejectMsg, StandardCharsets.UTF_8.toString());
+                response.sendRedirect(request.getContextPath() + "/viewRequestDetail?requestId=" + requestId + "&success=" + encodedRejectMsg);
+                return;
             } else {
                 request.setAttribute("error", "Hành động không hợp lệ.");
                 request.getRequestDispatcher("viewRequestDetail.jsp?requestId=" + requestId).forward(request, response);
                 return;
             }
 
-            response.sendRedirect(request.getContextPath() + "/director");
         } catch (Exception e) {
             e.printStackTrace();
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,

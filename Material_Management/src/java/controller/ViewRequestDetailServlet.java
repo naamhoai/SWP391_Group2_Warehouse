@@ -26,12 +26,11 @@ public class ViewRequestDetailServlet extends HttpServlet {
             RequestDAO requestDAO = new RequestDAO();
             RequestDetailDAO detailDAO = new RequestDetailDAO();
             CategoryDAO categoryDAO = new CategoryDAO();
-            UserDAO userDAO = new UserDAO(); // Thêm dòng này
+            UserDAO userDAO = new UserDAO();
 
             Request req = requestDAO.getRequestById(requestId);
             List<RequestDetail> details = detailDAO.getRequestDetailsByRequestId(requestId);
 
-            // Lấy tên người yêu cầu
             String requesterName = "";
             if (req != null) {
                 User user = userDAO.getUserById(req.getUserId());
@@ -40,7 +39,7 @@ public class ViewRequestDetailServlet extends HttpServlet {
 
             request.setAttribute("request", req);
             request.setAttribute("details", details);
-            request.setAttribute("requesterName", requesterName); // Thêm dòng này
+            request.setAttribute("requesterName", requesterName);
             request.getRequestDispatcher("viewRequestDetail.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
