@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-@WebServlet(name = "PermissionLogsServlet", urlPatterns = {"/permissionlogs"})
+@WebServlet(name = "PermissionLogsServlet", urlPatterns = {"/permissionLogs"})
 public class PermissionLogsServlet extends HttpServlet {
 
     @Override
@@ -24,22 +24,57 @@ public class PermissionLogsServlet extends HttpServlet {
         UserDAO userDAO = new UserDAO();
 
         try {
-            String roleIdStr = request.getParameter("roleId");
-
-            if (roleIdStr != null && !roleIdStr.trim().isEmpty()) {
-                int roleId = Integer.parseInt(roleIdStr);
-                Role role = userDAO.getRoleById(roleId);
-                if (role == null) {
-                    request.setAttribute("error", "Role not found");
-                } else {
-                    request.setAttribute("role", role); // nếu bạn vẫn muốn show thông tin role
+            String roleParam = request.getParameter("role");
+            String pageParam = request.getParameter("page");
+            int pageSize = 10;
+            int currentPage = 1;
+            if (pageParam != null) {
+                try {
+                    currentPage = Integer.parseInt(pageParam);
+                } catch (NumberFormatException e) {
+                    currentPage = 1;
                 }
-                List<Map<String, Object>> logs = permissionLogDAO.getPermissionLogsByRole(roleId);
-                request.setAttribute("logs", logs);
-            } else {
-                List<Map<String, Object>> logs = permissionLogDAO.getAllPermissionLogs();
-                request.setAttribute("logs", logs);
             }
+
+            List<Map<String, Object>> logs;
+            int totalLogs = 0;
+            int totalPages = 1;
+
+            if (roleParam == null || roleParam.isEmpty()) {
+                logs = null;
+            } else {
+                if ("all".equals(roleParam)) {
+                    List<Map<String, Object>> allLogs = permissionLogDAO.getAllPermissionLogs();
+                    totalLogs = allLogs.size();
+                    totalPages = (int) Math.ceil((double) totalLogs / pageSize);
+                    int fromIndex = (currentPage - 1) * pageSize;
+                    int toIndex = Math.min(fromIndex + pageSize, totalLogs);
+                    if (fromIndex < totalLogs) {
+                        logs = allLogs.subList(fromIndex, toIndex);
+                    } else {
+                        logs = java.util.Collections.emptyList();
+                    }
+                } else {
+                    int roleId = Integer.parseInt(roleParam);
+                    List<Map<String, Object>> roleLogs = permissionLogDAO.getPermissionLogsByRole(roleId);
+                    totalLogs = roleLogs.size();
+                    totalPages = (int) Math.ceil((double) totalLogs / pageSize);
+                    int fromIndex = (currentPage - 1) * pageSize;
+                    int toIndex = Math.min(fromIndex + pageSize, totalLogs);
+                    if (fromIndex < totalLogs) {
+                        logs = roleLogs.subList(fromIndex, toIndex);
+                    } else {
+                        logs = java.util.Collections.emptyList();
+                    }
+                }
+            }
+
+            request.setAttribute("logs", logs);
+            request.setAttribute("currentPage", currentPage);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("param", new Object() {
+                public String role = roleParam;
+            });
 
         } catch (SQLException e) {
             e.printStackTrace();

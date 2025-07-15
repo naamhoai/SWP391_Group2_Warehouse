@@ -1,6 +1,6 @@
 body {
     background-color: #f1f5f9;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Roboto', sans-serif;
     color: #1e293b;
     margin: 0;
     padding: 0;
@@ -142,7 +142,6 @@ body {
     background: #4b5563;
 }
 
-/* Dark theme */
 body.dark-theme {
     background: #0f172a;
     color: #f1f5f9;
