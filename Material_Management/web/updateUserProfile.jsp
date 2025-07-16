@@ -8,7 +8,7 @@
         <title>Chỉnh sửa thông tin cá nhân</title>
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/updateUserProfile.css" />
+        <link rel="stylesheet" href="css/updateUserProfile.css" />
         <link rel="stylesheet" href="css/footer.css">
         <link rel="stylesheet" href="css/sidebar.css">
         <!-- Font Awesome -->
@@ -16,60 +16,7 @@
     </head>
     <body>
         <div class="layout">
-            <c:choose>
-                <c:when test="${sessionScope.roleId == 1}">
-                    <jsp:include page="sidebar.jsp" />
-                </c:when>
-                <c:when test="${sessionScope.roleId == 4}">
-                    <div class="sidebar">
-                        <div class="sidebar-header">
-                            <div class="logo-container" id="sidebarToggle">
-                                <i class="fas fa-bars menu-icon"></i>
-                                <span class="logo-text">Danh Mục</span>
-                            </div>
-                        </div>
-                        <ul class="sidebar-menu">
-                            <li class="menu-item">
-                                <a href="${pageContext.request.contextPath}/UserDetailServlet?userId=${sessionScope.userId}" class="menu-link">
-                                    <i class="fas fa-tachometer-alt menu-icon"></i>
-                                    <span class="menu-text">Thông tin người dùng</span>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="${pageContext.request.contextPath}/MaterialListServlet" class="menu-link">
-                                    <i class="fas fa-clipboard-list menu-icon"></i>
-                                    <span class="menu-text">Danh Sách Vật Tư</span>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="${pageContext.request.contextPath}/suppliers" class="menu-link">
-                                    <i class="fas fa-shopping-cart menu-icon"></i>
-                                    <span class="menu-text">Nhà Cung Cấp</span>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="${pageContext.request.contextPath}/createRequest" class="menu-link">
-                                    <i class="fas fa-warehouse menu-icon"></i>
-                                    <span class="menu-text">Tạo yêu cầu</span>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="${pageContext.request.contextPath}/RequestListServlet" class="menu-link">
-                                    <i class="fas fa-truck menu-icon"></i>
-                                    <span class="menu-text">Lịch sử yêu cầu</span>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="homepage.jsp" class="menu-link">
-                                    <i class="fas fa-sign-out-alt menu-icon"></i>
-                                    <span class="menu-text">Đăng Xuất</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </c:when>
-                
-            </c:choose>
+            <jsp:include page="sidebar.jsp" />
             <div class="user-center-wrapper">
                 <div class="main-content" id="main-content">
                     <div class="form-wrapper">
@@ -92,7 +39,7 @@
                                             <img id="avatarPreview" src="${pageContext.request.contextPath}${user.image}?v=<%= System.currentTimeMillis() %>" alt="Avatar" />
                                         </c:when>
                                         <c:otherwise>
-                                            <img id="avatarPreview" src="${pageContext.request.contextPath}/image/boy.png?v=<%= System.currentTimeMillis() %>" alt="Avatar" />
+                                            <img id="avatarPreview" src="${pageContext.request.contextPath}/image/gender.png?v=<%= System.currentTimeMillis() %>" alt="Avatar" />
                                         </c:otherwise>
                                     </c:choose>
                                     <label for="imageFile" class="custom-file-label"><i class="fas fa-upload"></i> Chọn ảnh đại diện</label>
