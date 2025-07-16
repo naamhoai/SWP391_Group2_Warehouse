@@ -24,14 +24,12 @@
                         <tr>
                             <th>STT</th>
                             <th>Tên quyền</th>
-                            <th>Mô tả</th>
                             <th>Đã cấp</th>
                         </tr>
                         <c:forEach var="perm" items="${permissions}" varStatus="loop">
                             <tr>
                                 <td>${loop.index + 1}</td>
                                 <td>${perm.permissionName}</td>
-                                <td>${perm.description}</td>
                                 <td style="text-align: center;">
                                     <input type="checkbox" name="permissions" value="${perm.permissionName}"
                                            <c:if test="${rolePermissions[perm.permissionName]}">checked</c:if> />

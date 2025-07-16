@@ -74,10 +74,10 @@
     transition: background 0.2s;
 }
 .permission-table th {
+    font-family: 'Roboto', sans-serif;
     background: #2563eb;
     color: #fff;
-    font-weight: 1000;
-    font-size: 18px;
+    font-size: 15px;
     position: sticky;
     top: 0;
     z-index: 2;
@@ -90,20 +90,21 @@
     background: #e0e7ff;
 }
 .permission-table td {
-    font-size: 16px;
+    font-size: 15px;
     background: #fff;
     vertical-align: middle;
 }
 .permission-table .permission-name {
+    font-family: 'Roboto', sans-serif;
     text-align: left;
     font-weight: 600;
     color: #1e293b;
     min-width: 180px;
-    font-size: 16px;
+    font-size: 15px;
 }
 .permission-table .permission-desc {
     display: block;
-    font-size: 13px;
+    font-size: 15px;
     color: #6b7280;
     font-weight: 400;
     margin-top: 3px;
@@ -120,8 +121,7 @@
     border: 1.5px solid #fff;
     font-size: 13px;
     font-weight: 500;
-    box-shadow: 0 1px 4px rgba(59,130,246,0.08);
-    transition: background 0.2s, color 0.2s, border 0.2s;
+    box-shadow: 0 1px 4px rgba(59,130,246,0.08); 
     text-decoration: none;
     vertical-align: middle;
 }
