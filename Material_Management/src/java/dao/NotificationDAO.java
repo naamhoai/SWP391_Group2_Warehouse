@@ -163,42 +163,5 @@ public class NotificationDAO {
         }
     }
 
-    public void addCancelExportNotification(int userId, int requestId, String cancelReason) {
-        String message = "Đơn xuất kho đã được huỷ. Lý do: " + cancelReason;
-        String link = "/viewRequestDetail?requestId=" + requestId;
-        String sql = "INSERT INTO notifications (user_id, message, request_id, link) VALUES (?, ?, ?, ?)";
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, userId);
-            stmt.setString(2, message);
-            stmt.setInt(3, requestId);
-            stmt.setString(4, link);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void addCancelExportNotificationToMultipleUsers(int requestId, String cancelReason, int warehouseStaffId) {
-        try {
-            RequestDAO requestDAO = new RequestDAO();
-            Request req = requestDAO.getRequestById(requestId);
-            if (req == null) {
-                return;
-            }
-
-            UserDAO userDAO = new UserDAO();
-            Integer directorId = userDAO.getDirectorId();
-            String message = "Đơn xuất kho đã được huỷ bởi nhân viên kho. Lý do: " + cancelReason;
-
-            if (req.getUserId() != warehouseStaffId) {
-                addNotification(req.getUserId(), message, requestId);
-            }
-            if (directorId != null && directorId != warehouseStaffId) {
-                addNotification(directorId, message, requestId);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
+   
 }

@@ -8,6 +8,7 @@
         <title>Lịch sử xuất kho</title>
         <link rel="stylesheet" href="css/exportForm.css">
         <link rel="stylesheet" href="css/sidebar.css">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     </head>
     <body>
         <div class="main-layout">
@@ -15,15 +16,29 @@
             <div class="main-content">
                 <div class="request-form-container">
                     <h2>Lịch sử xuất kho</h2>
-                    <form id="filterForm" method="get" action="exportFormHistory" style="margin-bottom: 16px; display: flex; gap: 8px;">
-                        <input type="text" name="projectName" placeholder="Tìm theo tên dự án..." value="${param.projectName}" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #ccc;">
-                        <input type="date" id="startDateInput" name="startDate" value="${param.startDate}" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #ccc;">
-                        <input type="date" id="endDateInput" name="endDate" value="${param.endDate}" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #ccc;">
-                        <button type="submit" style="padding: 6px 16px; border-radius: 6px; background: #1976d2; color: #fff; border: none;">Tìm kiếm</button>
-                    </form>
                     <div style="display: flex; justify-content: flex-end; margin: 20px 40px 0 0;">
                         <a href="exportFormPending" class="export-list-btn">Danh sách phiếu xuất kho</a>
                     </div>
+                    <form id="filterForm" method="get" action="exportFormHistory" accept-charset="UTF-8">
+                        <div class="filter-row">
+                            <div class="filter-col">
+                                <label class="filter-label">Tên dự án:</label>
+                                <input type="text" class="filter-input" name="projectName" placeholder="Tìm theo tên dự án..." value="${param.projectName}">
+                            </div>
+                            <div class="filter-col">
+                                <label class="filter-label">Ngày bắt đầu:</label>
+                                <input type="date" class="filter-input" id="startDateInput" name="startDate" value="${param.startDate}">
+                            </div>
+                            <div class="filter-col">
+                                <label class="filter-label">Ngày kết thúc:</label>
+                                <input type="date" class="filter-input" id="endDateInput" name="endDate" value="${param.endDate}">
+                            </div>
+                            <div class="filter-col filter-col-actions">
+                                <button type="submit" class="btn-primary" id="btnFilter"><i class="fas fa-filter"></i> Lọc</button>
+                            </div>
+                        </div>
+                    </form>
+
                     <table class="request-table">
                         <thead>
                             <tr>
@@ -88,57 +103,76 @@
                         </tbody>
                     </table>
                     <div class="pagination-container">
-                        <c:if test="${totalPages > 0}">
-                            <c:url var="pageUrl" value="exportFormHistory">
+                        <c:if test="${totalPages > 1}">
+                            <c:url var="pageUrl" value="requestHistory">
                                 <c:param name="status" value="${param.status}" />
+                                <c:param name="projectName" value="${param.projectName}" />
                                 <c:param name="startDate" value="${param.startDate}" />
                                 <c:param name="endDate" value="${param.endDate}" />
-                                <c:param name="sort" value="${param.sort}" />
+                                <c:if test="${not empty param.requestId}">
+                                    <c:param name="requestId" value="${param.requestId}" />
+                                </c:if>
                             </c:url>
-
                             <ul class="pagination-list">
-                                <!-- Previous Page -->
                                 <li class="pagination-item ${currentPage == 1 ? 'disabled' : ''}">
                                     <a class="pagination-link" href="${currentPage > 1 ? pageUrl.concat('&page=').concat(currentPage - 1) : '#'}" aria-label="Previous">&laquo;</a>
                                 </li>
-
-                                <!-- Page Numbers -->
-                                <c:set var="maxPagesToShow" value="5" />
-                                <c:set var="startPage" value="${currentPage - 2}" />
-                                <c:set var="endPage" value="${currentPage + 2}" />
-
-                                <c:if test="${startPage < 1}">
-                                    <c:set var="endPage" value="${endPage + (1 - startPage)}" />
-                                    <c:set var="startPage" value="1" />
-                                </c:if>
-                                <c:if test="${endPage > totalPages}">
-                                    <c:set var="startPage" value="${startPage - (endPage - totalPages)}" />
-                                    <c:set var="endPage" value="${totalPages}" />
-                                </c:if>
-                                <c:if test="${startPage < 1}">
-                                    <c:set var="startPage" value="1" />
-                                </c:if>
-
-                                <c:if test="${startPage > 1}">
-                                    <li class="pagination-item"><a class="pagination-link" href="${pageUrl.concat('&page=1')}">1</a></li>
-                                        <c:if test="${startPage > 2}">
-                                        <li class="pagination-item disabled"><span class="pagination-link">...</span></li>
+                                <c:choose>
+                                    <c:when test="${currentPage <= 2}">
+                                        <c:set var="endPage" value="3" />
+                                        <c:if test="${totalPages < 3}">
+                                            <c:set var="endPage" value="${totalPages}" />
                                         </c:if>
-                                    </c:if>
-
-                                <c:forEach begin="${startPage}" end="${endPage}" var="i">
-                                    <li class="pagination-item ${currentPage == i ? 'active' : ''}">
-                                        <a class="pagination-link" href="${pageUrl.concat('&page=').concat(i)}">${i}</a>
-                                    </li>
-                                </c:forEach>
-
-                                <c:if test="${endPage < totalPages}">
-                                    <c:if test="${endPage < totalPages - 1}">
-                                        <li class="pagination-item disabled"><span class="pagination-link">...</span></li>
+                                        <c:forEach var="i" begin="1" end="${endPage}">
+                                            <li class="pagination-item ${currentPage == i ? 'active' : ''}">
+                                                <a class="pagination-link" href="${pageUrl.concat('&page=').concat(i)}">${i}</a>
+                                            </li>
+                                        </c:forEach>
+                                        <c:if test="${totalPages > 4}">
+                                            <li class="pagination-item disabled"><span class="pagination-link">...</span></li>
+                                            </c:if>
+                                            <c:if test="${totalPages > 3}">
+                                            <li class="pagination-item ${currentPage == totalPages ? 'active' : ''}">
+                                                <a class="pagination-link" href="${pageUrl.concat('&page=').concat(totalPages)}">${totalPages}</a>
+                                            </li>
                                         </c:if>
-                                    <li class="pagination-item"><a class="pagination-link" href="${pageUrl.concat('&page=').concat(totalPages)}">${totalPages}</a></li>
-                                    </c:if>
-
+                                    </c:when>
+                                    <c:when test="${currentPage >= totalPages - 2}">
+                                        <li class="pagination-item">
+                                            <a class="pagination-link" href="${pageUrl.concat('&page=1')}">1</a>
+                                        </li>
+                                        <c:if test="${totalPages > 4}">
+                                            <li class="pagination-item disabled"><span class="pagination-link">...</span></li>
+                                            </c:if>
+                                            <c:set var="beginPage" value="${totalPages - 2}" />
+                                            <c:if test="${beginPage < 2}">
+                                                <c:set var="beginPage" value="2" />
+                                            </c:if>
+                                            <c:forEach var="i" begin="${beginPage}" end="${totalPages}">
+                                            <li class="pagination-item ${currentPage == i ? 'active' : ''}">
+                                                <a class="pagination-link" href="${pageUrl.concat('&page=').concat(i)}">${i}</a>
+                                            </li>
+                                        </c:forEach>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <li class="pagination-item">
+                                            <a class="pagination-link" href="${pageUrl.concat('&page=1')}">1</a>
+                                        </li>
+                                        <li class="pagination-item disabled"><span class="pagination-link">...</span></li>
+                                        <li class="pagination-item ${currentPage == currentPage ? 'active' : ''}">
+                                            <a class="pagination-link" href="${pageUrl.concat('&page=').concat(currentPage)}">${currentPage}</a>
+                                        </li>
+                                        <c:if test="${currentPage + 1 < totalPages}">
+                                            <li class="pagination-item">
+                                                <a class="pagination-link" href="${pageUrl.concat('&page=').concat(currentPage + 1)}">${currentPage + 1}</a>
+                                            </li>
+                                            <li class="pagination-item disabled"><span class="pagination-link">...</span></li>
+                                            </c:if>
+                                        <li class="pagination-item ${currentPage == totalPages ? 'active' : ''}">
+                                            <a class="pagination-link" href="${pageUrl.concat('&page=').concat(totalPages)}">${totalPages}</a>
+                                        </li>
+                                    </c:otherwise>
+                                </c:choose>
                                 <li class="pagination-item ${currentPage == totalPages ? 'disabled' : ''}">
                                     <a class="pagination-link" href="${currentPage < totalPages ? pageUrl.concat('&page=').concat(currentPage + 1) : '#'}" aria-label="Next">&raquo;</a>
                                 </li>

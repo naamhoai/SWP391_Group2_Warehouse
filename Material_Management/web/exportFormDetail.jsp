@@ -95,8 +95,8 @@
                     </div>
                 </c:if>
             </div>
-            <a href="exportFormHistory" class="btn-back">
-                <i class="fas fa-arrow-left"></i> Quay lại lịch sử xuất kho
+            <a href="javascript:history.back()" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Quay lại
             </a>
         </div>
 

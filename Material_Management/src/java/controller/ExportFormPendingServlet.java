@@ -21,8 +21,8 @@ public class ExportFormPendingServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String projectName = request.getParameter("projectName");
-        String fromDateStr = request.getParameter("fromDate");
-        String toDateStr = request.getParameter("toDate");
+        String startDateStr = request.getParameter("startDate");
+        String endDateStr = request.getParameter("endDate");
         String sortField = request.getParameter("sortField");
         String sortDir = request.getParameter("sortDir");
         String pageStr = request.getParameter("page");
@@ -42,13 +42,13 @@ public class ExportFormPendingServlet extends HttpServlet {
             sortDir = "DESC";
         }
 
-        Timestamp fromDate = null, toDate = null;
+        Timestamp startDate = null, endDate = null;
         try {
-            if (fromDateStr != null && !fromDateStr.isEmpty()) {
-                fromDate = Timestamp.valueOf(fromDateStr + " 00:00:00");
+            if (startDateStr != null && !startDateStr.isEmpty()) {
+                startDate = Timestamp.valueOf(startDateStr + " 00:00:00");
             }
-            if (toDateStr != null && !toDateStr.isEmpty()) {
-                toDate = Timestamp.valueOf(toDateStr + " 23:59:59");
+            if (endDateStr != null && !endDateStr.isEmpty()) {
+                endDate = Timestamp.valueOf(endDateStr + " 23:59:59");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -59,15 +59,15 @@ public class ExportFormPendingServlet extends HttpServlet {
         int totalRecords = 0;
         try {
             approvedRequests = dao.getApprovedRequestsWithPendingExport(
-                    projectName, fromDate, toDate, sortField, sortDir, page, PAGE_SIZE
+                    projectName, startDate, endDate, sortField, sortDir, page, PAGE_SIZE
             );
             totalRecords = dao.countApprovedRequestsWithPendingExport(
-                    projectName, fromDate, toDate
+                    projectName, startDate, endDate
             );
         } catch (SQLException e) {
             throw new ServletException(e);
         }
-        if (fromDate != null && toDate != null && fromDate.after(toDate)) {
+        if (startDate != null && endDate != null && startDate.after(endDate)) {
             request.setAttribute("error", "Ngày bắt đầu không được lớn hơn ngày kết thúc!");
             request.getRequestDispatcher("exportFormPending.jsp").forward(request, response);
             return;
@@ -78,8 +78,8 @@ public class ExportFormPendingServlet extends HttpServlet {
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("projectName", projectName);
-        request.setAttribute("fromDate", fromDateStr);
-        request.setAttribute("toDate", toDateStr);
+        request.setAttribute("startDate", startDateStr);
+        request.setAttribute("endDate", endDateStr);
         request.setAttribute("sortField", sortField);
         request.setAttribute("sortDir", sortDir);
 
