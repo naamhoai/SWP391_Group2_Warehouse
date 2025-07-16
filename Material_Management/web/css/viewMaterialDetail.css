@@ -1,5 +1,5 @@
 body {
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Roboto', sans-serif;
     margin: 0;
     background-color: #f4f7fa;
 }
@@ -137,8 +137,9 @@ body.sidebar-collapsed .main-content {
 
 .page-title {
     font-size: 28px;
-    font-weight: 600;
+    font-weight: bold;
     color: #1e3a8a;
+    font-family: 'Roboto', sans-serif;
 }
 
 .btn {

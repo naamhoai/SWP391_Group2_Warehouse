@@ -12,11 +12,11 @@
         <form action="resetPassword" method="POST">
             <div class="form-group">
                 <label for="fullname">Họ và tên</label>
-                <input type="text" name="fullname" id="fullname" value="${fullname != null ? fullname : ''}" required placeholder="Nhập họ và tên">
+                <input type="text" name="fullname" id="fullname" value="${fullname != null ? fullname : ''}" required placeholder="Nhập họ và tên" readonly>
             </div>
             <div class="form-group">
                 <label for="email">Địa chỉ Email</label>
-                <input type="email" name="email" id="email" value="${email}" required placeholder="Nhập email của bạn">
+                <input type="email" name="email" id="email" value="${email}" required placeholder="Nhập email của bạn" readonly>
             </div>
             <div class="form-group">
                 <label for="password">Mật khẩu mới</label>
