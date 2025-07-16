@@ -24,6 +24,7 @@ public class RequestPasswordServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String email = request.getParameter("email");
+        if (email != null) email = email.trim().toLowerCase();
 
         ResetPasswordDAO daoUser = new ResetPasswordDAO();
         User user = daoUser.getUserByEmail(email);
@@ -47,16 +48,14 @@ public class RequestPasswordServlet extends HttpServlet {
             return;
         }
 
-        String adminEmail = "ezminh216@gmail.com";
-        String contentName = "Yêu cầu reset mật khẩu từ: " + user.getFullname() + " (" + user.getEmail() + ")";
-
-        if (!service.sendEmail(adminEmail, resetLink, contentName)) {
-            request.setAttribute("mess", "Không thể gửi email đến quản trị viên.");
+        String contentName = user.getFullname();
+        if (!service.sendEmail(user.getEmail(), resetLink, contentName)) {
+            request.setAttribute("mess", "Không thể gửi email đặt lại mật khẩu. Vui lòng thử lại.");
             request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
             return;
         }
 
-        request.setAttribute("mess", "Yêu cầu đặt lại mật khẩu đã được gửi đến quản trị viên.");
+        request.setAttribute("mess", "Đã gửi email đặt lại mật khẩu tới địa chỉ của bạn. Vui lòng kiểm tra email để tiếp tục.");
         request.getRequestDispatcher("requestPassword.jsp").forward(request, response);
     }
 }

@@ -48,8 +48,13 @@ public class ResetServiceServlet {
             MimeMessage msg = new MimeMessage(session);
             msg.setFrom(new InternetAddress(FROM));
             msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to, false));
-            msg.setSubject("Reset Password", "UTF-8");
-            String content = "<h1>Hello " + name + "</h1><p>Click the link below to reset your password:<br><a href='" + link + "'>Reset Password</a></p>";
+            msg.setSubject("Đặt lại mật khẩu", "UTF-8");
+            String content = "<h2>Xin chào " + name + ",</h2>"
+                + "<p>Bạn hoặc ai đó vừa yêu cầu đặt lại mật khẩu cho tài khoản của bạn.</p>"
+                + "<p>Vui lòng nhấn vào liên kết bên dưới để đặt lại mật khẩu mới:</p>"
+                + "<p><a href='" + link + "'>Đặt lại mật khẩu</a></p>"
+                + "<p>Nếu bạn không yêu cầu, vui lòng bỏ qua email này.</p>"
+                + "<p>Trân trọng,<br>Hệ thống quản lý vật tư</p>";
             msg.setContent(content, "text/html; charset=UTF-8");
             Transport.send(msg);
             return true;
@@ -79,8 +84,11 @@ public class ResetServiceServlet {
             MimeMessage msg = new MimeMessage(session);
             msg.setFrom(new InternetAddress(FROM));
             msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to, false));
-            msg.setSubject("Your New Password", "UTF-8");
-            String content = "<h1>Hello " + name + "</h1><p>Your new password is: <b>" + password + "</b></p>";
+            msg.setSubject("Mật khẩu mới của bạn", "UTF-8");
+            String content = "<h2>Xin chào " + name + ",</h2>"
+                + "<p>Mật khẩu mới của bạn là: <b>" + password + "</b></p>"
+                + "<p>Bạn có thể sử dụng mật khẩu này để đăng nhập vào hệ thống.</p>"
+                + "<p>Trân trọng,<br>Hệ thống quản lý vật tư</p>";
             msg.setContent(content, "text/html; charset=UTF-8");
             Transport.send(msg);
             return true;

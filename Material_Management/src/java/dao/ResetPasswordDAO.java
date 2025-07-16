@@ -10,10 +10,10 @@ import model.Role;
 public class ResetPasswordDAO extends DBContext {
 
     public User getUserByEmail(String email) {
-        String sql = "SELECT u.*, r.role_name FROM users u JOIN roles r ON u.role_id = r.role_id WHERE u.email = ?";
+        String sql = "SELECT u.*, r.role_name FROM users u JOIN roles r ON u.role_id = r.role_id WHERE LOWER(u.email) = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, email);
+            ps.setString(1, email.toLowerCase());
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 Role r = new Role();
@@ -27,11 +27,11 @@ public class ResetPasswordDAO extends DBContext {
                         rs.getString("phone"),
                         r,
                         rs.getString("status"),
-                        rs.getInt("priority"),
+                        0,
                         rs.getString("image"),
                         rs.getString("gender"),
                         rs.getString("dayofbirth"),
-                        rs.getString("description")
+                        null
                 );
             }
         } catch (SQLException e) {
@@ -58,11 +58,11 @@ public class ResetPasswordDAO extends DBContext {
                         rs.getString("phone"),
                         r,
                         rs.getString("status"),
-                        rs.getInt("priority"),
+                        0, // priority mặc định
                         rs.getString("image"),
                         rs.getString("gender"),
                         rs.getString("dayofbirth"),
-                        rs.getString("description")
+                        null // description mặc định
                 );
             }
         } catch (SQLException e) {
@@ -72,11 +72,11 @@ public class ResetPasswordDAO extends DBContext {
     }
 
     public void updatePassword(String email, String password) {
-        String sql = "UPDATE `users` SET `password` = ? WHERE `email` = ?";
+        String sql = "UPDATE `users` SET `password` = ? WHERE LOWER(`email`) = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, password);
-            ps.setString(2, email);
+            ps.setString(2, email.toLowerCase());
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -102,11 +102,11 @@ public class ResetPasswordDAO extends DBContext {
                         rs.getString("phone"),
                         r,
                         rs.getString("status"),
-                        rs.getInt("priority"),
+                        0,
                         rs.getString("image"),
                         rs.getString("gender"),
                         rs.getString("dayofbirth"),
-                        rs.getString("description")
+                        null
                 );
             }
         } catch (SQLException e) {

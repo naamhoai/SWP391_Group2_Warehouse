@@ -146,9 +146,9 @@ public class UserDAO {
     }
 
     public boolean existsEmail(String email) {
-        String sql = "SELECT 1 FROM users WHERE email = ?";
+        String sql = "SELECT 1 FROM users WHERE LOWER(email) = ?";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, email);
+            ps.setString(1, email.toLowerCase());
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
             }

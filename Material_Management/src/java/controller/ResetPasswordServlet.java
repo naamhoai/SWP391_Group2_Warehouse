@@ -102,6 +102,6 @@ public class ResetPasswordServlet extends HttpServlet {
         tokenObj.setUsed(true);
         daoToken.updateStatus(tokenObj);
 
-        request.getRequestDispatcher("adminDashboard.jsp").forward(request, response);
+        request.getRequestDispatcher("homepage.jsp").forward(request, response);
     }
 }
