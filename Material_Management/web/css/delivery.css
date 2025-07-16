@@ -1,96 +1,76 @@
-/* General Styles */
 body {
     font-family: 'Roboto', sans-serif;
-    background-color: #f4f6f9; /* Nền xám nhạt hài hòa */
-    margin: 0;
-    padding: 0;
+    background-color: #f4f6f9; 
 }
 
 .container {
     max-width: 1200px;
-    margin: 30px auto;
-    padding: 30px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    position: relative;
-    overflow: hidden;
-}
-
-.control-panel {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding: 15px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.control-left, .control-right {
-    flex: 0 0 auto;
-}
-
-.control-center {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    padding: 0 20px;
-}
-
-.search-box {
-    display: flex;
-    align-items: center;
-    max-width: 400px;
     width: 100%;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    padding: 32px 24px;
+    margin-left: 260px;
 }
 
-.search-input {
-    flex: 1;
-    padding: 8px 15px;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px 0 0 6px;
-    font-size: 14px;
-    transition: all 0.3s ease;
+h2 {
+    margin-top: 30px;
+    margin-left: 300px;
+    margin-bottom: -35px;
+    font-size: 2rem;
+    color: #2563eb;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    text-align: left;
 }
 
-.search-input:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+.table-responsive {
+    margin-left: 0px;
+    border-radius: 12px;
 }
 
-.search-btn {
-    padding: 8px 15px;
-    background-color: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 0 6px 6px 0;
-    cursor: pointer;
-    transition: all 0.3s ease;
+.table {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(59,130,246,0.08);
 }
 
-.search-btn:hover {
-    background-color: #2563eb;
+.table th, .table td {
+    text-align: center;
+    font-size: 15px;
+    font-family: 'Roboto', sans-serif;
 }
 
-.status-select {
-    min-width: 150px;
-    padding: 8px 12px;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    font-size: 14px;
+.table th {
+    background: #e0e7ef;
     color: #1e293b;
-    background-color: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    font-weight: 600;
+    width: 20px;
 }
 
-.status-select:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+.table tr:last-child td {
+    border-bottom: none;
+}
+
+.table tr:hover {
+    background: #e0e7ef33;
+}
+
+.export-list-btn {
+    border-radius: 6px !important;
+    font-size: 14px !important;
+    padding: 6px 14px !important;
+    font-weight: 500;
+    color: #2563eb !important;
+    background: #f1f5f9 !important;
+    border: 1px solid #2563eb !important;
+    transition: background 0.2s, color 0.2s;
+}
+
+.export-list-btn:hover {
+    background: #2563eb !important;
+    color: #fff !important;
+    text-decoration: none;
 }
 
 .alert {
@@ -102,37 +82,6 @@ body {
 .alert-success { background-color: #d4edda; color: #155724; }
 .alert-danger { background-color: #f8d7da; color: #721c24; }
 
-/* Header Styles */
-header.navbar {
-    background-color: #3b82f6 !important;
-    padding: 10px 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-header .navbar-brand {
-    color: #ffffff;
-    font-weight: 600;
-    font-size: 1.2rem;
-}
-
-header .text-white {
-    color: #ffffff !important;
-    margin-right: 15px;
-}
-
-header .btn-outline-light {
-    color: #ffffff;
-    border-color: #ffffff;
-    transition: all 0.3s ease;
-}
-
-header .btn-outline-light:hover {
-    background-color: #ffffff;
-    color: #3b82f6;
-    transform: translateY(-1px);
-}
-
-/* Table Styles */
 .table-container {
     overflow-x: auto;
 }
@@ -150,13 +99,13 @@ th, td {
 }
 
 th {
-    background-color: #e9ecef; /* Nền xám nhạt cho header bảng */
+    background-color: #e9ecef;
     font-weight: 500;
     color: #333;
     text-transform: uppercase;
     font-size: 0.9rem;
     position: sticky;
-top: 0;
+    top: 0;
     z-index: 1;
 }
 
@@ -170,167 +119,35 @@ tr:hover {
     transition: background-color 0.3s ease;
 }
 
-/* Buttons */
-.btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.btn-primary {
-    background-color: #007bff; /* Nút chính màu xanh dương */
-    color: #fff;
-}
-
-.btn-primary:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px);
-}
-
-.btn-outline-secondary {
-    background-color: #fff;
-    border: 1px solid #ced4da;
-    color: #495057;
-}
-
-.btn-outline-secondary:hover {
-    background-color: #e9ecef;
-    color: #333;
-}
-
-.back-btn {
-    padding: 12px 25px;
-    background: linear-gradient(90deg, #28a745, #218838); /* Nút quay lại xanh lá */
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
-    margin-left: 10px;
-}
-
-.back-btn:hover {
-    background: linear-gradient(90deg, #218838, #1e7e34);
-    transform: translateY(-2px);
-}
-
-/* Action Buttons */
-.action-buttons button {
-    margin-right: 5px;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-}
-
-.edit-btn { background-color: #17a2b8; color: #fff; } /* Đổi sang xanh ngọc */
-.edit-btn:hover { background-color: #138496; transform: translateY(-1px); }
-
-.delete-btn { background-color: #dc3545; color: #fff; }
-.delete-btn:hover { background-color: #c82333; transform: translateY(-1px); }
-
-.post-btn { background-color: #6c757d; color: #fff; } /* Đổi sang xám */
-.post-btn:hover { background-color: #5a6268; transform: translateY(-1px); }
-
-.force-btn { background-color: #ffc107; color: #fff; } /* Đổi sang vàng */
-.force-btn:hover { background-color: #e0a800; transform: translateY(-1px); }
-
-/* Form Styles */
-.form-container {
-    background-color: #fff;
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-    display: none;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-    color: #495057;
-}
-
-.form-group input,
-.form-group textarea,
-.form-group select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
-}
-
-.form-group input:focus,
-.form-group textarea:focus,
-.form-group select:focus {
-    border-color: #28a745; /* Đổi viền focus sang xanh lá */
-    outline: none;
-    box-shadow: 0 0 5px rgba(40, 167, 69, 0.2);
-}
-
-.form-group textarea {
-    height: 100px;
-    resize: vertical;
-}
-
-.form-buttons {
-    margin-top: 20px;
-    text-align: right;
-}
-
-.form-buttons .btn {
-    margin-left: 10px;
-}
-
-.btn-success {
-    background-color: #28a745; /* Nút lưu xanh lá */
-    color: #fff;
-}
-
-.btn-success:hover {
-background-color: #218838;
-}
-
-.btn-danger {
-    background-color: #dc3545; /* Nút hủy đỏ */
-    color: #fff;
-}
-
-.btn-danger:hover {
-    background-color: #c82333;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .control-panel {
-        flex-direction: column;
-        gap: 10px;
+@media (max-width: 900px) {
+    .content#mainContent, h2 {
+        margin-left: 70px;
     }
+    .container {
+        padding: 12px 4px;
+    }
+    .table th, .table td {
+        font-size: 13px;
+        padding: 8px 4px;
+    }
+}
+@media (max-width: 600px) {
+    .content#mainContent, h2 {
+        margin-left: 0;
+        padding: 0 2px;
+    }
+    .container {
+        padding: 4px 2px;
+    }
+}
 
+@media (max-width: 768px) {
     .container {
         margin: 15px;
         padding: 15px;
     }
-
     th, td {
         padding: 10px;
         font-size: 0.85rem;
-    }
-
-    .back-btn {
-        margin-top: 10px;
-        width: 100%;
     }
 }
