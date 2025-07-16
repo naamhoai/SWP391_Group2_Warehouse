@@ -40,7 +40,7 @@ public class CreateExportFormServlet extends HttpServlet {
 
             Request req = requestDAO.getRequestById(requestId);
             List<RequestDetail> details = detailDAO.getRequestDetailsByRequestId(requestId);
-            
+
             Map<Integer, Integer> exportedMap = exportMaterialDAO.getExportedQuantitiesByRequestId(requestId);
             for (RequestDetail d : details) {
                 int exported = exportedMap != null ? exportedMap.getOrDefault(d.getMaterialId(), 0) : 0;
@@ -185,13 +185,17 @@ public class CreateExportFormServlet extends HttpServlet {
                 delivery.setUserId(userId);
                 delivery.setRecipientName(req.getRecipientName());
                 delivery.setDeliveryAddress(req.getDeliveryAddress());
+                delivery.setContactPerson(req.getContactPerson());
+                delivery.setContactPhone(req.getContactPhone());
                 delivery.setStatus("Chờ giao");
                 delivery.setDeliveryDate(new Timestamp(System.currentTimeMillis()));
                 String userDescription = request.getParameter("description");
                 delivery.setDescription(userDescription != null ? userDescription.trim() : "");
+                String deliveryType = request.getParameter("deliveryType");
+                delivery.setDeliveryType(deliveryType);
                 deliveryDAO.insertDelivery(delivery);
 
-                response.sendRedirect("exportFormDetail?exportId=" + exportId + "&success=true");
+                response.sendRedirect("exportFormHistory?success=true");
                 return;
             }
 
@@ -234,9 +238,11 @@ public class CreateExportFormServlet extends HttpServlet {
             delivery.setDeliveryDate(new Timestamp(System.currentTimeMillis()));
             String userDescription = request.getParameter("description");
             delivery.setDescription(userDescription != null ? userDescription.trim() : "");
+            String deliveryType = request.getParameter("deliveryType");
+            delivery.setDeliveryType(deliveryType);
             deliveryDAO.insertDelivery(delivery);
 
-            response.sendRedirect("exportFormDetail?exportId=" + exportId + "&success=true");
+            response.sendRedirect("exportFormHistory?success=true");
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi tạo đơn xuất kho: " + e.getMessage());

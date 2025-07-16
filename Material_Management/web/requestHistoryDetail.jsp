@@ -15,7 +15,7 @@
     </head>
     <body>
         <div class="sidebar">
-            <jsp:include page="sidebar.jsp" />
+            <%@include file="sidebar.jsp" %>
         </div>
         <div class="main-content">
             <div class="container request-history-detail-container">

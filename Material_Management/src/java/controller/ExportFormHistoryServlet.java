@@ -21,10 +21,10 @@ public class ExportFormHistoryServlet extends HttpServlet {
             String sortField = request.getParameter("sortField");
             String sortDir = request.getParameter("sortDir");
             if (sortField == null) {
-                sortField = "export_id";
+                sortField = "date";
             }
             if (sortDir == null) {
-                sortDir = "asc";
+                sortDir = "desc";
             }
 
             int page = 1;

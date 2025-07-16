@@ -15,7 +15,7 @@
     </head>
     <body>
         <div class="sidebar">
-            <jsp:include page="sidebar.jsp" />
+            <%@include file="sidebar.jsp" %>
         </div>
         <div class="main-content">
 
@@ -164,7 +164,7 @@
             </div>
         </div>
         <script>
-            
+
             document.addEventListener('DOMContentLoaded', function () {
                 const successAlert = document.querySelector('.alert.success');
                 if (successAlert) {

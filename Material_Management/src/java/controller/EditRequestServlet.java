@@ -49,7 +49,6 @@ public class EditRequestServlet extends HttpServlet {
             request.setAttribute("userName", userDAO.getUserById((Integer) request.getSession().getAttribute("userId")).getFullname());
             request.setAttribute("parentCategories", parentCategories);
             request.setAttribute("subCategories", subCategories);
-            request.setAttribute("unitList", unitDao.getAllunit());
             request.setAttribute("materialList", inventoryList);
 
             request.getRequestDispatcher("editRequest.jsp").forward(request, response);

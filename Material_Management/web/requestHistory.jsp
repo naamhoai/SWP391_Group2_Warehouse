@@ -39,7 +39,7 @@
     <body>
         <div class="main-layout">
             <div class="sidebar">
-                <jsp:include page="sidebar.jsp" />
+                <%@include file="sidebar.jsp" %>
             </div>
             <div class="main-content">
                 <div class="request-list-container">

@@ -13,7 +13,7 @@
     <body>
         <div class="main-layout">
             <div class="sidebar">
-                <jsp:include page="sidebar.jsp" />
+                <%@include file="sidebar.jsp" %>
             </div>
             <div class="main-content">
                 <div class="request-form-container">
@@ -76,6 +76,11 @@
                                     </c:forEach>
                                 </tbody>
                             </table>
+                        </div>
+
+                        <div class="form-section">
+                            <label for="deliveryType"><b>Đơn vị vận chuyển:</b></label>
+                            <input type="text" name="deliveryType" id="deliveryType" class="input-text" required placeholder="Nhập đơn vị vận chuyển" value="${param.deliveryType}" />
                         </div>
 
                         <div class="form-section">

@@ -13,7 +13,7 @@
     </head>
     <body>
         <div class="layout">
-            <jsp:include page="sidebar.jsp" />
+            <%@include file="sidebar.jsp" %>
             <div class="form-wrapper">
                 <h2 class="form-title">Tạo người dùng mới</h2>
                 <c:if test="${not empty error}">

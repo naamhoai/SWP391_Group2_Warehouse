@@ -25,7 +25,6 @@ public class DeliveryDAO {
                 delivery.setRecipientName(rs.getString("recipient_name"));
                 delivery.setDeliveryAddress(rs.getString("delivery_address"));
                 delivery.setStatus(rs.getString("status"));
-                delivery.setDeliveryDate(rs.getTimestamp("delivery_date"));
                 delivery.setDescription(rs.getString("description"));
                 deliveries.add(delivery);
             }
@@ -51,7 +50,6 @@ public class DeliveryDAO {
                     delivery.setRecipientName(rs.getString("recipient_name"));
                     delivery.setDeliveryAddress(rs.getString("delivery_address"));
                     delivery.setStatus(rs.getString("status"));
-                    delivery.setDeliveryDate(rs.getTimestamp("delivery_date"));
                     delivery.setDescription(rs.getString("description"));
                     deliveries.add(delivery);
                 }
@@ -65,17 +63,17 @@ public class DeliveryDAO {
 
     // Thêm phương thức insertDelivery cho xuất kho
     public int insertDelivery(Delivery delivery) throws SQLException {
-        String sql = "INSERT INTO delivery (export_id, user_id, recipient_name, delivery_address, contact_person, contact_phone, status, delivery_date, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO delivery (export_id, user_id, recipient_name, delivery_address, status, description, delivery_type, contact_person, contact_phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, delivery.getExportId());
             stmt.setInt(2, delivery.getUserId());
             stmt.setString(3, delivery.getRecipientName());
             stmt.setString(4, delivery.getDeliveryAddress());
-            stmt.setString(5, delivery.getContactPerson());
-            stmt.setString(6, delivery.getContactPhone());
-            stmt.setString(7, delivery.getStatus());
-            stmt.setTimestamp(8, delivery.getDeliveryDate());
-            stmt.setString(9, delivery.getDescription());
+            stmt.setString(5, delivery.getStatus());
+            stmt.setString(6, delivery.getDescription());
+            stmt.setString(7, delivery.getDeliveryType());
+            stmt.setString(8, delivery.getContactPerson());
+            stmt.setString(9, delivery.getContactPhone());
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {
                 throw new SQLException("Creating delivery failed, no rows affected.");
@@ -106,8 +104,8 @@ public class DeliveryDAO {
                     delivery.setContactPerson(rs.getString("contact_person"));
                     delivery.setContactPhone(rs.getString("contact_phone"));
                     delivery.setStatus(rs.getString("status"));
-                    delivery.setDeliveryDate(rs.getTimestamp("delivery_date"));
                     delivery.setDescription(rs.getString("description"));
+                    delivery.setDeliveryType(rs.getString("delivery_type"));
                     return delivery;
                 }
             }
@@ -133,8 +131,8 @@ public class DeliveryDAO {
                     delivery.setContactPerson(rs.getString("contact_person"));
                     delivery.setContactPhone(rs.getString("contact_phone"));
                     delivery.setStatus(rs.getString("status"));
-                    delivery.setDeliveryDate(rs.getTimestamp("delivery_date"));
                     delivery.setDescription(rs.getString("description"));
+                    delivery.setDeliveryType(rs.getString("delivery_type"));
                     return delivery;
                 }
             }

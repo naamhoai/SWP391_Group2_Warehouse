@@ -16,7 +16,7 @@
     </head>
     <body>
         <div class="layout">
-            <jsp:include page="sidebar.jsp" />
+            <%@include file="sidebar.jsp" %>
             <div class="user-center-wrapper">
                 <div class="main-content" id="main-content">
                     <div class="form-wrapper">

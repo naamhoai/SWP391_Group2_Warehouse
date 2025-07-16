@@ -7,8 +7,8 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Chi tiết phiếu xuất kho</title>
-        <link rel="stylesheet" href="css/requestHistory.css">
         <link rel="stylesheet" href="css/sidebar.css">
+        <link rel="stylesheet" href="css/requestHistory.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     </head>
     <body>
@@ -17,11 +17,7 @@
         </div>
         <div class="container request-history-detail-container">
             <div class="content">
-                <c:if test="${param.success eq 'true'}">
-                    <div class="alert success">
-                        <i class="fas fa-check-circle"></i> Xuất kho thành công!
-                    </div>
-                </c:if>
+
                 <div class="page-header">
                     <h1><i class="fas fa-truck"></i> Chi tiết phiếu xuất kho</h1>
                 </div>
@@ -83,7 +79,7 @@
                                         <div class="info-item"><label>Số điện thoại:</label><span>${delivery.contactPhone}</span></div>
                                         <div class="info-item"><label>Địa chỉ giao:</label><span>${delivery.deliveryAddress}</span></div>
                                         <div class="info-item"><label>Trạng thái giao:</label><span>${delivery.status}</span></div>
-                                        <div class="info-item"><label>Ngày giao:</label><span><fmt:formatDate value="${delivery.deliveryDate}" pattern="dd/MM/yyyy HH:mm:ss"/></span></div>
+                                        <div class="info-item"><label>Đơn vị vận chuyển:</label><span>${delivery.deliveryType}</span></div>
                                         <div class="info-item"><label>Ghi chú:</label><span>${delivery.description}</span></div>
                                     </div>
                                 </div>
@@ -92,16 +88,18 @@
                                 <div class="no-data"><i class="fas fa-info-circle"></i> Chưa có thông tin vận chuyển.</div>
                             </c:otherwise>
                         </c:choose>
+                        <a href="javascript:history.back()" class="btn-back">
+                            <i class="fas fa-arrow-left"></i> Quay lại
+                        </a>
                     </div>
                 </c:if>
+
             </div>
-            <a href="javascript:history.back()" class="btn-back">
-                <i class="fas fa-arrow-left"></i> Quay lại
-            </a>
+
         </div>
 
         <script>
-            
+
             document.addEventListener('DOMContentLoaded', function () {
                 const successAlert = document.querySelector('.alert.success');
                 if (successAlert) {
