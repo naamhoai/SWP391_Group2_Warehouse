@@ -113,13 +113,8 @@ public class EditRequestServlet extends HttpServlet {
                             break;
                         }
                     }
-                    if (matched != null) {
-                        int inventoryQty = matched.getQuantityOnHand();
-                        if (q > inventoryQty) {
-                            error = "Số lượng yêu cầu ở dòng " + (i + 1) + " vượt quá số lượng tồn kho hiện có (" + inventoryQty + ").";
-                            break;
-                        }
-                    } else {
+                    
+                    if (matched == null) {
                         error = "Không tìm thấy vật tư: " + name + " với tình trạng: " + condition;
                         break;
                     }
@@ -231,7 +226,7 @@ public class EditRequestServlet extends HttpServlet {
                         requestId);
             }
 
-            response.sendRedirect("successRequest.jsp");
+            response.sendRedirect("RequestListServlet");
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", e.getMessage());

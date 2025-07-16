@@ -159,16 +159,10 @@ public class CreateRequestServlet extends HttpServlet {
                         break;
                     }
                 }
-                if (matched != null) {
-                    int inventoryQty = matched.getQuantityOnHand();
-                    if (qty > inventoryQty) {
-                        request.setAttribute("error", "Số lượng yêu cầu ở dòng " + (i + 1) + " vượt quá số lượng tồn kho hiện có (" + inventoryQty + ").");
-                        request.setAttribute("materialNames", materialNames);
-                        request.setAttribute("quantities", quantities);
-                        request.setAttribute("materialConditions", materialConditions);
-                        doGet(request, response);
-                        return;
-                    }
+                if (matched == null) {
+                    request.setAttribute("error", "Không tìm thấy vật tư: " + name);
+                    doGet(request, response);
+                    return;
                 }
                 if (condition == null || condition.trim().isEmpty()) {
                     request.setAttribute("error", "Điều kiện vật tư ở dòng " + (i + 1) + " không được để trống.");
@@ -271,8 +265,7 @@ public class CreateRequestServlet extends HttpServlet {
                 notificationDAO.addNotification(directorId, message, requestId);
             }
 
-            response.sendRedirect("successRequest.jsp?success=true&requestId=" + requestId);
-
+            response.sendRedirect("RequestListServlet");
         } catch (Exception e) {
             e.printStackTrace();
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi khi gửi yêu cầu: " + e.getMessage());

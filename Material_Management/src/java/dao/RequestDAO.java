@@ -139,17 +139,7 @@ public class RequestDAO extends DBContext {
         }
     }
 
-    public int getLastInsertedRequestId() throws SQLException {
-        String sql = "SELECT LAST_INSERT_ID() as request_id";
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt("request_id");
-            }
-        }
-        return -1;
-    }
-
+   
     public int getStaffId() {
         String sql = "SELECT u.user_id FROM users u "
                 + "JOIN roles r ON u.role_id = r.role_id "
@@ -320,24 +310,8 @@ public class RequestDAO extends DBContext {
         return 0;
     }
 
-    public boolean updateRequestStatusToPartialExport(int requestId, String note) throws SQLException {
-        String sql = "UPDATE requests SET director_note = ? WHERE request_id = ?";
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, note);
-            stmt.setInt(2, requestId);
-            return stmt.executeUpdate() > 0;
-        }
-    }
 
-    public List<Request> getApprovedRequestsWithPendingExport(
-            String projectName,
-            Timestamp fromDate,
-            Timestamp toDate,
-            String sortBy,
-            String sortDir,
-            int page,
-            int pageSize
-    ) throws SQLException {
+    public List<Request> getApprovedRequestsWithPendingExport(String projectName, Timestamp fromDate, Timestamp toDate, String sortBy, String sortDir, int page, int pageSize) throws SQLException {
         List<Request> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder(
                 "SELECT DISTINCT r.*, u.full_name as creator_name "
@@ -413,11 +387,7 @@ public class RequestDAO extends DBContext {
         return list;
     }
 
-    public int countApprovedRequestsWithPendingExport(
-            String projectName,
-            Timestamp fromDate,
-            Timestamp toDate
-    ) throws SQLException {
+    public int countApprovedRequestsWithPendingExport(String projectName, Timestamp fromDate, Timestamp toDate) throws SQLException {
         StringBuilder sql = new StringBuilder(
                 "SELECT COUNT(DISTINCT r.request_id) "
                 + "FROM requests r "
@@ -466,8 +436,6 @@ public class RequestDAO extends DBContext {
         }
         return 0;
     }
-
-    
 
     // Đếm tổng số yêu cầu (tức là số lượng xuất kho)
     public int countAllRequests() {

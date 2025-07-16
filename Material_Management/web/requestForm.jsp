@@ -138,7 +138,7 @@
                                                     <div class="error-message"></div>
                                                 </td>
                                                 <td>
-                                                    <input name="unit" class="input-text unitInput" autocomplete="off" required pattern="[^<>\"']*" readonly/>
+                                                    <input name="unit" class="input-text unitInput" autocomplete="off" required pattern="[^<>\"']*" />
                                                     <div class="error-message"></div>
                                                 </td>
                                                 <td>
@@ -183,12 +183,6 @@
             </c:forEach>
             };
             console.log("materialUnitMap:", window.materialUnitMap);
-            window.materialInventoryMap = {
-            <c:forEach var="m" items="${materialList}" varStatus="loop">
-            "${fn:escapeXml(m.materialName)}": ${m.quantityOnHand}<c:if test="${!loop.last}">,</c:if>
-            </c:forEach>
-            };
-            console.log("materialInventoryMap:", window.materialInventoryMap);
         </script>
         <script src="js/sidebar.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script>

@@ -1,4 +1,7 @@
-/* Container chính */
+body {
+    font-family: 'Roboto', 'Segoe UI', Arial, sans-serif !important;
+}
+
 .request-detail-container {
     max-width: 1000px;
     margin: 40px auto;
@@ -37,7 +40,6 @@ h4 {
     letter-spacing: 0.2px;
 }
 
-/* Bảng vật tư */
 .request-detail-table {
     width: 100%;
     border-collapse: separate;
@@ -64,7 +66,6 @@ h4 {
     transition: background 0.15s;
 }
 
-/* Director Action Form */
 .approve-reject-form {
     border: 1px solid #e0e0e0;
     padding: 24px;
@@ -104,11 +105,10 @@ h4 {
 .action-btn-group {
     margin-top: 20px;
     display: flex;
-    justify-content: flex-end; /* Đẩy các nút về bên phải */
-    gap: 12px; /* Khoảng cách giữa các nút */
+    justify-content: flex-end; 
+    gap: 12px;
 }
 
-/* Input lý do */
 .input-note {
     width: 100%;
     padding: 10px 14px;
@@ -126,7 +126,6 @@ h4 {
     background: #fff;
 }
 
-/* Nút hành động */
 .btn-approve {
     background: linear-gradient(90deg, #43a047 60%, #66bb6a 100%);
     color: #fff;
@@ -238,6 +237,41 @@ h4 {
 }
 .mt-2 {
     margin-top: 12px;
+}
+.request-info-table-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+.request-info-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    max-width: 700px;
+    margin-bottom: 24px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    overflow: hidden;
+}
+.request-info-table th {
+    text-align: left;
+    font-weight: bold;
+    background: #e3f0fc;
+    color: #1976d2;
+    padding: 12px 18px;
+    width: 180px;
+    border-bottom: 1px solid #e3e6f0;
+    font-size: 16px;
+}
+.request-info-table td {
+    padding: 12px 18px;
+    border-bottom: 1px solid #e3e6f0;
+    font-size: 16px;
+}
+.request-info-table tr:last-child th,
+.request-info-table tr:last-child td {
+    border-bottom: none;
 }
 
 @media (max-width: 900px) {

@@ -39,23 +39,5 @@ public class RequestHistoryDetailDAO {
         return details;
     }
     
-    public void insertHistoryDetail(RequestHistoryDetail detail) {
-        String sql = "INSERT INTO request_history_details (history_id, material_id, material_name, quantity, warehouse_unit_id, material_condition) VALUES (?, ?, ?, ?, ?, ?)";
-        
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            
-            ps.setInt(1, detail.getHistoryId());
-            ps.setInt(2, detail.getMaterialId());
-            ps.setString(3, detail.getMaterialName());
-            ps.setInt(4, detail.getQuantity());
-            ps.setInt(5, detail.getWarehouseUnitId());
-            ps.setString(6, detail.getMaterialCondition());
-            
-            ps.executeUpdate();
-            
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+   
 } 

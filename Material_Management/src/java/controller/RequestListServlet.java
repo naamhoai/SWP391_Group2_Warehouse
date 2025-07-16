@@ -11,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -60,15 +61,24 @@ public class RequestListServlet extends HttpServlet {
             endDate = null;
         }
 
+        if (startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
+            LocalDate start = LocalDate.parse(startDate);
+            LocalDate end = LocalDate.parse(endDate);
+            if (end.isBefore(start)) {
+                request.setAttribute("error", "Ngày kết thúc không thể trước ngày bắt đầu!");
+                request.getRequestDispatcher("requestList.jsp").forward(request, response);
+                return;
+            }
+        }
         try {
             Integer filterUserId = (roleId <= 2) ? null : userId;
             String sortBy = request.getParameter("sortBy");
             String order = request.getParameter("order");
             if (sortBy == null) {
-                sortBy = "id";
+                sortBy = "date";
             }
             if (order == null) {
-                order = "asc";
+                order = "desc";
             }
             List<Request> requests = requestDAO.getFilteredRequests(
                     userId, status, startDate, endDate, projectName, sortBy, order, page, pageSize
