@@ -11,9 +11,9 @@
         <link rel="stylesheet" href="css/sidebar.css"/>
     </head>
     <body>
-        
-        <jsp:include page="sidebar.jsp" />
-        
+
+        <%@include file="sidebar.jsp" %>
+
         <div class="main-content">
             <div class="permission-list-container">
                 <div class="header-section">
