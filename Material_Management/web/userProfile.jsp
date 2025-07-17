@@ -112,6 +112,9 @@
                                 <a href="${pageContext.request.contextPath}/UpdateUserProfileServlet?userId=${user.user_id}" class="btn-edit">
                                     <i class="fas fa-edit"></i> Chỉnh sửa
                                 </a>
+                                <a href="changePassword.jsp" class="btn-edit">
+                                    <i class="fas fa-key"></i> Đổi mật khẩu
+                                </a>
                             </div>
                         </form>
                     </div>

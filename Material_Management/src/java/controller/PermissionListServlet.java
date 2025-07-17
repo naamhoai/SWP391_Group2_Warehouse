@@ -20,15 +20,11 @@ public class PermissionListServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
 
-        // Kiểm tra đăng nhập
         if (session.getAttribute("Admin") == null) {
-            String currentURL = request.getRequestURI();
-            session.setAttribute("redirectURL", currentURL);
             response.sendRedirect(request.getContextPath() + "/login.jsp");
             return;
         }
 
-        // Lấy roleId từ session
         Integer roleId = (Integer) session.getAttribute("roleId");
         if (roleId == null) {
             request.setAttribute("error", "Không tìm thấy vai trò người dùng");
@@ -36,13 +32,12 @@ public class PermissionListServlet extends HttpServlet {
             return;
         }
 
-        // Nếu không phải admin, kiểm tra quyền
         if (roleId != 1) {
             try {
                 UserPermissionDAO userPermissionDAO = new UserPermissionDAO();
                 Map<String, Boolean> rolePermissions = userPermissionDAO.getRolePermissions(roleId);
                 Set<String> userPermissions = rolePermissions.keySet();
-                if (!userPermissions.contains("user_view")) { // Hoặc "permission_view" nếu bạn có quyền này
+                if (!userPermissions.contains("user_view")) {
                     request.setAttribute("error", "Bạn không có quyền truy cập trang này");
                     request.getRequestDispatcher("error.jsp").forward(request, response);
                     return;
@@ -59,12 +54,9 @@ public class PermissionListServlet extends HttpServlet {
             UserDAO userDAO = new UserDAO();
             UserPermissionDAO userPermissionDAO = new UserPermissionDAO();
 
-            // Lấy toàn bộ quyền
             List<Map<String, Object>> allPermissions = permissionListDAO.getAllPermissions();
-            // Lấy toàn bộ vai trò
             List<Role> roles = userDAO.getAllRoles();
 
-            // Lấy quyền của từng role (Map<roleId, Map<permissionName, Boolean>>)
             Map<Integer, Map<String, Boolean>> rolePermissions = new HashMap<>();
             for (Role role : roles) {
                 Map<String, Boolean> perms = userPermissionDAO.getRolePermissions(role.getRoleid());
@@ -92,6 +84,6 @@ public class PermissionListServlet extends HttpServlet {
     @Override
     public String getServletInfo() {
         return "Short description";
-    }// </editor-fold>
+    }
 
 }
