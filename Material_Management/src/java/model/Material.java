@@ -14,6 +14,7 @@ public class Material {
     private String description;
     private String unitName;
     private String status;
+    private boolean categoryHidden;
 
     public Material() {
     }
@@ -129,6 +130,13 @@ public class Material {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public boolean isCategoryHidden() {
+        return categoryHidden;
+    }
+    public void setCategoryHidden(boolean categoryHidden) {
+        this.categoryHidden = categoryHidden;
     }
 
     @Override

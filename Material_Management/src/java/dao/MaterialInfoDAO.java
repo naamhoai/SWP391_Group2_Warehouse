@@ -13,7 +13,7 @@ public class MaterialInfoDAO extends DBContext{
 
     public List<String> getAllCategories() {
         List<String> categories = new ArrayList<>();
-        String sql = "SELECT DISTINCT name FROM categories WHERE name IS NOT NULL ORDER BY name";
+        String sql = "SELECT DISTINCT name FROM categories WHERE name IS NOT NULL AND hidden = 0 ORDER BY name";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
@@ -43,7 +43,7 @@ public class MaterialInfoDAO extends DBContext{
 
     public List<Category> getAllCategoriesForDropdown() throws SQLException {
         List<Category> categories = new ArrayList<>();
-        String sql = "SELECT category_id, name, parent_id FROM categories ORDER BY name";
+        String sql = "SELECT category_id, name, parent_id FROM categories WHERE hidden = 0 ORDER BY name";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
@@ -95,7 +95,7 @@ public class MaterialInfoDAO extends DBContext{
 
     public List<Category> getParentCategories() {
         List<Category> list = new ArrayList<>();
-        String sql = "SELECT * FROM categories WHERE parent_id IS NULL ORDER BY name ASC";
+        String sql = "SELECT * FROM categories WHERE parent_id IS NULL AND hidden = 0 ORDER BY name ASC";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();

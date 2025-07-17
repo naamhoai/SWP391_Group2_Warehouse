@@ -218,13 +218,92 @@ tr.hidden-category {
     min-height: 18px;
 }
 
+/* Thông báo trong bảng danh sách */
+.notification-container {
+    margin: 20px 0;
+    padding: 0 20px;
+}
+
+.notification {
+    padding: 16px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    position: relative;
+    overflow: hidden;
+    width: fit-content;
+    min-width: max-content;
+}
+
+.notification.success {
+    background-color: #e8f5e8;
+    border: 2px solid #4caf50;
+    color: #2e7d32;
+}
+
+.notification.error {
+    background-color: #ffebee;
+    border: 2px solid #f44336;
+    color: #b71c1c;
+}
+
+.notification::before {
+    font-size: 18px;
+}
+
+.notification.success::before {
+    content: "✅";
+}
+
+.notification.error::before {
+    content: "⚠️";
+}
+
+/* Thông báo trong form */
 .message.error {
     margin: 20px 32px;
-    padding: 10px;
-    border: 1px solid #ffcdd2;
-    border-radius: 4px;
+    padding: 16px 20px;
+    border: 2px solid #ffcdd2;
+    border-radius: 8px;
     color: #b71c1c;
     background-color: #ffebee;
+    font-size: 16px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    width: fit-content;
+    min-width: max-content;
+}
+
+.message.success {
+    margin: 20px 32px;
+    padding: 16px 20px;
+    border: 2px solid #c8e6c9;
+    border-radius: 8px;
+    color: #2e7d32;
+    background-color: #f1f8e9;
+    font-size: 16px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    width: fit-content;
+    min-width: max-content;
+}
+
+.message.error::before {
+    content: "⚠️";
+    font-size: 18px;
+}
+
+.message.success::before {
+    content: "✅";
+    font-size: 18px;
 }
 
 @media (max-width: 768px) {
@@ -247,4 +326,62 @@ tr.hidden-category {
         min-width: 90px;
         padding: 8px 10px;
     }
+}
+
+/* Pagination */
+.pagination { 
+    margin: 24px 0 !important; 
+    text-align: center !important; 
+    background: #f8f9fa !important;
+    padding: 20px !important;
+    border-radius: 8px !important;
+}
+.pagination-form { 
+    display: inline-block !important; 
+}
+.page-button {
+    padding: 8px 12px !important;
+    margin: 0 3px !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 6px !important;
+    background: #fff !important;
+    color: #495057 !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+    display: inline-block !important;
+    min-width: 40px !important;
+    text-align: center !important;
+    transition: all 0.2s ease !important;
+    text-decoration: underline !important;
+}
+.page-button:hover { 
+    background: #e9ecef !important; 
+    color: #495057 !important; 
+    border-color: #adb5bd !important;
+}
+.page-button.active { 
+    background: #0d6efd !important; 
+    color: #fff !important; 
+    border-color: #0d6efd !important;
+    text-decoration: underline !important;
+}
+.page-button:disabled { 
+    background: #f8f9fa !important; 
+    color: #adb5bd !important; 
+    cursor: not-allowed !important; 
+    border-color: #dee2e6 !important;
+    text-decoration: none !important;
+}
+.page-ellipsis { 
+    padding: 0 6px !important; 
+    color: #6c757d !important; 
+    font-weight: 500 !important;
+}
+.pagination-info { 
+    margin-top: 12px !important; 
+    color: #6c757d !important; 
+    font-size: 14px !important; 
+    font-weight: 500 !important;
 }

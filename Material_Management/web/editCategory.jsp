@@ -4,7 +4,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Chỉnh sửa danh mục</title>
+        <title>Sửa Loại Vật Tư</title>
         <link rel="stylesheet" href="css/category.css">
     </head>
     <body>
@@ -12,6 +12,14 @@
             <div class="form-container">
                 <h2>Chỉnh sửa danh mục</h2>
 
+                <!-- Thông báo thành công -->
+                <c:if test="${not empty success}">
+                    <div class="message success">
+                        ${success}
+                    </div>
+                </c:if>
+
+                <!-- Thông báo lỗi -->
                 <c:if test="${not empty error}">
                     <div class="message error">
                         ${error}
@@ -23,9 +31,8 @@
                     <input type="hidden" name="id" value="${category.categoryId}">
 
                     <div class="form-field">
-                        <label for="name">Tên danh mục <span class="required">*</span></label>
-                        <input type="text" id="name" name="name" value="${category.name}"
-                               placeholder="Nhập tên danh mục" maxlength="255">
+                        <label for="name">Loại Vật Tư</label>
+                        <input type="text" id="name" name="name" value="${category.name}" placeholder="Nhập tên Loại Vật Tư" required>
                         <span class="error-message" id="nameError"></span>
                     </div>
 
