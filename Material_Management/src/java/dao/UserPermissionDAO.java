@@ -84,7 +84,8 @@ public class UserPermissionDAO {
 
     public List<Map<String, Object>> getAllPermissions() throws SQLException {
         List<Map<String, Object>> permissions = new ArrayList<>();
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement("SELECT permission_id, permission_name, description FROM permissions ORDER BY permission_name"); ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = new DBContext().getConnection();
+                PreparedStatement stmt = conn.prepareStatement("SELECT permission_id, permission_name, description FROM permissions ORDER BY permission_id ASC"); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 Map<String, Object> permission = new HashMap<>();
                 permission.put("permissionId", rs.getInt("permission_id"));

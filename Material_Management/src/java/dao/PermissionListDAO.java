@@ -9,7 +9,7 @@ public class PermissionListDAO {
     public List<Map<String, Object>> getAllPermissions() throws SQLException {
         List<Map<String, Object>> permissions = new ArrayList<>();
         try (Connection conn = new DBContext().getConnection()) {
-            String sql = "SELECT permission_id, permission_name FROM permissions ORDER BY permission_name";
+            String sql = "SELECT permission_id, permission_name FROM permissions ORDER BY permission_id ASC";
             try (PreparedStatement stmt = conn.prepareStatement(sql);
                  ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {

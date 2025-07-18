@@ -27,14 +27,16 @@
                             <th>Đã cấp</th>
                         </tr>
                         <c:forEach var="perm" items="${permissions}" varStatus="loop">
-                            <tr>
-                                <td>${loop.index + 1}</td>
-                                <td>${perm.permissionName}</td>
-                                <td style="text-align: center;">
-                                    <input type="checkbox" name="permissions" value="${perm.permissionName}"
-                                           <c:if test="${rolePermissions[perm.permissionName]}">checked</c:if> />
+                            <c:if test="${perm.permissionName != 'Danh Sách Quyền'}">
+                                <tr>
+                                    <td>${loop.index + 1}</td>
+                                    <td>${perm.permissionName}</td>
+                                    <td style="text-align: center;">
+                                        <input type="checkbox" name="permissions" value="${perm.permissionName}"
+                                               <c:if test="${rolePermissions[perm.permissionName]}">checked</c:if> />
                                     </td>
                                 </tr>
+                            </c:if>
                         </c:forEach>
                     </table>
                     <div class="form-actions">

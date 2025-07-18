@@ -31,6 +31,7 @@
                                     <th style="text-align:center;">
                                         <span style="display:inline-flex;align-items:center;gap:5px;">
                                             ${role.rolename}
+                                            <!-- Tất cả role đều thấy nút chỉnh sửa, nhưng chỉ Admin mới có quyền -->
                                             <a href="userPermission?roleId=${role.roleid}" class="edit-role-btn" title="Chỉnh sửa quyền">
                                                 <i class="fas fa-edit"></i>
                                             </a>
@@ -41,34 +42,37 @@
                         </thead>
                         <tbody>
                             <c:forEach var="permission" items="${allPermissions}">
-                                <tr>
-                                    <td class="permission-name">
-                                        <b>${permission.permissionName}</b>
-                                        <br>
-                                        <span class="permission-desc">${permission.description}</span>
-                                    </td>
-                                    <c:forEach var="role" items="${roles}">
-                                        <c:set var="rolePerms" value="${rolePermissions[role.roleid]}" />
-                                        <td>
-                                            <c:if test="${rolePerms[permission.permissionName]}">
-                                                <i class="fas fa-check-circle"></i>
-                                            </c:if>
+                                <c:if test="${permission.permissionName != 'Danh Sách Quyền'}">
+                                    <tr>
+                                        <td class="permission-name">
+                                            <b>${permission.permissionName}</b>
                                         </td>
-                                    </c:forEach>
-                                </tr>
+                                        <c:forEach var="role" items="${roles}">
+                                            <c:set var="rolePerms" value="${rolePermissions[role.roleid]}" />
+                                            <td>
+                                                <c:if test="${rolePerms[permission.permissionName]}">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </c:if>
+                                            </td>
+                                        </c:forEach>
+                                    </tr>
+                                </c:if>
                             </c:forEach>
                         </tbody>
                     </table>
                 </div>
                 <div class="back-button-container" style="margin-top: 30px;">
-                    <a href="adminDashboard.jsp" class="back-button">
+                    <a href="javascript:history.back()" class="back-button">
                         <i class="fas fa-arrow-left"></i>
-                        Quay lại Dashboard
+                        Quay lại trang trước
                     </a>
-                    <a href="permissionLogs" class="back-button">
-                        <i class="fas fa-history"></i>
-                        Xem lịch sử 
-                    </a>
+                    <!-- Chỉ Admin mới thấy nút xem lịch sử -->
+                    <c:if test="${currentRoleId == 1}">
+                        <a href="permissionLogs" class="back-button">
+                            <i class="fas fa-history"></i>
+                            Xem lịch sử 
+                        </a>
+                    </c:if>
                 </div>
             </div>
         </div>
