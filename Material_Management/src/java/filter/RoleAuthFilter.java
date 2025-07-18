@@ -29,7 +29,6 @@ public class RoleAuthFilter implements Filter {
         String contextPath = req.getContextPath();
         String path = uri.substring(contextPath.length());
 
-        // Bỏ qua các tài nguyên tĩnh
         if (path.startsWith("/css/") || path.startsWith("/js/") || path.startsWith("/image/")) {
             chain.doFilter(request, response);
             return;
@@ -54,21 +53,15 @@ public class RoleAuthFilter implements Filter {
         boolean authorized = false;
         int roleId = (user.getRole() != null) ? user.getRole().getRoleid() : -1;
 
-        // Kiểm tra quyền truy cập theo vai trò
         if (path.equals("/director")) {
-            // Director (roleid = 2) hoặc Admin (roleid = 1)
             authorized = (roleId == 1 || roleId == 2);
         } else if (path.equals("/warehouseStaffDashboard.jsp")) {
-            // Warehouse Staff (roleid = 3) hoặc Admin (roleid = 1)
             authorized = (roleId == 1 || roleId == 3);
         } else if (path.equals("/staffDashboard.jsp")) {
-            // Company Employee (roleid = 4) hoặc Admin (roleid = 1)
             authorized = (roleId == 1 || roleId == 4);
         } else if (path.equals("/homepage.jsp")) {
-            // Tất cả user đã đăng nhập đều có thể truy cập homepage
             authorized = true;
         } else {
-            // Các trang khác không trong danh sách kiểm tra
             authorized = true;
         }
 
@@ -76,12 +69,8 @@ public class RoleAuthFilter implements Filter {
             System.out.println("User " + user.getFullname() + " (RoleID: " + roleId + ") authorized to access: " + path);
             chain.doFilter(request, response);
         } else {
-System.out.println("User " + user.getFullname() + " (RoleID: " + roleId + ") denied access to: " + path);
-            // Chuyển hướng sang trang báo lỗi quyền truy cập
             req.setAttribute("error", "Bạn không có quyền truy cập chức năng này!");
             req.getRequestDispatcher("error.jsp").forward(request, response);
-            // Hoặc nếu muốn redirect:
-            // res.sendRedirect(contextPath + "/error.jsp?msg=role_not_authorized");
         }
     }
 

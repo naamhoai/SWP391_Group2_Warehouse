@@ -10,7 +10,6 @@ import java.io.IOException;
 
 @WebFilter(filterName = "AdminAuthFilter", urlPatterns = {
     "/adminDashboard", 
-    "/AdminDashboardServlet",
     "/addCategory.jsp",
     "/addSupplier.jsp",
     "/createMaterialDetail.jsp",
