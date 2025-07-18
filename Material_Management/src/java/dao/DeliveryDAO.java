@@ -12,7 +12,6 @@ public class DeliveryDAO {
 
     }
 
-    // Lấy tất cả giao hàng, KHÔNG JOIN các bảng khác
     public List<Delivery> getAllDeliveries() {
         List<Delivery> deliveries = new ArrayList<>();
         String sql = "SELECT * FROM delivery";
@@ -20,7 +19,7 @@ public class DeliveryDAO {
             while (rs.next()) {
                 Delivery delivery = new Delivery();
                 delivery.setId(rs.getInt("delivery_id"));
-                delivery.setExportId(rs.getInt("export_id")); // Sửa lại export_id
+                delivery.setExportId(rs.getInt("export_id"));
                 delivery.setUserId(rs.getInt("user_id"));
                 delivery.setRecipientName(rs.getString("recipient_name"));
                 delivery.setDeliveryAddress(rs.getString("delivery_address"));
@@ -35,7 +34,6 @@ public class DeliveryDAO {
         return deliveries;
     }
 
-    // Lấy giao hàng theo trạng thái, KHÔNG JOIN các bảng khác
     public List<Delivery> getDeliveriesByStatus(String status) {
         List<Delivery> deliveries = new ArrayList<>();
         String sql = "SELECT * FROM delivery WHERE status = ?";
@@ -45,7 +43,7 @@ public class DeliveryDAO {
                 while (rs.next()) {
                     Delivery delivery = new Delivery();
                     delivery.setId(rs.getInt("delivery_id"));
-                    delivery.setExportId(rs.getInt("export_id")); // Sửa lại export_id
+                    delivery.setExportId(rs.getInt("export_id"));
                     delivery.setUserId(rs.getInt("user_id"));
                     delivery.setRecipientName(rs.getString("recipient_name"));
                     delivery.setDeliveryAddress(rs.getString("delivery_address"));
@@ -61,7 +59,6 @@ public class DeliveryDAO {
         return deliveries;
     }
 
-    // Thêm phương thức insertDelivery cho xuất kho
     public int insertDelivery(Delivery delivery) throws SQLException {
         String sql = "INSERT INTO delivery (export_id, user_id, recipient_name, delivery_address, status, description, delivery_type, contact_person, contact_phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -88,7 +85,6 @@ public class DeliveryDAO {
         }
     }
 
-    // Lấy chi tiết giao hàng theo ID (chỉ cho xuất kho)
     public Delivery getDeliveryById(int id) {
         String sql = "SELECT * FROM delivery WHERE delivery_id = ?";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {

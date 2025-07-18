@@ -53,9 +53,14 @@ public class DeliveryServlet extends HttpServlet {
                 ? allDeliveries.subList(fromIndex, toIndex)
                 : java.util.Collections.emptyList();
 
-        request.setAttribute("deliveries", deliveries);
-        request.setAttribute("currentPage", currentPage);
-        request.setAttribute("totalPages", totalPages);
+        int pendingDeliveries = 0;
+        for (Delivery d : deliveries) {
+            if ("Chờ giao".equals(d.getStatus())) {
+                pendingDeliveries++;
+            }
+        }
+        request.setAttribute("pendingDeliveries", pendingDeliveries);
+        request.setAttribute("deliveryList", deliveries);
         request.getRequestDispatcher("delivery.jsp").forward(request, response);
     }
 }

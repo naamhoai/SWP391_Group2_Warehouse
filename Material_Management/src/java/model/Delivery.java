@@ -5,16 +5,43 @@ import java.sql.Timestamp;
 public class Delivery {
 
     private int id;
-    private int exportId; 
-    private int userId; 
+    private int exportId;
+    private int userId;
     private String recipientName;
-    private String deliveryAddress; 
-    private String status; 
-    private Timestamp deliveryDate; 
-    private String description; 
-    private String materialName; 
-    private String contactPerson; 
-    private String contactPhone;  
+    private String deliveryAddress;
+    private String status;
+    private Timestamp deliveryDate;
+    private String description;
+    private String materialName;
+    private String contactPerson;
+    private String contactPhone;
+    private String deliveryType;
+
+    public String getDeliveryType() {
+        return deliveryType;
+    }
+
+    public Delivery(int id, int exportId, int userId, String recipientName, String deliveryAddress, String status, Timestamp deliveryDate, String description, String materialName, String contactPerson, String contactPhone, String deliveryType) {
+        this.id = id;
+        this.exportId = exportId;
+        this.userId = userId;
+        this.recipientName = recipientName;
+        this.deliveryAddress = deliveryAddress;
+        this.status = status;
+        this.deliveryDate = deliveryDate;
+        this.description = description;
+        this.materialName = materialName;
+        this.contactPerson = contactPerson;
+        this.contactPhone = contactPhone;
+        this.deliveryType = deliveryType;
+    }
+
+    public Delivery() {
+    }
+
+    public void setDeliveryType(String deliveryType) {
+        this.deliveryType = deliveryType;
+    }
 
     // Getters and Setters
     public int getId() {
@@ -89,19 +116,18 @@ public class Delivery {
         this.materialName = materialName;
     }
 
-    public String getContactPerson() { // Thêm getter
+    public String getContactPerson() { 
         return contactPerson;
     }
-
-    public void setContactPerson(String contactPerson) { // Thêm setter
+public void setContactPerson(String contactPerson) { 
         this.contactPerson = contactPerson;
     }
 
-    public String getContactPhone() { // Thêm getter
+    public String getContactPhone() { 
         return contactPhone;
     }
 
-    public void setContactPhone(String contactPhone) { // Thêm setter
+    public void setContactPhone(String contactPhone) { 
         this.contactPhone = contactPhone;
     }
 }

@@ -57,7 +57,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach var="delivery" items="${deliveries}">
+                            <c:forEach var="delivery" items="${deliveryList}">
                                 <tr>
                                     <td>${delivery.id}</td>
                                     <td>${delivery.recipientName}</td>
@@ -88,13 +88,13 @@
                             </c:forEach>
                         </tbody>
                     </table>
-                    <c:if test="${empty deliveries}">
+                    <c:if test="${empty deliveryList}">
                         <div class="alert alert-warning text-center mt-3">Không có dữ liệu giao hàng.</div>
                     </c:if>
 
                     <script>
                         function filterByStatus() {
-                            var status = document.getElementsByName('statusFilter')[0].value;
+                            var status = document.getElementsByName('statusFilter').value;
                             var url = 'delivery?page=1';
                             if (status) {
                                 url += '&status=' + encodeURIComponent(status);
