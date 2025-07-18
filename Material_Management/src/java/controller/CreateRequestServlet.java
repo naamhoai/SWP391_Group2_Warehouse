@@ -35,11 +35,11 @@ public class CreateRequestServlet extends HttpServlet {
             InventoryDAO inventoryDAO = new InventoryDAO();
             List<Inventory> inventoryList = inventoryDAO.getInventoryWithMaterialInfo();
             UnitConversionDao unitDao = new UnitConversionDao();
-            List<UnitConversion> unitList = unitDao.getAllunit();
+           
 
             request.setAttribute("userName", user.getFullname());
             request.setAttribute("materialList", inventoryList);
-            request.setAttribute("unitList", unitList);
+          
             request.setAttribute("parentCategories", parentCategories);
             request.setAttribute("subCategories", subCategories);
 
