@@ -1,8 +1,8 @@
 /* General Styles */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     background-color: #f0f4f8;
-    background-image: linear-gradient(135deg, #e9f3ff 0%, #d1e8ff 100%);
+    background-image: none; 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -20,14 +20,9 @@ body::before {
     width: 200%;
     height: 200%;
     background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 60%);
-    transform: rotate(0deg);
-    animation: rotate 30s linear infinite;
+    transform: none;
+   
     z-index: 0;
-}
-
-@keyframes rotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
 }
 
 /* Main Container */
@@ -35,26 +30,15 @@ body::before {
     display: flex;
     width: 100%;
     max-width: 950px;
-    background-color: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(15px);
+    background-color: rgba(255, 255, 255, 0.97);
+  
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 20px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     overflow: hidden;
     position: relative;
     z-index: 1;
-    animation: slideUp 0.8s ease-out forwards;
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(40px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  
 }
 
 /* Form Section */
@@ -123,13 +107,7 @@ form {
     font-size: 0.95rem;
     font-weight: 500;
     text-align: center;
-    animation: shake 0.5s ease-in-out;
-}
-
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25%, 75% { transform: translateX(-5px); }
-    50% { transform: translateX(5px); }
+    /* animation: shake 0.5s ease-in-out; */
 }
 
 /* Login Button */
@@ -144,17 +122,17 @@ form {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 5px 20px rgba(52, 152, 219, 0.3);
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.15);
 }
 
 .login-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+    transform: none;
+    box-shadow: 0 2px 12px rgba(52, 152, 219, 0.18);
 }
 
 .login-btn:active {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    transform: none;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.13);
 }
 
 /* Support Button */
@@ -165,11 +143,11 @@ form {
     display: flex;
     align-items: center;
     gap: 12px;
-    background-color: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.95);
+    /* backdrop-filter: blur(10px); */
     padding: 12px 18px;
     border-radius: 25px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     z-index: 1000;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -178,8 +156,8 @@ form {
 }
 
 .imgsp:hover {
-    transform: translateY(-3px) scale(1.03);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transform: none;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
     background-color: #fff;
 }
 
@@ -192,11 +170,11 @@ form {
 .imgsp img {
     width: 30px;
     height: 30px;
-    transition: transform 0.3s ease;
+    transition: none;
 }
 
 .imgsp:hover img {
-    transform: scale(1.1) rotate(5deg);
+    transform: none;
 }
 
 /* Back to Home Link */
@@ -220,32 +198,23 @@ form {
 
 /* Image Section */
 .image-section {
-    flex: 0.9;
-    background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url("../image/pexels-cottonbro-7484811.jpg");
+    position: relative;
+    flex: 1;
+    background-image: url("../image/pexels-cottonbro-7484811 (1) (1).jpg");
     background-size: cover;
     background-position: center;
-    position: relative;
+    background-color: #e9f3ff;
     display: flex;
     align-items: flex-end;
-    color: white;
     padding: 50px;
-    transition: transform 0.5s ease-out;
-}
-
-.container:hover .image-section {
-    transform: scale(1);
-}
-
-.image-section::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(26, 59, 93, 0.7) 0%, transparent 60%);
+    padding-bottom: 80px; /* Tạo khoảng trống cho thông báo */
+    min-height: 350px;
+    box-sizing: border-box;
 }
 
 .overlay-text {
-    position: relative;
-    z-index: 1;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.4);
 }
 
 .overlay-text h3 {
@@ -263,6 +232,23 @@ form {
     text-shadow: 0 1px 8px rgba(0,0,0,0.4);
 }
 
+.image-section::after {
+    content: 'Nếu ảnh nền không hiển thị, chỉ có màu nền này là mặc định.';
+    display: block;
+    position: absolute;
+    right: 10px; bottom: 10px;
+    background: rgba(255,255,255,0.7);
+    color: #c0392b;
+    font-size: 0.95rem;
+    padding: 4px 10px;
+    border-radius: 8px;
+    z-index: 2;
+    pointer-events: none;
+}
+.image-section {
+    position: relative; /* Đảm bảo có thuộc tính này */
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .container {
@@ -270,7 +256,7 @@ form {
     }
     
     .container:hover .image-section {
-        transform: scale(1);
+        transform: none;
     }
 
     .image-section {

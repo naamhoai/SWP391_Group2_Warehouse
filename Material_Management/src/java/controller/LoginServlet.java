@@ -93,7 +93,7 @@ public class LoginServlet extends HttpServlet {
                         return;
                     }
                     //BCrypt.checkpw(pass, user2.getPassword())
-                    if (pass.equals(user2.getPassword())||BCrypt.checkpw(pass, user2.getPassword())) {
+                    if (pass.equals(user2.getPassword())) {
                         session.setAttribute("Admin", user2);
                         session.setAttribute("userId", user2.getUser_id());
                         session.setAttribute("roleId", user2.getRole().getRoleid());
@@ -125,7 +125,7 @@ public class LoginServlet extends HttpServlet {
 
                     } else {
 
-                        request.setAttribute("mess", "Sai mật khẩu.");
+                        request.setAttribute("mess", "Sai mật khẩu hoặc tài khoản.");
                         request.getRequestDispatcher("login.jsp").forward(request, response);
                         return;
 
@@ -134,8 +134,9 @@ public class LoginServlet extends HttpServlet {
             }
         }
 
-        session.setAttribute("mess", "Sai mật khẩu");
-        response.sendRedirect("login.jsp");
+        request.setAttribute("mess", "Sai mật khẩu hoặc tài khoản.");
+        request.getRequestDispatcher("login.jsp").forward(request, response);
+        return;
     }
 
     /**
