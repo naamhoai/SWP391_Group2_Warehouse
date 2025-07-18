@@ -92,8 +92,14 @@ public class LoginServlet extends HttpServlet {
                         request.getRequestDispatcher("login.jsp").forward(request, response);
                         return;
                     }
-                    //BCrypt.checkpw(pass, user2.getPassword())
-                    if (pass.equals(user2.getPassword())) {
+                    String Password = user2.getPassword();
+                    boolean isBCrypt = Password != null && (
+                        Password.startsWith("$2a$") ||
+                        Password.startsWith("$2b$") ||
+                        Password.startsWith("$2y$")
+                    );
+                    boolean valid = isBCrypt ? org.mindrot.jbcrypt.BCrypt.checkpw(pass, Password) : pass.equals(Password);
+                    if (valid) {
                         session.setAttribute("Admin", user2);
                         session.setAttribute("userId", user2.getUser_id());
                         session.setAttribute("roleId", user2.getRole().getRoleid());
@@ -122,13 +128,10 @@ public class LoginServlet extends HttpServlet {
                                 break;
                         }
                         return;
-
                     } else {
-
                         request.setAttribute("mess", "Sai mật khẩu hoặc tài khoản.");
                         request.getRequestDispatcher("login.jsp").forward(request, response);
                         return;
-
                     }
                 }
             }
