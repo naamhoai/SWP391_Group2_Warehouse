@@ -45,7 +45,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <input type="number" id="conv_${sup.unit_id}" name="conversion_${sup.unit_id}" value="" min="1" max="1000"  step="0.01"required/>
+                                    <input type="number" id="conv_${sup.unit_id}" name="conversion_${sup.unit_id}" value="" min="1" max="1000"  required/>
                                     <script type="application/json" id="data_${sup.unit_id}">
                                         {
                                         <c:forEach var="conv" items="${mapBaseUnits[sup.unit_id]}" varStatus="loop">

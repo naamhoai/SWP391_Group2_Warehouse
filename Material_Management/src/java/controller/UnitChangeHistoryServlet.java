@@ -12,12 +12,11 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.*;
-import dal.DBContext;
+
 import dao.UnitConversionDao;
-import java.sql.SQLException;
+
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  *
@@ -66,17 +65,38 @@ public class UnitChangeHistoryServlet extends HttpServlet {
             throws ServletException, IOException {
         UnitConversionDao dao = new UnitConversionDao();
 
+        String search = request.getParameter("search");
+        String operationFilter = request.getParameter("operationFilter");
+        String userFilter = request.getParameter("userFilter");
+        String dateFilter = request.getParameter("date");
+
+        int page = 1;
         try {
-            List<UnitChangeHistory> historyList = dao.getAllHistories();
+            String pageParam = request.getParameter("page");
+            if (pageParam != null && !pageParam.isEmpty()) {
+                page = Integer.parseInt(pageParam);
+            }
+        } catch (Exception ignored) {
+        }
+         
+        try {
+            System.out.println("date" + dateFilter);
+            List<UnitChangeHistory> historyList = dao.getFilHistory(search, operationFilter, userFilter, dateFilter, page);
+            int totalPages = dao.countpage(search, operationFilter, userFilter, dateFilter);
 
             request.setAttribute("historyList", historyList);
+            request.setAttribute("search", search);
+            request.setAttribute("operationFilter", operationFilter);
+            request.setAttribute("userFilter", userFilter);
+            request.setAttribute("dateFilter", dateFilter);
+            request.setAttribute("currentPage", page);
+            request.setAttribute("pages", totalPages);
+
             request.getRequestDispatcher("unitHistory.jsp").forward(request, response);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-
-        } catch (SQLException ex) {
-            Logger.getLogger(UnitChangeHistoryServlet.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException e){
+           
+          
         }
     }
 
@@ -96,7 +116,7 @@ public class UnitChangeHistoryServlet extends HttpServlet {
         String search = request.getParameter("search");
         String operationFilter = request.getParameter("operationFilter");
         String userFilter = request.getParameter("userFilter");
-        String dateFilter = request.getParameter("dateFilter");
+        String date = request.getParameter("date");
 
         int page = 1;
         try {
@@ -105,16 +125,16 @@ public class UnitChangeHistoryServlet extends HttpServlet {
         }
 
         try {
-            // DÙNG ĐÚNG THAM SỐ
-            List<UnitChangeHistory> historyList = dao.getFilHistory(search, operationFilter, userFilter, dateFilter, page);
-
-            int totalPages = dao.countpage(search, operationFilter, userFilter, dateFilter);
+            
+            List<UnitChangeHistory> historyList = dao.getFilHistory(search, operationFilter, userFilter, date, page);
+            
+            int totalPages = dao.countpage(search, operationFilter, userFilter, date);
 
             request.setAttribute("historyList", historyList);
             request.setAttribute("search", search);
             request.setAttribute("operationFilter", operationFilter);
             request.setAttribute("userFilter", userFilter);
-            request.setAttribute("dateFilter", dateFilter);
+            request.setAttribute("date", date);
             request.setAttribute("currentPage", page);
             request.setAttribute("pages", totalPages);
 
@@ -126,16 +146,14 @@ public class UnitChangeHistoryServlet extends HttpServlet {
         }
     }
 
-        /**
-         * Returns a short description of the servlet.
-         *
-         * @return a String containing servlet description
-         */
-        @Override
-        public String getServletInfo
-        
-            () {
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
         return "Short description";
-        }// </editor-fold>
+    }// </editor-fold>
 
-    }
+}

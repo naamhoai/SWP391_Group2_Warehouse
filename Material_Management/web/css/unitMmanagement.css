@@ -15,10 +15,9 @@ body {
 
 .container {
     max-width: 1200px;
-<<<<<<< HEAD
-=======
+
     margin-left: 500px; 
->>>>>>> 84f434c9bd9dd41c9b30ccdc8f1be085d56e6cd2
+
     margin: 0 auto;
     padding: 2rem;
 }
@@ -627,12 +626,12 @@ button:disabled {
 .pagination button.active-page:hover {
     background: #3182ce;
     border-color: #3182ce;
-<<<<<<< HEAD
+
 } 
-=======
-}
+
+
 body > .container {
     margin-left: 240px !important;
 }
    
->>>>>>> 84f434c9bd9dd41c9b30ccdc8f1be085d56e6cd2
+

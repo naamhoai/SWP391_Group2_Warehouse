@@ -27,12 +27,12 @@ public class UnitConversionServlet extends HttpServlet {
         String cvid = request.getParameter("cvid");
         String action = request.getParameter("action");
         String search = request.getParameter("search");
-
+//        int vtid = Integer.parseInt(request.getParameter("vtid"));
         HttpSession session = request.getSession();
         User nameandid = (User) session.getAttribute("Admin");
 
-        String username = (nameandid != null) ? nameandid.getFullname() : "Rỗng";
-        String role = (nameandid != null && nameandid.getRole() != null) ? nameandid.getRole().getRolename() : "Rỗng";
+        String username = (nameandid != null) ? nameandid.getFullname() : "";
+        String role = (nameandid != null && nameandid.getRole() != null) ? nameandid.getRole().getRolename() : "";
 
         int page = 1;
         try {
@@ -57,7 +57,7 @@ public class UnitConversionServlet extends HttpServlet {
                     history.setNewValue(action);
                     history.setChangedBy(username);
                     history.setRole(role);
-                    history.setNote("Thay đổi trạng thái từ '" + oldStatus + " sang " + action + "");
+                    history.setNote(" Trạng thái từ '" + oldStatus + " -> " + action + "");
                     history.setChangedAt(new Timestamp(System.currentTimeMillis()));
 
                     dao.insertHistory(history);
