@@ -1,157 +1,159 @@
- body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f1f5f9;
-            color: #222;
-            margin: 0;
-            padding: 0;
-        }
-        .top-right-history {
-            width: 100%;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        .btn-history {
-            background: #2563eb;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 0.6rem 1.3rem;
-            font-size: 1rem;
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            box-shadow: 0 2px 8px rgba(37,99,235,0.08);
-            transition: background 0.2s, box-shadow 0.2s;
-            cursor: pointer;
-        }
-        .btn-history:hover {
-            background: #1d4ed8;
-            box-shadow: 0 4px 16px rgba(37,99,235,0.13);
-            color: #fff;
-            text-decoration: none;
-        }
-        .container {
-            max-width: 900px;
-            margin: 40px auto;
-            background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            padding: 2rem 2.5rem;
-        }
-        .form-section {
-            margin-bottom: 2rem;
-        }
-        .form-section h3 {
-            color: #2563eb;
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        .form-group label {
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 0.85rem 1.1rem;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 1.05rem;
-            background: #f8fafc;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-            transition: border 0.2s, box-shadow 0.2s;
-        }
-        .form-group input:focus {
-            border: 1.5px solid #2563eb;
-            outline: none;
-            box-shadow: 0 0 0 2px #2563eb33;
-            background: #fff;
-        }
-        .table-vattu {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 1rem;
-        }
-        .table-vattu th, .table-vattu td {
-            padding: 0.7rem 1rem;
-            border-bottom: 1px solid #e2e8f0;
-            text-align: left;
-        }
-        .table-vattu th {
-            background: #e0e7ef;
-            color: #2563eb;
-            font-weight: 600;
-        }
-        .table-vattu input[type="text"],
-        .table-vattu input[type="number"],
-        .table-vattu select {
-            width: 100%;
-            padding: 0.7rem 0.9rem;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 1rem;
-            background: #f8fafc;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.03);
-            transition: border 0.2s, box-shadow 0.2s;
-            margin: 0.15rem 0;
-        }
-        .table-vattu input:focus,
-        .table-vattu select:focus {
-            border: 1.5px solid #2563eb;
-            outline: none;
-            box-shadow: 0 0 0 2px #2563eb33;
-            background: #fff;
-        }
-        .btn-add {
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            margin-top: 0.5rem;
-            box-shadow: 0 2px 8px rgba(37,99,235,0.08);
-            transition: background 0.2s, box-shadow 0.2s;
-        }
-        .btn-add:hover {
-            background: #1d4ed8;
-            box-shadow: 0 4px 16px rgba(37,99,235,0.13);
-        }
-        .btn-delete {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(239,68,68,0.08);
-            transition: background 0.2s, box-shadow 0.2s;
-        }
-        .btn-delete:hover {
-            background: #dc2626;
-            box-shadow: 0 4px 16px rgba(239,68,68,0.13);
-        }
-        @media (max-width: 600px) {
-            .container {
-                padding: 1rem 0.5rem;
-            }
-            .table-vattu th, .table-vattu td {
-                padding: 0.5rem;
-            }
-            .top-right-history {
-                margin-bottom: 1rem;
-            }
-        }
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f1f5f9;
+    color: #222;
+    margin: 0;
+    padding: 0;
+}
+.top-right-history {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+.btn-history {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1.3rem;
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.08);
+    transition: background 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+.btn-history:hover {
+    background: #1d4ed8;
+    box-shadow: 0 4px 16px rgba(37,99,235,0.13);
+    color: #fff;
+    text-decoration: none;
+}
+.container {
+    max-width: 900px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    padding: 2rem 2.5rem;
+}
+.form-section {
+    margin-bottom: 2rem;
+}
+.form-section h3 {
+    color: #2563eb;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.form-group {
+    margin-bottom: 1.5rem;
+}
+.form-group label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+.form-group input {
+    width: 100%;
+    padding: 0.85rem 1.1rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 1.05rem;
+    background: #f8fafc;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    transition: border 0.2s, box-shadow 0.2s;
+}
+.form-group input:focus {
+    border: 1.5px solid #2563eb;
+    outline: none;
+    box-shadow: 0 0 0 2px #2563eb33;
+    background: #fff;
+}
+.table-vattu {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+.table-vattu th, .table-vattu td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+}
+.table-vattu th {
+    background: #e0e7ef;
+    color: #2563eb;
+    font-weight: 600;
+}
+.table-vattu input[type="text"],
+.table-vattu input[type="number"],
+.table-vattu select {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: #f8fafc;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    transition: border 0.2s, box-shadow 0.2s;
+    margin: 0.15rem 0;
+}
+.table-vattu input:focus,
+.table-vattu select:focus {
+    border: 1.5px solid #2563eb;
+    outline: none;
+    box-shadow: 0 0 0 2px #2563eb33;
+    background: #fff;
+}
+.btn-add {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.08);
+    transition: background 0.2s, box-shadow 0.2s;
+}
+.btn-add:hover {
+    background: #1d4ed8;
+    box-shadow: 0 4px 16px rgba(37,99,235,0.13);
+}
+.btn-delete {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(239,68,68,0.08);
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+.btn-delete:hover {
+    background: #dc2626;
+    box-shadow: 0 4px 16px rgba(239,68,68,0.13);
+}
+@media (max-width: 600px) {
+    .container {
+        padding: 1rem 0.5rem;
+    }
+    .table-vattu th, .table-vattu td {
+        padding: 0.5rem;
+    }
+    .top-right-history {
+        margin-bottom: 1rem;
+    }
+    
+}

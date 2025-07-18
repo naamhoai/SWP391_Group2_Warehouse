@@ -67,10 +67,19 @@ public class ImportWarehouseServlet extends HttpServlet {
         String role = (nameandid != null && nameandid.getRole() != null) ? nameandid.getRole().getRolename() : "Rỗng";
         UnitConversionDao dao = new UnitConversionDao();
         List<Material> list = dao.getALls();
-        request.setAttribute("materialList", list);
+        if (list != null) {
+            System.out.println("materialList: " + request.getAttribute("materialList"));
+            System.out.println("username: " + request.getAttribute("username"));
+            System.out.println("role: " + request.getAttribute("role"));
 
-        request.setAttribute("username", username);
+            request.setAttribute("materialList", list);
+            request.setAttribute("role", role);
+            request.setAttribute("username", username);
+
+        }
+
         request.getRequestDispatcher("importWarehouse.jsp").forward(request, response);
+        return;
     }
 
     /**
@@ -84,38 +93,72 @@ public class ImportWarehouseServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
         UnitConversionDao dao = new UnitConversionDao();
-        String name = request.getParameter("name");
-        String namevt = request.getParameter("namevt");
-        String number = request.getParameter("number");
-        String unit = request.getParameter("unit");
-        String status = request.getParameter("status");
-        String materialId = request.getParameter("materialId");
+
+        String[] namevts = request.getParameterValues("namevt[]");
+        String[] numbers = request.getParameterValues("number[]");
+        String[] units = request.getParameterValues("unit[]");
+        String[] statuses = request.getParameterValues("status[]");
+
+        String reason = request.getParameter("reason");
+        String nguoiGiao = request.getParameter("nguoiGiao");
+        String nguoiNhan = request.getParameter("nguoiNhan");
+        String soDienThoaiNguoiGiao = request.getParameter("soDienThoaiNguoiGiao");
+        String tenDuAn = request.getParameter("tenDuAn");
+
         HttpSession session = request.getSession();
         User nameandid = (User) session.getAttribute("Admin");
-        int materi = 0;
-        if (namevt != null && namevt.contains("-")) {
-            String[] parts = namevt.split("-");
-            materi = Integer.parseInt(parts[0].trim());
-        } else if (namevt != null) {
-            materi = Integer.parseInt(namevt.trim());
-        }
-
         String username = (nameandid != null) ? nameandid.getFullname() : "Rỗng";
         String role = (nameandid != null && nameandid.getRole() != null) ? nameandid.getRole().getRolename() : "Rỗng";
 
-        int num = Integer.parseInt(number);
-        boolean success = dao.updateQuantity(materi, status, num);
+        boolean allSuccess = true;
 
-        if (success) {
+        for (int i = 0; i < namevts.length; i++) {
+            String namevt = namevts[i];
+            String number = numbers[i];
+            String unit = units[i];
+            String status = statuses[i];
+
+            int materi = 0;
+            if (namevt != null && namevt.contains("-")) {
+                String[] parts = namevt.split("-");
+                materi = Integer.parseInt(parts[0].trim());
+            } else if (namevt != null) {
+                materi = Integer.parseInt(namevt.trim());
+            }
+
+            int num = Integer.parseInt(number);
+            boolean success = dao.updateQuantity(materi, status, num);
+
+            if (success) {
+            
+                ImportHistory importHistory = new model.ImportHistory(
+                        role,
+                        reason,
+                        nguoiGiao,
+                        nguoiNhan,
+                        soDienThoaiNguoiGiao,
+                        tenDuAn,
+                        namevt,
+                        num,
+                        unit,
+                        status
+                );
+                new dao.ImportHistoryDAO().insertImportHistory(importHistory);
+            } else {
+                allSuccess = false;
+                break; // hoặc tiếp tục, tùy ý
+            }
+        }
+
+        if (allSuccess) {
             request.setAttribute("mess", "Nhập đơn vị thành công!");
             List<Material> list = dao.getALls();
             request.setAttribute("materialList", list);
             request.setAttribute("username", username);
-            
-            
+            request.setAttribute("role", role);
             request.getRequestDispatcher("importWarehouse.jsp").forward(request, response);
-
         } else {
             response.sendRedirect("error.jsp");
         }
