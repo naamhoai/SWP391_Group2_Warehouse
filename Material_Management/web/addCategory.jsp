@@ -4,7 +4,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Thêm danh mục mới</title>
+        <title>Thêm Loại Vật Tư</title>
         <link rel="stylesheet" href="css/category.css">
     </head>
     <body>
@@ -12,17 +12,22 @@
             <div class="form-container">
                 <h2>Thêm danh mục mới</h2>
 
+                <!-- Thông báo thành công -->
                 <c:if test="${not empty success}">
                     <div class="message success">
                         ${success}
                     </div>
                 </c:if>
+                
+                <!-- Thông báo lỗi từ session -->
                 <c:if test="${not empty sessionScope.error}">
                     <div class="message error">
                         ${sessionScope.error}
                     </div>
                     <% session.removeAttribute("error"); %>
                 </c:if>
+                
+                <!-- Thông báo lỗi từ request -->
                 <c:if test="${not empty error}">
                     <div class="message error">
                         ${error}
@@ -33,9 +38,9 @@
                     <input type="hidden" name="action" value="add">
 
                     <div class="form-field">
-                        <label for="name">Tên danh mục <span class="required">*</span></label>
+                        <label for="name">Loại Vật Tư <span class="required">*</span></label>
                         <input type="text" id="name" name="name" 
-                               placeholder="Nhập tên danh mục" maxlength="255"
+                               placeholder="Nhập tên Loại Vật Tư" maxlength="255"
                                value="${not empty error ? name : ''}">
                         <span class="error-message" id="nameError"></span>
                     </div>

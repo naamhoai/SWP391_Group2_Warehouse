@@ -132,11 +132,14 @@ public class CategoryServlet extends HttpServlet {
             currentPage = totalPages;
         }
 
+        // Tính tổng số danh mục
+        int totalCategories = categoryDAO.getTotalCategories(keyword, parentId, hiddenFilter);
+
         // Lấy danh sách category cho trang hiện tại (chỉ lấy danh mục con)
         List<Category> categories = categoryDAO.getFilteredCategoriesWithPaging(keyword, parentId, sortBy, hiddenFilter, currentPage, PAGE_SIZE);
         
         // Lấy danh sách danh mục vật tư cho dropdown filter
-        List<Category> parentCategories = categoryDAO.getParentCategories();
+        List<Category> parentCategories = categoryDAO.getVisibleParentCategories();
         
         // Tạo map chứa tên danh mục vật tư
         java.util.Map<Integer, String> parentNames = new java.util.HashMap<>();
@@ -162,6 +165,7 @@ public class CategoryServlet extends HttpServlet {
         request.setAttribute("startPage", startPage);
         request.setAttribute("endPage", endPage);
         request.setAttribute("hiddenFilter", hiddenFilter);
+        request.setAttribute("totalCategories", totalCategories);
 
         request.getRequestDispatcher("listCategory.jsp").forward(request, response);
     }

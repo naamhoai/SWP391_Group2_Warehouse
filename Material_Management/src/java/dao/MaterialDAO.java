@@ -18,7 +18,7 @@ public class MaterialDAO extends DBContext{
     public List<Material> getMaterialsForAdmin(String searchQuery, Integer categoryId, String supplierFilter, String statusFilter,
             int page, int itemsPerPage, String sortField, String sortDir) {
         List<Material> materials = new ArrayList<>();
-        String sql = "SELECT m.*, c.name as category_name, s.supplier_name, u.unit_name " +
+        String sql = "SELECT m.*, c.name as category_name, c.hidden as category_hidden, s.supplier_name, u.unit_name " +
                 "FROM materials m " +
                 "LEFT JOIN categories c ON m.category_id = c.category_id " +
                 "LEFT JOIN supplier s ON m.supplier_id = s.supplier_id " +
@@ -26,7 +26,7 @@ public class MaterialDAO extends DBContext{
                 "WHERE 1=1 ";
         ArrayList<Object> params = new ArrayList<>();
         sql = buildWhereClauses(sql, params, searchQuery, categoryId, supplierFilter, statusFilter);
-        sql += "ORDER BY CASE WHEN m.status = 'active' THEN 0 ELSE 1 END, " + getSafeSortField(sortField) + (sortDir.equalsIgnoreCase("asc") ? " ASC" : " DESC");
+        sql += " ORDER BY m.material_id ASC";
         sql += " LIMIT ? OFFSET ?";
         try (Connection conn = new DBContext().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -188,8 +188,11 @@ public class MaterialDAO extends DBContext{
             params.add(supplierFilter.trim());
         }
         if (statusFilter != null && !statusFilter.trim().isEmpty() && !statusFilter.equals("All")) {
-            sql += "AND m.status = ? ";
-            params.add(statusFilter.trim());
+            if (statusFilter.equals("inactive")) {
+                sql += "AND c.hidden = 1 ";
+            } else if (statusFilter.equals("active")) {
+                sql += "AND (c.hidden = 0 OR c.hidden IS NULL) ";
+            }
         }
         return sql;
     }
@@ -223,15 +226,21 @@ public class MaterialDAO extends DBContext{
         material.setDescription(rs.getString("description"));
         material.setUnitName(rs.getString("unit_name"));
         material.setStatus(rs.getString("status"));
+        try {
+            material.setCategoryHidden(rs.getBoolean("category_hidden"));
+        } catch (SQLException e) {
+            material.setCategoryHidden(false);
+        }
         return material;
     }
 
-public List<Material> getMaterial() {
+ public List<Material> getMaterial() {
         List<Material> list = new ArrayList<>();
         String sql = "SELECT m.material_id, m.name, m.category_id, c.parent_id, u.unit_name "
                 + "FROM materials m "
                 + "LEFT JOIN categories c ON m.category_id = c.category_id "
                 + "LEFT JOIN units u ON m.unit_id = u.unit_id "
+                + "WHERE (c.hidden = 0 OR c.hidden IS NULL) "
                 + "ORDER BY m.name";
         try {
             PreparedStatement ca = new DBContext().connection.prepareStatement(sql);
@@ -265,18 +274,51 @@ public List<Material> getMaterial() {
         return names;
     }
 
-    public int getNextMaterialId() {
-        String sql = "SELECT COALESCE(MAX(material_id), 0) + 1 AS next_id FROM materials";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt("next_id");
+    public int getMaterialIdByName(String materialName) {
+        String sql = "SELECT material_id FROM materials WHERE name = ?";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, materialName.trim());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("material_id");
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return 1;
+        return 0;
+    }
+
+    /**
+     * Tìm kiếm vật tư theo tên (autocomplete)
+     */
+    public List<Material> searchMaterialsByName(String keyword) {
+        List<Material> list = new ArrayList<>();
+        String sql = "SELECT m.material_id, m.name, m.price, m.unit_id, u.unit_name, m.category_id, c.name as category_name " +
+                "FROM materials m " +
+                "LEFT JOIN units u ON m.unit_id = u.unit_id " +
+                "LEFT JOIN categories c ON m.category_id = c.category_id " +
+                "WHERE m.status = 'active' AND m.name LIKE ? LIMIT 10";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Material m = new Material();
+                m.setMaterialId(rs.getInt("material_id"));
+                m.setName(rs.getString("name"));
+                m.setPrice(rs.getLong("price"));
+                m.setUnitId(rs.getInt("unit_id"));
+                m.setUnitName(rs.getString("unit_name"));
+                m.setCategoryId(rs.getInt("category_id"));
+                m.setCategoryName(rs.getString("category_name"));
+                list.add(m);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 
     public void close(){

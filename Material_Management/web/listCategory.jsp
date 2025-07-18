@@ -1,16 +1,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-cósa<%@page import="java.util.*, model.Category, dao.CategoryDAO"%>
+<%@page import="java.util.*, model.Category, dao.CategoryDAO"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%
-    String error = (String) session.getAttribute("error");
-    String message = (String) session.getAttribute("message");
-    if (error != null) {
-        session.removeAttribute("error");
-    }
-    if (message != null) {
-        session.removeAttribute("message");
-    }
-%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<!-- Đã xóa đoạn code Java remove message/error ở đây -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,7 +10,6 @@ cósa<%@page import="java.util.*, model.Category, dao.CategoryDAO"%>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý danh mục</title>
     <link rel="stylesheet" href="css/category.css">
-    <link rel="stylesheet" href="css/footer.css">
     <link rel="stylesheet" href="css/sidebar.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/supplier.css">
@@ -41,6 +32,21 @@ cósa<%@page import="java.util.*, model.Category, dao.CategoryDAO"%>
                 <a href="categories?action=add" class="btn-add">+ Thêm danh mục mới</a>
             </div>
         </div>
+
+        <!-- Thông báo thành công và lỗi -->
+        <c:if test="${not empty sessionScope.message}">
+            <div class="message success" style="margin: 20px 0; padding: 12px; background: #e6ffe6; color: #207520; border: 1px solid #b2e2b2; border-radius: 4px; font-weight: 500;">
+                ${sessionScope.message}
+                <c:remove var="message" scope="session"/>
+            </div>
+        </c:if>
+        <c:if test="${not empty sessionScope.error}">
+            <div class="message error">
+                ${sessionScope.error}
+                <c:remove var="error" scope="session"/>
+            </div>
+        </c:if>
+
         <form action="categories" method="get" class="filter-form">
             <select name="hiddenFilter" class="filter-select">
                 <option value="all" ${param.hiddenFilter == null || param.hiddenFilter == 'all' ? 'selected' : ''}>Tất cả trạng thái</option>
@@ -77,6 +83,8 @@ cósa<%@page import="java.util.*, model.Category, dao.CategoryDAO"%>
                         <th>ID</th>
                         <th>Loại vật tư</th>
                         <th>Danh mục vật tư</th>
+                        <th>Ngày tạo</th>
+                        <th>Ngày cập nhật</th>
                         <th>Thao tác</th>
                     </tr>
                 </thead>
@@ -96,11 +104,13 @@ cósa<%@page import="java.util.*, model.Category, dao.CategoryDAO"%>
                                             </c:forEach>
                                         </td>
                                         <td></td>
+                                        <td></td>
+                                        <td></td>
                                     </tr>
                                 </c:when>
                                 <c:otherwise>
                                     <tr>
-                                        <td colspan="4" class="no-data">Không tìm thấy danh mục nào.</td>
+                                        <td colspan="6" class="no-data">Không tìm thấy danh mục nào.</td>
                                     </tr>
                                 </c:otherwise>
                             </c:choose>
@@ -112,6 +122,8 @@ cósa<%@page import="java.util.*, model.Category, dao.CategoryDAO"%>
                                         <td>${category.categoryId}</td>
                                         <td>${category.name}</td>
                                         <td>${parentNames[category.parentId]}</td>
+                                        <td><fmt:formatDate value="${category.createdAt}" pattern="dd/MM/yyyy"/></td>
+                                        <td><fmt:formatDate value="${category.updatedAt}" pattern="dd/MM/yyyy"/></td>
                                         <td class="action-buttons">
                                             <a href="categories?action=edit&id=${category.categoryId}" class="btn-edit">Sửa</a>
                                             <c:choose>
@@ -136,7 +148,7 @@ cósa<%@page import="java.util.*, model.Category, dao.CategoryDAO"%>
               <div class="pagination-form">
                 <c:choose>
                     <c:when test="${currentPage > 1}">
-                        <a href="categories?page=${currentPage - 1}${not empty keyword ? '&keyword=' : ''}${not empty keyword ? keyword : ''}${not empty param.parentId ? '&parentId=' : ''}${not empty param.parentId ? param.parentId : ''}${not empty sortBy ? '&sortBy=' : ''}${not empty sortBy ? sortBy : ''}"
+                        <a href="${pageContext.request.contextPath}/categories?page=${currentPage - 1}${param.keyword != null ? '&keyword=' : ''}${param.keyword != null ? param.keyword : ''}${param.parentId != null ? '&parentId=' : ''}${param.parentId != null ? param.parentId : ''}${param.sortBy != null ? '&sortBy=' : ''}${param.sortBy != null ? param.sortBy : ''}${param.hiddenFilter != null ? '&hiddenFilter=' : ''}${param.hiddenFilter != null ? param.hiddenFilter : ''}"
                            class="page-button" aria-label="Trang trước">&laquo;</a>
                     </c:when>
                     <c:otherwise>
@@ -145,13 +157,13 @@ cósa<%@page import="java.util.*, model.Category, dao.CategoryDAO"%>
                 </c:choose>
 
                 <c:forEach begin="${startPage}" end="${endPage}" var="i">
-                    <a href="categories?page=${i}${not empty keyword ? '&keyword=' : ''}${not empty keyword ? keyword : ''}${not empty param.parentId ? '&parentId=' : ''}${not empty param.parentId ? param.parentId : ''}${not empty sortBy ? '&sortBy=' : ''}${not empty sortBy ? sortBy : ''}"
+                    <a href="${pageContext.request.contextPath}/categories?page=${i}${param.keyword != null ? '&keyword=' : ''}${param.keyword != null ? param.keyword : ''}${param.parentId != null ? '&parentId=' : ''}${param.parentId != null ? param.parentId : ''}${param.sortBy != null ? '&sortBy=' : ''}${param.sortBy != null ? param.sortBy : ''}${param.hiddenFilter != null ? '&hiddenFilter=' : ''}${param.hiddenFilter != null ? param.hiddenFilter : ''}"
                        class="page-button${i == currentPage ? ' active' : ''}">${i}</a>
                 </c:forEach>
 
                 <c:choose>
                     <c:when test="${currentPage < totalPages}">
-                        <a href="categories?page=${currentPage + 1}${not empty keyword ? '&keyword=' : ''}${not empty keyword ? keyword : ''}${not empty param.parentId ? '&parentId=' : ''}${not empty param.parentId ? param.parentId : ''}${not empty sortBy ? '&sortBy=' : ''}${not empty sortBy ? sortBy : ''}"
+                        <a href="${pageContext.request.contextPath}/categories?page=${currentPage + 1}${param.keyword != null ? '&keyword=' : ''}${param.keyword != null ? param.keyword : ''}${param.parentId != null ? '&parentId=' : ''}${param.parentId != null ? param.parentId : ''}${param.sortBy != null ? '&sortBy=' : ''}${param.sortBy != null ? param.sortBy : ''}${param.hiddenFilter != null ? '&hiddenFilter=' : ''}${param.hiddenFilter != null ? param.hiddenFilter : ''}"
                            class="page-button" aria-label="Trang sau">&raquo;</a>
                     </c:when>
                     <c:otherwise>
@@ -159,9 +171,12 @@ cósa<%@page import="java.util.*, model.Category, dao.CategoryDAO"%>
                     </c:otherwise>
                 </c:choose>
               </div>
+              <div class="pagination-info">
+                  Tổng số danh mục: ${totalCategories}
+              </div>
             </div>
         </c:if>
-        <jsp:include page="footer.jsp" />
+        
     </div>
 </body>
 </html>
