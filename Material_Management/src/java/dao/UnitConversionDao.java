@@ -7,8 +7,6 @@ package dao;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import model.*;
 
 /**
@@ -641,8 +639,6 @@ public class UnitConversionDao extends dal.DBContext {
                 Material mate = new Material();
                 mate.setName(rs.getString("name"));
                 mate.setUnitName(rs.getString("unit_name"));
-                mate.setMaterialId(rs.getInt("material_id"));
-
                 list.add(mate);
             }
         } catch (SQLException e) {
@@ -670,7 +666,6 @@ public class UnitConversionDao extends dal.DBContext {
     }
 
   
-
     public static void main(String[] args) {
         UnitConversionDao n = new UnitConversionDao();
         List<Material> k = n.getALls();

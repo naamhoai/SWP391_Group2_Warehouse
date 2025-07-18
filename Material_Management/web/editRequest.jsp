@@ -173,6 +173,5 @@
         <!-- Scripts -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script>
         <script src="js/requestForm.js"></script>
-        <script src="js/sidebar.js"></script>
     </body>
 </html>

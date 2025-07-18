@@ -451,4 +451,41 @@ public class RequestDAO extends DBContext {
         return 0;
     }
 
+    public int countPendingDeliveries() {
+        String sql = "SELECT COUNT(*) FROM delivery WHERE status = 'Chờ giao'";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public List<java.util.Map<String, Object>> getRecentTransactions(int limit) {
+        List<java.util.Map<String, Object>> transactions = new ArrayList<>();
+        String sql = "SELECT r.request_id, r.recipient_name, r.request_status, r.created_at, u.full_name as user_name " +
+                "FROM requests r " +
+                "LEFT JOIN users u ON r.user_id = u.user_id " +
+                "ORDER BY r.created_at DESC LIMIT ?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, limit);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                java.util.Map<String, Object> map = new java.util.HashMap<>();
+                map.put("request_id", rs.getInt("request_id"));
+                map.put("recipient_name", rs.getString("recipient_name"));
+                map.put("request_status", rs.getString("request_status"));
+                map.put("created_at", rs.getTimestamp("created_at"));
+                map.put("user_name", rs.getString("user_name"));
+                transactions.add(map);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return transactions;
+    }
+
 }

@@ -61,7 +61,7 @@ public class InventoryDAO extends DBContext {
                     inv.setCategoryName(rs.getString("category_name"));
                     inv.setSupplierName(rs.getString("supplier_name"));
                     inv.setUnitName(rs.getString("unit_name"));
-                    inv.setPrice(rs.getLong("price"));
+                    inv.setPrice(rs.getInt("price"));
                     list.add(inv);
                 }
             }
@@ -127,7 +127,7 @@ public class InventoryDAO extends DBContext {
                 inv.setSupplierName(rs.getString("supplier_name"));
                 inv.setUnitId(rs.getInt("unit_id"));
                 inv.setUnitName(rs.getString("unit_name"));
-                inv.setPrice(rs.getLong("price"));
+                inv.setPrice(rs.getInt("price"));
                 inv.setStatus(rs.getString("status"));
                 inventories.add(inv);
             }
@@ -247,5 +247,39 @@ public class InventoryDAO extends DBContext {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public List<Inventory> getLowStockItems() {
+        List<Inventory> lowStockItems = new ArrayList<>();
+        String sql = "SELECT i.inventory_id, i.material_id, i.material_condition, i.quantity_on_hand, i.last_updated, "
+                + "m.name AS material_name, c.name AS category_name, s.supplier_name, u.unit_name, m.price, m.status "
+                + "FROM inventory i "
+                + "LEFT JOIN materials m ON i.material_id = m.material_id "
+                + "LEFT JOIN categories c ON m.category_id = c.category_id "
+                + "LEFT JOIN supplier s ON m.supplier_id = s.supplier_id "
+                + "LEFT JOIN units u ON m.unit_id = u.unit_id "
+                + "WHERE i.quantity_on_hand <= 10 "
+                + "ORDER BY i.quantity_on_hand ASC, m.name, i.material_condition";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Inventory inv = new Inventory();
+                inv.setInventoryId(rs.getInt("inventory_id"));
+                inv.setMaterialId(rs.getInt("material_id"));
+                inv.setMaterialCondition(rs.getString("material_condition"));
+                inv.setQuantityOnHand(rs.getInt("quantity_on_hand"));
+                inv.setLastUpdated(rs.getTimestamp("last_updated"));
+                inv.setMaterialName(rs.getString("material_name"));
+                inv.setCategoryName(rs.getString("category_name"));
+                inv.setSupplierName(rs.getString("supplier_name"));
+                inv.setUnitId(rs.getInt("unit_id"));
+                inv.setUnitName(rs.getString("unit_name"));
+                inv.setPrice(rs.getInt("price"));
+                inv.setStatus(rs.getString("status"));
+                lowStockItems.add(inv);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lowStockItems;
     }
 }

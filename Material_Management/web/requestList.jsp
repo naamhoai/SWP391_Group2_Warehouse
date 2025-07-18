@@ -223,7 +223,6 @@
                     </div>
                     <script src="js/requestForm.js"></script>
                     <script src="js/requestList.js"></script>
-                    <script src="js/sidebar.js"></script>
                 </div>
             </div>
         </div>

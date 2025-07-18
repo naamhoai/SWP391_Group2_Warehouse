@@ -358,6 +358,5 @@ var categoryLabels = [<c:forEach var="item" items="${categoryStats}" varStatus="
         </script>
 
         <script src="js/adminDashboard.js"></script>
-        <script src="js/sidebar.js"></script>
     </body>
 </html>

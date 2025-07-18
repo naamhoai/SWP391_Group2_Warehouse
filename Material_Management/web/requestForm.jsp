@@ -184,7 +184,6 @@
             };
             console.log("materialUnitMap:", window.materialUnitMap);
         </script>
-        <script src="js/sidebar.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script>
         <script src="js/requestForm.js"></script>
         <script>

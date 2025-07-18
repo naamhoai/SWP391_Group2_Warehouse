@@ -264,6 +264,5 @@
         </div>
         <script src="js/requestForm.js"></script>
         <script src="js/requestList.js"></script>
-        <script src="js/sidebar.js"></script>
     </body>
 </html>

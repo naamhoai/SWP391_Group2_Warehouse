@@ -15,6 +15,8 @@ import java.util.Arrays;
 import model.*;
 import java.util.ArrayList;
 import dao.CategoryDAO;
+import java.util.Map;
+import java.util.HashMap;
 
 @WebServlet(name = "MaterialListServlet", urlPatterns = {"/MaterialListServlet"})
 public class MaterialListServlet extends HttpServlet {
@@ -91,6 +93,28 @@ public class MaterialListServlet extends HttpServlet {
 
         List<Material> materials = dao.getMaterialsForAdmin(searchQuery, categoryId, supplierFilter, statusFilter, currentPage, itemsPerPage, sortField, sortDir);
 
+        boolean showLowStock = "true".equals(request.getParameter("lowStock"));
+        int lowStockItems = 0;
+        if (showLowStock) {
+            List<Material> lowStockList = new ArrayList<>();
+            for (Material m : materials) {
+                // Giả sử Material có phương thức getQuantityOnHand() và getMinStock()
+                try {
+                    int qty = m.getQuantityOnHand();
+                    int minStock = m.getMinStock();
+                    if (qty <= minStock) {
+                        lowStockList.add(m);
+                    }
+                } catch (Exception e) {
+                    // Bỏ qua nếu thiếu dữ liệu
+                }
+            }
+            materials = lowStockList;
+            lowStockItems = lowStockList.size();
+        }
+        request.setAttribute("lowStockItems", lowStockItems);
+        request.setAttribute("showLowStock", showLowStock);
+
         CategoryDAO categoryDAO = new CategoryDAO();
         MaterialInfoDAO infoDAO = new MaterialInfoDAO();
         List<Category> categories = categoryDAO.getAllCategories();
@@ -116,6 +140,16 @@ public class MaterialListServlet extends HttpServlet {
         int endPage = Math.min(totalPages, currentPage + 2);
         request.setAttribute("startPage", startPage);
         request.setAttribute("endPage", endPage);
+
+        Map<String, Integer> typeCountByUnit = new HashMap<>();
+        for (Material m : materials) {
+            String unit = m.getUnitName();
+            if (unit != null) {
+                typeCountByUnit.put(unit, typeCountByUnit.getOrDefault(unit, 0) + 1);
+            }
+        }
+        request.setAttribute("typeCountByUnit", typeCountByUnit);
+
         request.getRequestDispatcher("materialDetailList.jsp").forward(request, response);
         categoryDAO.closeConnection();
     }

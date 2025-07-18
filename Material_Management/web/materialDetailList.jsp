@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="css/sidebar.css">
     <script src="https://kit.fontawesome.com/4b7b2b6e8b.js" crossorigin="anonymous"></script>
-    <script src="js/sidebar.js"></script>
+    
 </head>
 <body>
     <jsp:include page="sidebar.jsp" />
@@ -37,6 +37,23 @@
                 </c:choose>
             </div>
         </c:if>
+
+        <c:if test="${showLowStock}">
+            <div class="content-card">
+                <h3>Vật tư sắp hết: <span style="color:red;font-weight:bold;">${lowStockItems}</span></h3>
+            </div>
+        </c:if>
+
+        <div class="content-card">
+            <h3>Số loại vật tư theo từng đơn vị</h3>
+            <c:if test="${not empty typeCountByUnit}">
+                <ul>
+                    <c:forEach var="entry" items="${typeCountByUnit}">
+                        <li><strong>${entry.value}</strong> loại vật tư (${entry.key})</li>
+                    </c:forEach>
+                </ul>
+            </c:if>
+        </div>
 
         <div class="content-card">
             <form method="get" action="MaterialListServlet" id="filterForm" class="filter-form">

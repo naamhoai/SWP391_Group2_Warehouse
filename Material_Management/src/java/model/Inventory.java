@@ -13,13 +13,13 @@ public class Inventory implements Serializable {
     private String categoryName;
     private String supplierName;
     private String unitName;
-    private long price;
+    private int price;
     private String status; // active/inactive
     private int unitId;
 
     public Inventory() {}
 
-    public Inventory(int inventoryId, int materialId, String materialCondition, int quantityOnHand, Timestamp lastUpdated, String materialName, String categoryName, String supplierName, String unitName, long price, String status, int unitId) {
+    public Inventory(int inventoryId, int materialId, String materialCondition, int quantityOnHand, Timestamp lastUpdated, String materialName, String categoryName, String supplierName, String unitName, int price, String status, int unitId) {
         this.inventoryId = inventoryId;
         this.materialId = materialId;
         this.materialCondition = materialCondition;
@@ -106,11 +106,11 @@ public class Inventory implements Serializable {
         this.unitName = unitName;
     }
 
-    public long getPrice() {
+    public int getPrice() {
         return price;
     }
 
-    public void setPrice(long price) {
+    public void setPrice(int price) {
         this.price = price;
     }
 
