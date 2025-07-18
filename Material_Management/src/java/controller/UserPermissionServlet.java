@@ -31,6 +31,17 @@ public class UserPermissionServlet extends HttpServlet {
 
     private void processGetRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
+        
+        // Kiểm tra quyền Admin
+        HttpSession session = request.getSession();
+        Integer currentRoleId = (Integer) session.getAttribute("role_id");
+        
+        if (currentRoleId == null || currentRoleId != 1) {
+            request.setAttribute("error", "Bạn không có quyền truy cập chức năng này. Chỉ Admin mới được phép chỉnh sửa quyền.");
+            request.getRequestDispatcher("error.jsp").forward(request, response);
+            return;
+        }
+        
         UserPermissionDAO userPermissionDAO = new UserPermissionDAO();
         UserDAO userDAO = new UserDAO();
 

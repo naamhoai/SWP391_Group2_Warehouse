@@ -24,25 +24,26 @@ public class SidebarMenuFilter implements Filter {
         HttpSession session = httpRequest.getSession(false);
 
         List<SidebarMenu> menuList = new ArrayList<>();
+
         if (session != null) {
-            User user = (User) session.getAttribute("Admin");
-            if (user == null) {
-                user = (User) session.getAttribute("user");
+            User currentUser = (User) session.getAttribute("Admin");
+            if (currentUser == null) {
+                currentUser = (User) session.getAttribute("user");
             }
-            if (user != null) {
+
+            if (currentUser != null) {
                 try (Connection conn = new DBContext().getConnection()) {
                     SidebarMenuDAO menuDAO = new SidebarMenuDAO(conn);
-                    int userId = user.getUser_id();
-                    int roleId = (user.getRole() != null) ? user.getRole().getRoleid() : -1;
+                    int userId = currentUser.getUser_id();
+                    int roleId = (currentUser.getRole() != null) ? currentUser.getRole().getRoleid() : -1;
                     menuList = menuDAO.getSidebarMenuByUser(userId, roleId);
-                    // Log để debug
-                    System.out.println("[SidebarMenuFilter] User: " + user.getFullname() +
-                        ", RoleID: " + roleId + ", Menu count: " + (menuList != null ? menuList.size() : 0));
                 } catch (SQLException e) {
+                    System.err.println("Lỗi khi load sidebar menu: " + e.getMessage());
                     e.printStackTrace();
                 }
             }
         }
+        
         request.setAttribute("sidebarMenuList", menuList);
         chain.doFilter(request, response);
     }

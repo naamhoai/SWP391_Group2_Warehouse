@@ -20,34 +20,34 @@ public class PermissionListServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
 
-        if (session.getAttribute("Admin") == null) {
+        // Debug: Kiểm tra session
+        System.out.println("=== DEBUG PERMISSION LIST SERVLET ===");
+        System.out.println("Admin attribute: " + session.getAttribute("Admin"));
+        System.out.println("User attribute: " + session.getAttribute("user"));
+        System.out.println("Role ID: " + session.getAttribute("role_id"));
+
+        // Kiểm tra đăng nhập - cho phép tất cả role đã đăng nhập
+        Object adminUser = session.getAttribute("Admin");
+        Object normalUser = session.getAttribute("user");
+        
+        if (adminUser == null && normalUser == null) {
+            System.out.println("Không có user nào trong session, redirect to login");
             response.sendRedirect(request.getContextPath() + "/login.jsp");
             return;
         }
 
-        Integer roleId = (Integer) session.getAttribute("roleId");
+        Integer roleId = (Integer) session.getAttribute("role_id");
         if (roleId == null) {
+            System.out.println("Không có role_id trong session");
             request.setAttribute("error", "Không tìm thấy vai trò người dùng");
             request.getRequestDispatcher("error.jsp").forward(request, response);
             return;
         }
 
-        if (roleId != 1) {
-            try {
-                UserPermissionDAO userPermissionDAO = new UserPermissionDAO();
-                Map<String, Boolean> rolePermissions = userPermissionDAO.getRolePermissions(roleId);
-                Set<String> userPermissions = rolePermissions.keySet();
-                if (!userPermissions.contains("user_view")) {
-                    request.setAttribute("error", "Bạn không có quyền truy cập trang này");
-                    request.getRequestDispatcher("error.jsp").forward(request, response);
-                    return;
-                }
-            } catch (SQLException e) {
-                request.setAttribute("error", "Lỗi khi kiểm tra quyền: " + e.getMessage());
-                request.getRequestDispatcher("error.jsp").forward(request, response);
-                return;
-            }
-        }
+        System.out.println("User đã đăng nhập với roleId: " + roleId);
+
+        // Cho phép tất cả role đã đăng nhập xem danh sách quyền
+        // Chỉ Admin mới có quyền chỉnh sửa (được xử lý trong JSP)
 
         try {
             PermissionListDAO permissionListDAO = new PermissionListDAO();
@@ -66,7 +66,9 @@ public class PermissionListServlet extends HttpServlet {
             request.setAttribute("allPermissions", allPermissions);
             request.setAttribute("roles", roles);
             request.setAttribute("rolePermissions", rolePermissions);
+            request.setAttribute("currentRoleId", roleId); // Để JSP biết role hiện tại
 
+            System.out.println("Chuyển đến permissionList.jsp");
             request.getRequestDispatcher("permissionList.jsp").forward(request, response);
 
         } catch (SQLException e) {

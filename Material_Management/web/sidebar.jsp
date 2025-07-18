@@ -11,9 +11,11 @@
             case 2: dashboardPath = "/director"; break;
             case 3: dashboardPath = "/warehouseStaffDashboard.jsp"; break;
             case 4: dashboardPath = "/staffDashboard.jsp"; break;
+            default: dashboardPath = "/adminDashboard"; // fallback
         }
     }
 %>
+
 <div class="sidebar">
     <ul class="sidebar-menu">
         <li class="menu-item">
@@ -31,19 +33,21 @@
                             <i class="${menu.icon != null ? menu.icon : 'fas fa-circle'} menu-icon"></i>
                             <span class="menu-text">${menu.menuName}</span>
                         </a>
-                        <ul class="submenu">
-                            <c:forEach var="sub" items="${sidebarMenuList}">
-                                <c:if test="${sub.parentId == menu.menuId}">
-                                    <li>
-                                        <a href="${pageContext.request.contextPath}${sub.url}"
-                                           class="submenu-link${pageContext.request.servletPath == sub.url ? ' active' : ''}">
-                                            <i class="${sub.icon != null ? sub.icon : 'fas fa-dot-circle'} menu-icon"></i>
-                                            <span class="menu-text">${sub.menuName}</span>
-                                        </a>
-                                    </li>
-                                </c:if>
-                            </c:forEach>
-                        </ul>
+                        <c:if test="${not empty sidebarMenuList}">
+                            <ul class="submenu">
+                                <c:forEach var="sub" items="${sidebarMenuList}">
+                                    <c:if test="${sub.parentId == menu.menuId}">
+                                        <li>
+                                            <a href="${pageContext.request.contextPath}${sub.url}"
+                                               class="submenu-link${pageContext.request.servletPath == sub.url ? ' active' : ''}">
+                                                <i class="${sub.icon != null ? sub.icon : 'fas fa-dot-circle'} menu-icon"></i>
+                                                <span class="menu-text">${sub.menuName}</span>
+                                            </a>
+                                        </li>
+                                    </c:if>
+                                </c:forEach>
+                            </ul>
+                        </c:if>
                     </li>
                 </c:if>
             </c:forEach>
