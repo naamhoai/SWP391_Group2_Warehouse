@@ -112,9 +112,16 @@ body {
 }
 
 .filter-group.search-group {
-  flex-grow: 1;
+  width: 50%;
+  flex-basis: 50%;
+  flex-grow: 0 !important;
+  flex-shrink: 0;
 }
-.filter-group.search-group input {
+
+.filter-group.search-group input[type="text"] {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   flex-grow: 1;
 }
 .filter-group.search-group .btn {

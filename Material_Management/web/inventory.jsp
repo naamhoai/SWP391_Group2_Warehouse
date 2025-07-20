@@ -17,12 +17,12 @@
             <h1 class="page-title">Quản Lý Tồn Kho</h1>
         </div>
         <div class="content-card">
-            <form class="filter-form" method="get" action="inventory">
+            <form class="filter-form" method="get" action="InventoryServlet">
                 <div class="filter-row">
                     <div class="filter-group">
                         <i class="fa fa-filter"></i>
                         <select name="categoryId" onchange="this.form.submit()">
-                            <option value="">Tất cả danh mục</option>
+                            <option value="">Tất cả loại vật tư</option>
                             <c:forEach var="cat" items="${categoryList}">
                                 <c:if test="${cat.parentId != null}">
                                     <option value="${cat.categoryId}" ${cat.categoryId == categoryId ? 'selected' : ''}>${cat.name}</option>
@@ -63,7 +63,11 @@
                         <input type="text" name="search" placeholder="Tìm kiếm tên sản phẩm..." value="${search != null ? search : ''}" />
                         <button type="submit" class="btn btn-secondary">Tìm</button>
                     </div>
-                    <a href="inventory-history.jsp" class="btn btn-primary"><i class="fa fa-history"></i> Lịch sử</a>
+                    <a href="InventoryServlet?page=1&pageSize=${pageSize}
+                                <c:if test='${categoryId != null}'> &amp;categoryId=${categoryId}</c:if>
+                                <c:if test='${supplierId != null}'> &amp;supplierId=${supplierId}</c:if>
+                                <c:if test='${search != null && search != ""}'> &amp;search=${search}</c:if>
+                                <c:if test='${condition != null && condition != ""}'> &amp;condition=${condition}</c:if>" class="btn btn-primary"><i class="fa fa-history"></i> Lịch sử</a>
                 </div>
             </form>
         </div>
@@ -74,7 +78,7 @@
                     <tr>
                         <th>Mã VT</th>
                         <th>Tên sản phẩm</th>
-                        <th>Danh mục</th>
+                        <th>Loại vật tư</th>
                         <th>Nhà cung cấp</th>
                         <th>Tình trạng vật tư</th>
                         <th>Số lượng</th>
@@ -117,7 +121,7 @@
                     <div class="pagination">
                         <!-- Nút về trang đầu -->
                         <c:if test="${page > 1}">
-                            <a href="inventory?page=1&pageSize=${pageSize}
+                            <a href="InventoryServlet?page=1&pageSize=${pageSize}
                                 <c:if test='${categoryId != null}'> &amp;categoryId=${categoryId}</c:if>
                                 <c:if test='${supplierId != null}'> &amp;supplierId=${supplierId}</c:if>
                                 <c:if test='${search != null && search != ""}'> &amp;search=${search}</c:if>
@@ -127,7 +131,7 @@
                         <c:set var="startPage" value="${page - 2 > 0 ? page - 2 : 1}" />
                         <c:set var="endPage" value="${page + 2 < totalPages ? page + 2 : totalPages}" />
                         <c:forEach var="i" begin="${startPage}" end="${endPage}">
-                            <a href="inventory?page=${i}&amp;pageSize=${pageSize}
+                            <a href="InventoryServlet?page=${i}&amp;pageSize=${pageSize}
                                 <c:if test='${categoryId != null}'> &amp;categoryId=${categoryId}</c:if>
                                 <c:if test='${supplierId != null}'> &amp;supplierId=${supplierId}</c:if>
                                 <c:if test='${search != null && search != ""}'> &amp;search=${search}</c:if>
@@ -135,7 +139,7 @@
                         </c:forEach>
                         <!-- Nút về trang cuối -->
                         <c:if test="${page < totalPages}">
-                            <a href="inventory?page=${totalPages}&amp;pageSize=${pageSize}
+                            <a href="InventoryServlet?page=${totalPages}&amp;pageSize=${pageSize}
                                 <c:if test='${categoryId != null}'> &amp;categoryId=${categoryId}</c:if>
                                 <c:if test='${supplierId != null}'> &amp;supplierId=${supplierId}</c:if>
                                 <c:if test='${search != null && search != ""}'> &amp;search=${search}</c:if>
