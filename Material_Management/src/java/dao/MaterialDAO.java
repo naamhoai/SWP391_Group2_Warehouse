@@ -123,17 +123,16 @@ public class MaterialDAO extends DBContext {
     }
 
     public boolean addMaterialWithId(Material material) throws SQLException {
-        String sql = "INSERT INTO materials (material_id, name, category_id, image_url, description, price, supplier_id, unit_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO materials (material_id, name, category_id, image_url, description, supplier_id, unit_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, material.getMaterialId());
             ps.setString(2, material.getName());
             ps.setInt(3, material.getCategoryId());
             ps.setString(4, material.getImageUrl());
             ps.setString(5, material.getDescription());
-            ps.setLong(6, material.getPrice());
-            ps.setInt(7, material.getSupplierId());
-            ps.setInt(8, material.getUnitId());
-            ps.setString(9, material.getStatus());
+            ps.setInt(6, material.getSupplierId());
+            ps.setInt(7, material.getUnitId());
+            ps.setString(8, material.getStatus());
             return ps.executeUpdate() > 0;
         }
     }
@@ -308,10 +307,11 @@ public class MaterialDAO extends DBContext {
         }
         return list;
     }
-
     public int getNextMaterialId() {
         String sql = "SELECT COALESCE(MAX(material_id), 0) + 1 AS next_id FROM materials";
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt("next_id");
             }

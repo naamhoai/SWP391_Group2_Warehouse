@@ -116,9 +116,18 @@ body.sidebar-collapsed .main-content {
 }
 
 .filter-group.search-group {
-  flex-grow: 1;
+  width: 50%;
+  flex-basis: 50%;
+  flex-grow: 0;
+  flex-shrink: 0;
 }
 .filter-group.search-group input {
+  flex-grow: unset;
+}
+.filter-group.search-group input[type="text"] {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   flex-grow: 1;
 }
 .filter-group.search-group .btn {
@@ -158,6 +167,20 @@ body.sidebar-collapsed .main-content {
   padding: 16px;
   text-align: left;
   border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+
+.data-table th:nth-child(1), .data-table td:nth-child(1) { width: 40px; min-width: 40px; max-width: 40px; }
+.data-table th:nth-child(2), .data-table td:nth-child(2) { width: 80px; min-width: 80px; max-width: 80px; }
+.data-table th:nth-child(3), .data-table td:nth-child(3) { width: 140px; min-width: 100px; max-width: 220px; }
+.data-table th:nth-child(4), .data-table td:nth-child(4) { width: 120px; min-width: 80px; max-width: 180px; }
+.data-table th:nth-child(5), .data-table td:nth-child(5) { width: 230px; min-width: 190px; max-width: 290px; }
+.data-table th:nth-child(6), .data-table td:nth-child(6) { width: 120px; min-width: 100px; max-width: 140px; }
+.data-table th:nth-child(7), .data-table td:nth-child(7) { width: 90px; min-width: 70px; max-width: 120px; }
+
+.data-table th:nth-child(5), .data-table td:nth-child(5) {
+  white-space: normal;
+  word-break: break-word;
 }
 
 .data-table thead {

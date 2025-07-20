@@ -69,16 +69,6 @@
                                     <span class="value">${material.unitName}</span>
                                 </div>
                                 <div class="info-item">
-                                    <label>Giá:</label>
-                                    <span class="value">
-                                        <fmt:setLocale value="vi_VN" />
-                                        <fmt:formatNumber
-                                            value="${material.price}"
-                                            type="currency"
-                                            />
-                                    </span>
-                                </div>
-                                <div class="info-item">
                                     <label>Trạng thái:</label>
                                     <span class="value status-badge ${material.status eq 'active' ? 'status-active' : 'status-inactive'}">
                                         ${material.status eq 'active' ? 'Đang kinh doanh' : 'Ngừng kinh doanh'}
