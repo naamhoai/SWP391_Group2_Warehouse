@@ -215,12 +215,33 @@ public class InventoryDAO extends DBContext {
 
     // Lấy tổng nhập theo tháng
     public Map<String, Integer> getTotalImportedByMonth() {
+        return getTotalImportedByMonthRange(null, null);
+    }
+
+    // Lấy tổng nhập theo khoảng thời gian
+    public Map<String, Integer> getTotalImportedByMonthRange(String startDate, String endDate) {
         Map<String, Integer> result = new LinkedHashMap<>();
         String sql = "SELECT DATE_FORMAT(po.order_date, '%Y-%m') AS month, SUM(pod.quantity) AS total_imported " +
                 "FROM purchase_orders po " +
                 "JOIN purchase_order_details pod ON po.purchase_order_id = pod.purchase_order_id " +
-                "GROUP BY month ORDER BY month";
+                "WHERE 1=1 ";
+        
+        List<Object> params = new ArrayList<>();
+        if (startDate != null && !startDate.isEmpty()) {
+            sql += "AND po.order_date >= ? ";
+            params.add(startDate + "-01");
+        }
+        if (endDate != null && !endDate.isEmpty()) {
+            sql += "AND po.order_date <= ? ";
+            params.add(endDate + "-31");
+        }
+        
+        sql += "GROUP BY month ORDER BY month";
+        
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 result.put(rs.getString("month"), rs.getInt("total_imported"));
@@ -233,12 +254,33 @@ public class InventoryDAO extends DBContext {
 
     // Lấy tổng xuất theo tháng
     public Map<String, Integer> getTotalExportedByMonth() {
+        return getTotalExportedByMonthRange(null, null);
+    }
+
+    // Lấy tổng xuất theo khoảng thời gian
+    public Map<String, Integer> getTotalExportedByMonthRange(String startDate, String endDate) {
         Map<String, Integer> result = new LinkedHashMap<>();
         String sql = "SELECT DATE_FORMAT(ef.export_date, '%Y-%m') AS month, SUM(em.quantity) AS total_exported " +
                 "FROM export_forms ef " +
                 "JOIN export_materials em ON ef.export_id = em.export_id " +
-                "GROUP BY month ORDER BY month";
+                "WHERE 1=1 ";
+        
+        List<Object> params = new ArrayList<>();
+        if (startDate != null && !startDate.isEmpty()) {
+            sql += "AND ef.export_date >= ? ";
+            params.add(startDate + "-01");
+        }
+        if (endDate != null && !endDate.isEmpty()) {
+            sql += "AND ef.export_date <= ? ";
+            params.add(endDate + "-31");
+        }
+        
+        sql += "GROUP BY month ORDER BY month";
+        
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 result.put(rs.getString("month"), rs.getInt("total_exported"));

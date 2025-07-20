@@ -15,7 +15,7 @@
     </head>
     <body>
         <div class="sidebar">
-            <%@include file="sidebar.jsp" %>
+            <jsp:include page="sidebar.jsp" />
         </div>
         <div class="main-content">
 

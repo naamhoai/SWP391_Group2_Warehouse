@@ -488,4 +488,54 @@ public class RequestDAO extends DBContext {
         return transactions;
     }
 
+    // Lấy số lượng yêu cầu mua theo tháng
+    public List<model.MonthStat> getRequestCountByMonth() throws SQLException {
+        List<model.MonthStat> list = new ArrayList<>();
+        String sql = "SELECT DATE_FORMAT(created_at, '%Y-%m') AS month, COUNT(*) AS count " +
+                    "FROM requests " +
+                    "GROUP BY month " +
+                    "ORDER BY month DESC " +
+                    "LIMIT 12"; // Lấy 12 tháng gần nhất
+        
+        try (Connection conn = new DBContext().getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                list.add(new model.MonthStat(
+                    rs.getString("month"), 
+                    rs.getInt("count"), 
+                    0
+                ));
+            }
+        }
+        return list;
+    }
+
+    // Lấy tổng giá trị mua hàng theo tháng (tính từ request_details)
+    public List<model.MonthStat> getPurchaseValueByMonth() throws SQLException {
+        List<model.MonthStat> list = new ArrayList<>();
+        String sql = "SELECT DATE_FORMAT(r.created_at, '%Y-%m') AS month, " +
+                    "SUM(rd.quantity * m.price) AS value " +
+                    "FROM requests r " +
+                    "JOIN request_details rd ON r.request_id = rd.request_id " +
+                    "JOIN materials m ON rd.material_id = m.material_id " +
+                    "WHERE r.request_status IN ('Đã duyệt', 'Đã xuất kho') " +
+                    "GROUP BY month " +
+                    "ORDER BY month DESC " +
+                    "LIMIT 12"; // Lấy 12 tháng gần nhất
+        
+        try (Connection conn = new DBContext().getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                list.add(new model.MonthStat(
+                    rs.getString("month"), 
+                    0, 
+                    rs.getLong("value")
+                ));
+            }
+        }
+        return list;
+    }
+
 }

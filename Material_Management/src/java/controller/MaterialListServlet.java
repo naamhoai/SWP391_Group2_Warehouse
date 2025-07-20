@@ -2,6 +2,7 @@ package controller;
 
 import dao.MaterialDAO;
 import dao.MaterialInfoDAO;
+import dao.InventoryDAO;
 import java.util.List;
 
 import java.io.IOException;
@@ -96,18 +97,25 @@ public class MaterialListServlet extends HttpServlet {
         boolean showLowStock = "true".equals(request.getParameter("lowStock"));
         int lowStockItems = 0;
         if (showLowStock) {
+            // Sử dụng InventoryDAO để lấy danh sách vật tư có tồn kho thấp
+            InventoryDAO inventoryDAO = new InventoryDAO();
+            List<Inventory> lowStockInventories = inventoryDAO.getLowStockItems();
+            
+            // Chuyển đổi từ Inventory sang Material để hiển thị
             List<Material> lowStockList = new ArrayList<>();
-            for (Material m : materials) {
-                // Giả sử Material có phương thức getQuantityOnHand() và getMinStock()
-                try {
-                    int qty = m.getQuantityOnHand();
-                    int minStock = m.getMinStock();
-                    if (qty <= minStock) {
-                        lowStockList.add(m);
-                    }
-                } catch (Exception e) {
-                    // Bỏ qua nếu thiếu dữ liệu
-                }
+            for (Inventory inv : lowStockInventories) {
+                // Tạo Material object từ dữ liệu Inventory
+                Material material = new Material();
+                material.setMaterialId(inv.getMaterialId());
+                material.setName(inv.getMaterialName());
+                material.setCategoryName(inv.getCategoryName());
+                material.setSupplierName(inv.getSupplierName());
+                material.setUnitName(inv.getUnitName());
+                material.setPrice(inv.getPrice());
+                material.setStatus(inv.getStatus());
+                material.setUnitId(inv.getUnitId());
+                
+                lowStockList.add(material);
             }
             materials = lowStockList;
             lowStockItems = lowStockList.size();
