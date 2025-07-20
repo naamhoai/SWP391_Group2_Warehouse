@@ -29,10 +29,10 @@
                     <div class="image-wrapper">
                         <c:choose>
                             <c:when test="${not empty material.imageUrl}">
-                                <img src="image/${material.imageUrl}" alt="${material.name}" class="material-image" />
+                                <img id="materialImagePreview" src="image/${material.imageUrl}" alt="${material.name}" class="material-image" />
                             </c:when>
                             <c:otherwise>
-                                <img src="image/default.png" alt="No Image" class="material-image" />
+                                <img id="materialImagePreview" src="image/default.png" alt="No Image" class="material-image" />
                             </c:otherwise>
                         </c:choose>
                     </div>
@@ -54,7 +54,7 @@
                         </div>
                         <div class="info-item">
                             <label for="name">Tên vật tư:</label>
-                            <input type="text" id="name" name="name" value="${material.name}" maxlength="50" class="value" required />
+                            <input type="text" id="name" name="name" value="${material.name}" maxlength="50" class="value" readonly />
                         </div>
                         <div class="info-item">
                             <label for="categoryId">Danh mục:</label>
@@ -86,10 +86,6 @@
                             </select>
                         </div>
                         <div class="info-item">
-                            <label for="price">Giá:</label>
-                            <input type="number" id="price" name="price" value="${material.price}" step="1" min="1" max="10000000000" class="value" required />
-                        </div>
-                        <div class="info-item">
                             <label for="status">Trạng thái:</label>
                             <select id="status" name="status" class="value" required>
                                 <option value="">-- Chọn trạng thái --</option>
@@ -110,5 +106,14 @@
             </div>
         </div>
     </div>
+    <script>
+document.getElementById('imageUpload').addEventListener('change', function(event) {
+    const [file] = event.target.files;
+    if (file) {
+        const preview = document.getElementById('materialImagePreview');
+        preview.src = URL.createObjectURL(file);
+    }
+});
+</script>
 </body>
 </html>

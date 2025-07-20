@@ -61,7 +61,6 @@ public class CreateMaterialDetailServlet extends HttpServlet {
         String categoryIdStr = request.getParameter("categoryId");
         String supplierIdStr = request.getParameter("supplierId");
         String unitIdStr = request.getParameter("unit");
-        String priceStr = request.getParameter("price");
         String description = request.getParameter("description");
         String status = request.getParameter("status");
         Part imagePart = request.getPart("imageUpload");
@@ -71,8 +70,7 @@ public class CreateMaterialDetailServlet extends HttpServlet {
             if (name == null || name.trim().isEmpty() ||
                 categoryIdStr == null || categoryIdStr.isEmpty() ||
                 supplierIdStr == null || supplierIdStr.isEmpty() ||
-                unitIdStr == null || unitIdStr.isEmpty() ||
-                priceStr == null || priceStr.isEmpty()) {
+                unitIdStr == null || unitIdStr.isEmpty()) {
                 throw new Exception("Vui lòng nhập đầy đủ thông tin bắt buộc.");
             }
 
@@ -93,21 +91,6 @@ public class CreateMaterialDetailServlet extends HttpServlet {
                 throw new Exception("Mô tả không được vượt quá 255 ký tự.");
             }
 
-            if (priceStr == null || priceStr.trim().isEmpty()) {
-                throw new Exception("Vui lòng nhập giá vật tư.");
-            }
-            if (!priceStr.matches("^\\d+$")) {
-                throw new Exception("Giá vật tư phải là số nguyên dương (không nhập số lẻ hoặc ký tự đặc biệt).");
-            }
-            long price = Long.parseLong(priceStr);
-            if (price <= 0) {
-                throw new Exception("Giá vật tư phải lớn hơn 0.");
-            }
-
-            if (price > 10000000000L) {
-                throw new Exception("Giá vật tư không được vượt quá 10 tỷ VNĐ.");
-            }
-
             String imageUrl = null;
             if (imagePart != null && imagePart.getSize() > 0) {
                 String fileName = java.nio.file.Path.of(imagePart.getSubmittedFileName()).getFileName().toString();
@@ -115,7 +98,6 @@ public class CreateMaterialDetailServlet extends HttpServlet {
                     request.setAttribute("errorMessage", "File ảnh không hợp lệ. Chỉ cho phép jpg, jpeg, png, gif.");
                     request.setAttribute("materialId", materialIdStr);
                     request.setAttribute("name", name);
-                    request.setAttribute("price", priceStr);
                     request.setAttribute("category", categoryIdStr);
                     request.setAttribute("supplier", supplierIdStr);
                     request.setAttribute("unit", unitIdStr);
@@ -169,7 +151,6 @@ public class CreateMaterialDetailServlet extends HttpServlet {
             material.setCategoryId(categoryId);
             material.setSupplierId(supplierId);
             material.setUnitId(unitId);
-            material.setPrice(price);
             material.setImageUrl(imageUrl);
             material.setDescription(description);
             material.setStatus(status);
@@ -193,9 +174,6 @@ public class CreateMaterialDetailServlet extends HttpServlet {
             }
             if (!errorMessage.contains("Tên vật tư")) {
                 request.setAttribute("name", name);
-            }
-            if (!errorMessage.contains("Giá vật tư")) {
-                request.setAttribute("price", priceStr);
             }
             request.setAttribute("category", categoryIdStr);
             request.setAttribute("supplier", supplierIdStr);

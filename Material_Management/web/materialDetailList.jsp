@@ -95,6 +95,7 @@
                         </select>
                     </div>
                     <button type="submit" name="reset" value="true" class="btn btn-secondary">Đặt lại</button>
+                    <!-- Đã bỏ nút Lịch sử thay đổi -->
                 </div>
                 <div class="filter-row">
                      <div class="filter-group search-group">
@@ -115,10 +116,10 @@
                                 <th><input type="checkbox" id="selectAll"></th>
                                 <th>Mã VT</th>
                                 <th>Tên vật tư</th>
-                                <th>Danh mục</th>
+                                <th>Loại vật tư</th>
                                 <th>Nhà cung cấp</th>
                                 <th>Trạng thái</th>
-                                <th>Hành động</th>
+                                <th>Chi tiết</th>
                             </tr>
                         </thead>
                         <tbody>

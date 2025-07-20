@@ -22,7 +22,7 @@ public class InventoryServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if ("true".equals(request.getParameter("reset"))) {
-            response.sendRedirect("inventory");
+            response.sendRedirect("InventoryServlet");
             return;
         }
         int page = 1;

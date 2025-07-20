@@ -35,17 +35,6 @@ public class UpdateMaterialServlet extends HttpServlet {
             int categoryId = Integer.parseInt(request.getParameter("categoryId"));
             int supplierId = Integer.parseInt(request.getParameter("supplierId"));
             int unitId = Integer.parseInt(request.getParameter("unit"));
-            String priceStr = request.getParameter("price");
-            if (priceStr == null || priceStr.trim().isEmpty()) {
-                throw new Exception("Giá vật tư không được để trống.");
-            }
-            if (!priceStr.matches("^\\d+$")) {
-                throw new Exception("Giá vật tư phải là số nguyên dương (không nhập số lẻ hoặc ký tự đặc biệt).");
-            }
-            long price = Long.parseLong(priceStr);
-            if (price <= 0) {
-                throw new Exception("Giá vật tư phải lớn hơn 0.");
-            }
             String description = request.getParameter("description");
             String status = request.getParameter("status");
             String imageUrl = null;
@@ -104,9 +93,7 @@ public class UpdateMaterialServlet extends HttpServlet {
             if (description != null && description.length() > 255) {
                 throw new Exception("Mô tả không được vượt quá 255 ký tự.");
             }
-            if (price > 10000000000L) {
-                throw new Exception("Giá vật tư không được vượt quá 10 tỷ VNĐ.");
-            }
+            // BỎ KIỂM TRA GIÁ
             
             if (status == null || status.trim().isEmpty()) {
                 throw new Exception("Vui lòng chọn trạng thái vật tư.");
@@ -118,7 +105,7 @@ public class UpdateMaterialServlet extends HttpServlet {
             material.setCategoryId(categoryId);
             material.setSupplierId(supplierId);
             material.setUnitId(unitId);
-            material.setPrice(price);
+            // material.setPrice(price); // KHÔNG SET GIÁ
             material.setDescription(description);
             material.setImageUrl(imageUrl);
             material.setStatus(status);

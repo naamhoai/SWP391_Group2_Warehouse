@@ -94,6 +94,7 @@ public class MaterialListServlet extends HttpServlet {
 
         List<Material> materials = dao.getMaterialsForAdmin(searchQuery, categoryId, supplierFilter, statusFilter, currentPage, itemsPerPage, sortField, sortDir);
 
+
         boolean showLowStock = "true".equals(request.getParameter("lowStock"));
         int lowStockItems = 0;
         if (showLowStock) {

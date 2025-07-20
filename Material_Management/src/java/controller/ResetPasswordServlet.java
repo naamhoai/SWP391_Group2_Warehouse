@@ -54,6 +54,7 @@ public class ResetPasswordServlet extends HttpServlet {
         if (fullname == null || fullname.trim().isEmpty()) {
             request.setAttribute("mess", "Tên không được để trống.");
             request.setAttribute("email", email);
+            request.setAttribute("fullname", fullname);
             request.getRequestDispatcher("resetPassword.jsp").forward(request, response);
             return;
         }
@@ -61,24 +62,28 @@ public class ResetPasswordServlet extends HttpServlet {
         if (password == null || password.trim().isEmpty() || confirmPassword == null || confirmPassword.trim().isEmpty()) {
             request.setAttribute("mess", "Vui lòng nhập đầy đủ mật khẩu mới và xác nhận!");
             request.setAttribute("email", email);
+            request.setAttribute("fullname", fullname);
             request.getRequestDispatcher("resetPassword.jsp").forward(request, response);
             return;
         }
         if (password.length() < 8 || password.length() > 32) {
             request.setAttribute("mess", "Mật khẩu mới phải từ 8 đến 32 ký tự!");
             request.setAttribute("email", email);
+            request.setAttribute("fullname", fullname);
             request.getRequestDispatcher("resetPassword.jsp").forward(request, response);
             return;
         }
         if (!password.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) {
             request.setAttribute("mess", "Mật khẩu mới phải chứa ít nhất 1 ký tự đặc biệt!");
             request.setAttribute("email", email);
+            request.setAttribute("fullname", fullname);
             request.getRequestDispatcher("resetPassword.jsp").forward(request, response);
             return;
         }
         if (!password.equals(confirmPassword)) {
             request.setAttribute("mess", "Mật khẩu xác nhận không khớp.");
             request.setAttribute("email", email);
+            request.setAttribute("fullname", fullname);
             request.getRequestDispatcher("resetPassword.jsp").forward(request, response);
             return;
         }
