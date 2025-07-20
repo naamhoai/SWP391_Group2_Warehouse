@@ -232,7 +232,7 @@ form {
 }
 
 .image-section::after {
-    content: 'Nếu ảnh nền không hiển thị, chỉ có màu nền này là mặc định.';
+  
     display: block;
     position: absolute;
     right: 10px; bottom: 10px;

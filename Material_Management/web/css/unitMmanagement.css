@@ -208,7 +208,7 @@ body {
     min-width: 800px;
     border-collapse: collapse;
     font-size: 0.95rem;
-    table-layout: fixed;
+    table-layout: inherit;
 }
 
 .units-table th {
@@ -246,7 +246,7 @@ body {
     white-space: normal;
     overflow: visible;
     text-overflow: unset;
-    text-align: center;
+    
     vertical-align: middle;
     padding: 1rem;
 }
@@ -700,4 +700,7 @@ body > .container {
     max-width: calc(100vw - 260px);
 }
    
+
+
+
 
