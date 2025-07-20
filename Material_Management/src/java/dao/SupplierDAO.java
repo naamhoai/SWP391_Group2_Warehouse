@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -63,6 +64,33 @@ public class SupplierDAO extends DBContext {
         return list; 
     }
     
+    public List<Supplier> getActiveSuppliers() {
+        List<Supplier> list = new ArrayList<>(); 
+        String query = "SELECT * FROM supplier WHERE status = 'active' ORDER BY created_at DESC"; 
+        try {
+            conn = new DBContext().getConnection(); 
+            ps = conn.prepareStatement(query); 
+            rs = ps.executeQuery(); 
+            while (rs.next()) {
+                list.add(new Supplier(
+                    rs.getInt("supplier_id"),
+                    rs.getString("supplier_name"),
+                    rs.getString("contact_person"),
+                    rs.getString("supplier_phone"),
+                    rs.getString("address"),
+                    rs.getString("status"),
+                    rs.getTimestamp("created_at"),
+                    rs.getTimestamp("updated_at")
+                ));
+            }
+            LOGGER.log(Level.INFO, "Retrieved {0} active suppliers", list.size());
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error in getActiveSuppliers: {0}", e.getMessage());
+        } finally {
+            closeResources();
+        }
+        return list; 
+    }
    
     public Supplier getSupplierById(int id) {
         String query = "SELECT * FROM supplier WHERE supplier_id = ?";
@@ -106,7 +134,7 @@ public class SupplierDAO extends DBContext {
             
             String status = supplier.getStatus();
           
-            if (status == null || (!status.equals("active") && !status.equals("inactive"))) {
+            if (status == null || (!status.equals("active") && !status.equals("inactive") && !status.equals("terminated"))) {
                 LOGGER.log(Level.WARNING, "Status không hợp lệ: {0}. Sử dụng giá trị mặc định 'active'", status);
                 status = "active";
             }
@@ -154,7 +182,7 @@ public class SupplierDAO extends DBContext {
             ps.setString(4, supplier.getAddress()); 
             String status = supplier.getStatus();
             
-            if (status == null || (!status.equals("active") && !status.equals("inactive"))) {
+            if (status == null || (!status.equals("active") && !status.equals("inactive") && !status.equals("terminated"))) {
                 status = "active";
             }
             ps.setString(5, status); 
@@ -278,7 +306,7 @@ public class SupplierDAO extends DBContext {
     }
 
     
-    public List<Supplier> getSuppliersWithPaging(String keyword, String status, String sortBy, int page, int itemsPerPage) {
+    public List<Supplier> getSuppliersWithPaging(String keyword, String status, String sortBy, String sortOrder, int page, int itemsPerPage) {
         List<Supplier> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM supplier WHERE 1=1");
         List<Object> params = new ArrayList<>();
@@ -293,12 +321,13 @@ public class SupplierDAO extends DBContext {
         }
        
         if (sortBy != null) {
+            String orderDirection = (sortOrder != null && sortOrder.equalsIgnoreCase("desc")) ? "DESC" : "ASC";
             switch (sortBy) {
                 case "name":
-                    sql.append(" ORDER BY supplier_name ASC");
+                    sql.append(" ORDER BY supplier_name ").append(orderDirection);
                     break;
                 case "id":
-                    sql.append(" ORDER BY supplier_id ASC");
+                    sql.append(" ORDER BY supplier_id ").append(orderDirection);
                     break;
                 default:
                     sql.append(" ORDER BY created_at DESC");
@@ -334,5 +363,71 @@ public class SupplierDAO extends DBContext {
             closeResources();
         }
         return list;
+    }
+
+    // Kiểm tra nhà cung cấp còn vật tư tồn kho không
+    public boolean hasMaterialsInStock(int supplierId) {
+        String query = "SELECT COUNT(*) FROM material WHERE supplier_id = ? AND quantity > 0";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, supplierId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Lỗi khi kiểm tra vật tư tồn kho của supplier: {0}", e.getMessage());
+        } finally {
+            closeResources();
+        }
+        return false;
+    }
+
+    public Supplier getSupplierByName(String name) {
+        String sql = "SELECT * FROM supplier WHERE LOWER(supplier_name) = LOWER(?) LIMIT 1";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, name.trim());
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return new Supplier(
+                    rs.getInt("supplier_id"),
+                    rs.getString("supplier_name"),
+                    rs.getString("contact_person"),
+                    rs.getString("supplier_phone"),
+                    rs.getString("address"),
+                    rs.getString("status"),
+                    rs.getTimestamp("created_at"),
+                    rs.getTimestamp("updated_at")
+                );
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error in getSupplierByName: {0}", e.getMessage());
+        } finally {
+            closeResources();
+        }
+        return null;
+    }
+
+    public int addSupplierAndReturnId(Supplier supplier) {
+        String query = "INSERT INTO supplier (supplier_name, status) VALUES (?, ?)";
+        try {
+            conn = getConnection();
+            ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, supplier.getSupplierName());
+            ps.setString(2, supplier.getStatus());
+            ps.executeUpdate();
+            rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error in addSupplierAndReturnId: {0}", e.getMessage());
+        } finally {
+            closeResources();
+        }
+        return -1;
     }
 } 

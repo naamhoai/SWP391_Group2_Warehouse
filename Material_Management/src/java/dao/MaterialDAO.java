@@ -67,8 +67,7 @@ public class MaterialDAO extends DBContext {
         }
         return 0;
     }
-
-    public Material getMaterialById(int materialId) throws SQLException {
+public Material getMaterialById(int materialId) throws SQLException {
         String sql = "SELECT m.*, c.name as category_name, s.supplier_name, u.unit_name "
                 + "FROM materials m "
                 + "LEFT JOIN categories c ON m.category_id = c.category_id "
@@ -124,7 +123,7 @@ public class MaterialDAO extends DBContext {
 
     public boolean addMaterialWithId(Material material) throws SQLException {
         String sql = "INSERT INTO materials (material_id, name, category_id, image_url, description, supplier_id, unit_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, material.getMaterialId());
             ps.setString(2, material.getName());
             ps.setInt(3, material.getCategoryId());
@@ -193,7 +192,7 @@ public class MaterialDAO extends DBContext {
             case "material_id":
                 return "m.material_id";
             case "name":
-                return "m.name";
+return "m.name";
             case "price":
                 return "m.price";
             case "status":
@@ -265,7 +264,7 @@ public class MaterialDAO extends DBContext {
 
     public int getMaterialIdByName(String materialName) {
         String sql = "SELECT material_id FROM materials WHERE name = ?";
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, materialName.trim());
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {

@@ -1,42 +1,44 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%
+    java.util.Date now = new java.util.Date();
+    request.setAttribute("now", now);
+%>
 <!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Thêm Loại Vật Tư</title>
+        <link rel="stylesheet" href="css/sidebar.css">
+        <link rel="stylesheet" href="css/common.css">
         <link rel="stylesheet" href="css/category.css">
     </head>
     <body>
         <div class="container">
             <div class="form-container">
                 <h2>Thêm danh mục mới</h2>
-
                 <!-- Thông báo thành công -->
                 <c:if test="${not empty success}">
                     <div class="message success">
                         ${success}
                     </div>
                 </c:if>
-                
                 <!-- Thông báo lỗi từ session -->
                 <c:if test="${not empty sessionScope.error}">
-                    <div class="message error">
-                        ${sessionScope.error}
+                    <div class="message error" style="margin-left: 32px; margin-right: 32px;">
+                        Tên loại vật tư đã tồn tại. Vui lòng nhập tên khác.
                     </div>
-                    <% session.removeAttribute("error"); %>
+                    <c:remove var="error" scope="session"/>
                 </c:if>
-                
                 <!-- Thông báo lỗi từ request -->
                 <c:if test="${not empty error}">
-                    <div class="message error">
-                        ${error}
+                    <div class="message error" style="margin-left: 32px; margin-right: 32px;">
+                        Tên loại vật tư đã tồn tại. Vui lòng nhập tên khác.
                     </div>
                 </c:if>
-
                 <form action="${pageContext.request.contextPath}/categories" method="post" class="category-form" onsubmit="return validateForm()">
                     <input type="hidden" name="action" value="add">
-
                     <div class="form-field">
                         <label for="name">Loại Vật Tư <span class="required">*</span></label>
                         <input type="text" id="name" name="name" 
@@ -44,7 +46,6 @@
                                value="${not empty error ? name : ''}">
                         <span class="error-message" id="nameError"></span>
                     </div>
-
                     <div class="form-field">
                         <label for="parentId">Danh mục vật tư</label>
                         <select id="parentId" name="parentId">
@@ -58,7 +59,12 @@
                         </select>
                         <span class="error-message" id="parentError"></span>
                     </div>
-
+                    <div class="form-field">
+                        <label for="createdAt">Ngày tạo</label>
+                        <input type="text" id="createdAt" 
+                               value="<fmt:formatDate value='${now}' pattern='dd/MM/yyyy'/>"
+                               readonly style="background-color: #f5f5f5; color: #666;">
+                    </div>
                     <div class="form-actions">
                         <a href="${pageContext.request.contextPath}/categories" class="btn-cancel">Hủy</a>
                         <button type="submit" class="btn-submit">Thêm mới</button>
@@ -66,7 +72,6 @@
                 </form>
             </div>
         </div>
-
         <script>
             function validateForm() {
                 let isValid = true;

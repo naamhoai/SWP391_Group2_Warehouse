@@ -1,10 +1,17 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%
+    java.util.Date now = new java.util.Date();
+    request.setAttribute("now", now);
+%>
 <!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Sửa Loại Vật Tư</title>
+        <link rel="stylesheet" href="css/sidebar.css">
+        <link rel="stylesheet" href="css/common.css">
         <link rel="stylesheet" href="css/category.css">
     </head>
     <body>
@@ -47,6 +54,13 @@
                             </c:forEach>
                         </select>
                         <span class="error-message" id="parentError"></span>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="updatedAt">Ngày cập nhật</label>
+                        <input type="text" id="updatedAt" 
+                               value="<fmt:formatDate value='${now}' pattern='dd/MM/yyyy'/>"
+                               readonly style="background-color: #f5f5f5; color: #666;">
                     </div>
 
                     <div class="form-actions">

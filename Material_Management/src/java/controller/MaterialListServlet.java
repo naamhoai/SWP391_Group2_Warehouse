@@ -2,7 +2,6 @@ package controller;
 
 import dao.MaterialDAO;
 import dao.MaterialInfoDAO;
-import dao.InventoryDAO;
 import java.util.List;
 
 import java.io.IOException;
@@ -16,8 +15,6 @@ import java.util.Arrays;
 import model.*;
 import java.util.ArrayList;
 import dao.CategoryDAO;
-import java.util.Map;
-import java.util.HashMap;
 
 @WebServlet(name = "MaterialListServlet", urlPatterns = {"/MaterialListServlet"})
 public class MaterialListServlet extends HttpServlet {
@@ -42,11 +39,6 @@ public class MaterialListServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        if ("true".equals(request.getParameter("reset"))) {
-            response.sendRedirect("MaterialListServlet");
-            return;
-        }
 
         String searchQuery = request.getParameter("search");
         Integer categoryId = null;
@@ -94,39 +86,9 @@ public class MaterialListServlet extends HttpServlet {
 
         List<Material> materials = dao.getMaterialsForAdmin(searchQuery, categoryId, supplierFilter, statusFilter, currentPage, itemsPerPage, sortField, sortDir);
 
-
-        boolean showLowStock = "true".equals(request.getParameter("lowStock"));
-        int lowStockItems = 0;
-        if (showLowStock) {
-            // Sử dụng InventoryDAO để lấy danh sách vật tư có tồn kho thấp
-            InventoryDAO inventoryDAO = new InventoryDAO();
-            List<Inventory> lowStockInventories = inventoryDAO.getLowStockItems();
-            
-            // Chuyển đổi từ Inventory sang Material để hiển thị
-            List<Material> lowStockList = new ArrayList<>();
-            for (Inventory inv : lowStockInventories) {
-                // Tạo Material object từ dữ liệu Inventory
-                Material material = new Material();
-                material.setMaterialId(inv.getMaterialId());
-                material.setName(inv.getMaterialName());
-                material.setCategoryName(inv.getCategoryName());
-                material.setSupplierName(inv.getSupplierName());
-                material.setUnitName(inv.getUnitName());
-                material.setPrice(inv.getPrice());
-                material.setStatus(inv.getStatus());
-                material.setUnitId(inv.getUnitId());
-                
-                lowStockList.add(material);
-            }
-            materials = lowStockList;
-            lowStockItems = lowStockList.size();
-        }
-        request.setAttribute("lowStockItems", lowStockItems);
-        request.setAttribute("showLowStock", showLowStock);
-
         CategoryDAO categoryDAO = new CategoryDAO();
         MaterialInfoDAO infoDAO = new MaterialInfoDAO();
-        List<Category> categories = categoryDAO.getAllCategories();
+        List<Category> categories = categoryDAO.getVisibleCategories();
         List<String> suppliers = infoDAO.getAllSuppliers();
         List<Integer> itemsPerPageOptions = Arrays.asList(5, 10, 20, 50);
 
@@ -149,16 +111,7 @@ public class MaterialListServlet extends HttpServlet {
         int endPage = Math.min(totalPages, currentPage + 2);
         request.setAttribute("startPage", startPage);
         request.setAttribute("endPage", endPage);
-
-        Map<String, Integer> typeCountByUnit = new HashMap<>();
-        for (Material m : materials) {
-            String unit = m.getUnitName();
-            if (unit != null) {
-                typeCountByUnit.put(unit, typeCountByUnit.getOrDefault(unit, 0) + 1);
-            }
-        }
-        request.setAttribute("typeCountByUnit", typeCountByUnit);
-
+        request.setAttribute("totalMaterials", totalItems);
         request.getRequestDispatcher("materialDetailList.jsp").forward(request, response);
         categoryDAO.closeConnection();
     }

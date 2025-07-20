@@ -201,7 +201,7 @@ public class CategoryDAO extends DBContext {
         return list;
     }
 
-    public String addCategory(String name, Integer parentId) {
+    public String addCategory(String name, Integer parentId, java.sql.Timestamp createdAt) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -221,13 +221,21 @@ public class CategoryDAO extends DBContext {
                 rs.close();
                 stmt.close();
             }
-            String sql = "INSERT INTO categories (name, parent_id) VALUES (?, ?)";
+            String sql = "INSERT INTO categories (name, parent_id, created_at, updated_at) VALUES (?, ?, ?, ?)";
             stmt = conn.prepareStatement(sql);
             stmt.setString(1, name);
             if (parentId != null) {
                 stmt.setInt(2, parentId);
             } else {
                 stmt.setNull(2, Types.INTEGER);
+            }
+            if (createdAt != null) {
+                stmt.setTimestamp(3, createdAt);
+                stmt.setTimestamp(4, createdAt);
+            } else {
+                java.sql.Timestamp now = new java.sql.Timestamp(System.currentTimeMillis());
+                stmt.setTimestamp(3, now);
+                stmt.setTimestamp(4, now);
             }
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected > 0) return null;
@@ -322,7 +330,7 @@ public class CategoryDAO extends DBContext {
                 stmt.close();
             }
 
-            String sql = "UPDATE categories SET name = ?, parent_id = ? WHERE category_id = ?";
+            String sql = "UPDATE categories SET name = ?, parent_id = ?, updated_at = NOW() WHERE category_id = ?";
             stmt = conn.prepareStatement(sql);
             stmt.setString(1, name);
             if (parentId != null) {

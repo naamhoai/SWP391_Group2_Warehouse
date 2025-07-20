@@ -6,63 +6,35 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Chi tiết nhà cung cấp</title>
-    <link rel="stylesheet" href="css/supplier.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/supplier.css?v=1.2">
     <style>
-        .supplier-details {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        /* Force override any conflicting styles */
+        body .container {
+            max-width: 980px !important;
+            margin: 40px auto !important;
+            padding: 0 20px !important;
+            width: 980px !important;
         }
-        .detail-row {
-            display: flex;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
+        body .supplier-details {
+            padding: 50px !important;
+            max-width: 980px !important;
         }
-        .detail-label {
-            width: 200px;
-            font-weight: bold;
-            color: #555;
+        body .detail-row {
+            margin-bottom: 12px !important;
+            padding: 12px 0 !important;
         }
-        .detail-value {
-            flex: 1;
-            color: #333;
+        body .detail-label {
+            font-size: 16px !important;
+            font-weight: 600 !important;
         }
-        .status-badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        .status-active {
-            background-color: #e6f4ea;
-            color: #1e7e34;
-        }
-        .status-inactive {
-            background-color: #feeced;
-            color: #dc3545;
-        }
-        .timestamp {
-            color: #666;
-            font-size: 0.9em;
-        }
-        .back-button {
-            display: inline-block;
-            padding: 8px 16px;
-            background-color: #6c757d;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            margin-top: 20px;
-        }
-        .back-button:hover {
-            background-color: #5a6268;
+        body .detail-value {
+            font-size: 16px !important;
         }
     </style>
 </head>
@@ -107,28 +79,88 @@
                 <div class="detail-row">
                     <div class="detail-label">Trạng thái:</div>
                     <div class="detail-value">
-                        <span class="status-badge ${supplier.status == 'active' ? 'status-active' : 'status-inactive'}">
-                            ${supplier.status == 'active' ? 'Hợp tác' : 'Không hợp tác'}
+                        <span class="status-badge 
+                            ${supplier.status == 'active' ? 'status-active' : (supplier.status == 'inactive' ? 'status-inactive' : (supplier.status == 'terminated' ? 'status-inactive' : ''))}">
+                            ${supplier.status == 'active' ? 'Hợp tác' : (supplier.status == 'inactive' ? 'Chưa hợp tác' : (supplier.status == 'terminated' ? 'Ngừng hợp tác' : 'Không xác định'))}
                         </span>
                     </div>
                 </div>
                 
-                <div class="detail-row">
-                    <div class="detail-label">Ngày tạo:</div>
-                    <div class="detail-value timestamp">
-                        <fmt:formatDate value="${supplier.createdAt}" pattern="dd/MM/yyyy HH:mm:ss"/>
+                <c:choose>
+                    <c:when test="${supplier.status == 'active'}">
+                        <div class="detail-row">
+                            <div class="detail-label">Thời gian bắt đầu hợp tác:</div>
+                            <div class="detail-value timestamp">
+                                <c:choose>
+                                    <c:when test="${not empty firstPurchaseDate}">
+                                        <fmt:formatDate value="${firstPurchaseDate}" pattern="dd/MM/yyyy"/>
+                                    </c:when>
+                                    <c:otherwise>Chưa có dữ liệu</c:otherwise>
+                                </c:choose>
+                            </div>
+                        </div>
+                    </c:when>
+                    <c:when test="${supplier.status == 'terminated'}">
+                        <div class="detail-row">
+                            <div class="detail-label">Thời gian hoạt động gần nhất:</div>
+                            <div class="detail-value timestamp">
+                                <c:choose>
+                                    <c:when test="${not empty latestPurchaseDate}">
+                                        <fmt:formatDate value="${latestPurchaseDate}" pattern="dd/MM/yyyy"/>
+                                    </c:when>
+                                    <c:otherwise>Chưa có dữ liệu</c:otherwise>
+                                </c:choose>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Thời gian kết thúc hợp tác:</div>
+                            <div class="detail-value timestamp">
+                                <c:choose>
+                                    <c:when test="${not empty endCooperationDate}">
+                                        <fmt:formatDate value="${endCooperationDate}" pattern="dd/MM/yyyy"/>
+                                    </c:when>
+                                    <c:otherwise>Chưa có dữ liệu</c:otherwise>
+                                </c:choose>
+                            </div>
+                        </div>
+                    </c:when>
+                </c:choose>
+                <c:if test="${supplier.status == 'active'}">
+                    <div class="detail-row">
+                        <div class="detail-label">Thời gian hợp tác:</div>
+                        <div class="detail-value timestamp">
+                            <c:choose>
+                                <c:when test="${not empty cooperationYears || not empty cooperationRemainMonths}">
+                                    <c:choose>
+                                        <c:when test="${cooperationYears > 0 && cooperationRemainMonths > 0}">
+                                            ${cooperationYears} năm ${cooperationRemainMonths} tháng
+                                        </c:when>
+                                        <c:when test="${cooperationYears > 0}">
+                                            ${cooperationYears} năm
+                                        </c:when>
+                                        <c:when test="${cooperationRemainMonths > 0}">
+                                            ${cooperationRemainMonths} tháng
+                                        </c:when>
+                                        <c:otherwise>Chưa có dữ liệu</c:otherwise>
+                                    </c:choose>
+                                </c:when>
+                                <c:otherwise>Chưa có dữ liệu</c:otherwise>
+                            </c:choose>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="detail-row">
-                    <div class="detail-label">Cập nhật lần cuối:</div>
-                    <div class="detail-value timestamp">
-                        <fmt:formatDate value="${supplier.updatedAt}" pattern="dd/MM/yyyy HH:mm:ss"/>
+                </c:if>
+                <c:if test="${not empty supplier.statusReason}">
+                    <div class="detail-row">
+                        <div class="detail-label">Lý do:</div>
+                        <div class="detail-value">${supplier.statusReason}</div>
                     </div>
-                </div>
+                </c:if>
             </c:if>
             
-            <a href="suppliers" class="back-button">Quay lại danh sách</a>
+            <div style="margin-top: 24px; display: flex; gap: 12px;"> 
+                <a href="suppliers" class="back-button">Quay lại danh sách</a>
+                <a href="suppliers?action=edit&id=${supplier.supplierId}" class="back-button" style="background-color: #007bff;">Sửa thông tin</a>
+            </div>
         </div>
     </div>
 </body>

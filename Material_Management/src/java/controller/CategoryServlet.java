@@ -190,7 +190,10 @@ public class CategoryServlet extends HttpServlet {
             Category category = categoryDAO.getCategoryById(id);
 
             if (category == null) {
-                response.sendRedirect("categories");
+                request.setAttribute("error", "Không tìm thấy danh mục với ID: " + id);
+                List<Category> parentCategories = categoryDAO.getAvailableParentCategories(null);
+                request.setAttribute("parentCategories", parentCategories);
+                request.getRequestDispatcher("editCategory.jsp").forward(request, response);
                 return;
             }
 
@@ -200,7 +203,10 @@ public class CategoryServlet extends HttpServlet {
             request.getRequestDispatcher("editCategory.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("categories");
+            request.setAttribute("error", "Lỗi khi tải trang sửa: " + e.getMessage());
+            List<Category> parentCategories = categoryDAO.getAvailableParentCategories(null);
+            request.setAttribute("parentCategories", parentCategories);
+            request.getRequestDispatcher("editCategory.jsp").forward(request, response);
         }
     }
 
@@ -208,6 +214,10 @@ public class CategoryServlet extends HttpServlet {
             throws IOException, ServletException {
         String name = request.getParameter("name");
         String parentIdParam = request.getParameter("parentId");
+        java.sql.Timestamp createdAt = null;
+        
+        // Tạo timestamp hiện tại thay vì parse từ form
+        createdAt = new java.sql.Timestamp(System.currentTimeMillis());
 
         // Validate tên danh mục
         if (name == null || name.trim().isEmpty()) {
@@ -263,10 +273,8 @@ public class CategoryServlet extends HttpServlet {
             }
         }
 
-        String error = categoryDAO.addCategory(name.trim(), parentId);
-        
+        String error = categoryDAO.addCategory(name.trim(), parentId, createdAt);
         if (error == null) {
-            // Sau khi thêm thành công, chuyển hướng về trang danh sách và hiển thị thông báo thành công
             request.getSession().setAttribute("message", "Thêm danh mục thành công!");
             response.sendRedirect("categories");
         } else {
@@ -283,6 +291,10 @@ public class CategoryServlet extends HttpServlet {
             int id = Integer.parseInt(request.getParameter("id"));
             String name = request.getParameter("name");
             String parentIdParam = request.getParameter("parentId");
+            
+            // Set current date for display
+            java.sql.Timestamp currentTime = new java.sql.Timestamp(System.currentTimeMillis());
+            request.setAttribute("updatedAt", currentTime.toString());
 
             // Validate tên danh mục
             if (name == null || name.trim().isEmpty()) {

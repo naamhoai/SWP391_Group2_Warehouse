@@ -2,23 +2,18 @@
 <%@page import="java.util.*, model.Category, dao.CategoryDAO"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<!-- Đã xóa đoạn code Java remove message/error ở đây -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý danh mục</title>
-    <link rel="stylesheet" href="css/category.css">
+
     <link rel="stylesheet" href="css/sidebar.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/supplier.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/category.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <style>
-        body, * {
-            font-family: 'Times New Roman', Times, serif !important;
-        }
-    </style>
 </head>
 <body>
     <jsp:include page="sidebar.jsp" />
@@ -48,13 +43,10 @@
         </c:if>
 
         <form action="categories" method="get" class="filter-form">
-            <select name="hiddenFilter" class="filter-select">
-                <option value="all" ${param.hiddenFilter == null || param.hiddenFilter == 'all' ? 'selected' : ''}>Tất cả trạng thái</option>
-                <option value="visible" ${param.hiddenFilter == 'visible' ? 'selected' : ''}>Đang hiển thị</option>
-                <option value="hidden" ${param.hiddenFilter == 'hidden' ? 'selected' : ''}>Đã ẩn</option>
-            </select>
+            <input type="text" name="keyword" placeholder="Tìm kiếm loại vật tư"
+                   value="${keyword}" class="filter-input">
 
-            <select name="parentId" class="filter-select">
+            <select name="parentId" class="filter-select" onchange="this.form.submit()">
                 <option value="">Tất cả danh mục vật tư</option>
                 <c:forEach items="${parentCategories}" var="parent">
                     <option value="${parent.categoryId}" ${parent.categoryId == param.parentId ? 'selected' : ''}>
@@ -63,12 +55,11 @@
                 </c:forEach>
             </select>
 
-            <input type="text" name="keyword" placeholder="Tìm kiếm loại vật tư"
-                   value="${keyword}" class="filter-input">
-
-            <button type="submit" name="sortBy" value="name" class="sort-btn ${sortBy == 'name' ? 'active' : ''}">
-                Sắp xếp theo tên
-            </button>
+            <select name="hiddenFilter" class="filter-select" onchange="this.form.submit()">
+                <option value="all" ${param.hiddenFilter == null || param.hiddenFilter == 'all' ? 'selected' : ''}>Tất cả trạng thái</option>
+                <option value="visible" ${param.hiddenFilter == 'visible' ? 'selected' : ''}>Đang hiển thị</option>
+                <option value="hidden" ${param.hiddenFilter == 'hidden' ? 'selected' : ''}>Đã ẩn</option>
+            </select>
 
             <button type="submit" name="sortBy" value="id" class="sort-btn ${sortBy == 'id' ? 'active' : ''}">
                 Sắp xếp theo ID

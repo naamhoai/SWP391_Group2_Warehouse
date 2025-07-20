@@ -11,6 +11,13 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Supplier;
+import java.util.HashMap;
+import dao.PurchaseOrderDAO;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
+import java.util.Arrays;
 
 @WebServlet(name = "SupplierListServlet", urlPatterns = {"/suppliers"})
 public class SupplierListServlet extends HttpServlet {
@@ -68,62 +75,87 @@ public class SupplierListServlet extends HttpServlet {
                     break;
             }
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error processing request: {0}", e.getMessage());
-            request.getSession().setAttribute("error", "An error occurred: " + e.getMessage());
-            response.sendRedirect(request.getContextPath() + "/suppliers");
+            e.printStackTrace(); // log ra console
+            request.setAttribute("errorMessage", e.getMessage());
+            request.getRequestDispatcher("/error.jsp").forward(request, response);
         }
     }
 
     private void listSuppliers(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
-            String status = request.getParameter("status");
-            String keyword = request.getParameter("keyword");
-            String sortBy = request.getParameter("sortBy");
-            String pageStr = request.getParameter("page");
-            String itemsPerPageStr = request.getParameter("itemsPerPage");
-            int currentPage = 1;
-            int itemsPerPage = 10;
-            if (pageStr != null) {
-                try { currentPage = Math.max(1, Integer.parseInt(pageStr)); } catch (Exception ignored) {}
-            }
-            if (itemsPerPageStr != null) {
-                try { itemsPerPage = Math.max(1, Integer.parseInt(itemsPerPageStr)); } catch (Exception ignored) {}
-            }
-
-            // Đếm tổng số supplier sau filter/search
-            int totalSuppliers = supplierDAO.countSuppliers(keyword, status);
-            int totalPages = (int) Math.ceil((double) totalSuppliers / itemsPerPage);
-            if (totalPages == 0) totalPages = 1;
-            if (currentPage > totalPages) currentPage = totalPages;
-
-            // Lấy danh sách supplier cho trang hiện tại
-            List<Supplier> suppliers = supplierDAO.getSuppliersWithPaging(keyword, status, sortBy, currentPage, itemsPerPage);
-
-            // Tính startPage, endPage cho hiển thị phân trang (5 số)
-            int startPage = Math.max(1, currentPage - 2);
-            int endPage = Math.min(totalPages, currentPage + 2);
-
-            request.setAttribute("suppliers", suppliers);
-            request.setAttribute("currentPage", currentPage);
-            request.setAttribute("totalPages", totalPages);
-            request.setAttribute("startPage", startPage);
-            request.setAttribute("endPage", endPage);
-            request.getRequestDispatcher("/listSupplier.jsp").forward(request, response);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error in listSuppliers: {0}", e.getMessage());
-            request.getSession().setAttribute("error", "Error loading supplier list");
-            response.sendRedirect(request.getContextPath() + "/suppliers");
+        String status = request.getParameter("status");
+        String keyword = request.getParameter("keyword");
+        String sortBy = request.getParameter("sortBy");
+        String sortOrder = request.getParameter("sortOrder");
+        String pageStr = request.getParameter("page");
+        String itemsPerPageStr = request.getParameter("itemsPerPage");
+        int currentPage = 1;
+        int itemsPerPage = 5;
+        if (pageStr != null) {
+            try { currentPage = Math.max(1, Integer.parseInt(pageStr)); } catch (Exception ignored) {}
         }
+        if (itemsPerPageStr != null) {
+            try { itemsPerPage = Math.max(1, Integer.parseInt(itemsPerPageStr)); } catch (Exception ignored) {}
+        }
+
+        // Đếm tổng số supplier sau filter/search
+        int totalSuppliers = supplierDAO.countSuppliers(keyword, status);
+        int totalPages = (int) Math.ceil((double) totalSuppliers / itemsPerPage);
+        if (totalPages == 0) totalPages = 1;
+        if (currentPage > totalPages) currentPage = totalPages;
+
+        // Lấy danh sách supplier cho trang hiện tại
+        List<Supplier> suppliers = supplierDAO.getSuppliersWithPaging(keyword, status, sortBy, sortOrder, currentPage, itemsPerPage);
+
+        // Map supplierId to hasMaterialsInStock
+        HashMap<Integer, Boolean> supplierMaterialStatusMap = new HashMap<>();
+        for (Supplier s : suppliers) {
+            supplierMaterialStatusMap.put(s.getSupplierId(), supplierDAO.hasMaterialsInStock(s.getSupplierId()));
+        }
+
+        // Tính startPage, endPage cho hiển thị phân trang (5 số)
+        int startPage = Math.max(1, currentPage - 2);
+        int endPage = Math.min(totalPages, currentPage + 2);
+
+        // Truyền các biến cho phân trang và hiển thị tổng số supplier
+        List<Integer> itemsPerPageOptions = Arrays.asList(5, 10, 20, 50);
+        request.setAttribute("itemsPerPageOptions", itemsPerPageOptions);
+        request.setAttribute("itemsPerPage", itemsPerPage);
+        request.setAttribute("totalSuppliers", totalSuppliers);
+
+        request.setAttribute("suppliers", suppliers);
+        request.setAttribute("supplierMaterialStatusMap", supplierMaterialStatusMap);
+        request.setAttribute("currentPage", currentPage);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("startPage", startPage);
+        request.setAttribute("endPage", endPage);
+
+        request.getRequestDispatcher("/listSupplier.jsp").forward(request, response);
     }
 
     private void showEditForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            int id = Integer.parseInt(request.getParameter("id"));
+            // Ưu tiên lấy supplierId từ attribute (do validate lỗi), nếu không có thì lấy từ parameter
+            Integer id = null;
+            Object attr = request.getAttribute("supplierId");
+            if (attr != null) {
+                if (attr instanceof Integer) {
+                    id = (Integer) attr;
+                } else if (attr instanceof String) {
+                    id = Integer.parseInt((String) attr);
+                }
+            } else if (request.getParameter("id") != null) {
+                id = Integer.parseInt(request.getParameter("id"));
+            } else if (request.getParameter("supplierId") != null) {
+                id = Integer.parseInt(request.getParameter("supplierId"));
+            }
+            if (id == null) throw new NumberFormatException("Missing supplierId");
+
             Supplier supplier = supplierDAO.getSupplierById(id);
             if (supplier != null) {
                 request.setAttribute("supplier", supplier);
+                request.setAttribute("statusReason", supplier.getStatusReason());
                 request.getRequestDispatcher("/editSupplier.jsp").forward(request, response);
             } else {
                 request.getSession().setAttribute("error", "Supplier not found");
@@ -268,15 +300,8 @@ public class SupplierListServlet extends HttpServlet {
             }
 
             // Validate trạng thái
-            if (status == null || (!status.equals("active") && !status.equals("inactive"))) {
-                request.setAttribute("error", "Trạng thái không hợp lệ");
-                request.setAttribute("supplierName", supplierName);
-                request.setAttribute("contactPerson", contactPerson);
-                request.setAttribute("supplierPhone", supplierPhone);
-                request.setAttribute("address", address);
-                request.setAttribute("status", status);
-                request.getRequestDispatcher("/addSupplier.jsp").forward(request, response);
-                return;
+            if (status == null || status.trim().isEmpty()) {
+                status = "chưa hợp tác";
             }
 
             Supplier supplier = new Supplier();
@@ -308,6 +333,7 @@ public class SupplierListServlet extends HttpServlet {
             String supplierPhone = request.getParameter("supplierPhone");
             String address = request.getParameter("address");
             String status = request.getParameter("status");
+            String statusReason = request.getParameter("statusReason");
 
             LOGGER.log(Level.INFO, "Nhận được request cập nhật supplier - ID: {0}, Name: {1}, Status: {2}",
                 new Object[]{supplierId, supplierName, status});
@@ -321,6 +347,7 @@ public class SupplierListServlet extends HttpServlet {
                 request.setAttribute("supplierPhone", supplierPhone);
                 request.setAttribute("address", address);
                 request.setAttribute("status", status);
+                request.setAttribute("statusReason", statusReason);
                 showEditForm(request, response);
                 return;
             }
@@ -332,6 +359,7 @@ public class SupplierListServlet extends HttpServlet {
                 request.setAttribute("supplierPhone", supplierPhone);
                 request.setAttribute("address", address);
                 request.setAttribute("status", status);
+                request.setAttribute("statusReason", statusReason);
                 showEditForm(request, response);
                 return;
             }
@@ -343,6 +371,7 @@ public class SupplierListServlet extends HttpServlet {
                 request.setAttribute("supplierPhone", supplierPhone);
                 request.setAttribute("address", address);
                 request.setAttribute("status", status);
+                request.setAttribute("statusReason", statusReason);
                 showEditForm(request, response);
                 return;
             }
@@ -354,6 +383,7 @@ public class SupplierListServlet extends HttpServlet {
                 request.setAttribute("supplierPhone", supplierPhone);
                 request.setAttribute("address", address);
                 request.setAttribute("status", status);
+                request.setAttribute("statusReason", statusReason);
                 showEditForm(request, response);
                 return;
             }
@@ -366,6 +396,7 @@ public class SupplierListServlet extends HttpServlet {
                 request.setAttribute("supplierPhone", supplierPhone);
                 request.setAttribute("address", address);
                 request.setAttribute("status", status);
+                request.setAttribute("statusReason", statusReason);
                 showEditForm(request, response);
                 return;
             }
@@ -379,6 +410,7 @@ public class SupplierListServlet extends HttpServlet {
                 request.setAttribute("supplierPhone", supplierPhone);
                 request.setAttribute("address", address);
                 request.setAttribute("status", status);
+                request.setAttribute("statusReason", statusReason);
                 showEditForm(request, response);
                 return;
             }
@@ -390,6 +422,7 @@ public class SupplierListServlet extends HttpServlet {
                 request.setAttribute("supplierPhone", supplierPhone);
                 request.setAttribute("address", address);
                 request.setAttribute("status", status);
+                request.setAttribute("statusReason", statusReason);
                 showEditForm(request, response);
                 return;
             }
@@ -401,6 +434,7 @@ public class SupplierListServlet extends HttpServlet {
                 request.setAttribute("supplierPhone", supplierPhone);
                 request.setAttribute("address", address);
                 request.setAttribute("status", status);
+                request.setAttribute("statusReason", statusReason);
                 showEditForm(request, response);
                 return;
             }
@@ -415,6 +449,7 @@ public class SupplierListServlet extends HttpServlet {
                 request.setAttribute("supplierPhone", supplierPhone);
                 request.setAttribute("address", address);
                 request.setAttribute("status", status);
+                request.setAttribute("statusReason", statusReason);
                 showEditForm(request, response);
                 return;
             }
@@ -428,6 +463,7 @@ public class SupplierListServlet extends HttpServlet {
                 request.setAttribute("supplierPhone", supplierPhone);
                 request.setAttribute("address", address);
                 request.setAttribute("status", status);
+                request.setAttribute("statusReason", statusReason);
                 showEditForm(request, response);
                 return;
             }
@@ -441,12 +477,13 @@ public class SupplierListServlet extends HttpServlet {
                 request.setAttribute("supplierPhone", supplierPhone);
                 request.setAttribute("address", address);
                 request.setAttribute("status", status);
+                request.setAttribute("statusReason", statusReason);
                 showEditForm(request, response);
                 return;
             }
 
             // Validate trạng thái
-            if (status == null || (!status.equals("active") && !status.equals("inactive"))) {
+            if (status == null || (!status.equals("active") && !status.equals("inactive") && !status.equals("terminated"))) {
                 request.setAttribute("error", "Trạng thái không hợp lệ");
                 request.setAttribute("supplierId", supplierId);
                 request.setAttribute("supplierName", supplierName);
@@ -454,8 +491,29 @@ public class SupplierListServlet extends HttpServlet {
                 request.setAttribute("supplierPhone", supplierPhone);
                 request.setAttribute("address", address);
                 request.setAttribute("status", status);
+                request.setAttribute("statusReason", statusReason);
                 showEditForm(request, response);
                 return;
+            }
+
+            // Validate lý do khi chuyển trạng thái
+            Supplier oldSupplier = supplierDAO.getSupplierById(supplierId);
+            String oldStatus = oldSupplier != null ? oldSupplier.getStatus() : null;
+            System.out.println("DEBUG: oldStatus=" + oldStatus + ", newStatus=" + status + ", statusReason=" + statusReason);
+            if (("inactive".equals(oldStatus) && "active".equals(status)) ||
+                ("active".equals(oldStatus) && "terminated".equals(status))) {
+                if (statusReason == null || statusReason.trim().length() < 5) {
+                    request.setAttribute("error", "Lý do phải có ít nhất 5 ký tự khi chuyển trạng thái.");
+                    request.setAttribute("supplierId", supplierId);
+                    request.setAttribute("supplierName", supplierName);
+                    request.setAttribute("contactPerson", contactPerson);
+                    request.setAttribute("supplierPhone", supplierPhone);
+                    request.setAttribute("address", address);
+                    request.setAttribute("status", status);
+                    request.setAttribute("statusReason", statusReason);
+                    showEditForm(request, response);
+                    return;
+                }
             }
 
             // Create supplier object
@@ -466,6 +524,7 @@ public class SupplierListServlet extends HttpServlet {
             supplier.setSupplierPhone(supplierPhone.trim());
             supplier.setAddress(address.trim());
             supplier.setStatus(status);
+            supplier.setStatusReason(statusReason != null ? statusReason.trim() : null);
 
             LOGGER.log(Level.INFO, "Đang gửi request cập nhật đến DAO - ID: {0}", supplierId);
 
@@ -496,9 +555,47 @@ public class SupplierListServlet extends HttpServlet {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
             Supplier supplier = supplierDAO.getSupplierById(id);
-            
             if (supplier != null) {
+                // Fetch cooperation times
+                PurchaseOrderDAO poDAO = new PurchaseOrderDAO();
+                Timestamp firstPurchase = null;
+                Timestamp latestPurchase = null;
+                try {
+                    //firstPurchase = poDAO.getFirstPurchaseDateBySupplier(id);
+                    //latestPurchase = poDAO.getLatestPurchaseDateBySupplier(id);
+                } catch (Exception e) { /* ignore */ }
+                request.setAttribute("firstPurchaseDate", firstPurchase);
+                request.setAttribute("latestPurchaseDate", latestPurchase);
+                // Calculate cooperation duration
+                Integer coopMonths = null;
+                Integer coopYears = null;
+                Integer coopRemainMonths = null;
+                if (firstPurchase != null) {
+                    LocalDate start = firstPurchase.toLocalDateTime().toLocalDate();
+                    LocalDate now = LocalDate.now(ZoneId.systemDefault());
+                    Period period = Period.between(start, now);
+                    coopYears = period.getYears();
+                    coopRemainMonths = period.getMonths();
+                    coopMonths = coopYears * 12 + coopRemainMonths;
+                }
+                request.setAttribute("cooperationMonths", coopMonths);
+                request.setAttribute("cooperationYears", coopYears);
+                request.setAttribute("cooperationRemainMonths", coopRemainMonths);
                 request.setAttribute("supplier", supplier);
+                // Auto update status to 'terminated' if inactive and last activity > 1 year
+                if (supplier != null && "inactive".equalsIgnoreCase(supplier.getStatus()) && latestPurchase != null) {
+                    LocalDate lastActivity = latestPurchase.toLocalDateTime().toLocalDate();
+                    LocalDate now = LocalDate.now(ZoneId.systemDefault());
+                    if (Period.between(lastActivity, now).getYears() >= 1) {
+                        supplier.setStatus("terminated");
+                    }
+                }
+                // Truyền endCooperationDate cho cả inactive và terminated
+                Timestamp endCooperationDate = null;
+                if (supplier != null && ("terminated".equalsIgnoreCase(supplier.getStatus()) || "inactive".equalsIgnoreCase(supplier.getStatus()))) {
+                    endCooperationDate = latestPurchase;
+                }
+                request.setAttribute("endCooperationDate", endCooperationDate);
                 request.getRequestDispatcher("/viewSupplier.jsp").forward(request, response);
             } else {
                 request.getSession().setAttribute("error", "Không tìm thấy nhà cung cấp");

@@ -6,6 +6,8 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Thêm nhà cung cấp mới</title>
+        <link rel="stylesheet" href="css/sidebar.css">
+        <link rel="stylesheet" href="css/common.css">
         <link rel="stylesheet" href="css/supplier.css">
         <style>
             .alert-danger {
@@ -30,8 +32,13 @@
                     <% session.removeAttribute("message"); %>
                 </div>
             </c:if>
+            <c:if test="${not empty error}">
+                <div class="alert alert-danger">
+                    ${error}
+                </div>
+            </c:if>
             
-            <form action="${pageContext.request.contextPath}/suppliers" method="post" class="supplier-form" onsubmit="return validateForm()">
+            <form action="${pageContext.request.contextPath}/suppliers" method="post" class="supplier-form">
                 <input type="hidden" name="action" value="add">
                 
                 <div class="form-field">
@@ -40,11 +47,6 @@
                            placeholder="Nhập tên nhà cung cấp"
                            maxlength="100"
                            value="${supplierName != null ? supplierName : ''}"/>
-                    <span class="error-message" id="nameError">
-                        <c:if test="${not empty error && (error.contains('nhà cung cấp') || error.contains('tồn tại'))}">
-                            ${error}
-                        </c:if>
-                    </span>
                 </div>
                 
                 <div class="form-field">
@@ -53,11 +55,6 @@
                            placeholder="Nhập tên người liên hệ"
                            maxlength="100"
                            value="${contactPerson != null ? contactPerson : ''}"/>
-                    <span class="error-message" id="contactError">
-                        <c:if test="${not empty error && error.contains('người liên hệ') && !(error.contains('nhà cung cấp') || error.contains('tồn tại'))}">
-                            ${error}
-                        </c:if>
-                    </span>
                 </div>
                 
                 <div class="form-field">
@@ -65,11 +62,6 @@
                     <input type="tel" id="supplierPhone" name="supplierPhone" required 
                            placeholder="Nhập số điện thoại"
                            value="${supplierPhone != null ? supplierPhone : ''}"/>
-                    <span class="error-message" id="phoneError">
-                        <c:if test="${not empty error && error.contains('Số điện thoại') && !(error.contains('nhà cung cấp') || error.contains('tồn tại') || error.contains('người liên hệ'))}">
-                            ${error}
-                        </c:if>
-                    </span>
                 </div>
                 
                 <div class="form-field">
@@ -78,24 +70,14 @@
                            placeholder="Nhập địa chỉ"
                            maxlength="255"
                            value="${address != null ? address : ''}"/>
-                    <span class="error-message" id="addressError">
-                        <c:if test="${not empty error && error.contains('Địa chỉ') && !(error.contains('nhà cung cấp') || error.contains('tồn tại') || error.contains('người liên hệ') || error.contains('Số điện thoại'))}">
-                            ${error}
-                        </c:if>
-                    </span>
                 </div>
                 
                 <div class="form-field">
                     <label for="status">Trạng thái <span class="required">*</span></label>
                     <select id="status" name="status" required>
+                        <option value="inactive" ${status == 'inactive' ? 'selected' : ''}>Chưa hợp tác</option>
                         <option value="active" ${status == 'active' ? 'selected' : ''}>Hợp tác</option>
-                        <option value="inactive" ${status == 'inactive' ? 'selected' : ''}>Không hợp tác</option>
                     </select>
-                    <span class="error-message" id="statusError">
-                        <c:if test="${not empty error && error.contains('Trạng thái') && !(error.contains('nhà cung cấp') || error.contains('tồn tại') || error.contains('người liên hệ') || error.contains('Số điện thoại') || error.contains('Địa chỉ'))}">
-                            ${error}
-                        </c:if>
-                    </span>
                 </div>
                 
                 <div class="form-actions">
@@ -104,45 +86,5 @@
                 </div>
             </form>
         </div>
-
-        <script>
-            function validateForm() {
-                let isValid = true;
-                const nameInput = document.getElementById('supplierName');
-                const contactInput = document.getElementById('contactPerson');
-                const phoneInput = document.getElementById('supplierPhone');
-                const addressInput = document.getElementById('address');
-                
-                // Reset error messages
-                document.querySelectorAll('.error-message').forEach(elem => elem.textContent = '');
-                
-                // Validate supplier name
-                if (nameInput.value.trim().length < 2) {
-                    document.getElementById('nameError').textContent = 'Tên nhà cung cấp phải có ít nhất 2 ký tự';
-                    isValid = false;
-                }
-                
-                // Validate contact person
-                if (contactInput.value.trim().length < 2) {
-                    document.getElementById('contactError').textContent = 'Tên người liên hệ phải có ít nhất 2 ký tự';
-                    isValid = false;
-                }
-                
-                // Validate phone number
-                const phonePattern = /^[0-9]{10,11}$/;
-                if (!phonePattern.test(phoneInput.value)) {
-                    document.getElementById('phoneError').textContent = 'Số điện thoại phải có 10-11 chữ số';
-                    isValid = false;
-                }
-                
-                // Validate address
-                if (addressInput.value.trim().length < 5) {
-                    document.getElementById('addressError').textContent = 'Địa chỉ phải có ít nhất 5 ký tự';
-                    isValid = false;
-                }
-                
-                return isValid;
-            }
-        </script>
     </body>
 </html> 
