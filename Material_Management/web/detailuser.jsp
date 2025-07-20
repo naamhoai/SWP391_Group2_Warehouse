@@ -21,16 +21,25 @@
                     </div>
                     <div>
                         <label>Kiểu vai trò</label>
-                        <select name="role">
+                        <select name="role" <c:if test="${user.role.roleid == 2}">disabled</c:if>>
                             <c:forEach var="i" items="${requestScope.lits}">
-                                <c:if test="${i.roleid != 1 && i.roleid != 2}">
-                                    <option value="${i.roleid}"
-                                            <c:if test="${i.roleid == user.role.roleid}">selected</c:if>>
-                                        ${i.rolename}
-                                    </option>
-                                </c:if>
+                                <c:choose>
+                                    <c:when test="${i.roleid == 2}">
+                                        <c:if test="${user.role.roleid == 2}">
+                                            <option value="2" selected>Giám đốc</option>
+                                        </c:if>
+                                    </c:when>
+                                    <c:when test="${i.roleid != 1 && i.roleid != 2}">
+                                        <option value="${i.roleid}" <c:if test="${i.roleid == user.role.roleid}">selected</c:if>>
+                                            ${i.rolename}
+                                        </option>
+                                    </c:when>
+                                </c:choose>
                             </c:forEach>
                         </select>
+                        <c:if test="${user.role.roleid == 2}">
+                            <input type="hidden" name="role" value="2"/>
+                        </c:if>
                     </div>
                 </div>
                 <div class="row radio-row">

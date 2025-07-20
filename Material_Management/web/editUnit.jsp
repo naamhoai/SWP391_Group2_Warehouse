@@ -60,7 +60,7 @@
                 </table>
                 <button type="submit">Lưu</button>
                 <div style="display: flex; justify-content: flex-start; margin-top: 24px;">
-                    <a href="unitConversionSeverlet" class="btn-reset"><i class="fas fa-arrow-left"></i> về</a>
+                    <button type="button"><a href="unitConversionSeverlet" class="btn-reset"><i class="fas fa-arrow-left"></i>về</a></button>
                 </div>
             </form>
 

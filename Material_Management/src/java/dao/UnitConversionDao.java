@@ -17,13 +17,16 @@ public class UnitConversionDao extends dal.DBContext {
 
     public List<UnitConversion> getAllUnit(int pages) {
         List<UnitConversion> list = new ArrayList<>();
-        String sql = " SELECT d.conversion_id, u.unit_id, u.unit_name, u.status AS unit_status, \n"
-                + "        d.conversion_factor, d.note, d.status AS conversion_status, \n"
-                + "        w.unit_name AS warehouse_unit_name  \n"
-                + "        FROM units u \n"
-                + "        JOIN unit_conversion d ON u.unit_id = d.supplier_unit_id \n"
-                + "        JOIN units w ON d.warehouse_unit_id = w.unit_id  \n"
-                + "        ORDER BY u.unit_id LIMIT 5 OFFSET ?";
+        String sql = " SELECT d.conversion_id, u.unit_name, u.status AS unit_status, \n"
+                + "d.conversion_factor, d.note, d.status AS conversion_status,\n"
+                + "d.supplier_unit_id, \n"
+                + "d.warehouse_unit_id,\n"
+                + "w.unit_name AS warehouse_unit_name ,\n"
+                + "w.unit_id AS warehouse_unit_id\n"
+                + "FROM units u \n"
+                + "JOIN unit_conversion d ON u.unit_id = d.supplier_unit_id \n"
+                + "JOIN units w ON d.warehouse_unit_id = w.unit_id \n"
+                + "ORDER BY conversion_id LIMIT 5 OFFSET ?";
 
         try {
             PreparedStatement st = connection.prepareStatement(sql);
@@ -35,13 +38,15 @@ public class UnitConversionDao extends dal.DBContext {
                 Unit uni = new Unit();
 
                 unit.setConversionid(sm.getInt("conversion_id"));
-                uni.setUnit_id(sm.getInt("unit_id"));
+                uni.setUnit_id(sm.getInt("warehouse_unit_id"));
                 uni.setUnit_name(sm.getString("unit_name"));
                 uni.setUnit_namePr(sm.getString("warehouse_unit_name"));
                 uni.setStatus(sm.getString("unit_status"));
 
                 unit.setUnits(uni);
                 unit.setConversionfactor(sm.getString("conversion_factor"));
+                unit.setSupplierUnitId(sm.getInt("supplier_unit_id"));
+                unit.setWarehouseunitid(sm.getInt("warehouse_unit_id"));
                 unit.setNote(sm.getString("note"));
                 unit.setStatus(sm.getString("conversion_status"));
 
@@ -194,6 +199,7 @@ public class UnitConversionDao extends dal.DBContext {
         return null;
 
     }
+
     public Unit getUnitsconferi(int unit_id) {
         String sql = "UPDATE unit_conversion\n"
                 + "SET status =?\n"
@@ -469,7 +475,6 @@ public class UnitConversionDao extends dal.DBContext {
         return list;
     }
 
-    // Thêm lịch sử
     public void insertHistory(UnitChangeHistory history) throws SQLException {
         String sql = "INSERT INTO unit_change_history (unit_id, unit_name, action_type, old_value, new_value, changed_by, role, note, changed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -485,8 +490,7 @@ public class UnitConversionDao extends dal.DBContext {
             ps.executeUpdate();
         }
     }
-   
-        
+
     public String getUnitNameById(int unitId) {
         String sql = "SELECT unit_name FROM units WHERE unit_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -626,7 +630,7 @@ public class UnitConversionDao extends dal.DBContext {
         }
 
         int pageSize = 5;
-        return (total + pageSize - 1) / pageSize; 
+        return (total + pageSize - 1) / pageSize;
     }
 
     public List<Material> getALls() {
@@ -639,6 +643,7 @@ public class UnitConversionDao extends dal.DBContext {
                 Material mate = new Material();
                 mate.setName(rs.getString("name"));
                 mate.setUnitName(rs.getString("unit_name"));
+                mate.setMaterialId(rs.getInt("material_id"));
                 list.add(mate);
             }
         } catch (SQLException e) {
@@ -665,15 +670,36 @@ public class UnitConversionDao extends dal.DBContext {
         return false;
     }
 
-  
+    public int getAllunitCount(int SupplierUnitId, int warehouseunitid) {
+        String sql = "SELECT COUNT(*) as unit_id\n"
+                + "FROM unit_conversion\n"
+                + "wHERE supplier_unit_id = ? and warehouse_unit_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, SupplierUnitId);
+            ps.setInt(2, warehouseunitid);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("unit_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public static void main(String[] args) {
         UnitConversionDao n = new UnitConversionDao();
         List<Material> k = n.getALls();
-     
-        List<UnitConversion> jjj = n.getAllUnit(1);
-        System.out.println(jjj);
-  
 
+        List<UnitConversion> jjj = n.getAllUnit(1);
+        System.out.println(k);
+//        for (UnitConversion unitConversion : jjj) {
+//            System.out.println("sup" + unitConversion.getSupplierUnitId());
+//            System.out.println("wa" + unitConversion.getWarehouseunitid());
+//        }
+
+//        int f = n.getAllunitCount(999,1);
+//        System.out.println(f);
 //        
     }
 

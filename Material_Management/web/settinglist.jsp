@@ -31,18 +31,18 @@
             <form action="settinglist" method="get">
                 <div class="filter-section">
                     <select name="type">
-                        <option value="all">Tất cả</option>
+                        <option value="all">Vai trò</option>
                         <c:forEach var="r" items="${requestScope.listrole}">
                             <option value="${r.rolename}">${r.rolename}</option>
                         </c:forEach>
                     </select>
                     <select name="status">
-                        <option value="All">Tất cả </option>
+                        <option value="All">Trạng thái </option>
                         <option value="Hoạt động">Hoạt động</option>
                         <option value="Không hoạt động">Không hoạt động</option>
                     </select>
 
-                    <input type="text" placeholder="Enter keyword(s) to search" name="searchname">
+                    <input type="text" placeholder="Nhập tên hoặc kí tự để tìm kiếm." name="searchname">
 
 
                     <button type="submit" value="filter" name="save">
@@ -82,7 +82,7 @@
 
                                 <td>${u.status}</td>
                                 <td class="action">
-                                    <c:if test="${u.role.roleid != 1 && u.role.roleid != 2}">
+                                    <c:if test="${u.role.roleid != 1}">
                                         <a href="detailuser?roleid=${u.role.roleid}&userid=${u.user_id}">
                                             <i class="fas fa-edit"></i> chỉnh sửa
                                         </a>

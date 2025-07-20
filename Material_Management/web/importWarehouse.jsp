@@ -8,7 +8,7 @@
         <link rel="stylesheet" href="./css/importWarehouse.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <link rel="stylesheet" href="css/sidebar.css">
-      
+
     </head>
     <body>
         <jsp:include page="sidebar.jsp" />
@@ -20,45 +20,33 @@
             <h3 style="color: green">${requestScope.mess}</h3>
             <form action="ImportWarehouseServlet" method="post">
                 <div class="form-section ">
-                    <h3><i class="fa fa-info-circle"></i> Thông tin nhập kho</h3>
-                    
-                    <div class="form-group">
-                       <label for="nguoiNhap">Vai trò:</label> 
-                        <input type="text" id="nguoiNhap" name="name" required readonly value="${requestScope.role}">
+                    <h2><i class="fa fa-info-circle"></i> Thông tin nhập kho</h2>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex:1; min-width:180px;">
+                        <label for="tenDuAn">Tên dự án:</label>
+                        <input type="text" id="tenDuAn" name="tenDuAn" placeholder="Tên dự án liên quan" required maxlength="20" title="Không quá 20 kí tự.">
+                    </div>
+                    <div class="form-group" style="flex:1; min-width:180px;">
+                        <label for="reason">Lý do nhập lại:</label>
+                        <input id="reason" name="reason" placeholder="Nhập lý do nhập lại" required>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="reason">Lý do nhập lại:</label>
-                    <input id="reason" name="reason" rows="2" placeholder="Nhập lý do nhập lại"required 
-                              
-                    >
+                <div class="form-row">
+                    <div class="form-group" style="flex:0.33; min-width:120px;">
+                        <label for="nguoiNhan">Người nhận:</label>
+                        <input type="text" id="nguoiNhan" name="nguoiNhan" value="${requestScope.username}">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="nguoiGiao">Ai giao đến:</label>
-                    <input type="text" id="nguoiGiao" name="nguoiGiao" placeholder="Tên người giao vật tư" required 
-                           maxlength="20" 
-                           pattern="[a-zA-ZÀ-ỹ0-9 ]+"
-                           title="Tên không quá 20 kí tự"
-                           >
-                </div>
-                <div class="form-group">
-                    <label for="nguoiNhan">Ai nhận:</label>
-                    <input type="text" id="nguoiNhan" name="nguoiNhan" value="${requestScope.username}">
-                </div>
-                <div class="form-group">
-                    <label for="phone">Số điện thoại người giao:</label>
-                    <input type="number" id="soDienThoaiNguoiGiao" name="soDienThoaiNguoiGiao" placeholder="Số điện thoại người giao" required 
-                           min="0" maxlength="10"
-                           title="độ dài số điện thoại >= 10"
-                           >
-                </div>
-                <div class="form-group">
-                    <label for="tenDuAn">Tên dự án:</label>
-                    <input type="text" id="tenDuAn" name="tenDuAn" placeholder="Tên dự án liên quan" required
-                           maxlength="20"
-                           title="Không quá 20 kí tự."
-                           
-                           >
+                <div class="form-row">
+                    <div class="form-group" style="flex:1; min-width:180px;">
+                        <label for="nguoiGiao">Người giao đến:</label>
+                        <input type="text" id="nguoiGiao" name="nguoiGiao" placeholder="Tên người giao vật tư" required maxlength="20" pattern="[a-zA-ZÀ-ỹ0-9 ]+" title="Tên không quá 20 kí tự">
+                    </div>
+                    <div class="form-group" style="flex:1; min-width:180px;">
+                        <label for="soDienThoaiNguoiGiao">Số điện thoại người giao:</label>
+                        <input type="text" id="soDienThoaiNguoiGiao" name="soDienThoaiNguoiGiao" placeholder="Số điện thoại người giao" required pattern="[0-9]{10}" maxlength="10" inputmode="numeric" title="Vui lòng nhập đúng 10 chữ số, không chứa chữ hay ký tự đặc biệt">
+                    </div>
                 </div>
                 <div class="form-section">
                     <h3><i class="fa fa-list"></i> Danh sách vật tư</h3>
@@ -112,7 +100,7 @@
                 function autoFillUnit(materialInput) {
                     const row = materialInput.closest('tr');
                     const unitInput = row.querySelector('.unit-input');
-                    const key = materialInput.value; // sẽ là "74-Thép V5 (sắt V 50x50x5mm)"
+                    const key = materialInput.value;
                     if (unitInput) {
                         unitInput.value = materialUnitMap[key] || '';
                     }
@@ -157,7 +145,7 @@
                         </td>
                         <td><button type="button" class="btn-delete" onclick="xoaDong(this)">Xóa</button></td>`;
                         tbody.appendChild(newRow);
-                        // Gắn lại sự kiện cho input mới
+                       
                         addInputEvents(newRow.querySelector('input[name="namevt[]"]'));
                     });
                 });

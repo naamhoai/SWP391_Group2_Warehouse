@@ -58,37 +58,19 @@
             </form>
         </div>
         <script>
-            document.getElementById('btn-add-row').onclick = function () {
-            const tbody = document.getElementById('conversion-tbody');
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><input type="text" name="unitName[]" placeholder="VD: Thùng, Hộp..." required></td>
-                <td><input type="text" name="unitDesc[]" placeholder="Mô tả"></td>
-                <td>
-                    <select name="baseUnit[]" required>
-                        <option value="">Chọn đơn vị gốc</option>
-                        <option value="cái">Cái</option>
-                        <option value="lít">Lít</option>
-                        <option value="kg">Kg</option>
-                        <option value="mét">Mét</option>
-                    </select>
-                </td>
-                <td><input type="number" name="ratio[]" min="0" step="any" placeholder="Tỉ lệ" required></td>
-                <td><button type="button" class="btn-remove" title="Xóa dòng"><i class="fas fa-trash"></i></button></td>
-            `;
-            tbody.appendChild(tr);
-            };
-            document.getElementById('conversion-tbody').onclick = function (e) {
-            if (e.target.closest('.btn-remove')) {
-            const row = e.target.closest('tr');
-            if (document.querySelectorAll('#conversion-tbody tr').length > 1)
-                    row.remove();
-            }
-            };
-            document.getElementById('conversion-form').onsubmit = function (e) {
-            e.preventDefault();
-            alert('Lưu thành công (demo)!');
-            };
+            document.getElementById('conversion-form').addEventListener('submit', function (e) {
+                var unitName = document.querySelector('input[name="unitName"]').value.trim().toLowerCase();
+                var validUnits = ['thùng', 'cuộn', 'hộp', 'gói'];
+                if (validUnits.includes(unitName)) {
+                    if (!confirm('Bạn có chắc chắn muốn tạo đơn vị quy đổi mới?')) {
+                        e.preventDefault();
+                    }
+                } else {
+                    if (!confirm('Đơn vị không đúng, bạn có chắc chắn muốn tạo không?')) {
+                        e.preventDefault();
+                    }
+                }
+            });
         </script>
     </body>
 </html> 
