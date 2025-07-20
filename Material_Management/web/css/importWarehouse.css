@@ -63,13 +63,9 @@ body {
 }
 .form-group input {
     width: 100%;
-    padding: 0.85rem 1.1rem;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 1.05rem;
-    background: #f8fafc;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    transition: border 0.2s, box-shadow 0.2s;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.98rem;
+    border-radius: 8px;
 }
 .form-group input:focus {
     border: 1.5px solid #2563eb;
@@ -93,10 +89,16 @@ body {
     font-weight: 600;
 }
 .table-vattu input[type="text"],
+.table-vattu input[type="number"] {
+    padding: 0.5rem 0.7rem;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+.table-vattu input[type="text"],
 .table-vattu input[type="number"],
 .table-vattu select {
     width: 100%;
-    padding: 0.7rem 0.9rem;
+    padding: 5px;
     border: 1.5px solid #e2e8f0;
     border-radius: 8px;
     font-size: 1rem;
@@ -144,6 +146,40 @@ body {
 .btn-delete:hover {
     background: #dc2626;
     box-shadow: 0 4px 16px rgba(239,68,68,0.13);
+}
+.form-row {
+    display: flex;
+    gap: 1.2rem;
+    margin-bottom: 1.2rem;
+    flex-wrap: wrap;
+}
+.form-row .form-group {
+    margin-bottom: 0;
+}
+.table-vattu select {
+    min-width: 110px;
+    max-width: 100%;
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+.table-vattu td {
+    vertical-align: middle;
+}
+.table-vattu th:nth-child(4),
+.table-vattu td:nth-child(4) {
+    min-width: 130px;
+    text-align: center;
+}
+@media (max-width: 900px) {
+    .form-row {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .form-row .form-group {
+        min-width: 0;
+    }
 }
 @media (max-width: 600px) {
     .container {

@@ -63,8 +63,9 @@ public class ImportWarehouseServlet extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         User nameandid = (User) session.getAttribute("Admin");
-        String username = (nameandid != null) ? nameandid.getFullname() : "Rỗng";
-        String role = (nameandid != null && nameandid.getRole() != null) ? nameandid.getRole().getRolename() : "Rỗng";
+        String username = (nameandid != null) ? nameandid.getFullname() : "";
+        String role = (nameandid != null && nameandid.getRole() != null) ? nameandid.getRole().getRolename() : "";
+        System.out.println("usernaem" + username);
         UnitConversionDao dao = new UnitConversionDao();
         List<Material> list = dao.getALls();
         if (list != null) {
@@ -109,8 +110,8 @@ public class ImportWarehouseServlet extends HttpServlet {
 
         HttpSession session = request.getSession();
         User nameandid = (User) session.getAttribute("Admin");
-        String username = (nameandid != null) ? nameandid.getFullname() : "Rỗng";
-        String role = (nameandid != null && nameandid.getRole() != null) ? nameandid.getRole().getRolename() : "Rỗng";
+        String username = (nameandid != null) ? nameandid.getFullname() : "";
+        String role = (nameandid != null && nameandid.getRole() != null) ? nameandid.getRole().getRolename() : "";
 
         boolean allSuccess = true;
 
@@ -148,7 +149,7 @@ public class ImportWarehouseServlet extends HttpServlet {
                 new dao.ImportHistoryDAO().insertImportHistory(importHistory);
             } else {
                 allSuccess = false;
-                break; // hoặc tiếp tục, tùy ý
+                break; 
             }
         }
 
