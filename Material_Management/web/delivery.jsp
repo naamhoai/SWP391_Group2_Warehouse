@@ -94,7 +94,7 @@
 
                     <script>
                         function filterByStatus() {
-                            var status = document.getElementsByName('statusFilter').value;
+                            var status = document.getElementsByName('statusFilter')[0].value;
                             var url = 'delivery?page=1';
                             if (status) {
                                 url += '&status=' + encodeURIComponent(status);

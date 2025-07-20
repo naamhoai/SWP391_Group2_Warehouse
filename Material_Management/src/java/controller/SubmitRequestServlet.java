@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.sql.Timestamp;
 import model.Category;
 import model.Material;
 import model.Request;
@@ -135,10 +136,20 @@ public class SubmitRequestServlet extends HttpServlet {
 
                 // Create UnitConversion object
                 UnitConversion unitConversion = new UnitConversion();
-                
+                unitConversion.setWarehouseunitid(Integer.parseInt(units[i]));
 
                 // Create Request object
+                Request requestObj = new Request();
+                requestObj.setUserId(user.getUser_id());
+                requestObj.setReason(reasons[i]);
+                requestObj.setRequestStatus("Chờ duyệt");
+                requestObj.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
                 
+                // Save request to database
+                boolean saved = requestDAO.createRequest(user.getUser_id(), reasons[i], "", "", "", "");
+                if (!saved) {
+                    allSaved = false;
+                }
             }
 
             // Notify user
