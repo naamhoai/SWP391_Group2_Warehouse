@@ -1,16 +1,12 @@
 package dao;
 
 import dal.DBContext;
-import java.security.Timestamp;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import javax.lang.model.util.Types;
 import model.ExportForm;
 
 public class ExportFormDAO extends DBContext {
@@ -70,14 +66,26 @@ public class ExportFormDAO extends DBContext {
 
     
     public int countAllExportForms(String projectName) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM export_forms WHERE (? IS NULL OR recipient_name LIKE ?)";
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            if (projectName == null || projectName.trim().isEmpty()) {
-                stmt.setNull(1, java.sql.Types.VARCHAR);
-                stmt.setNull(2, java.sql.Types.VARCHAR);
-            } else {
-                stmt.setString(1, projectName);
-                stmt.setString(2, "%" + projectName + "%");
+        return countAllExportForms(projectName, null);
+    }
+
+    public int countAllExportForms(String projectName, Integer userId) throws SQLException {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM export_forms ef WHERE 1=1");
+        List<Object> params = new ArrayList<>();
+
+        if (projectName != null && !projectName.trim().isEmpty()) {
+            sql.append(" AND ef.recipient_name LIKE ?");
+            params.add("%" + projectName.trim() + "%");
+        }
+
+        if (userId != null) {
+            sql.append(" AND ef.user_id = ?");
+            params.add(userId);
+        }
+
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                stmt.setObject(i + 1, params.get(i));
             }
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -90,6 +98,12 @@ public class ExportFormDAO extends DBContext {
     public List<ExportForm> getAllExportFormsAndApprovedRequests(
             String projectName, String sortField, String sortDir, int page, int pageSize,
             String startDate, String endDate) throws SQLException {
+        return getAllExportFormsAndApprovedRequests(projectName, sortField, sortDir, page, pageSize, startDate, endDate, null);
+    }
+
+    public List<ExportForm> getAllExportFormsAndApprovedRequests(
+            String projectName, String sortField, String sortDir, int page, int pageSize,
+            String startDate, String endDate, Integer userId) throws SQLException {
         List<ExportForm> list = new ArrayList<>();
         if (!"export_id".equals(sortField) && !"export_date".equals(sortField) && !"recipient_name".equals(sortField)) {
             sortField = "export_id";
@@ -128,6 +142,11 @@ public class ExportFormDAO extends DBContext {
             } else {
                 params.add(endDate.trim());
             }
+        }
+
+        if (userId != null) {
+            sql.append(" AND ef.user_id = ?");
+            params.add(userId);
         }
 
         sql.append(" ORDER BY ").append(sortField).append(" ").append(sortDir)

@@ -160,6 +160,7 @@ h2 {
 .btn-add {
     background: linear-gradient(90deg, #2563eb, #60a5fa);
     color: #fff;
+    margin-top: 10px;
 }
 .btn-add:hover {
     background: linear-gradient(90deg, #1e40af, #2563eb);
@@ -268,4 +269,37 @@ h2 {
 }
 .awesomplete > ul::-webkit-scrollbar-track {
     background: transparent;
+}
+
+
+.request-items-table .col-material-name {
+    min-width: 300px;
+    width: 36%;
+    text-align: center;
+}
+.request-items-table .col-quantity {
+    min-width: 130px;
+    width: 16%;
+    text-align: center;
+}
+.request-items-table .col-unit {
+    min-width: 130px;
+    width: 16%;
+    text-align: center;
+}
+.request-items-table .col-condition {
+    min-width: 130px;
+    width: 18%;
+    text-align: center;
+}
+.request-items-table .col-action {
+    min-width: 130px;
+    width: 16%;
+    text-align: center;
+}
+
+.materialNameInput {
+    width: 100% !important;
+    min-width: 280px !important;
+    box-sizing: border-box;
 }

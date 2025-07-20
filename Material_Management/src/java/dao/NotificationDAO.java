@@ -74,10 +74,19 @@ public class NotificationDAO {
 
                 Request req = requestDAO.getRequestById(noti.getRequestId());
                 if (req != null && "Chờ duyệt".equals(req.getRequestStatus())) {
+                    System.out.println("[DEBUG] Notification for request #" + noti.getRequestId() + ": " + noti.getMessage());
+                    System.out.println("[DEBUG] Request status: " + req.getRequestStatus());
+                    System.out.println("[DEBUG] Message contains 'gửi lại': " + msg.contains("gửi lại"));
+                    
                     if (msg.contains("gửi lại")) {
+                        System.out.println("[DEBUG] Adding to resend notifications: " + noti.getMessage());
                         resendNotiByRequest.put(noti.getRequestId(), noti);
-                    } else if (!latestNotiByRequest.containsKey(noti.getRequestId())) {
-                        latestNotiByRequest.put(noti.getRequestId(), noti);
+                    } else {
+                        // Chỉ thêm thông báo "mới" nếu chưa có thông báo "gửi lại" cho request này
+                        if (!resendNotiByRequest.containsKey(noti.getRequestId()) && !latestNotiByRequest.containsKey(noti.getRequestId())) {
+                            System.out.println("[DEBUG] Adding to latest notifications: " + noti.getMessage());
+                            latestNotiByRequest.put(noti.getRequestId(), noti);
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -85,10 +94,9 @@ public class NotificationDAO {
             }
         }
 
+        // Ưu tiên thông báo gửi lại hơn thông báo mới
         for (Integer reqId : resendNotiByRequest.keySet()) {
-            if (!latestNotiByRequest.containsKey(reqId)) {
-                latestNotiByRequest.put(reqId, resendNotiByRequest.get(reqId));
-            }
+            latestNotiByRequest.put(reqId, resendNotiByRequest.get(reqId));
         }
 
         List<Notification> result = new ArrayList<>();

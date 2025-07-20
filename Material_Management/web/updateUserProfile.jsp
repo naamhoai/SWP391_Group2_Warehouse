@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page import="model.User" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
@@ -29,7 +30,7 @@
                                 </div>
                             </c:if>
 
-                            <form action="${pageContext.request.contextPath}/UpdateUserProfileServlet" method="post" enctype="multipart/form-data">
+                            <form action="${pageContext.request.contextPath}/UpdateUserProfileServlet" method="post" enctype="multipart/form-data" id="updateForm">
                                 <input type="hidden" name="user_id" value="${user.user_id}" />
                                 <input type="hidden" id="originalFullname" value="${user.fullname}">
 
@@ -62,7 +63,11 @@
 
                                     <div class="column">
                                         <label for="phone">Số điện thoại:</label>
-                                        <input type="tel" id="phone" name="phone" value="${user.phone}" />
+                                        <input type="tel" id="phone" name="phone" value="${fn:escapeXml(phone)}" placeholder="VD: 0123456789" 
+                                               pattern="[0-9]+" 
+                                               oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
+                                               maxlength="11" />
+                                        <div class="error-message" id="phoneError"></div>
                                     </div>
                                     <div class="column">
                                         <label for="gender">Giới tính:</label>
@@ -109,6 +114,50 @@
         </div>
         <script src="${pageContext.request.contextPath}/js/sidebar.js"></script>
         <script src="${pageContext.request.contextPath}/js/updateUserProfile.js"></script>
+        <script>
+        // Validate số điện thoại
+        document.getElementById('phone').addEventListener('input', function() {
+            const phone = this.value;
+            const phoneError = document.getElementById('phoneError');
+            
+            // Chỉ cho phép nhập số
+            this.value = phone.replace(/[^0-9]/g, '');
+            
+            // Kiểm tra độ dài và format
+            if (this.value.length > 0) {
+                if (this.value.length < 10) {
+                    phoneError.textContent = 'Số điện thoại phải có ít nhất 10 chữ số';
+                    phoneError.style.display = 'block';
+                } else if (this.value.length > 11) {
+                    phoneError.textContent = 'Số điện thoại không được quá 11 chữ số';
+                    phoneError.style.display = 'block';
+                } else if (!/^0[0-9]{9,10}$/.test(this.value)) {
+                    phoneError.textContent = 'Số điện thoại phải bắt đầu bằng số 0';
+                    phoneError.style.display = 'block';
+                } else {
+                    phoneError.style.display = 'none';
+                }
+            } else {
+                phoneError.style.display = 'none';
+            }
+        });
 
+        // Validate form trước khi submit
+        document.getElementById('updateForm').addEventListener('submit', function(e) {
+            const phone = document.getElementById('phone').value;
+            const phoneError = document.getElementById('phoneError');
+            
+            if (phone.length > 0 && (phone.length < 10 || phone.length > 11 || !/^0[0-9]{9,10}$/.test(phone))) {
+                e.preventDefault();
+                phoneError.textContent = 'Vui lòng nhập số điện thoại hợp lệ';
+                phoneError.style.display = 'block';
+                return false;
+            }
+        });
+    </script>
     </body>
 </html>
+
+
+
+

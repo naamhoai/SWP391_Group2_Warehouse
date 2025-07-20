@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
@@ -101,11 +101,11 @@
                             <table class="request-items-table">
                                 <thead>
                                     <tr>
-                                        <th>Tên vật tư</th>
-                                        <th>Số lượng</th>
-                                        <th>Đơn vị</th>
-                                        <th>Tình trạng</th>
-                                        <th></th>
+                                        <th class="col-material-name">Tên vật tư</th>
+                                        <th class="col-quantity">Số lượng</th>
+                                        <th class="col-unit">Đơn vị</th>
+                                        <th class="col-condition">Tình trạng</th>
+                                        <th class="col-action">Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody id="itemsBody">

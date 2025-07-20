@@ -7,6 +7,12 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("gender").addEventListener("change", validateGender);
     document.getElementById("imageFile").addEventListener("change", previewAvatar);
 
+    // Thêm event listener để chỉ cho phép nhập số cho phone
+    document.getElementById("phone").addEventListener("input", function() {
+        // Chỉ cho phép nhập số
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+
     updateCharCount();
 
     form.addEventListener("submit", function (event) {
@@ -86,10 +92,35 @@ function validatePhone() {
     const phone = document.getElementById("phone").value.trim();
     const errorEl = document.getElementById("phoneError");
     errorEl.textContent = "";
-    if (phone && !/^\d{10,11}$/.test(phone)) {
-        errorEl.textContent = "Số điện thoại phải có 10-11 chữ số.";
+    
+    // Nếu không nhập số điện thoại thì không bắt buộc
+    if (!phone) {
+        return true;
+    }
+    
+    // Kiểm tra chỉ chứa số
+    if (!/^[0-9]+$/.test(phone)) {
+        errorEl.textContent = "Số điện thoại chỉ được chứa số.";
         return false;
     }
+    
+    // Kiểm tra độ dài
+    if (phone.length < 10) {
+        errorEl.textContent = "Số điện thoại phải có ít nhất 10 chữ số.";
+        return false;
+    }
+    
+    if (phone.length > 11) {
+        errorEl.textContent = "Số điện thoại không được quá 11 chữ số.";
+        return false;
+    }
+    
+    // Kiểm tra bắt đầu bằng số 0
+    if (!phone.startsWith('0')) {
+        errorEl.textContent = "Số điện thoại phải bắt đầu bằng số 0.";
+        return false;
+    }
+    
     return true;
 }
 

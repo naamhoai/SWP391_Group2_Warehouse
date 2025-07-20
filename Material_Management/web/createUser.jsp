@@ -59,14 +59,17 @@
                             </div>
                             <div class="column">
                                 <label for="dayofbirth">Ngày sinh: <span class="required">*</span></label>
-                                    <input type="date" id="dayofbirth" name="dayofbirth" value="${dayofbirth}" />
+                                <input type="date" id="dayofbirth" name="dayofbirth" value="${dayofbirth}" />
                             <div class="error-message" id="dayofbirthError"></div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="column">
                             <label for="phone">Số điện thoại:</label>
-                            <input type="tel" id="phone" name="phone" value="${fn:escapeXml(phone)}" placeholder="VD: 0123456789" />
+                            <input type="tel" id="phone" name="phone" value="${fn:escapeXml(phone)}" placeholder="VD: 0123456789" 
+                                   pattern="[0-9]+" 
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
+                                   maxlength="11" />
                             <div class="error-message" id="phoneError"></div>
                         </div>
                         <div class="column">

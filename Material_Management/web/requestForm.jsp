@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
@@ -72,10 +72,13 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">SĐT người liên hệ:</label>
-                                        <input type="tel" name="contactPhone" class="input-text" required 
-                                               pattern="[0-9+\-\s()]{10,11}"
-                                               placeholder="Nhập số điện thoại liên hệ"
-                                               value="${not empty contactPhone ? fn:escapeXml(contactPhone) : fn:escapeXml(param.contactPhone)}" />
+                                        <input type="tel" id="phone" name="contactPhone" class="input-text" required 
+                                               value="${not empty contactPhone ? fn:escapeXml(contactPhone) : fn:escapeXml(param.contactPhone)}"
+                                               placeholder="Nhập số điện thoại người liên hệ" 
+                                               pattern="[0-9]+" 
+                                               oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
+                                               maxlength="11" />
+                                        <div class="error-message" id="phoneError"></div>
                                     </div>
                                 </div>
                             </div>
@@ -90,7 +93,7 @@
                                         <th class="col-quantity">Số lượng</th>
                                         <th class="col-unit">Đơn vị</th>
                                         <th class="col-condition">Tình trạng</th>
-                                        <th></th>
+                                        <th class="col-action"> Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody id="itemsBody">
@@ -186,6 +189,7 @@
         </script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script>
         <script src="js/requestForm.js"></script>
+        <script src="${pageContext.request.contextPath}/js/createUser.js"></script>
         <script>
             document.addEventListener("DOMContentLoaded", function() {
             setupAwesompleteInputs();

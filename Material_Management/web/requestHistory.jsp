@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -45,6 +45,14 @@
                 <div class="request-list-container">
 
                     <h2 class="request-list-title">Lịch sử yêu cầu xuất vật tư</h2>
+
+                    <!-- Nút quay về -->
+                    <div style="margin-bottom: 20px;">
+                        <a href="RequestListServlet" class="btn-primary" >
+                            Quay về trang danh sách yêu cầu
+                        </a>
+                    </div>
+
                     <!-- Bộ lọc -->
                     <form method="get" action="requestHistory" id="filterForm" accept-charset="UTF-8">
                         <div class="filter-row">
@@ -70,7 +78,7 @@
                                 <input type="date" class="filter-input" name="endDate" id="endDateInput" value="${param.endDate}" max="">
                             </div>
                             <div class="filter-col filter-col-actions">
-                                <button type="submit" class="btn-primary" id="btnFilter"><i class="fas fa-filter"></i> Lọc</button>
+                                <button type="submit" class="btn-primary" id="btnFilter"> Lọc</button>
                             </div>
                         </div>
 
@@ -183,7 +191,7 @@
                     </div>
 
                     <div class="pagination-container">
-                        <c:if test="${totalPages > 1}">
+                        <c:if test="${totalPages >= 1}">
                             <c:url var="pageUrl" value="requestHistory">
                                 <c:param name="status" value="${param.status}" />
                                 <c:param name="projectName" value="${param.projectName}" />
@@ -210,8 +218,8 @@
                                         </c:forEach>
                                         <c:if test="${totalPages > 4}">
                                             <li class="pagination-item disabled"><span class="pagination-link">...</span></li>
-                                        </c:if>
-                                        <c:if test="${totalPages > 3}">
+                                            </c:if>
+                                            <c:if test="${totalPages > 3}">
                                             <li class="pagination-item ${currentPage == totalPages ? 'active' : ''}">
                                                 <a class="pagination-link" href="${pageUrl.concat('&page=').concat(totalPages)}">${totalPages}</a>
                                             </li>
@@ -223,12 +231,12 @@
                                         </li>
                                         <c:if test="${totalPages > 4}">
                                             <li class="pagination-item disabled"><span class="pagination-link">...</span></li>
-                                        </c:if>
-                                        <c:set var="beginPage" value="${totalPages - 2}" />
-                                        <c:if test="${beginPage < 2}">
-                                            <c:set var="beginPage" value="2" />
-                                        </c:if>
-                                        <c:forEach var="i" begin="${beginPage}" end="${totalPages}">
+                                            </c:if>
+                                            <c:set var="beginPage" value="${totalPages - 2}" />
+                                            <c:if test="${beginPage < 2}">
+                                                <c:set var="beginPage" value="2" />
+                                            </c:if>
+                                            <c:forEach var="i" begin="${beginPage}" end="${totalPages}">
                                             <li class="pagination-item ${currentPage == i ? 'active' : ''}">
                                                 <a class="pagination-link" href="${pageUrl.concat('&page=').concat(i)}">${i}</a>
                                             </li>
@@ -247,7 +255,7 @@
                                                 <a class="pagination-link" href="${pageUrl.concat('&page=').concat(currentPage + 1)}">${currentPage + 1}</a>
                                             </li>
                                             <li class="pagination-item disabled"><span class="pagination-link">...</span></li>
-                                        </c:if>
+                                            </c:if>
                                         <li class="pagination-item ${currentPage == totalPages ? 'active' : ''}">
                                             <a class="pagination-link" href="${pageUrl.concat('&page=').concat(totalPages)}">${totalPages}</a>
                                         </li>

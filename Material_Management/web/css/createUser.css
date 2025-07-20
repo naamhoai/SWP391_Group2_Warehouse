@@ -191,9 +191,11 @@ input[readonly] {
     background: #fff;
     color: #1976d2;
     border: 1.5px solid #1976d2;
+    text-decoration: none;
 }
 .back-btn:hover {
     background: #e3f0fc;
+    text-decoration: none;
 }
 
 @media (max-width: 700px) {

@@ -1,4 +1,4 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -14,16 +14,17 @@
         <div class="main-layout">
             <jsp:include page="sidebar.jsp" />
             <div class="main-content">
-                <c:if test="${param.success eq 'true'}">
-                    <div class="alert success">
-                        <i class="fas fa-check-circle"></i> Xuất kho thành công!
-                    </div>
-                </c:if>
+
                 <div class="request-form-container">
                     <h2>Lịch sử xuất kho</h2>
                     <div style="display: flex; justify-content: flex-end; margin: 20px 40px 0 0;">
                         <a href="exportFormPending" class="export-list-btn">Danh sách phiếu xuất kho</a>
                     </div>
+                    <c:if test="${param.success eq 'true'}">
+                        <div class="alert success">
+                            <i class="fas fa-check-circle"></i> Xuất kho thành công!
+                        </div>
+                    </c:if>
                     <form id="filterForm" method="get" action="exportFormHistory" accept-charset="UTF-8">
                         <div class="filter-row">
                             <div class="filter-col">
@@ -117,12 +118,10 @@
                             </c:url>
 
                             <ul class="pagination-list">
-                                <!-- Previous Page -->
                                 <li class="pagination-item ${currentPage == 1 ? 'disabled' : ''}">
                                     <a class="pagination-link" href="${currentPage > 1 ? pageUrl.concat('&page=').concat(currentPage - 1) : '#'}" aria-label="Previous">&laquo;</a>
                                 </li>
 
-                                <!-- Page Numbers -->
                                 <c:set var="maxPagesToShow" value="5" />
                                 <c:set var="startPage" value="${currentPage - 2}" />
                                 <c:set var="endPage" value="${currentPage + 2}" />

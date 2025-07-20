@@ -71,7 +71,13 @@ public class RequestListServlet extends HttpServlet {
             }
         }
         try {
-            Integer filterUserId = (roleId <= 2) ? null : userId;
+            
+            User currentUser = userDAO.getUserById(userId);
+            
+            Integer filterUserId = (currentUser != null && currentUser.getRole() != null && 
+                    (currentUser.getRole().getRoleid() == 1 || currentUser.getRole().getRoleid() == 2)) ? null : userId;
+            System.out.println("Filter user ID: " + filterUserId);
+            
             String sortBy = request.getParameter("sortBy");
             String order = request.getParameter("order");
             if (sortBy == null) {
@@ -81,12 +87,16 @@ public class RequestListServlet extends HttpServlet {
                 order = "desc";
             }
             List<Request> requests = requestDAO.getFilteredRequests(
-                    userId, status, startDate, endDate, projectName, sortBy, order, page, pageSize
+                    filterUserId, status, startDate, endDate, projectName, sortBy, order, page, pageSize
             );
+            
+            System.out.println("Number of requests found: " + requests.size());
 
             int totalRequests = requestDAO.countFilteredRequests(
                     filterUserId, status, startDate, endDate, projectName
             );
+            
+            System.out.println("Total requests count: " + totalRequests);
 
             int totalPages = (int) Math.ceil((double) totalRequests / pageSize);
 

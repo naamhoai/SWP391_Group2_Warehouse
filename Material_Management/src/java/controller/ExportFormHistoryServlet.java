@@ -9,6 +9,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
 
 @WebServlet(name = "ExportFormHistoryServlet", urlPatterns = {"/exportFormHistory"})
@@ -18,6 +19,16 @@ public class ExportFormHistoryServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
+            // Kiểm tra session và role
+            HttpSession session = request.getSession();
+            Integer userId = (Integer) session.getAttribute("userId");
+            Integer roleId = (Integer) session.getAttribute("roleId");
+
+            if (userId == null) {
+                response.sendRedirect("login.jsp");
+                return;
+            }
+
             String sortField = request.getParameter("sortField");
             String sortDir = request.getParameter("sortDir");
             if (sortField == null) {
@@ -53,8 +64,19 @@ public class ExportFormHistoryServlet extends HttpServlet {
                 return;
             }
 
-            int totalExportForms = dao.countAllExportForms(projectName);
-            List<ExportForm> exportForms = dao.getAllExportFormsAndApprovedRequests(projectName, sortField, sortDir, page, pageSize, startDate, endDate);
+            // Phân quyền theo role
+            Integer filterUserId = null;
+            if (roleId > 2) {
+                // Nhân viên kho (role 3) và nhân viên công ty (role 4) chỉ xem được của mình
+                filterUserId = userId;
+            }
+            // Admin (role 1) và Giám đốc (role 2) xem được tất cả (filterUserId = null)
+
+            int totalExportForms = dao.countAllExportForms(projectName, filterUserId);
+            List<ExportForm> exportForms = dao.getAllExportFormsAndApprovedRequests(
+                projectName, sortField, sortDir, page, pageSize, startDate, endDate, filterUserId
+            );
+            
             request.setAttribute("exportForms", exportForms);
             request.setAttribute("currentPage", page);
             int totalPages = (int) Math.ceil((double) totalExportForms / pageSize);
