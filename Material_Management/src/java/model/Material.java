@@ -14,6 +14,7 @@ public class Material {
     private String description;
     private String unitName;
     private String status;
+    private String supplierStatus;
     private boolean categoryHidden;
 
     public Material() {
@@ -130,6 +131,14 @@ public class Material {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getSupplierStatus() {
+        return supplierStatus;
+    }
+
+    public void setSupplierStatus(String supplierStatus) {
+        this.supplierStatus = supplierStatus;
     }
 
     public boolean isCategoryHidden() {

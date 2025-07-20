@@ -1,47 +1,55 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.util.List" %>
-<%@ page import="model.MaterialSupplier" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <head>
     <title>Danh sách vật tư theo nhà cung cấp</title>
     <link rel="stylesheet" href="css/materialSupplierList.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .filter-supplier-select {
+            min-width: 360px !important;
+            max-width: 440px !important;
+            width: 100% !important;
+        }
+        .filter-supplier-select option {
+            white-space: normal !important;
+            word-wrap: break-word !important;
+        }
+    </style>
 </head>
 <body>
+    <jsp:include page="sidebar.jsp" />
 <div class="container">
     <h1>Danh sách vật tư theo nhà cung cấp</h1>
     <form class="filter-form" method="get" action="material-suppliers">
+        <input type="text" name="keyword" placeholder="Tìm kiếm theo tên vật tư..." value="${keyword}" class="filter-input">
         <div class="filter-group">
             <label>Nhà cung cấp:</label>
-            <select name="supplier_id">
+            <select name="supplier_id" class="filter-supplier-select" onchange="this.form.submit()">
                 <option value="">-- Chọn nhà cung cấp --</option>
-                <% String currentSupplier = request.getAttribute("supplier_id") != null ? (String)request.getAttribute("supplier_id") : ""; %>
-                <option value="1" <%= "1".equals(currentSupplier) ? "selected" : "" %>>Công ty TNHH Vật Liệu Xây Dựng Hòa Bình</option>
-                <option value="2" <%= "2".equals(currentSupplier) ? "selected" : "" %>>Công ty CP VLXD Sài Gòn Xanh</option>
-                <option value="3" <%= "3".equals(currentSupplier) ? "selected" : "" %>>Công ty TNHH Vật Tư Xây Dựng An Phát</option>
-                <option value="4" <%= "4".equals(currentSupplier) ? "selected" : "" %>>Công ty TNHH Thép Việt Nhật</option>
-                <option value="5" <%= "5".equals(currentSupplier) ? "selected" : "" %>>Công ty VLXD Minh Phát</option>
+                <c:forEach items="${activeSuppliers}" var="supplier">
+                    <option value="${supplier.supplierId}" ${supplier.supplierId == supplier_id ? 'selected' : ''}>${supplier.supplierName}</option>
+                </c:forEach>
             </select>
         </div>
         <div class="filter-group">
             <label>Trạng thái:</label>
-            <select name="status">
-                <option value="">Tất cả</option>
-                <option value="available">Có sẵn</option>
+            <select name="status" onchange="this.form.submit()">
+                <option value="" ${status == null || status.isEmpty() ? 'selected' : ''}>Tất cả</option>
+                <option value="available" ${status == 'available' ? 'selected' : ''}>Có sẵn</option>
             </select>
         </div>
         <div class="filter-group">
             <label>Hiển thị:</label>
-            <select name="pageSize">
-                <option value="5" <%= "5".equals(request.getAttribute("pageSize")+"") ? "selected" : "" %>>5 items</option>
-                <option value="10" <%= request.getAttribute("pageSize") == null || "10".equals(request.getAttribute("pageSize")+"") ? "selected" : "" %>>10 items</option>
-                <option value="20" <%= "20".equals(request.getAttribute("pageSize")+"") ? "selected" : "" %>>20 items</option>
-                <option value="50" <%= "50".equals(request.getAttribute("pageSize")+"") ? "selected" : "" %>>50 items</option>
+            <select name="pageSize" onchange="this.form.submit()">
+                <option value="5" ${pageSize == 5 ? 'selected' : ''}>5 items</option>
+                <option value="10" ${pageSize == null || pageSize == 10 ? 'selected' : ''}>10 items</option>
+                <option value="20" ${pageSize == 20 ? 'selected' : ''}>20 items</option>
+                <option value="50" ${pageSize == 50 ? 'selected' : ''}>50 items</option>
             </select>
         </div>
-        <div class="search-group">
-            <input type="text" name="keyword" placeholder="Tìm theo tên vật tư..." value="<%= request.getAttribute("keyword") != null ? (String)request.getAttribute("keyword") : "" %>" />
-            <button class="search-btn" type="submit">Tìm</button>
-        </div>
+        <button type="submit" class="search-btn">Tìm kiếm</button>
     </form>
     <table>
         <thead>
@@ -52,46 +60,55 @@
             </tr>
         </thead>
         <tbody>
-            <%
-                List<MaterialSupplier> list = (List<MaterialSupplier>) request.getAttribute("materialSupplierList");
-                int currentPage = request.getAttribute("currentPage") != null ? (Integer)request.getAttribute("currentPage") : 1;
-                int pageSize = request.getAttribute("pageSize") != null ? (Integer)request.getAttribute("pageSize") : 10;
-                int total = request.getAttribute("total") != null ? (Integer)request.getAttribute("total") : 0;
-                int totalPages = request.getAttribute("totalPages") != null ? (Integer)request.getAttribute("totalPages") : 1;
-                String keyword = request.getAttribute("keyword") != null ? (String)request.getAttribute("keyword") : "";
-                String supplierId = request.getAttribute("supplier_id") != null ? (String)request.getAttribute("supplier_id") : "";
-                if (list != null && !list.isEmpty()) {
-                    for (MaterialSupplier ms : list) {
-            %>
-            <tr>
-                <td><%= ms.getMaterialName() %></td>
-                <td><%= ms.getSupplierName() %></td>
-                <td class="status-active">Có sẵn</td>
-            </tr>
-            <%
-                    }
-                } else {
-            %>
-            <tr><td colspan="3" class="no-data">Không có dữ liệu</td></tr>
-            <%
-                }
-            %>
+            <c:choose>
+                <c:when test="${not empty materialSupplierList}">
+                    <c:forEach items="${materialSupplierList}" var="ms">
+                        <tr>
+                            <td>${ms.materialName}</td>
+                            <td>${ms.supplierName}</td>
+                            <td class="status-active">Có sẵn</td>
+                        </tr>
+                    </c:forEach>
+                </c:when>
+                <c:otherwise>
+                    <tr><td colspan="3" class="no-data">Không có dữ liệu</td></tr>
+                </c:otherwise>
+            </c:choose>
         </tbody>
     </table>
-    <div class="pagination">
-        <form class="pagination-form" method="get" action="material-suppliers">
-            <input type="hidden" name="supplier_id" value="<%= supplierId %>" />
-            <input type="hidden" name="keyword" value="<%= keyword %>" />
-            <input type="hidden" name="pageSize" value="<%= pageSize %>" />
-            <button class="page-button" type="submit" name="page" value="<%= currentPage-1 %>" <%= currentPage <= 1 ? "disabled" : "" %>>Previous</button>
-            <% for (int i = 1; i <= totalPages; i++) { %>
-                <button class="page-button <%= i == currentPage ? "active" : "" %>" type="submit" name="page" value="<%= i %>"><%= i %></button>
-            <% } %>
-            <button class="page-button" type="submit" name="page" value="<%= currentPage+1 %>" <%= currentPage >= totalPages ? "disabled" : "" %>>Next</button>
-        </form>
-        <div class="pagination-info">Tổng số vật tư: <%= total %></div>
-    </div>
-    <a href="suppliers" class="back-btn">Quay lại danh sách nhà cung cấp</a>
+    <c:if test="${totalPages > 1}">
+        <div class="pagination">
+            <div class="pagination-buttons">
+                <c:choose>
+                    <c:when test="${currentPage > 1}">
+                        <a href="material-suppliers?page=${currentPage-1}&supplier_id=${supplier_id}&keyword=${keyword}&status=${status}&pageSize=${pageSize}" class="page-button" aria-label="Trang trước">&laquo;</a>
+                    </c:when>
+                    <c:otherwise>
+                        <button class="page-button" disabled aria-label="Trang trước">&laquo;</button>
+                    </c:otherwise>
+                </c:choose>
+                
+                <c:forEach begin="1" end="${totalPages}" var="i">
+                    <a href="material-suppliers?page=${i}&supplier_id=${supplier_id}&keyword=${keyword}&status=${status}&pageSize=${pageSize}" class="page-button${i == currentPage ? ' active' : ''}">${i}</a>
+                </c:forEach>
+                
+                <c:choose>
+                    <c:when test="${currentPage < totalPages}">
+                        <a href="material-suppliers?page=${currentPage+1}&supplier_id=${supplier_id}&keyword=${keyword}&status=${status}&pageSize=${pageSize}" class="page-button" aria-label="Trang sau">&raquo;</a>
+                    </c:when>
+                    <c:otherwise>
+                        <button class="page-button" disabled aria-label="Trang sau">&raquo;</button>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+            <div class="pagination-info">
+                Tổng số vật tư: ${total}
+            </div>
+        </div>
+    </c:if>
+    <a href="suppliers" class="back-btn">Quay lại</a>
 </div>
+
+<script src="js/sidebar.js"></script>
 </body>
 </html>
