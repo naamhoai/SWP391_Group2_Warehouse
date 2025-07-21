@@ -30,6 +30,26 @@ public class NotificationDAO {
         }
     }
 
+    public void addPurchaseOrderNotification(int userId, String message, Integer purchaseOrderId) {
+        String sql = "INSERT INTO notifications (user_id, message, request_id, link, notification_type) VALUES (?, ?, ?, ?, 'purchase_order')";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.setString(2, message);
+            if (purchaseOrderId != null) {
+                stmt.setInt(3, purchaseOrderId);
+                stmt.setString(4, "/purchaseOrderDetail?id=" + purchaseOrderId);
+            } else {
+                stmt.setNull(3, Types.INTEGER);
+                stmt.setNull(4, Types.VARCHAR);
+            }
+            int result = stmt.executeUpdate();
+            System.out.println("=== DEBUG: NotificationDAO - Inserted " + result + " purchase order notification for user " + userId + ", message: " + message);
+        } catch (SQLException e) {
+            System.out.println("=== DEBUG: NotificationDAO - Error inserting purchase order notification: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     public List<Notification> getAllNotifications(int userId) {
         List<Notification> list = new ArrayList<>();
         String sql = "SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC";
@@ -46,6 +66,7 @@ public class NotificationDAO {
                 int reqId = rs.getInt("request_id");
                 n.setRequestId(rs.wasNull() ? null : reqId);
                 n.setLink(rs.getString("link"));
+                n.setNotificationType(rs.getString("notification_type"));
                 list.add(n);
             }
         } catch (SQLException e) {
@@ -59,12 +80,20 @@ public class NotificationDAO {
         Map<Integer, Notification> latestNotiByRequest = new LinkedHashMap<>();
         Map<Integer, Notification> resendNotiByRequest = new LinkedHashMap<>();
         List<Notification> shortageNotifications = new ArrayList<>();
+        List<Notification> purchaseOrderNotifications = new ArrayList<>();
         RequestDAO requestDAO = new RequestDAO();
 
         for (Notification noti : allNotifications) {
             try {
                 String msg = noti.getMessage() != null ? noti.getMessage().toLowerCase() : "";
 
+                // Kiểm tra thông báo về purchase order (sử dụng notification_type)
+                if (noti.getMessage() != null && noti.getMessage().toLowerCase().contains("đơn mua")) {
+                    purchaseOrderNotifications.add(noti);
+                    continue;
+                }
+
+                // Kiểm tra thông báo về thiếu vật tư
                 if (noti.getMessage() != null
                         && noti.getMessage().toLowerCase().startsWith("yêu cầu #")
                         && noti.getMessage().toLowerCase().contains("thiếu:")) {
@@ -72,21 +101,13 @@ public class NotificationDAO {
                     continue;
                 }
 
+                // Kiểm tra thông báo về request
                 Request req = requestDAO.getRequestById(noti.getRequestId());
                 if (req != null && "Chờ duyệt".equals(req.getRequestStatus())) {
-                    System.out.println("[DEBUG] Notification for request #" + noti.getRequestId() + ": " + noti.getMessage());
-                    System.out.println("[DEBUG] Request status: " + req.getRequestStatus());
-                    System.out.println("[DEBUG] Message contains 'gửi lại': " + msg.contains("gửi lại"));
-                    
                     if (msg.contains("gửi lại")) {
-                        System.out.println("[DEBUG] Adding to resend notifications: " + noti.getMessage());
                         resendNotiByRequest.put(noti.getRequestId(), noti);
-                    } else {
-                        // Chỉ thêm thông báo "mới" nếu chưa có thông báo "gửi lại" cho request này
-                        if (!resendNotiByRequest.containsKey(noti.getRequestId()) && !latestNotiByRequest.containsKey(noti.getRequestId())) {
-                            System.out.println("[DEBUG] Adding to latest notifications: " + noti.getMessage());
-                            latestNotiByRequest.put(noti.getRequestId(), noti);
-                        }
+                    } else if (!latestNotiByRequest.containsKey(noti.getRequestId())) {
+                        latestNotiByRequest.put(noti.getRequestId(), noti);
                     }
                 }
             } catch (Exception e) {
@@ -94,13 +115,15 @@ public class NotificationDAO {
             }
         }
 
-        // Ưu tiên thông báo gửi lại hơn thông báo mới
         for (Integer reqId : resendNotiByRequest.keySet()) {
-            latestNotiByRequest.put(reqId, resendNotiByRequest.get(reqId));
+            if (!latestNotiByRequest.containsKey(reqId)) {
+                latestNotiByRequest.put(reqId, resendNotiByRequest.get(reqId));
+            }
         }
 
         List<Notification> result = new ArrayList<>();
         result.addAll(shortageNotifications);
+        result.addAll(purchaseOrderNotifications);
         result.addAll(latestNotiByRequest.values());
 
         return result;

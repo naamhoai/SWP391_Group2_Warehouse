@@ -1,30 +1,28 @@
 package model;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 public class PurchaseOrder {
-
     private int purchaseOrderId;
     private int supplierId;
-    private String supplierName;
-    private int userId; // Người tạo đơn mua
-    private String username;
+    private int userId;
     private Timestamp orderDate;
     private double totalAmount;
     private String status;
-    private int approvedBy; // Giám đốc duyệt đơn
+    private String note;
+    private List<PurchaseOrderDetail> details;
+    private String creatorName;
+    private String supplierName;
+    private String creatorRoleName;
     private String approvalStatus;
+    private String contactPerson;
+    private String supplierPhone;
+    private String rejectionReason;
 
-    // Constructor
-    public PurchaseOrder(int supplierId, int userId, double totalAmount) {
-        this.supplierId = supplierId;
-        this.userId = userId;
-        this.totalAmount = totalAmount;
-        this.status = "Pending";
-        this.approvalStatus = "Pending"; // Đúng ENUM trong DB
+    public PurchaseOrder() {
     }
 
-    // Getters and Setters
     public int getPurchaseOrderId() {
         return purchaseOrderId;
     }
@@ -41,28 +39,12 @@ public class PurchaseOrder {
         this.supplierId = supplierId;
     }
 
-    public String getSupplierName() {
-        return supplierName;
-    }
-
-    public void setSupplierName(String supplierName) {
-        this.supplierName = supplierName;
-    }
-
     public int getUserId() {
         return userId;
     }
 
     public void setUserId(int userId) {
         this.userId = userId;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public Timestamp getOrderDate() {
@@ -89,19 +71,64 @@ public class PurchaseOrder {
         this.status = status;
     }
 
-    public int getApprovedBy() {
-        return approvedBy;
+    public String getNote() {
+        return note;
     }
 
-    public void setApprovedBy(int approvedBy) {
-        this.approvedBy = approvedBy;
+    public void setNote(String note) {
+        this.note = note;
     }
+
+    public List<PurchaseOrderDetail> getDetails() {
+        return details;
+    }
+
+    public void setDetails(List<PurchaseOrderDetail> details) {
+        this.details = details;
+    }
+
+    public String getCreatorName() {
+        return creatorName;
+    }
+    public void setCreatorName(String creatorName) {
+        this.creatorName = creatorName;
+    }
+    public String getSupplierName() { return supplierName; }
+    public void setSupplierName(String supplierName) { this.supplierName = supplierName; }
+    public String getCreatorRoleName() { return creatorRoleName; }
+    public void setCreatorRoleName(String creatorRoleName) { this.creatorRoleName = creatorRoleName; }
 
     public String getApprovalStatus() {
         return approvalStatus;
     }
-
     public void setApprovalStatus(String approvalStatus) {
         this.approvalStatus = approvalStatus;
+    }
+
+    public String getContactPerson() {
+        return contactPerson;
+    }
+    public void setContactPerson(String contactPerson) {
+        this.contactPerson = contactPerson;
+    }
+    public String getSupplierPhone() {
+        return supplierPhone;
+    }
+    public void setSupplierPhone(String supplierPhone) {
+        this.supplierPhone = supplierPhone;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
+
+    @Override
+    public String toString() {
+        return "PurchaseOrder{" + "purchaseOrderId=" + purchaseOrderId + ", supplierId=" + supplierId + 
+               ", userId=" + userId + ", orderDate=" + orderDate + ", totalAmount=" + totalAmount + ", status=" + status + 
+               ", note=" + note + ", details=" + details + '}';
     }
 }

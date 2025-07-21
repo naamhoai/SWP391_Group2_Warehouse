@@ -324,4 +324,36 @@ public class InventoryDAO extends DBContext {
         }
         return lowStockItems;
     }
+
+    public int addOrUpdateInventoryWithResult(int materialId, String materialName, int quantity, String baseUnit, double unitPrice) {
+        String selectSql = "SELECT inventory_id, quantity_on_hand FROM inventory WHERE material_id = ? AND material_condition = ?";
+        String insertSql = "INSERT INTO inventory (material_id, material_condition, quantity_on_hand, last_updated, price) VALUES (?, ?, ?, NOW(), ?)";
+        String updateSql = "UPDATE inventory SET quantity_on_hand = quantity_on_hand + ?, last_updated = NOW(), price = ? WHERE inventory_id = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement selectPs = conn.prepareStatement(selectSql)) {
+            selectPs.setInt(1, materialId);
+            selectPs.setString(2, baseUnit);
+            ResultSet rs = selectPs.executeQuery();
+            if (rs.next()) {
+                int inventoryId = rs.getInt("inventory_id");
+                try (PreparedStatement updatePs = conn.prepareStatement(updateSql)) {
+                    updatePs.setInt(1, quantity);
+                    updatePs.setDouble(2, unitPrice);
+                    updatePs.setInt(3, inventoryId);
+                    return updatePs.executeUpdate();
+                }
+            } else {
+                try (PreparedStatement insertPs = conn.prepareStatement(insertSql)) {
+                    insertPs.setInt(1, materialId);
+                    insertPs.setString(2, baseUnit);
+                    insertPs.setInt(3, quantity);
+                    insertPs.setDouble(4, unitPrice);
+                    return insertPs.executeUpdate();
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }

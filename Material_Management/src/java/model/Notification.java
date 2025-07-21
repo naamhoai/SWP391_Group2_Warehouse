@@ -11,11 +11,12 @@ public class Notification {
     private Timestamp createdAt;
     private Integer requestId;
     private String link;
+    private String notificationType;
 
     public Notification() {
     }
 
-    public Notification(int id, int userId, String message, boolean isRead, Timestamp createdAt, Integer requestId, String link) {
+    public Notification(int id, int userId, String message, boolean isRead, Timestamp createdAt, Integer requestId, String link, String notificationType) {
         this.id = id;
         this.userId = userId;
         this.message = message;
@@ -23,6 +24,7 @@ public class Notification {
         this.createdAt = createdAt;
         this.requestId = requestId;
         this.link = link;
+        this.notificationType = notificationType;
     }
 
     
@@ -90,6 +92,14 @@ public class Notification {
 
     public void setLink(String link) {
         this.link = link;
+    }
+    
+    public String getNotificationType() {
+        return notificationType;
+    }
+
+    public void setNotificationType(String notificationType) {
+        this.notificationType = notificationType;
     }
     
 }

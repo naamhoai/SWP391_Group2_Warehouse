@@ -18,56 +18,46 @@ public class PurchaseOrderDAO {
         this.connection = connection;
     }
 
-    // Thêm đơn mua mới vào bảng purchase_orders
+    // Thêm đơn mua mới
     public void addPurchaseOrder(PurchaseOrder order) throws SQLException {
-        String sql = "INSERT INTO purchase_orders (supplier_id, user_id, order_date, total_amount, status, request_status) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO purchase_orders (supplier_id, user_id, order_date, total_amount, status, note) VALUES (?, ?, ?, ?, ?, ?)";
+        
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, order.getSupplierId());
             stmt.setInt(2, order.getUserId());
             stmt.setTimestamp(3, order.getOrderDate());
             stmt.setDouble(4, order.getTotalAmount());
             stmt.setString(5, order.getStatus());
-            stmt.setString(6, order.getApprovalStatus());
+            stmt.setString(6, order.getNote());
             stmt.executeUpdate();
 
-            // Get the auto-generated purchase_order_id
+            // Lấy ID vừa tạo
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
-                order.setPurchaseOrderId(rs.getInt(1));  // Set the generated purchaseOrderId
+                order.setPurchaseOrderId(rs.getInt(1));
             }
-        }
-    }
-
-    // Tạo yêu cầu duyệt đơn mua vật tư
-    public void createRequestForApproval(int userId, int purchaseOrderId, String reason) throws SQLException {
-        String sql = "INSERT INTO requests (request_type, purchase_order_id, user_id, reason, request_status) VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, "Mua Vật Tư");
-            stmt.setInt(2, purchaseOrderId);
-            stmt.setInt(3, userId);
-            stmt.setString(4, reason);
-            stmt.setString(5, "Pending");  // Trạng thái yêu cầu ban đầu là Pending
-            stmt.executeUpdate();
         }
     }
 
     // Lấy danh sách đơn mua theo trạng thái
     public List<PurchaseOrder> getPurchaseOrdersByStatus(String status) throws SQLException {
         List<PurchaseOrder> orders = new ArrayList<>();
-        String sql = "SELECT * FROM purchase_orders WHERE status = ?";
+        String sql = "SELECT po.*, u.full_name FROM purchase_orders po " +
+                     "JOIN users u ON po.user_id = u.user_id " +
+                     "WHERE po.status = ?";
+                     
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, status);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    PurchaseOrder order = new PurchaseOrder(
-                            rs.getInt("supplier_id"),
-                            rs.getInt("user_id"),
-                            rs.getDouble("total_amount")
-                    );
+                    PurchaseOrder order = new PurchaseOrder();
                     order.setPurchaseOrderId(rs.getInt("purchase_order_id"));
+                    order.setSupplierId(rs.getInt("supplier_id"));
+                    order.setUserId(rs.getInt("user_id"));
                     order.setOrderDate(rs.getTimestamp("order_date"));
+                    order.setTotalAmount(rs.getDouble("total_amount"));
                     order.setStatus(rs.getString("status"));
-                    order.setApprovalStatus(rs.getString("request_status"));
+                    order.setCreatorName(rs.getString("full_name"));
                     orders.add(order);
                 }
             }
@@ -75,58 +65,126 @@ public class PurchaseOrderDAO {
         return orders;
     }
 
-    // Cập nhật trạng thái yêu cầu duyệt trong bảng requests
-    public void updateRequestStatus(int requestId, String status) throws SQLException {
-        String sql = "UPDATE requests SET request_status = ? WHERE request_id = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, status);
-            stmt.setInt(2, requestId);
-            stmt.executeUpdate();
-        }
-    }
-
-    // Cập nhật đơn mua
-    public boolean updatePurchaseOrder(PurchaseOrder order) throws SQLException {
-        String sql = "UPDATE purchase_orders SET total_amount = ?, status = ? WHERE purchase_order_id = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            // Gán giá trị cho các tham số trong câu truy vấn
-            stmt.setDouble(1, order.getTotalAmount());  // Tổng giá trị đơn hàng
-            stmt.setString(2, order.getStatus());       // Trạng thái đơn hàng
-            stmt.setInt(3, order.getPurchaseOrderId()); // ID đơn hàng
-
-            int rowsAffected = stmt.executeUpdate();
-            return rowsAffected > 0; // Trả về true nếu cập nhật thành công
-        }
-    }
-
-    // Lấy PurchaseOrder theo purchase_order_id
+    // Lấy đơn mua theo ID
     public PurchaseOrder getPurchaseOrderById(int purchaseOrderId) throws SQLException {
-        String sql = "SELECT * FROM purchase_orders WHERE purchase_order_id = ?";
+        String sql = "SELECT po.*, u.full_name, s.supplier_name, s.contact_person, s.supplier_phone, r.role_name FROM purchase_orders po " +
+                     "JOIN users u ON po.user_id = u.user_id " +
+                     "LEFT JOIN supplier s ON po.supplier_id = s.supplier_id " +
+                     "LEFT JOIN roles r ON u.role_id = r.role_id " +
+                     "WHERE po.purchase_order_id = ?";
+        
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, purchaseOrderId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    PurchaseOrder order = new PurchaseOrder(
-                        rs.getInt("supplier_id"),
-                        rs.getInt("user_id"),
-                        rs.getDouble("total_amount")
-                    );
+                    PurchaseOrder order = new PurchaseOrder();
                     order.setPurchaseOrderId(rs.getInt("purchase_order_id"));
+                    order.setSupplierId(rs.getInt("supplier_id"));
+                    order.setUserId(rs.getInt("user_id"));
                     order.setOrderDate(rs.getTimestamp("order_date"));
+                    order.setTotalAmount(rs.getDouble("total_amount"));
                     order.setStatus(rs.getString("status"));
-                    order.setApprovalStatus(rs.getString("request_status"));
+                    order.setNote(rs.getString("note"));
+                    order.setApprovalStatus(rs.getString("approval_status"));
+                    order.setRejectionReason(rs.getString("rejection_reason"));
+                    order.setCreatorName(rs.getString("full_name"));
+                    order.setSupplierName(rs.getString("supplier_name") != null ? rs.getString("supplier_name") : "");
+                    order.setCreatorRoleName(rs.getString("role_name") != null ? rs.getString("role_name") : "");
+                    order.setContactPerson(rs.getString("contact_person") != null ? rs.getString("contact_person") : "");
+                    order.setSupplierPhone(rs.getString("supplier_phone") != null ? rs.getString("supplier_phone") : "");
                     return order;
                 }
             }
         }
         return null;
     }
-    public boolean existsPurchaseOrderByRequestId(int requestId) throws SQLException {
-        String sql = "SELECT 1 FROM purchase_orders WHERE request_id = ?";
+
+    // Lấy tất cả đơn mua với tìm kiếm
+    public List<PurchaseOrder> getAllPurchaseOrders(String fromDate, String toDate, String status, String supplier) throws SQLException {
+        List<PurchaseOrder> orders = new ArrayList<>();
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT po.*, u.full_name, s.supplier_name, r.role_name FROM purchase_orders po ");
+        sql.append("JOIN users u ON po.user_id = u.user_id ");
+        sql.append("LEFT JOIN supplier s ON po.supplier_id = s.supplier_id ");
+        sql.append("LEFT JOIN roles r ON u.role_id = r.role_id ");
+        sql.append("WHERE 1=1 ");
+        
+        List<Object> params = new ArrayList<>();
+        
+        if (fromDate != null && !fromDate.isEmpty()) {
+            sql.append("AND DATE(po.order_date) >= ? ");
+            params.add(fromDate);
+        }
+        
+        if (toDate != null && !toDate.isEmpty()) {
+            sql.append("AND DATE(po.order_date) <= ? ");
+            params.add(toDate);
+        }
+        
+        if (status != null && !status.isEmpty() && !status.equals("All")) {
+            sql.append("AND po.status = ? ");
+            params.add(status);
+        }
+        
+        if (supplier != null && !supplier.isEmpty() && !supplier.equals("All")) {
+            sql.append("AND s.supplier_name LIKE ? ");
+            params.add("%" + supplier + "%");
+        }
+        
+        sql.append("ORDER BY po.order_date DESC");
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                stmt.setObject(i + 1, params.get(i));
+            }
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    PurchaseOrder order = new PurchaseOrder();
+                    order.setPurchaseOrderId(rs.getInt("purchase_order_id"));
+                    order.setSupplierId(rs.getInt("supplier_id"));
+                    order.setUserId(rs.getInt("user_id"));
+                    order.setOrderDate(rs.getTimestamp("order_date"));
+                    order.setTotalAmount(rs.getDouble("total_amount"));
+                    order.setStatus(rs.getString("status"));
+                    order.setNote(rs.getString("note"));
+                    order.setApprovalStatus(rs.getString("approval_status"));
+                    order.setRejectionReason(rs.getString("rejection_reason"));
+                    order.setCreatorName(rs.getString("full_name"));
+                    order.setSupplierName(rs.getString("supplier_name") != null ? rs.getString("supplier_name") : "");
+                    order.setCreatorRoleName(rs.getString("role_name") != null ? rs.getString("role_name") : "");
+                    orders.add(order);
+                }
+            }
+        }
+        return orders;
+    }
+
+    // Lấy danh sách tên nhà cung cấp duy nhất đã từng xuất hiện trong đơn mua
+    public List<String> getSupplierNamesInOrders() throws SQLException {
+        List<String> names = new ArrayList<>();
+        String sql = "SELECT DISTINCT s.supplier_name FROM purchase_orders po JOIN supplier s ON po.supplier_id = s.supplier_id WHERE s.supplier_name IS NOT NULL ORDER BY s.supplier_name ASC";
+        try (PreparedStatement stmt = connection.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                names.add(rs.getString("supplier_name"));
+            }
+        }
+        return names;
+    }
+
+    // Cập nhật đơn mua
+    public boolean updatePurchaseOrder(PurchaseOrder order) throws SQLException {
+        String sql = "UPDATE purchase_orders SET supplier_id = ?, total_amount = ?, note = ?, status = ?, approval_status = ?, rejection_reason = ? WHERE purchase_order_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, requestId);
-            ResultSet rs = stmt.executeQuery();
-            return rs.next();
+            stmt.setInt(1, order.getSupplierId());
+            stmt.setDouble(2, order.getTotalAmount());
+            stmt.setString(3, order.getNote());
+            stmt.setString(4, order.getStatus());
+            stmt.setString(5, order.getApprovalStatus());
+            stmt.setString(6, order.getRejectionReason());
+            stmt.setInt(7, order.getPurchaseOrderId());
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
         }
     }
 }

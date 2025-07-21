@@ -1,175 +1,268 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Purchase Material</title>
-    <style>
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f5f6fa;
-        }
-        .container {
-            max-width: 900px;
-            margin: 40px auto 30px auto;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
-            padding: 32px 32px 24px 32px;
-        }
-        h2 {
-            text-align: center;
-            font-weight: bold;
-            margin-bottom: 28px;
-            letter-spacing: 1px;
-        }
-        .form-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 18px;
-        }
-        .form-label {
-            min-width: 110px;
-            text-align: right;
-            margin-right: 10px;
-            font-weight: 500;
-        }
-        .form-input {
-            width: 220px;
-            padding: 7px 10px;
-            border: 1.5px solid #bdbdbd;
-            border-radius: 5px;
-            font-size: 15px;
-            background: #f9f9f9;
-        }
-        .form-input[readonly] {
-            background: #eaeaea;
-            color: #888;
-        }
-        .table-wrap {
-            overflow-x: auto;
-            margin-bottom: 18px;
-        }
-        table.custom-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #fff;
-        }
-        table.custom-table th, table.custom-table td {
-            border: 2px solid #1a237e;
-            text-align: center;
-            vertical-align: middle;
-            padding: 8px 6px;
-        }
-        table.custom-table th {
-            background: #e3eafc;
-            font-weight: bold;
-        }
-        .btn {
-            padding: 8px 22px;
-            border-radius: 5px;
-            border: 1.5px solid #1a237e;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            margin-right: 10px;
-            transition: background 0.2s, color 0.2s;
-        }
-        .btn-green {
-            background: #38d600;
-            color: #fff;
-        }
-        .btn-green:hover {
-            background: #2bb300;
-        }
-        .btn-exit {
-            background: #bdbdbd;
-            color: #222;
-        }
-        .btn-exit:hover {
-            background: #757575;
-            color: #fff;
-        }
-        .btn-danger {
-            background: #e74c3c;
-            color: #fff;
-            border: 1.5px solid #c0392b;
-        }
-        .btn-danger:hover {
-            background: #c0392b;
-        }
-        @media (max-width: 600px) {
-            .container { padding: 10px; }
-            .form-row { flex-direction: column; align-items: flex-start; }
-            .form-label { text-align: left; margin-bottom: 4px; }
-        }
-    </style>
-</head>
-<body>
-<div class="container">
-    <h2>Purchase Material</h2>
-    <form action="CreatePurchaseOrderServlet" method="post" id="purchaseOrderForm">
-        <div class="form-row">
-            <label for="supplierId" class="form-label">Supplier:</label>
-            <select name="supplierId" id="supplierId" class="form-input" required>
-                <option value="">Select Supplier</option>
-                <c:forEach items="${suppliers}" var="supplier">
-                    <option value="${supplier.id}">${supplier.name}</option>
-                </c:forEach>
-            </select>
+    <head>
+        <title>Tạo Đơn Mua Vật Tư</title>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/createPurchaseOrder.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    </head>
+    <body>
+        <jsp:include page="sidebar.jsp" />
+<div class="create-purchase-order-container">
+        <div class="form-section">
+            <div class="header-section">
+            <h2 class="create-purchase-order-title">Tạo Đơn Mua Vật Tư</h2>
+                <a href="purchaseOrderList" class="btn-outline-primary">
+                    <i class="fas fa-list"></i> Danh sách đơn mua
+                </a>
+            </div>
+            <c:if test="${not empty successMessage}">
+                <div style="background:#d4edda; color:#155724; border:1px solid #c3e6cb; padding:15px; margin-bottom:20px; border-radius:8px; display:flex; align-items:center;">
+                    <i class="fas fa-check-circle" style="margin-right:8px;"></i>
+                    <strong>Thành công!</strong> ${successMessage}
+                </div>
+            </c:if>
+            <c:if test="${not empty errorMessage}">
+                <div style="background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; padding:15px; margin-bottom:20px; border-radius:8px;">
+                    <i class="fas fa-exclamation-triangle" style="margin-right:8px;"></i>
+                    <strong>Lỗi!</strong> ${errorMessage}
+                </div>
+            </c:if>
+            <c:if test="${not empty errorMsg}">
+                <div style="background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; padding:10px; margin-bottom:16px; border-radius:6px;">
+                    <b>LỖI KHI LƯU CHI TIẾT:</b><br>
+                    <c:out value="${errorMsg}" escapeXml="false"/>
+                </div>
+            </c:if>
+            <c:if test="${param.error == 'true'}">
+                <div style="background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; padding:15px; margin-bottom:20px; border-radius:8px;">
+                    <i class="fas fa-exclamation-triangle" style="margin-right:8px;"></i>
+                    <strong>Lỗi!</strong> ${param.message}
+                </div>
+            </c:if>
+            <form action="createPurchaseOrder" method="post" id="createOrderForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Người tạo đơn</label>
+                        <input type="text" class="form-control" value="${currentUser.fullname}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Vai trò hiện tại</label>
+                        <input type="text" class="form-control" value="${currentUser.role.rolename}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Ngày tạo</label>
+                        <input type="text" class="form-control" id="createdDate" value="${createdDate}" readonly>
+                    </div>
+                </div>
+                <div class="form-row">
+                <div class="form-group supplier-filter">
+                        <label class="form-label">Nhà cung cấp</label>
+                        <select name="supplierId" id="supplierSelect" class="form-select" required onchange="updateContactInfo()">
+                            <option value="">Chọn nhà cung cấp</option>
+                            <c:forEach var="supplier" items="${suppliers}">
+                                <option value="${supplier.supplierId}" data-contact="${supplier.contactPerson}" data-phone="${supplier.supplierPhone}">${supplier.supplierName}</option>
+                            </c:forEach>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Người liên hệ</label>
+                        <input type="text" id="contactInfo" class="form-control" value="" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Số điện thoại</label>
+                        <input type="text" id="contactPhone" class="form-control" value="" readonly>
+                    </div>
+                </div>
+                <h4 style="font-weight:600; color:#222; margin-bottom: 20px;">Danh sách vật tư</h4>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th style="width: 25%">Tên vật tư</th>
+                                <th style="width: 12%">Số lượng</th>
+                                <th style="width: 15%">Đơn vị</th>
+                                <th style="width: 15%">Đơn vị gốc</th>
+                                <th style="width: 18%">Đơn giá</th>
+                            </tr>
+                        </thead>
+                        <tbody id="materialsContainer">
+                            <tr class="material-row">
+                                <td>
+                                    <input type="text" name="materialName[]" class="form-control material-name-input" placeholder="Nhập tên vật tư" autocomplete="off" required oninput="showMaterialSuggestions(this)">
+                                </td>
+                                <td><input type="number" name="quantity[]" class="form-control" placeholder="Số lượng" min="1" required oninput="updateTotal()"></td>
+                            <td>
+                                <select name="unit[]" class="form-control unit-input" required>
+                                    <option value="">Chọn đơn vị</option>
+                                    <c:forEach var="unit" items="${supplierUnits}">
+                                        <option value="${unit.unit_name}">${unit.unit_name}</option>
+                                    </c:forEach>
+                                </select>
+                            </td>
+                                <td><input type="text" name="baseUnit[]" class="form-control base-unit-input" placeholder="Đơn vị gốc" required readonly></td>
+                            <td><input type="number" name="unitPrice[]" class="form-control price-input" placeholder="Đơn giá" min="0" step="0.01" required oninput="updateTotal()"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="total-section">
+                    <span>Tổng tiền:&nbsp;</span>
+                    <span id="totalAmount" class="total-amount">0</span>
+                    <span>VNĐ</span>
+                </div>
+                <div class="button-group">
+                    <button type="button" class="btn-add" onclick="addMaterialRow()">
+                        <i class="fas fa-plus"></i> Thêm dòng vật tư
+                    </button>
+                    <button type="button" class="btn-remove" onclick="removeLastMaterialRow()">
+                        <i class="fas fa-minus"></i> Xóa dòng cuối
+                    </button>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label class="form-label">Ghi chú</label>
+                    <textarea name="note" class="form-control" rows="2" placeholder="Nhập ghi chú chung cho đơn mua..."></textarea>
+                </div>
+                <div class="submit-section">
+                    <a href="purchaseOrderList" class="btn-secondary">Hủy</a>
+                    <button type="submit" class="btn-primary">Tạo đơn mua</button>
+                </div>
+            </form>
+    </div>
         </div>
-        <div class="form-row">
-            <label for="importer" class="form-label">Importer:</label>
-            <input type="text" name="importer" id="importer" class="form-input" value="${sessionScope.userName}" readonly>
-        </div>
-        <div class="table-wrap">
-            <table class="custom-table" id="itemsTable">
-                <thead>
-                <tr>
-                    <th>Category</th>
-                    <th>Material</th>
-                    <th>Quantity</th>
-                    <th>Unit</th>
-                    <th>Describe</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody id="itemsBody">
-                <!-- Dynamic rows here -->
-                </tbody>
-            </table>
-        </div>
-        <div style="margin-bottom: 22px;">
-            <button type="button" class="btn btn-green" onclick="addItemRow()">Add Item</button>
-        </div>
-        <div style="text-align:center;">
-            <button type="submit" class="btn btn-green">Import material</button>
-            <button type="button" class="btn btn-exit" onclick="window.location.href='homepage.jsp'">Exit</button>
-        </div>
-    </form>
-</div>
-<script>
-    let rowCount = 0;
-    function addItemRow() {
-        const tbody = document.getElementById('itemsBody');
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td><input type="text" name="items[${rowCount}].category" class="form-input" required></td>
-            <td><input type="text" name="items[${rowCount}].material" class="form-input" required></td>
-            <td><input type="number" name="items[${rowCount}].quantity" class="form-input" min="1" required></td>
-            <td><input type="text" name="items[${rowCount}].unit" class="form-input" required></td>
-            <td><input type="text" name="items[${rowCount}].describe" class="form-input"></td>
-            <td><button type="button" class="btn btn-danger" onclick="removeRow(this)">Remove</button></td>
-        `;
-        tbody.appendChild(row);
-        rowCount++;
-    }
-    function removeRow(btn) {
-        btn.closest('tr').remove();
-    }
-    // Add one row by default
-    window.onload = addItemRow;
-</script>
-</body>
+        <div id="global-autocomplete-suggestions" class="autocomplete-suggestions"></div>
+        <script>
+            function updateContactInfo() {
+                const select = document.getElementById('supplierSelect');
+                const contact = select.options[select.selectedIndex]?.getAttribute('data-contact') || '';
+                const phone = select.options[select.selectedIndex]?.getAttribute('data-phone') || '';
+                document.getElementById('contactInfo').value = contact;
+                document.getElementById('contactPhone').value = phone;
+            }
+            function addMaterialRow() {
+                const container = document.getElementById('materialsContainer');
+                const row = document.createElement('tr');
+                row.className = 'material-row';
+                row.innerHTML = `
+                    <td><input type="text" name="materialName[]" class="form-control material-name-input" placeholder="Nhập tên vật tư" autocomplete="off" required oninput="showMaterialSuggestions(this)"></td>
+                    <td><input type="number" name="quantity[]" class="form-control" placeholder="Số lượng" min="1" required oninput="updateTotal()"></td>
+            <td>
+                <select name="unit[]" class="form-control unit-input" required>
+                    <option value="">Chọn đơn vị</option>
+                    <c:forEach var="unit" items="${supplierUnits}">
+                        <option value="${unit.unit_name}">${unit.unit_name}</option>
+                    </c:forEach>
+                </select>
+            </td>
+                    <td><input type="text" name="baseUnit[]" class="form-control base-unit-input" placeholder="Đơn vị gốc" required readonly></td>
+            <td><input type="number" name="unitPrice[]" class="form-control price-input" placeholder="Đơn giá" min="0" step="0.01" required oninput="updateTotal()"></td>
+                `;
+                container.appendChild(row);
+                console.log("Đã thêm dòng mới, tổng số dòng: " + container.rows.length);
+            }
+            function removeLastMaterialRow() {
+                const container = document.getElementById('materialsContainer');
+                if (container.rows.length > 1) {
+                    container.deleteRow(container.rows.length - 1);
+                    console.log("Đã xóa dòng cuối, tổng số dòng: " + container.rows.length);
+                }
+            }
+            function updateTotal() {
+                let total = 0;
+                document.querySelectorAll('#materialsContainer tr').forEach(row => {
+                    const qty = parseFloat(row.querySelector('input[name="quantity[]"]')?.value) || 0;
+                    const price = parseFloat(row.querySelector('input[name="unitPrice[]"]')?.value) || 0;
+                    total += qty * price;
+                });
+                document.getElementById('totalAmount').textContent = total.toLocaleString('vi-VN');
+            }
+    document.addEventListener('input', function(e) {
+        if (e.target.name === 'quantity[]' || e.target.name === 'unitPrice[]') updateTotal();
+            });
+            function showMaterialSuggestions(input) {
+                const value = input.value.trim();
+                const suggestionBox = document.getElementById('global-autocomplete-suggestions');
+                if (value.length < 1) {
+                    suggestionBox.classList.remove('show');
+                    suggestionBox.innerHTML = '';
+                    return;
+                }
+                const rect = input.getBoundingClientRect();
+                suggestionBox.style.position = 'fixed';
+                suggestionBox.style.top = (rect.bottom + window.scrollY) + 'px';
+                suggestionBox.style.left = (rect.left + window.scrollX) + 'px';
+                suggestionBox.style.width = rect.width + 'px';
+                suggestionBox.style.zIndex = 99999;
+                suggestionBox.innerHTML = '';
+                fetch('${pageContext.request.contextPath}/MaterialAutocompleteServlet?query=' + encodeURIComponent(value))
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.length > 0) {
+                                suggestionBox.innerHTML = data.map(item =>
+                                    "<div class='suggestion-item' style='padding:8px 12px;cursor:pointer;' onclick=\"selectMaterialSuggestionGlobal('" +
+                                            input.name + "', '" + item.name.replace(/'/g, "\\'") + "', '" + item.unitName.replace(/'/g, "\\'") + "', '" + item.price + "', this)\">" +
+                                            item.name + " <span style='color:#888;font-size:12px;'>(" + item.categoryName + ")</span></div>"
+                                ).join('');
+                                suggestionBox.classList.add('show');
+                                suggestionBox._activeInput = input;
+                            } else {
+                                suggestionBox.classList.remove('show');
+                                suggestionBox.innerHTML = '';
+                            }
+                        });
+            }
+            function selectMaterialSuggestionGlobal(inputName, value, unit, price, element) {
+                const suggestionBox = document.getElementById('global-autocomplete-suggestions');
+                const input = suggestionBox._activeInput;
+        if (!input) return;
+                input.value = value;
+                const row = input.closest('tr');
+                if (row) {
+                    const baseUnitInput = row.querySelector('input[name="baseUnit[]"]');
+                    const priceInput = row.querySelector('input[name="unitPrice[]"]');
+            if (baseUnitInput) baseUnitInput.value = unit || '';
+            if (priceInput) priceInput.value = price || '';
+                }
+                suggestionBox.classList.remove('show');
+                suggestionBox.innerHTML = '';
+            }
+    document.addEventListener('click', function(e) {
+                const suggestionBox = document.getElementById('global-autocomplete-suggestions');
+                if (!suggestionBox.contains(e.target)) {
+                    suggestionBox.classList.remove('show');
+                    suggestionBox.innerHTML = '';
+                }
+            });
+
+            // Chỉ reset nút khi có lỗi (load lại trang)
+    window.onload = function() {
+                updateTotal();
+            };
+
+            // Debug khi submit form
+    document.getElementById('createOrderForm').addEventListener('submit', function(e) {
+                console.log("=== DEBUG: SUBMIT FORM ===");
+                const materialNames = document.querySelectorAll('input[name="materialName[]"]');
+                const quantities = document.querySelectorAll('input[name="quantity[]"]');
+                const units = document.querySelectorAll('input[name="unit[]"]');
+                const baseUnits = document.querySelectorAll('input[name="baseUnit[]"]');
+                const unitPrices = document.querySelectorAll('input[name="unitPrice[]"]');
+
+                console.log("Số lượng dòng vật tư: " + materialNames.length);
+
+                for (let i = 0; i < materialNames.length; i++) {
+            console.log("Dòng " + (i+1) + ":");
+                    console.log("  - Tên: '" + materialNames[i].value + "'");
+                    console.log("  - SL: '" + quantities[i].value + "'");
+                    console.log("  - ĐV: '" + units[i].value + "'");
+                    console.log("  - ĐV gốc: '" + baseUnits[i].value + "'");
+                    console.log("  - Giá: '" + unitPrices[i].value + "'");
+                }
+            });
+        </script>
+    </body>
 </html>
+

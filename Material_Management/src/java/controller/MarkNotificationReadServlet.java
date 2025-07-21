@@ -18,20 +18,29 @@ public class MarkNotificationReadServlet extends HttpServlet {
         try {
             String notificationIdStr = request.getParameter("notificationId");
             String requestIdStr = request.getParameter("requestId");
+            String purchaseOrderIdStr = request.getParameter("purchaseOrderId");
 
-            if (notificationIdStr == null || notificationIdStr.isEmpty()
-                    || requestIdStr == null || requestIdStr.isEmpty()) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Thiếu tham số notificationId hoặc requestId");
+            if (notificationIdStr == null || notificationIdStr.isEmpty()) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Thiếu tham số notificationId");
                 return;
             }
 
             int notificationId = Integer.parseInt(notificationIdStr);
-            int requestId = Integer.parseInt(requestIdStr);
 
             NotificationDAO notificationDAO = new NotificationDAO();
             notificationDAO.markAsRead(notificationId);
 
-            response.sendRedirect("viewRequestDetail?requestId=" + requestId);
+            // Xử lý chuyển hướng dựa trên loại thông báo
+            if (purchaseOrderIdStr != null && !purchaseOrderIdStr.isEmpty()) {
+                // Thông báo về purchase order
+                response.sendRedirect("purchaseOrderDetail?id=" + purchaseOrderIdStr);
+            } else if (requestIdStr != null && !requestIdStr.isEmpty()) {
+                // Thông báo về request
+                response.sendRedirect("viewRequestDetail?requestId=" + requestIdStr);
+            } else {
+                // Mặc định về trang chủ
+                response.sendRedirect("directorDashboard.jsp");
+            }
         } catch (Exception e) {
             e.printStackTrace();
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi khi đánh dấu đã đọc: " + e.getMessage());
