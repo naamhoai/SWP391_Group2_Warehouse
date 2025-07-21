@@ -89,10 +89,149 @@
                     <canvas id="purchaseValueChart"></canvas>
                 </div>
             </div>
+
+            <!-- Bảng thống kê - 2 bảng trên 1 dòng -->
+            <div class="stats-tables-row">
+                <!-- Bảng thống kê số lượng yêu cầu mua theo tháng -->
+                <div class="stats-table-container">
+                    <div class="table-card">
+                        <h3><i class="fas fa-chart-bar"></i> Bảng Thống Kê Số Lượng Yêu Cầu Mua Theo Tháng</h3>
+                        <div class="table-responsive">
+                            <table class="stats-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tháng</th>
+                                        <th>Số lượng yêu cầu mua</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach var="item" items="${requestCountByMonth}">
+                                        <tr>
+                                            <td>${item.month}</td>
+                                            <td>${item.count}</td>
+                                        </tr>
+                                    </c:forEach>
+                                    <c:if test="${empty requestCountByMonth}">
+                                        <tr>
+                                            <td colspan="2" class="no-data">Không có dữ liệu</td>
+                                        </tr>
+                                    </c:if>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bảng thống kê giá trị mua hàng theo tháng -->
+                <div class="stats-table-container">
+                    <div class="table-card">
+                        <h3><i class="fas fa-chart-line"></i> Bảng Thống Kê Giá Trị Mua Hàng Theo Tháng</h3>
+                        <div class="table-responsive">
+                            <table class="stats-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tháng</th>
+                                        <th>Giá trị mua hàng (VNĐ)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach var="item" items="${purchaseValueByMonth}">
+                                        <tr>
+                                            <td>${item.month}</td>
+                                            <td><fmt:formatNumber value="${item.value}" type="currency" currencySymbol="₫"/></td>
+                                        </tr>
+                                    </c:forEach>
+                                    <c:if test="${empty purchaseValueByMonth}">
+                                        <tr>
+                                            <td colspan="2" class="no-data">Không có dữ liệu</td>
+                                        </tr>
+                                    </c:if>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <jsp:include page="footer.jsp" />
         </div>
         <script src="js/directorDashboard.js"></script>
         <script>
+            var contextPath = "${pageContext.request.contextPath}";
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const bell = document.getElementById('notificationBell');
+                const dropdown = document.getElementById('notificationDropdown');
+                const ul = dropdown?.querySelector('ul');
+                const badge = document.querySelector('.badge');
+
+                bell?.addEventListener('click', e => {
+                    e.stopPropagation();
+                    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                });
+
+                document.addEventListener('click', () => dropdown.style.display = 'none');
+                dropdown?.addEventListener('click', e => e.stopPropagation());
+
+                function updateNotifications() {
+                    fetch('getNotifications')
+                            .then(r => r.json())
+                            .then(data => {
+                                data.sort((a, b) => {
+                                    if (a.read !== b.read)
+                                        return a.read ? 1 : -1;
+                                    return new Date(b.createdAt) - new Date(a.createdAt);
+                                });
+                                badge.style.display = data.length ? 'block' : 'none';
+                                badge.textContent = data.length;
+                                ul.innerHTML = data.length ? '' : '<li style="padding:8px;color:#666">Không có thông báo</li>';
+
+                                data.forEach(n => {
+                                    const li = document.createElement('li');
+                                    li.style.padding = '8px';
+                                    li.style.borderBottom = '1px solid #eee';
+                                    if (n.read)
+                                        li.style.opacity = '0.7';
+
+                                    const a = document.createElement('a');
+                                    a.href = contextPath + '/viewRequestDetail?requestId=' + n.requestId;
+                                    a.style = 'display:block;text-decoration:none;color:#007bff;';
+                                    a.onclick = e => {
+                                        e.preventDefault();
+                                        fetch(`markNotificationRead?notificationId=${n.id}&requestId=${n.requestId}`)
+                                                .then(() => location.href = a.href);
+                                    };
+
+                                    const message = document.createElement('div');
+                                    message.textContent = n.message;
+                                    message.style = 'font-weight:500;margin-bottom:4px';
+
+                                    const bottom = document.createElement('div');
+bottom.style = 'display:flex;justify-content:space-between;align-items:center';
+
+                                    const time = document.createElement('span');
+                                    time.textContent = n.createdAt || "";
+                                    time.style = 'font-size:12px;color:gray';
+
+                                    if (!n.read) {
+                                        const newBadge = document.createElement('span');
+                                        newBadge.textContent = 'Mới';
+                                        newBadge.style = 'background:#007bff;color:white;padding:2px 6px;border-radius:10px;font-size:10px;';
+                                        bottom.appendChild(newBadge);
+                                    }
+
+                                    bottom.appendChild(time);
+                                    a.appendChild(message);
+                                    a.appendChild(bottom);
+                                    li.appendChild(a);
+                                    ul.appendChild(li);
+                                });
+                            });
+                }
+
+                updateNotifications();
+                setInterval(updateNotifications, 5000);
+            });
             // Biểu đồ số lượng yêu cầu mua theo tháng
             var requestMonthLabels = [<c:forEach var="label" items="${requestMonthLabels}" varStatus="loop">"${label}"<c:if test="${!loop.last}">,</c:if></c:forEach>];
             var requestMonthValues = [<c:forEach var="v" items="${requestMonthValues}" varStatus="loop">${v}<c:if test="${!loop.last}">,</c:if></c:forEach>];

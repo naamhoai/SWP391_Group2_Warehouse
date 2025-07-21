@@ -44,60 +44,99 @@ public class AdminDashboardServlet extends HttpServlet {
         requestStats.put("outgoingCount", outgoingCount);
         request.setAttribute("requestStats", requestStats);
 
-        // Lấy dữ liệu nhập/xuất theo tháng cho biểu đồ tồn kho
-        Map<String, Integer> importByMonth = inventoryDAO.getTotalImportedByMonth();
-        Map<String, Integer> exportByMonth = inventoryDAO.getTotalExportedByMonth();
+        // Lấy tham số thời gian từ request
+        String startMonth = request.getParameter("startMonth");
+        String startYear = request.getParameter("startYear");
+        String endMonth = request.getParameter("endMonth");
+        String endYear = request.getParameter("endYear");
+        
+        // Tạo startDate và endDate từ tham số
+        String startDate = null;
+        String endDate = null;
+        
+        if (startMonth != null && startYear != null && !startMonth.isEmpty() && !startYear.isEmpty()) {
+            startDate = startYear + "-" + (startMonth.length() == 1 ? "0" + startMonth : startMonth);
+        }
+        if (endMonth != null && endYear != null && !endMonth.isEmpty() && !endYear.isEmpty()) {
+            endDate = endYear + "-" + (endMonth.length() == 1 ? "0" + endMonth : endMonth);
+        }
+        
+        // Nếu không có tham số, sử dụng 6 tháng gần nhất
+        if (startDate == null || startDate.isEmpty()) {
+            java.time.LocalDate now = java.time.LocalDate.now();
+            startDate = now.minusMonths(5).toString().substring(0, 7);
+        }
+        if (endDate == null || endDate.isEmpty()) {
+            java.time.LocalDate now = java.time.LocalDate.now();
+            endDate = now.toString().substring(0, 7);
+        }
+        
+        // Lấy dữ liệu nhập/xuất theo khoảng thời gian
+        Map<String, Integer> importByMonth = inventoryDAO.getTotalImportedByMonthRange(startDate, endDate);
+        Map<String, Integer> exportByMonth = inventoryDAO.getTotalExportedByMonthRange(startDate, endDate);
+        
+        // Tạo danh sách tháng trong khoảng thời gian
         Set<String> allMonths = new TreeSet<>();
         allMonths.addAll(importByMonth.keySet());
         allMonths.addAll(exportByMonth.keySet());
-        // Nếu chưa có dữ liệu, thêm tháng hiện tại và tháng trước đó để có ít nhất 2 điểm
+        
+        // Nếu không có dữ liệu thực, tạo dữ liệu mẫu cho khoảng thời gian
         if (allMonths.isEmpty()) {
-            java.time.LocalDate now = java.time.LocalDate.now();
-            String thisMonth = now.toString().substring(0,7);
-            String lastMonth = now.minusMonths(1).toString().substring(0,7);
-            allMonths.add(lastMonth);
-            allMonths.add(thisMonth);
+            java.time.YearMonth start = java.time.YearMonth.parse(startDate);
+            java.time.YearMonth end = java.time.YearMonth.parse(endDate);
+            for (java.time.YearMonth m = start; !m.isAfter(end); m = m.plusMonths(1)) {
+                allMonths.add(m.toString());
+            }
         }
-        // Tạo dải tháng liên tục
-        List<String> sortedMonths = new ArrayList<>(allMonths);
-        Collections.sort(sortedMonths);
-        String firstMonth = sortedMonths.get(0);
-        String lastMonth = sortedMonths.get(sortedMonths.size()-1);
-        List<String> fullMonthRange = new ArrayList<>();
-        java.time.YearMonth start = java.time.YearMonth.parse(firstMonth);
-        java.time.YearMonth end = java.time.YearMonth.parse(lastMonth);
-        for (java.time.YearMonth m = start; !m.isAfter(end); m = m.plusMonths(1)) {
-            fullMonthRange.add(m.toString());
-        }
-        List<Integer> values = new ArrayList<>();
-        int tonDau = 0;
-        int nhapLuyKe = 0;
-        int xuatLuyKe = 0;
-        for (String month : fullMonthRange) {
-            nhapLuyKe += importByMonth.getOrDefault(month, 0);
-            xuatLuyKe += exportByMonth.getOrDefault(month, 0);
-            int tonKho = tonDau + nhapLuyKe - xuatLuyKe;
-            values.add(tonKho);
-        }
-        request.setAttribute("inventoryTrendLabels", fullMonthRange);
-        request.setAttribute("inventoryTrend", values);
-
-        Map<String, Integer> importByMonth2 = inventoryDAO.getTotalImportedByMonth();
-        Map<String, Integer> exportByMonth2 = inventoryDAO.getTotalExportedByMonth();
-        Set<String> allMonths2 = new TreeSet<>();
-        allMonths2.addAll(importByMonth2.keySet());
-        allMonths2.addAll(exportByMonth2.keySet());
-        List<String> monthLabels = new ArrayList<>(allMonths2);
+        
+        List<String> monthLabels = new ArrayList<>(allMonths);
         Collections.sort(monthLabels);
+        
+        // Định dạng tháng sang tiếng Việt
+        List<String> formattedMonthLabels = new ArrayList<>();
+        String[] vietnameseMonths = {"T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12"};
+        
+        for (String month : monthLabels) {
+            String[] parts = month.split("-");
+            if (parts.length == 2) {
+                int monthNum = Integer.parseInt(parts[1]);
+                String vietnameseMonth = vietnameseMonths[monthNum - 1];
+                formattedMonthLabels.add(vietnameseMonth + "/" + parts[0]);
+            } else {
+                formattedMonthLabels.add(month);
+            }
+        }
+        
         List<Integer> importValues = new ArrayList<>();
         List<Integer> exportValues = new ArrayList<>();
         for (String month : monthLabels) {
-            importValues.add(importByMonth2.getOrDefault(month, 0));
-            exportValues.add(exportByMonth2.getOrDefault(month, 0));
+            importValues.add(importByMonth.getOrDefault(month, 0));
+            exportValues.add(exportByMonth.getOrDefault(month, 0));
         }
-        request.setAttribute("importExportMonthLabels", monthLabels);
+        
+        request.setAttribute("importExportMonthLabels", formattedMonthLabels);
         request.setAttribute("importByMonth", importValues);
         request.setAttribute("exportByMonth", exportValues);
+        
+        // Lưu tham số thời gian để hiển thị trên form
+        request.setAttribute("startDate", startDate);
+        request.setAttribute("endDate", endDate);
+        
+        // Tách tháng và năm để hiển thị trên dropdown
+        if (startDate != null && startDate.length() >= 7) {
+            String[] startParts = startDate.split("-");
+            if (startParts.length == 2) {
+                request.setAttribute("startMonth", Integer.parseInt(startParts[1]));
+                request.setAttribute("startYear", Integer.parseInt(startParts[0]));
+            }
+        }
+        if (endDate != null && endDate.length() >= 7) {
+            String[] endParts = endDate.split("-");
+            if (endParts.length == 2) {
+                request.setAttribute("endMonth", Integer.parseInt(endParts[1]));
+                request.setAttribute("endYear", Integer.parseInt(endParts[0]));
+            }
+        }
 
         DeliveryDAO deliveryDAO = new DeliveryDAO();
         int deliveredOrderCount = 0;

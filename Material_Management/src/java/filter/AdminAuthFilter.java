@@ -20,10 +20,10 @@ import java.io.IOException;
     "/editUnit.jsp",
     "/listCategory.jsp",
     "/listSupplier.jsp",
-    "/materialDetailList.jsp",
     "/settingList.jsp",
     "/updateMaterialDetail.jsp",
-    "/userPermission.jsp"
+    "/userPermission.jsp",
+    "/viewMaterialDetail",
 })
 public class AdminAuthFilter implements Filter {
 

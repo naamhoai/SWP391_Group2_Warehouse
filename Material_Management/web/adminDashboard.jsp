@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<fmt:setLocale value="vi_VN"/>
+
 <!DOCTYPE html>
 <html lang="vi">
     <head>
@@ -35,7 +35,7 @@
             </div>
             <div class="stats-grid">
                 <div class="stat-card">
-                    <a href="categories" style="text-decoration:none;color:inherit;">
+                    <a href="MaterialListServlet" style="text-decoration:none;color:inherit;">
                         <div class="stat-icon" style="background-color: #2563eb;"><i class="fas fa-box"></i></div>
                         <div class="stat-info">
                             <h3>Tổng Vật Tư</h3>
@@ -44,19 +44,10 @@
                     </a>
                 </div>
                 <div class="stat-card">
-                    <a href="MaterialListServlet?lowStock=true" style="text-decoration:none;color:inherit;">
-                        <div class="stat-icon" style="background-color: #e74c3c;"><i class="fas fa-exclamation-triangle"></i></div>
-                        <div class="stat-info">
-                            <h3>Vật Tư Sắp Hết</h3>
-                            <p class="stat-number">${lowStockItems}</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="stat-card">
                     <a href="delivery" style="text-decoration:none;color:inherit;">
                         <div class="stat-icon" style="background-color: #f1c40f;"><i class="fas fa-truck"></i></div>
                         <div class="stat-info">
-                            <h3>Đơn Hàng Đang Giao</h3>
+                            <h3>Đơn Hàng Đã Giao</h3>
                             <p class="stat-number">${pendingDeliveries}</p>
                         </div>
                     </a>
@@ -69,7 +60,7 @@
                     </div>
                 </div>
             </div>
-            <div class="charts-grid" style="grid-template-columns: repeat(2, 1fr);">
+            <div class="charts-grid charts-grid-2">
                 <div class="chart-card">
                     <h3>Xu Hướng Tồn Kho</h3>
                     <canvas id="inventoryTrendChart"></canvas>
@@ -79,12 +70,44 @@
                     <canvas id="requestDistributionChart"></canvas>
                 </div>
             </div>
-            <div class="charts-grid" style="grid-template-columns: repeat(2, 1fr);">
-                <div class="chart-card">
+            <div class="charts-grid charts-grid-1">
+                <div class="chart-card full-width">
                     <h3>Biểu Đồ Mua/Xuất Vật Tư Theo Tháng</h3>
+                    <div class="chart-form-container">
+                        <form method="GET" action="adminDashboard" class="chart-form">
+                            <div class="chart-form-group">
+                                <label for="startMonth" class="chart-form-label">Từ tháng:</label>
+                                <select id="startMonth" name="startMonth" class="chart-form-select">
+                                    <c:forEach var="month" begin="1" end="12">
+                                        <option value="${month < 10 ? '0' : ''}${month}" ${startMonth == month ? 'selected' : ''}>Tháng ${month}</option>
+                                    </c:forEach>
+                                </select>
+                                <select id="startYear" name="startYear" class="chart-form-select">
+                                    <c:forEach var="year" begin="2020" end="2030">
+                                        <option value="${year}" ${startYear == year ? 'selected' : ''}>${year}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+                            
+                            <div class="chart-form-group">
+                                <label for="endMonth" class="chart-form-label">Đến tháng:</label>
+                                <select id="endMonth" name="endMonth" class="chart-form-select">
+                                    <c:forEach var="month" begin="1" end="12">
+                                        <option value="${month < 10 ? '0' : ''}${month}" ${endMonth == month ? 'selected' : ''}>Tháng ${month}</option>
+                                    </c:forEach>
+                                </select>
+                                <select id="endYear" name="endYear" class="chart-form-select">
+                                    <c:forEach var="year" begin="2020" end="2030">
+                                        <option value="${year}" ${endYear == year ? 'selected' : ''}>${year}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+                            
+                            <button type="submit" class="chart-form-button">Xem</button>
+                        </form>
+                    </div>
                     <canvas id="importExportLineChart"></canvas>
                 </div>
-                <div></div>
             </div>
             <div class="table-card">
                 <h3>Top 5 Vật Tư Xuất Nhiều Nhất</h3>
@@ -207,25 +230,23 @@
             var exportByMonth = [<c:forEach var="v" items="${exportByMonth}" varStatus="loop">${v}<c:if test="${!loop.last}">,</c:if></c:forEach>];
             var ctxImportExport = document.getElementById('importExportLineChart').getContext('2d');
             var importExportLineChart = new Chart(ctxImportExport, {
-                type: 'line',
+                type: 'bar',
                 data: {
                     labels: importExportMonthLabels,
                     datasets: [
                         {
                             label: 'Số lượng nhập',
                             data: importByMonth,
-                            borderColor: '#2ecc71',
-                            backgroundColor: 'rgba(46,204,113,0.1)',
-                            fill: false,
-                            tension: 0.3
+                            backgroundColor: '#e74c3c',
+                            borderColor: '#c0392b',
+                            borderWidth: 1
                         },
                         {
                             label: 'Số lượng xuất',
                             data: exportByMonth,
-                            borderColor: '#e74c3c',
-                            backgroundColor: 'rgba(231,76,60,0.1)',
-                            fill: false,
-                            tension: 0.3
+                            backgroundColor: '#2ecc71',
+                            borderColor: '#27ae60',
+                            borderWidth: 1
                         }
                     ]
                 },
@@ -233,7 +254,8 @@
                     responsive: true,
                     plugins: {
                         legend: {
-                            display: true
+                            display: true,
+                            position: 'top'
                         }
                     },
                     scales: {
@@ -242,6 +264,12 @@
                             title: {
                                 display: true,
                                 text: 'Số lượng'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Tháng'
                             }
                         }
                     }

@@ -138,6 +138,12 @@ public class DirectorServlet extends HttpServlet {
             request.setAttribute("purchaseMonthLabels", purchaseMonthLabels);
             request.setAttribute("purchaseMonthValues", purchaseMonthValues);
 
+            // Lấy dữ liệu cho 2 bảng thống kê
+            List<model.MonthStat> requestCountByMonth = requestDAO.getRequestCountByMonth();
+            List<model.MonthStat> purchaseValueStatsByMonth = requestDAO.getPurchaseValueByMonth();
+            request.setAttribute("requestCountByMonth", requestCountByMonth);
+            request.setAttribute("purchaseValueByMonth", purchaseValueStatsByMonth);
+
             request.getRequestDispatcher("directorDashboard.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
