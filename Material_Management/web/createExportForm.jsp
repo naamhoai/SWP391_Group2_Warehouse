@@ -8,6 +8,7 @@
         <link rel="stylesheet" href="css/requestForm.css">
         <link rel="stylesheet" href="css/sidebar.css">
         <link rel="stylesheet" href="css/footer.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     </head>
     <body>
         <div class="main-layout">

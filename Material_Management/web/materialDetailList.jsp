@@ -44,17 +44,6 @@
             </c:if>
 
             <div class="content-card">
-                <h3>Số loại vật tư theo từng đơn vị</h3>
-                <c:if test="${not empty typeCountByUnit}">
-                    <ul>
-                        <c:forEach var="entry" items="${typeCountByUnit}">
-                            <li><strong>${entry.value}</strong> loại vật tư (${entry.key})</li>
-                                </c:forEach>
-                    </ul>
-                </c:if>
-            </div>
-
-            <div class="content-card">
                 <form method="get" action="MaterialListServlet" id="filterForm" class="filter-form">
                     <div class="filter-row">
                         <div class="filter-group">
@@ -149,7 +138,7 @@
                                                 <td class="action-buttons">
                                                     <a href="viewMaterialDetail?id=${material.materialId}" class="btn-action btn-view tooltip-parent">
                                                         <i class="fas fa-eye"></i>
-                                                        <span class="custom-tooltip">Xem chi tiết</span>
+                                                        <span class="custom-tooltip"></span>
                                                     </a>
                                                 </td>
                                             </tr>
