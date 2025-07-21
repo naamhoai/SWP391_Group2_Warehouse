@@ -15,6 +15,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import model.*;
+import com.google.gson.Gson;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -69,7 +72,7 @@ public class ImportWarehouseServlet extends HttpServlet {
         UnitConversionDao dao = new UnitConversionDao();
         List<Material> list = dao.getALls();
         if (list != null) {
-            System.out.println("materialList: " + request.getAttribute("materialList"));
+System.out.println("materialList: " + request.getAttribute("materialList"));
             System.out.println("username: " + request.getAttribute("username"));
             System.out.println("role: " + request.getAttribute("role"));
 
@@ -78,6 +81,13 @@ public class ImportWarehouseServlet extends HttpServlet {
             request.setAttribute("username", username);
 
         }
+
+        Map<String, String> materialUnitMap = new HashMap<>();
+        for (Material m : list) {
+            materialUnitMap.put(m.getMaterialId() + "-" + m.getName(), m.getUnitName());
+        }
+        String materialUnitMapJson = new Gson().toJson(materialUnitMap);
+        request.setAttribute("materialUnitMapJson", materialUnitMapJson);
 
         request.getRequestDispatcher("importWarehouse.jsp").forward(request, response);
         return;
@@ -143,7 +153,7 @@ public class ImportWarehouseServlet extends HttpServlet {
                         tenDuAn,
                         namevt,
                         num,
-                        unit,
+unit,
                         status
                 );
                 new dao.ImportHistoryDAO().insertImportHistory(importHistory);

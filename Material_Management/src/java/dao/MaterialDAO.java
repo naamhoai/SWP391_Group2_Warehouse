@@ -18,7 +18,7 @@ public class MaterialDAO extends DBContext {
     public List<Material> getMaterialsForAdmin(String searchQuery, Integer categoryId, String supplierFilter, String statusFilter,
             int page, int itemsPerPage, String sortField, String sortDir) {
         List<Material> materials = new ArrayList<>();
-        String sql = "SELECT m.*, c.name as category_name, c.hidden as category_hidden, s.supplier_name, s.status as supplier_status, u.unit_name "
+        String sql = "SELECT m.*, c.name as category_name, c.hidden as category_hidden, s.supplier_name, u.unit_name "
                 + "FROM materials m "
                 + "LEFT JOIN categories c ON m.category_id = c.category_id "
                 + "LEFT JOIN supplier s ON m.supplier_id = s.supplier_id "
@@ -164,43 +164,6 @@ try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = c
         }
     }
 
-    /**
-     * Cập nhật trạng thái vật tư dựa trên trạng thái supplier
-     * @param supplierId ID của supplier
-     * @param supplierStatus Trạng thái mới của supplier
-     * @return true nếu cập nhật thành công
-     */
-    public boolean updateMaterialsStatusBySupplier(int supplierId, String supplierStatus) throws SQLException {
-        String materialStatus;
-        
-        // Xác định trạng thái vật tư dựa trên trạng thái supplier
-        switch (supplierStatus.toLowerCase()) {
-            case "active":
-                materialStatus = "active";
-                break;
-            case "inactive":
-                materialStatus = "inactive";
-                break;
-            case "terminated":
-                materialStatus = "inactive"; // Vật tư chuyển sang ngừng kinh doanh
-                break;
-            default:
-                materialStatus = "inactive"; // Mặc định là ngừng kinh doanh
-                break;
-        }
-        
-        String sql = "UPDATE materials SET status = ? WHERE supplier_id = ?";
-        try (Connection conn = new DBContext().getConnection(); 
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, materialStatus);
-            ps.setInt(2, supplierId);
-            int rowsAffected = ps.executeUpdate();
-            System.out.println("Đã cập nhật " + rowsAffected + " vật tư cho supplier ID: " + supplierId + 
-                             " từ trạng thái supplier: " + supplierStatus + " sang trạng thái vật tư: " + materialStatus);
-            return rowsAffected >= 0; // Trả về true ngay cả khi không có vật tư nào được cập nhật
-        }
-    }
-
     private String buildWhereClauses(String sql, List<Object> params, String searchQuery, Integer categoryId, String supplierFilter, String statusFilter) {
         if (searchQuery != null && !searchQuery.trim().isEmpty()) {
             sql += "AND m.name LIKE ? ";
@@ -216,9 +179,9 @@ try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = c
         }
         if (statusFilter != null && !statusFilter.trim().isEmpty() && !statusFilter.equals("All")) {
             if (statusFilter.equals("inactive")) {
-                sql += "AND (s.status != 'active' OR c.hidden = 1) ";
+                sql += "AND c.hidden = 1 ";
             } else if (statusFilter.equals("active")) {
-                sql += "AND s.status = 'active' AND (c.hidden = 0 OR c.hidden IS NULL) ";
+                sql += "AND (c.hidden = 0 OR c.hidden IS NULL) ";
             }
         }
         return sql;
@@ -253,7 +216,6 @@ return "m.name";
         material.setDescription(rs.getString("description"));
         material.setUnitName(rs.getString("unit_name"));
         material.setStatus(rs.getString("status"));
-        material.setSupplierStatus(rs.getString("supplier_status"));
         try {
             material.setCategoryHidden(rs.getBoolean("category_hidden"));
         } catch (SQLException e) {

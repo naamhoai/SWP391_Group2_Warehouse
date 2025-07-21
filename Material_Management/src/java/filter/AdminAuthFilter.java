@@ -8,23 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
-@WebFilter(filterName = "AdminAuthFilter", urlPatterns = {
-    "/adminDashboard", 
-    "/addCategory.jsp",
-    "/addSupplier.jsp",
-    "/createMaterialDetail.jsp",
-    "/createUnit.jsp",
-    "/createUser.jsp",
-    "/editCategory.jsp",
-    "/editSupplier.jsp",
-    "/editUnit.jsp",
-    "/listCategory.jsp",
-    "/listSupplier.jsp",
-    "/settingList.jsp",
-    "/updateMaterialDetail.jsp",
-    "/userPermission.jsp",
-    "/viewMaterialDetail",
-})
+@WebFilter(filterName = "AdminAuthFilter", urlPatterns = {"/*"})
 public class AdminAuthFilter implements Filter {
 
     @Override
@@ -32,6 +16,13 @@ public class AdminAuthFilter implements Filter {
             throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
+        String path = httpRequest.getRequestURI();
+        // Loại trừ file tĩnh ở mọi thư mục và các trang public
+        if (path.matches(".*(\\.css|\\.js|\\.png|\\.jpg|\\.jpeg|\\.gif|\\.ico|\\.woff|\\.woff2|\\.ttf|\\.svg)$")
+            || path.endsWith("login.jsp") || path.endsWith("login") || path.endsWith("register.jsp") || path.endsWith("resetPassword.jsp")) {
+            chain.doFilter(request, response);
+            return;
+        }
         HttpSession session = httpRequest.getSession(false);
 
         boolean isLoggedIn = (session != null && session.getAttribute("Admin") != null);
@@ -39,8 +30,12 @@ public class AdminAuthFilter implements Filter {
 
         if (isLoggedIn) {
             User user = (User) session.getAttribute("Admin");
+            System.out.println("Session Admin: " + user);
             if (user != null && user.getRole() != null) {
-                isAdmin = (user.getRole().getRoleid() == 1);
+                int roleId = user.getRole().getRoleid();
+                System.out.println("Role id: " + roleId);
+                // Cho phép tất cả các role
+                isAdmin = (roleId == 1 || roleId == 2 || roleId == 3 || roleId == 4);
             }
         }
 

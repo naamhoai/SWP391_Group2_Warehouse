@@ -45,7 +45,7 @@
                     </div>
                     <div class="form-group" style="flex:1; min-width:180px;">
                         <label for="soDienThoaiNguoiGiao">Số điện thoại người giao:</label>
-                        <input type="text" id="soDienThoaiNguoiGiao" name="soDienThoaiNguoiGiao" placeholder="Số điện thoại người giao" required pattern="[0-9]{10}" maxlength="10" inputmode="numeric" title="Vui lòng nhập đúng 10 chữ số, không chứa chữ hay ký tự đặc biệt">
+<input type="text" id="soDienThoaiNguoiGiao" name="soDienThoaiNguoiGiao" placeholder="Số điện thoại người giao" required pattern="[0-9]{10}" maxlength="10" inputmode="numeric" title="Vui lòng nhập đúng 10 chữ số, không chứa chữ hay ký tự đặc biệt">
                     </div>
                 </div>
                 <div class="form-section">
@@ -91,13 +91,9 @@
         </div>
 
         <script>
-            var materialUnitMap = {};
-            <c:forEach var="m" items="${materialList}">
-            materialUnitMap['${m.materialId}-${m.name}'] = '${m.unitName}';
-            </c:forEach>
-                console.log('materialUnitMap:', materialUnitMap);
-
-                function autoFillUnit(materialInput) {
+            var materialUnitMap = ${materialUnitMapJson};
+            console.log('materialUnitMap:', materialUnitMap);
+function autoFillUnit(materialInput) {
                     const row = materialInput.closest('tr');
                     const unitInput = row.querySelector('.unit-input');
                     const key = materialInput.value;
@@ -134,7 +130,12 @@
                         const tbody = document.querySelector('#tableVatTu tbody');
                         const newRow = document.createElement('tr');
                         newRow.innerHTML = `
-                        <td><input type="text" name="namevt[]" required list="materialNameList" autocomplete="off" placeholder="Tên vật tư"></td>
+                        <td>
+                            <input type="text" name="namevt[]" required list="materialNameList" autocomplete="off" placeholder="Tên vật tư">
+                            <datalist id="materialNameList">
+                                ${document.getElementById('materialNameList').innerHTML}
+                            </datalist>
+                        </td>
                         <td><input type="number" name="number[]" min="1" required placeholder="Số lượng"></td>
                         <td><input type="text" name="unit[]" class="unit-input" required readonly placeholder="Đơn vị"></td>
                         <td>
