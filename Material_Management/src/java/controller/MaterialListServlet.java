@@ -122,24 +122,67 @@ public class MaterialListServlet extends HttpServlet {
         String action = request.getParameter("action");
         if ("toggleStatus".equals(action)) {
             String[] idArr = request.getParameterValues("materialIds");
+            List<String> errorMessages = new ArrayList<>();
             if (idArr != null && idArr.length > 0) {
                 try {
                     MaterialDAO dao = new MaterialDAO();
-                    List<Integer> ids = new ArrayList<>();
-                    String newStatus = null;
                     for (String idStr : idArr) {
-                        int materialId = Integer.parseInt(idStr);
-                        String currentStatus = dao.getMaterialById(materialId).getStatus();
-                        // Lấy trạng thái của vật tư đầu tiên để xác định trạng thái chuyển đổi
-                        if (newStatus == null) {
-                            newStatus = "active".equalsIgnoreCase(currentStatus) ? "inactive" : "active";
+                        int materialId;
+                        try {
+                            materialId = Integer.parseInt(idStr);
+                        } catch (NumberFormatException e) {
+                            errorMessages.add("ID vật tư không hợp lệ: " + idStr);
+                            continue;
                         }
-                        ids.add(materialId);
+                        Material material = null;
+                        try {
+                            material = dao.getMaterialById(materialId);
+                        } catch (Exception e) {
+                            errorMessages.add("Lỗi khi lấy vật tư ID: " + materialId + ", lỗi: " + e.getMessage());
+                            continue;
+                        }
+                        if (material == null) {
+                            errorMessages.add("Không tìm thấy vật tư ID: " + materialId);
+                            continue;
+                        }
+                        String currentStatus = material.getStatus();
+                        String newStatus = null;
+                        if ("active".equalsIgnoreCase(currentStatus)) {
+                            // Đang kinh doanh -> luôn cho chuyển sang ngừng kinh doanh
+                            newStatus = "inactive";
+                        } else {
+                            // Ngừng kinh doanh -> chỉ cho chuyển nếu category không ẩn và supplier hợp tác
+                            if (!material.isCategoryHidden() && "active".equalsIgnoreCase(material.getSupplierStatus())) {
+                                newStatus = "active";
+                            } else {
+                                String reason = "";
+                                if (material.isCategoryHidden()) {
+                                    reason += "danh mục bị ẩn";
+                                }
+                                if (!"active".equalsIgnoreCase(material.getSupplierStatus())) {
+                                    if (!reason.isEmpty()) reason += " hoặc ";
+                                    reason += "nhà cung cấp không hợp tác";
+                                }
+                                errorMessages.add("Không thể chuyển vật tư ID: " + materialId + " sang Đang kinh doanh vì " + reason + ".");
+                                continue;
+                            }
+                        }
+                        try {
+                            dao.updateMaterialStatus(materialId, newStatus);
+                        } catch (Exception e) {
+                            errorMessages.add("Lỗi khi cập nhật vật tư ID: " + materialId + ", lỗi: " + e.getMessage());
+                        }
                     }
-                    dao.updateMultipleMaterialsStatus(ids, newStatus);
-                    response.sendRedirect("MaterialListServlet?actionStatus=deleteSuccess");
+                    if (errorMessages.isEmpty()) {
+                        response.sendRedirect("MaterialListServlet?actionStatus=deleteSuccess");
+                    } else {
+                        request.setAttribute("errorMessages", errorMessages);
+                        doGet(request, response);
+                    }
                 } catch (Exception e) {
-                    response.sendRedirect("MaterialListServlet?actionStatus=deleteError");
+                    errorMessages.add("Lỗi không xác định: " + e.getMessage());
+                    request.setAttribute("errorMessages", errorMessages);
+                    doGet(request, response);
                 }
             } else {
                 response.sendRedirect("MaterialListServlet");

@@ -58,21 +58,11 @@ body.sidebar-collapsed .main-content {
 }
 
 .btn-secondary {
-  background-color: #4b5563;
+  background-color: #6b7280;
   color: white;
-  border-radius: 6px;
-  padding: 10px 18px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: background-color 0.3s, box-shadow 0.3s;
 }
 .btn-secondary:hover {
-  background-color: #374151;
+  background-color: #4b5563;
 }
 
 .content-card {
@@ -93,16 +83,6 @@ body.sidebar-collapsed .main-content {
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
-  align-items: center;
-}
-
-.filter-row:first-child {
-  justify-content: space-between;
-}
-
-.filter-row:first-child .filter-group {
-  flex: 1;
-  max-width: 200px;
 }
 
 .filter-group {
@@ -153,18 +133,6 @@ body.sidebar-collapsed .main-content {
 .filter-group.search-group .btn {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
-  background-color: #4b5563;
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.filter-group.search-group .btn:hover {
-  background-color: #374151;
 }
 
 .alert {
@@ -250,8 +218,9 @@ body.sidebar-collapsed .main-content {
   color: #166534;
 }
 .status-inactive {
-  background-color: #fee2e2;
-  color: #991b1b;
+  background-color: #fde8e8;
+  color: #d32f2f;
+  font-weight: 600;
 }
 
 .action-buttons {
@@ -333,5 +302,5 @@ body.sidebar-collapsed .main-content {
 @media (max-width: 768px) {
   .action-buttons {
     flex-direction: column;
-  }
+}
 }

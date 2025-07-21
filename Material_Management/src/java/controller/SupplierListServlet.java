@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
 import java.util.Arrays;
+import dao.MaterialDAO;
 
 @WebServlet(name = "SupplierListServlet", urlPatterns = {"/suppliers"})
 public class SupplierListServlet extends HttpServlet {
@@ -530,6 +531,13 @@ public class SupplierListServlet extends HttpServlet {
 
             // Update supplier
             if (supplierDAO.updateSupplier(supplier)) {
+                // Cập nhật trạng thái vật tư theo trạng thái supplier và category
+                MaterialDAO materialDAO = new MaterialDAO();
+                try {
+                    materialDAO.updateMaterialsStatusBySupplier(supplierId, status);
+                } catch (Exception ex) {
+                    LOGGER.log(Level.SEVERE, "Lỗi khi cập nhật trạng thái vật tư theo supplier: {0}", ex.getMessage());
+                }
                 LOGGER.log(Level.INFO, "Cập nhật thành công supplier - ID: {0}", supplierId);
                 request.getSession().setAttribute("message", "Cập nhật nhà cung cấp thành công");
                 response.sendRedirect(request.getContextPath() + "/suppliers");

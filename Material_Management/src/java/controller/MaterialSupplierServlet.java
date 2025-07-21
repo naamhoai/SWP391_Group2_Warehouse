@@ -26,7 +26,7 @@ public class MaterialSupplierServlet extends HttpServlet {
         int supplierId = 0;
         try {
             if (supplierIdStr != null && !supplierIdStr.trim().isEmpty()) {
-                supplierId = Integer.parseInt(supplierIdStr);
+            supplierId = Integer.parseInt(supplierIdStr);
             }
         } catch (Exception e) {
             // Invalid supplier ID, keep as 0
@@ -69,7 +69,7 @@ public class MaterialSupplierServlet extends HttpServlet {
                 boolean matchesStatus = true;
                 
                 // Filter by keyword
-                if (keyword != null && !keyword.trim().isEmpty()) {
+            if (keyword != null && !keyword.trim().isEmpty()) {
                     if (ms.getMaterialName() == null || 
                         !ms.getMaterialName().toLowerCase().contains(keyword.toLowerCase())) {
                         matchesKeyword = false;
@@ -82,15 +82,15 @@ public class MaterialSupplierServlet extends HttpServlet {
                         // For now, assume all materials from active suppliers are available
                         // You can add actual material status logic here
                         matchesStatus = true;
-                    } else {
+            } else {
                         matchesStatus = true;
                     }
                 }
                 
                 if (matchesKeyword && matchesStatus) {
                     filtered.add(ms);
-                }
             }
+        }
         }
         
         // Calculate pagination

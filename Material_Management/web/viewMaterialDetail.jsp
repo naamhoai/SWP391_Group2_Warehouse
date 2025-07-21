@@ -70,8 +70,8 @@
                                 </div>
                                 <div class="info-item">
                                     <label>Trạng thái:</label>
-                                    <span class="value status-badge ${material.status eq 'active' ? 'status-active' : 'status-inactive'}">
-                                        ${material.status eq 'active' ? 'Đang kinh doanh' : 'Ngừng kinh doanh'}
+                                    <span class="value status-badge ${material.status eq 'active' and material.supplierStatus eq 'active' and not material.categoryHidden ? 'status-active' : 'status-inactive'}">
+                                        ${material.status eq 'active' and material.supplierStatus eq 'active' and not material.categoryHidden ? 'Đang kinh doanh' : 'Ngừng kinh doanh'}
                                     </span>
                                 </div>
                                 <div class="info-item info-item-full">

@@ -42,6 +42,15 @@
                     <h3>Vật tư sắp hết: <span style="color:red;font-weight:bold;">${lowStockItems}</span></h3>
                 </div>
             </c:if>
+            <c:if test="${not empty errorMessages}">
+                <div class="alert alert-danger">
+                    <ul>
+                        <c:forEach var="err" items="${errorMessages}">
+                            <li>${err}</li>
+                        </c:forEach>
+                    </ul>
+                </div>
+            </c:if>
 
             <div class="content-card">
                 <form method="get" action="MaterialListServlet" id="filterForm" class="filter-form">
@@ -82,7 +91,7 @@
                                 </c:forEach>
                             </select>
                         </div>
-                        <button type="submit" name="reset" value="true" class="btn btn-secondary">Đặt lại</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetFilters()">Đặt lại</button>
                     </div>
                     <div class="filter-row">
                         <div class="filter-group search-group">
@@ -116,14 +125,14 @@
                                     </c:when>
                                     <c:otherwise>
                                         <c:forEach items="${materials}" var="material" varStatus="status">
-                                            <tr class="${material.categoryHidden ? 'inactive-row' : ''}">
+                                            <tr>
                                                 <td><input type="checkbox" name="materialIds" value="${material.materialId}" class="material-checkbox"></td>
                                                 <td>#${material.materialId}</td>
                                                 <td>${material.name}</td>
                                                 <td>${material.categoryName}</td>
                                                 <td>${material.supplierName}</td>
                                                 <td>
-                                                    <c:set var="isActive" value="${material.supplierStatus == 'active' && !material.categoryHidden}" />
+                                                    <c:set var="isActive" value="${material.status == 'active' && material.supplierStatus == 'active' && !material.categoryHidden}" />
                                                     <span class="status-badge status-${isActive ? 'active' : 'inactive'}">
                                                         <c:choose>
                                                             <c:when test="${isActive}">
@@ -228,12 +237,15 @@
 
             function resetFilters() {
                 var form = document.getElementById('filterForm');
-                Array.from(form.elements).forEach(function(el) {
-                    if (el.tagName === 'SELECT' || el.tagName === 'INPUT') {
-                        if (el.type === 'text') el.value = '';
-                        if (el.tagName === 'SELECT') el.selectedIndex = 0;
-                    }
+                // Reset các select về option đầu tiên
+                var selects = form.querySelectorAll('select');
+                selects.forEach(function(select) {
+                    select.selectedIndex = 0;
                 });
+                // Reset input search
+                var searchInput = form.querySelector('input[name="search"]');
+                if (searchInput) searchInput.value = '';
+                // Submit lại form
                 form.submit();
             }
         </script>

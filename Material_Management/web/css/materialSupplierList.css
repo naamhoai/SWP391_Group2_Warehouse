@@ -222,7 +222,7 @@ tr:last-child td {
     border-color: #adb5bd !important;
 }
 
-.page-button.active { 
+.page-button.active {
     background: #0d6efd !important; 
     color: #fff !important; 
     border-color: #0d6efd !important;
@@ -235,7 +235,7 @@ tr:last-child td {
     border-color: #dee2e6 !important;
 }
 
-.pagination-info { 
+.pagination-info {
     color: #6c757d !important; 
     font-size: 14px !important; 
     font-weight: 500 !important;
@@ -317,7 +317,7 @@ tr:last-child td {
     .sidebar {
         width: 70px;
         border-radius: 0 12px 12px 0;
-    }
+}
     
     .menu-text,
     .fa-submenu-icon {
