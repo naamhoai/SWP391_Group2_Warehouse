@@ -9,13 +9,13 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     </head>
     <body>
-       <jsp:include page="sidebar.jsp"/>
+        <jsp:include page="sidebar.jsp"/>
         <div class="container">
             <div class="header">
                 <div class="header-content">
                     <h1 class="page-title">
                         <i class="fas fa-ruler"></i> Quản Lý Đơn Vị Tính
-                     
+
                     </h1>
                     <p class="subtitle">Danh mục các đơn vị đo lường trong hệ thống</p>
                 </div>
@@ -32,7 +32,7 @@
                 </div>
             </div>
 
-                        <h2 style="color: red">${requestScope.messUpdate}</h2>
+            <h2 style="color: red">${requestScope.messUpdate}</h2>
             <form action="unitConversionSeverlet" method="get">
                 <div class="search-section">
                     <div class="search-box">
@@ -44,7 +44,7 @@
                 </div>
             </form>
 
-            
+
             <div class="table-container">
                 <table class="units-table">
                     <thead>
@@ -55,19 +55,20 @@
                             <th>Trạng thái</th>
                             <th>Tỉ lệ quy đổi</th>
                             <th>Hành động</th>
+
                         </tr>
                     </thead>
                     <tbody>
                         <c:forEach var="u" items="${list}" varStatus="status">
-                                <tr>
-                               
+                            <tr>
+
                                 <td>${u.conversionid}</td>
                                 <td>${u.units.unit_name}</td>
                                 <td>${u.units.unit_namePr}</td>
                                 <td>${u.status}</td>
                                 <td>${u.conversionfactor}</td>
                                 <td>
-                                   
+
                                     <a href="unitConversionSeverlet?action=${u.status == 'Hoạt động' ? 'Không hoạt động' : 'Hoạt động'}&cvid=${u.conversionid}&SupplierUnitId=${u.supplierUnitId}&warehouseunitid=${u.warehouseunitid}" 
                                        class="btn-toggle" title="Đổi trạng thái">
 
@@ -91,16 +92,16 @@
                 </c:forEach>
             </div>
         </div>
-        
+
         <script>
-            
-            document.addEventListener('DOMContentLoaded', function() {
+
+            document.addEventListener('DOMContentLoaded', function () {
                 const statusCells = document.querySelectorAll('.units-table td:nth-child(4)');
-                statusCells.forEach(function(cell) {
+                statusCells.forEach(function (cell) {
                     const statusText = cell.textContent.trim();
                     if (statusText === 'Không hoạt động') {
                         cell.style.color = '#e53e3e';
-                      
+
                     } else if (statusText === 'Hoạt động') {
                         cell.style.color = '#38a169';
                     }

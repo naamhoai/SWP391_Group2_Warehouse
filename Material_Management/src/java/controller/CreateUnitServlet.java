@@ -83,7 +83,7 @@ public class CreateUnitServlet extends HttpServlet {
             throws ServletException, IOException {
         UnitConversionDao dao = new UnitConversionDao();
         UnitChangeHistory history = new UnitChangeHistory();
-        String unitName = request.getParameter("unitName");
+        String unitName = request.getParameter("unitName").trim();
         String unitDesc = request.getParameter("unitDesc");
         String baseUnitID = request.getParameter("baseUnitID");
         String ratio = request.getParameter("ratio");

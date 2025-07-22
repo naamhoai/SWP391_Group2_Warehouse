@@ -42,39 +42,36 @@ public class UnitConversionServlet extends HttpServlet {
         } catch (Exception ignored) {
         }
 
-        if (cvid != null && SupplierUnitId != null &&warehouseunitid !=null && action != null) {
-            
+        if (cvid != null && SupplierUnitId != null && warehouseunitid != null && action != null) {
+
             try {
 
                 int unitId = Integer.parseInt(cvid);
                 int SupplierUnitIds = Integer.parseInt(SupplierUnitId);
                 int warehouseunitids = Integer.parseInt(warehouseunitid);
                 int materialUnit = dao.getAllunitCount(SupplierUnitIds, warehouseunitids);
-                if (materialUnit == 0) {
-                    String oldStatus = dao.getOldStatus(unitId);
-                    if ("Hoạt động".equalsIgnoreCase(action) || "Không hoạt động".equalsIgnoreCase(action)) {
-                        dao.updateStUnit(action, unitId);
-                        request.setAttribute("messUpdate", "Trạng thái đã được cập nhật.");
 
-                        String unitName = dao.getUnitNameById(unitId);
-                        UnitChangeHistory history = new UnitChangeHistory();
-                        history.setUnitId(unitId);
-                        history.setUnitName(unitName);
-                        history.setActionType("Đổi trạng thái");
-                        history.setOldValue(oldStatus);
-                        history.setNewValue(action);
-                        history.setChangedBy(username);
-                        history.setRole(role);
-                        history.setNote(" Trạng thái từ '" + oldStatus + " -> " + action + "");
-                        history.setChangedAt(new Timestamp(System.currentTimeMillis()));
+                String oldStatus = dao.getOldStatus(unitId);
+                if ("Hoạt động".equalsIgnoreCase(action) || "Không hoạt động".equalsIgnoreCase(action)) {
+                    dao.updateStUnit(action, unitId);
+                    request.setAttribute("messUpdate", "Trạng thái đã được cập nhật.");
 
-                        dao.insertHistory(history);
+                    String unitName = dao.getUnitNameById(unitId);
+                    UnitChangeHistory history = new UnitChangeHistory();
+                    history.setUnitId(unitId);
+                    history.setUnitName(unitName);
+                    history.setActionType("Đổi trạng thái");
+                    history.setOldValue(oldStatus);
+                    history.setNewValue(action);
+                    history.setChangedBy(username);
+                    history.setRole(role);
+                    history.setNote(" Trạng thái từ '" + oldStatus + " -> " + action + "");
+                    history.setChangedAt(new Timestamp(System.currentTimeMillis()));
 
-                    }
+                    dao.insertHistory(history);
 
-                }else{
-                    request.setAttribute("messUpdate", "không được thay đổi trạng thái, đơn vị vẫn đc sử dụng!");
                 }
+
             } catch (NumberFormatException e) {
                 request.setAttribute("error", "ID không hợp lệ.");
             } catch (SQLException ex) {

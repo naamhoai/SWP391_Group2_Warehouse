@@ -126,12 +126,25 @@
                             </a>
                         </c:if>
 
-                        <c:forEach var="i" begin="1" end="${totalPages}">
+                        <%-- Tính toán beginPage và endPage để chỉ hiển thị tối đa 5 nút trang --%>
+                        <c:set var="beginPage" value="${currentPage - 2 > 0 ? currentPage - 2 : 1}" />
+                        <c:set var="endPage" value="${beginPage + 4 <= totalPages ? beginPage + 4 : totalPages}" />
+                        <c:if test="${endPage - beginPage < 4}">
+                            <c:set var="beginPage" value="${endPage - 4 > 0 ? endPage - 4 : 1}" />
+                        </c:if>
+
+                        <c:if test="${beginPage > 1}">
+                            <span style="padding: 0 8px;">...</span>
+                        </c:if>
+                        <c:forEach var="i" begin="${beginPage}" end="${endPage}">
                             <a href="UnitChangeHistoryServlet?page=${i}&search=${param.search}&actionType=${param.actionType}&role=${param.role}&date=${param.date}"
                                class="btn-page ${i == currentPage ? 'active' : ''}">
                                 ${i}
                             </a>
                         </c:forEach>
+                        <c:if test="${endPage < totalPages}">
+                            <span style="padding: 0 8px;">...</span>
+                        </c:if>
 
                         <c:if test="${currentPage < totalPages}">
                             <a class="btn-page" href="UnitChangeHistoryServlet?page=${currentPage + 1}&search=${param.search}&actionType=${param.actionType}&role=${param.role}&date=${param.date}">
@@ -146,30 +159,10 @@
                 </div>
         </div>
 
-        <!-- Modal chi tiết -->
-        <!--    <div id="detailModal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>Chi tiết thay đổi đơn vị tính</h3>
-                        <button class="btn-close" onclick="dongModal()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="modal-body" id="modalContent">
-                         Nội dung chi tiết sẽ được JavaScript tạo 
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn-secondary" onclick="dongModal()">Đóng</button>
-                    </div>
-                </div>
-            </div>-->
+        
 
         <script>
-            // Các hàm JavaScript cơ bản
-            function apDungBoLoc() {
-                // Xử lý lọc dữ liệu
-                console.log('Áp dụng bộ lọc');
-            }
+         
 
             function lamMoiBoLoc() {
              
@@ -177,7 +170,7 @@
                 document.getElementById('operationFilter').value = '';
                 document.getElementById('userFilter').value = '';
                 document.getElementById('dateFilter').value = '';
-                 document.getElementById('filterForm').submit();
+                document.getElementById('filterForm').submit();
             }
 
             function chuyenTrang(huong) {
@@ -185,11 +178,7 @@
                 console.log('Chuyển trang:', huong);
             }
 
-            function xemChiTiet(id) {
-                // Hiển thị modal chi tiết
-                document.getElementById('detailModal').style.display = 'block';
-            }
-
+           
             function dongModal() {
                 // Đóng modal
                 document.getElementById('detailModal').style.display = 'none';
