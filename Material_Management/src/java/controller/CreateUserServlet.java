@@ -46,7 +46,6 @@ public class CreateUserServlet extends HttpServlet {
         String status = request.getParameter("status");
         String priorityStr = request.getParameter("priority");
         String gender = request.getParameter("gender");
-        String dayofbirth = request.getParameter("dayofbirth");
         String description = request.getParameter("description");
         String email = request.getParameter("email");
 
@@ -55,7 +54,6 @@ public class CreateUserServlet extends HttpServlet {
         request.setAttribute("status", status);
         request.setAttribute("priority", priorityStr);
         request.setAttribute("gender", gender);
-        request.setAttribute("dayofbirth", dayofbirth);
         request.setAttribute("description", description);
         request.setAttribute("email", email);
         request.setAttribute("roleId", roleIdStr);
@@ -98,36 +96,6 @@ public class CreateUserServlet extends HttpServlet {
         int roleId = Integer.parseInt(roleIdStr);
         if (gender == null || gender.trim().isEmpty()) {
             request.setAttribute("error", "Giới tính là bắt buộc.");
-            doGet(request, response);
-            return;
-        }
-        if (dayofbirth == null || dayofbirth.trim().isEmpty()) {
-            request.setAttribute("error", "Ngày sinh không được để trống.");
-            doGet(request, response);
-            return;
-        }
-        try {
-            LocalDate dob = LocalDate.parse(dayofbirth);
-            LocalDate today = LocalDate.now();
-            LocalDate minDate = today.minusYears(120);
-            LocalDate mustBeAtLeast = today.minusYears(18);
-            if (dob.isAfter(today)) {
-                request.setAttribute("error", "Ngày sinh không được lớn hơn ngày hiện tại.");
-                doGet(request, response);
-                return;
-            }
-            if (dob.isBefore(minDate)) {
-                request.setAttribute("error", "Ngày sinh không hợp lệ. Tuổi không được vượt quá 120.");
-                doGet(request, response);
-                return;
-            }
-            if (dob.isAfter(mustBeAtLeast)) {
-                request.setAttribute("error", "Người dùng phải đủ 18 tuổi trở lên.");
-                doGet(request, response);
-                return;
-            }
-        } catch (DateTimeParseException e) {
-            request.setAttribute("error", "Ngày sinh không hợp lệ.");
             doGet(request, response);
             return;
         }
@@ -181,7 +149,6 @@ public class CreateUserServlet extends HttpServlet {
         newUser.setStatus(status);
         newUser.setImage(imagePath);
         newUser.setGender(gender);
-        newUser.setDayofbirth(dayofbirth);
 
         boolean success = userDAO.insertUser(newUser);
 

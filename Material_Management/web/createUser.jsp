@@ -58,20 +58,16 @@
                                 <div class="error-message" id="genderError"></div>
                             </div>
                             <div class="column">
-                                <label for="dayofbirth">Ngày sinh: <span class="required">*</span></label>
-                                <input type="date" id="dayofbirth" name="dayofbirth" value="${dayofbirth}" />
-                            <div class="error-message" id="dayofbirthError"></div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="column">
-                            <label for="phone">Số điện thoại:</label>
-                            <input type="tel" id="phone" name="phone" value="${fn:escapeXml(phone)}" placeholder="VD: 0123456789" 
+                                <label for="phone">Số điện thoại:</label>
+                                <input type="tel" id="phone" name="phone" value="${fn:escapeXml(phone)}" placeholder="VD: 0123456789" 
                                    pattern="[0-9]+" 
                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
                                    maxlength="11" />
                             <div class="error-message" id="phoneError"></div>
                         </div>
+                    </div>
+                    <div class="row">
+
                         <div class="column">
                             <label for="email">Email: <span class="required">*</span></label>
                             <input type="email" id="email" name="email" value="${fn:escapeXml(email)}" readonly />
@@ -80,8 +76,6 @@
                             </div>
                             <div class="error-message" id="emailError"></div>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="column">
                             <label class="status-label">Trạng thái:</label>
                             <div class="status-group">
@@ -89,6 +83,9 @@
                                 <label><input type="radio" name="status" value="Không hoạt động" /> Không hoạt động</label>
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
+
                         <div class="column">
                             <label for="roleId">Vai trò: <span class="required">*</span></label>
                             <select id="roleId" name="roleId">
@@ -108,7 +105,6 @@
             </div>
         </div>
         <script src="js/sidebar.js"></script>
-        <script src="${pageContext.request.contextPath}/js/updateUserProfile.js"></script>
         <script src="${pageContext.request.contextPath}/js/createUser.js"></script>
     </body>
 </html>

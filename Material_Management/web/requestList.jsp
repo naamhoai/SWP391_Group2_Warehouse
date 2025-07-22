@@ -53,7 +53,9 @@
                                 <input type="date" class="filter-input" name="endDate" id="endDateInput" value="${param.endDate}" max="">
                             </div>
                             <div class="filter-col filter-col-actions">
-                                <button type="submit" class="btn-primary" id="btnFilter"><i class="fas fa-filter"></i> Lọc</button>
+
+                                <button type="submit" class="btn-primary btn-sm" id="btnFilter"> Tìm</button>
+                                <button type="button" class="btn-secondary btn-sm" id="btnReset"><i class="fas fa-undo"></i> Đặt lại</button>
                             </div>
                         </div>
                     </form>
@@ -74,7 +76,7 @@
                                 <th>Trạng thái</th>
                                 <th>Lý do</th>
                                 <th>Ghi chú</th>
-                                <th>Thao tác</th>
+                                <th>Hành động</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -206,6 +208,12 @@
                 </div>
                 <script src="js/requestForm.js"></script>
                 <script src="js/requestList.js"></script>
+                <script>
+                                    document.getElementById('btnReset').addEventListener('click', function () {
+                                        const baseUrl = window.location.pathname;
+                                        window.location.href = baseUrl;
+                                    });
+                </script>
             </div>
         </div>
     </div>

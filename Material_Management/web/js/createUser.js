@@ -1,58 +1,66 @@
 document.addEventListener("DOMContentLoaded", function () {
+    console.log("[LOG] DOMContentLoaded - JS loaded");
     const form = document.getElementById("createUserForm");
-    document.getElementById("fullName").addEventListener("input", validateFullName);
-    document.getElementById("password").addEventListener("input", validatePassword);
-    document.getElementById("phone").addEventListener("input", validatePhone);
-    document.getElementById("dayofbirth").addEventListener("change", validateDayOfBirth);
-    document.getElementById("gender").addEventListener("change", validateGender);
-    document.getElementById("imageFile").addEventListener("change", previewAvatar);
+    var fullNameInput = document.getElementById("fullName");
+    if (fullNameInput) fullNameInput.addEventListener("input", validateFullName);
 
-    // Thêm event listener để chỉ cho phép nhập số cho phone
-    document.getElementById("phone").addEventListener("input", function() {
-        // Chỉ cho phép nhập số
-        this.value = this.value.replace(/[^0-9]/g, '');
-    });
+    var passwordInput = document.getElementById("password");
+    if (passwordInput) passwordInput.addEventListener("input", validatePassword);
+
+    var phoneInput = document.getElementById("phone");
+    if (phoneInput) {
+        phoneInput.addEventListener("input", validatePhone);
+        phoneInput.addEventListener("input", function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    }
+
+    var genderInput = document.getElementById("gender");
+    if (genderInput) genderInput.addEventListener("change", validateGender);
+
+    var imageFileInput = document.getElementById("imageFile");
+    if (imageFileInput) imageFileInput.addEventListener("change", previewAvatar);
 
     updateCharCount();
 
-    form.addEventListener("submit", function (event) {
-        let isValid = true;
-        document.querySelectorAll(".error-message").forEach(el => el.textContent = "");
-        if (!validateFullName())
-            isValid = false;
-        if (!validatePassword())
-            isValid = false;
-        if (!validatePhone())
-            isValid = false;
-        if (!validateGender())
-            isValid = false;
-        if (!validateDayOfBirth())
-            isValid = false;
-        const roleId = document.getElementById("roleId").value;
-        const roleIdError = document.getElementById("roleIdError");
-        roleIdError.textContent = "";
-        if (!roleId) {
-            roleIdError.textContent = "Vai trò là bắt buộc.";
-            isValid = false;
-        }
-        
-        const imageFile = document.getElementById("imageFile").files[0];
-        const imageError = document.getElementById("imageError");
-        imageError.textContent = "";
-        if (imageFile) {
-            if (!imageFile.type.startsWith('image/')) {
-                imageError.textContent = "Vui lòng chọn file ảnh hợp lệ.";
+    if (form) {
+        form.addEventListener("submit", function (event) {
+            let isValid = true;
+            document.querySelectorAll(".error-message").forEach(el => el.textContent = "");
+            if (!validateFullName())
                 isValid = false;
-            } else if (imageFile.size > 5 * 1024 * 1024) {
-                imageError.textContent = "Kích thước file không được vượt quá 5MB.";
+            if (!validatePassword())
+                isValid = false;
+            if (!validatePhone())
+                isValid = false;
+            if (!validateGender())
+                isValid = false;
+            const roleId = document.getElementById("roleId").value;
+            const roleIdError = document.getElementById("roleIdError");
+            roleIdError.textContent = "";
+            if (!roleId) {
+                roleIdError.textContent = "Vai trò là bắt buộc.";
                 isValid = false;
             }
-        }
+            
+            const imageFile = document.getElementById("imageFile").files[0];
+            const imageError = document.getElementById("imageError");
+            imageError.textContent = "";
+            if (imageFile) {
+                if (!imageFile.type.startsWith('image/')) {
+                    imageError.textContent = "Vui lòng chọn file ảnh hợp lệ.";
+                    isValid = false;
+                } else if (imageFile.size > 5 * 1024 * 1024) {
+                    imageError.textContent = "Kích thước file không được vượt quá 5MB.";
+                    isValid = false;
+                }
+            }
 
-        if (!isValid) {
-            event.preventDefault();
-        }
-    });
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+    }
 });
 
 function validateFullName() {
@@ -124,44 +132,6 @@ function validatePhone() {
     return true;
 }
 
-function validateDayOfBirth() {
-    const dayofbirth = document.getElementById("dayofbirth").value;
-    const errorEl = document.getElementById("dayofbirthError");
-    errorEl.textContent = "";
-
-    if (!dayofbirth) {
-        errorEl.textContent = "Ngày sinh không được để trống.";
-        return false;
-    }
-
-    const dob = new Date(dayofbirth);
-    const today = new Date();
-    const minDate = new Date();
-    minDate.setFullYear(today.getFullYear() - 120);
-
-    if (dob > today) {
-        errorEl.textContent = "Ngày sinh không được lớn hơn ngày hiện tại.";
-        return false;
-    }
-
-    if (dob < minDate) {
-        errorEl.textContent = "Tuổi không được vượt quá 120.";
-        return false;
-    }
-
-    const age = today.getFullYear() - dob.getFullYear();
-    const m = today.getMonth() - dob.getMonth();
-    const d = today.getDate() - dob.getDate();
-    const isUnder18 = (age < 18) || (age === 18 && (m < 0 || (m === 0 && d < 0)));
-
-    if (isUnder18) {
-        errorEl.textContent = "Người dùng phải đủ 18 tuổi trở lên.";
-        return false;
-    }
-
-    return true;
-}
-
 function validateGender() {
     const gender = document.getElementById("gender").value;
     const errorEl = document.getElementById("genderError");
@@ -174,11 +144,13 @@ function validateGender() {
 }
 
 function previewAvatar(event) {
+    console.log("[LOG] previewAvatar triggered", event);
     const [file] = event.target.files;
     const errorEl = document.getElementById("imageError");
     errorEl.textContent = "";
 
     if (file) {
+        console.log("[LOG] File selected:", file);
         if (!file.type.startsWith('image/')) {
             errorEl.textContent = "Vui lòng chọn file ảnh hợp lệ.";
             return;
@@ -192,10 +164,12 @@ function previewAvatar(event) {
         const preview = document.getElementById('avatarPreview');
         preview.src = URL.createObjectURL(file);
         preview.style.display = 'block';
+        console.log("[LOG] Preview src set:", preview.src);
     } else {
         const preview = document.getElementById('avatarPreview');
         preview.style.display = 'none';
         preview.src = '#';
+        console.log("[LOG] No file selected, hide preview");
     }
 }
 
@@ -237,15 +211,6 @@ function generateEmail() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    const description = document.getElementById('description');
-    const charCount = document.getElementById('charCount');
-
-    description.addEventListener('input', function () {
-        charCount.textContent = this.value.length;
-    });
-
-    charCount.textContent = description.value.length;
-
     const fullName = document.getElementById('fullName').value.trim();
     if (fullName.length >= 2) {
         generateEmail();

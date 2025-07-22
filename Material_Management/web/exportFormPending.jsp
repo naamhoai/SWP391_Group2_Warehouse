@@ -20,7 +20,7 @@
                 <!-- PHẦN 1: HEADER -->
                 <div class="dashboard-header">
                     <div class="header-left">
-                        <h2>Danh sách phiếu xuất kho</h2>
+                        <h2>Danh sách phiếu chờ xuất kho</h2>
                     </div>
                     <div class="header-actions">
                         <a href="exportFormHistory" class="btn-add"><i class="fas fa-history"></i> Lịch sử xuất kho</a>
@@ -43,7 +43,9 @@
                             <input type="date" class="filter-input" id="endDateInput" name="endDate" value="${param.endDate}">
                         </div>
                         <div class="filter-col filter-col-actions">
-                            <button type="submit" class="btn-primary" id="btnFilter"><i class="fas fa-filter"></i> Lọc</button>
+
+                            <button type="submit" class="btn-primary btn-sm" id="btnFilter"> Tìm</button>
+                            <button type="button" class="btn-secondary btn-sm" id="btnReset"><i class="fas fa-undo"></i> Đặt lại</button>
                         </div>
                     </div>
                 </form>
@@ -88,7 +90,7 @@
                             </th>
                             <th class="note-col">Lý do</th>
                             <th class="nowrap-col">Địa chỉ giao</th>
-                            <th class="project-col">Chi tiết</th>
+                            <th class="project-col">Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -164,6 +166,12 @@
                     </c:if>
                 </div>
                 <script src="js/requestList.js"></script>
+                <script>
+                    document.getElementById('btnReset').addEventListener('click', function () {
+                        const baseUrl = window.location.pathname;
+                        window.location.href = baseUrl;
+                    });
+                </script>
             </div>
         </div>
     </body>

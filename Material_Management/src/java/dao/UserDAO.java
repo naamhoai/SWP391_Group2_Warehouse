@@ -27,8 +27,8 @@ public class UserDAO {
 
     public boolean insertUser(User user) {
         String sql = "INSERT INTO users "
-                + "(full_name, email, password, phone, role_id, status, image, gender, dayofbirth) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + "(full_name, email, password, phone, role_id, status, image, gender) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getFullname());
             ps.setString(2, user.getEmail());
@@ -42,7 +42,6 @@ public class UserDAO {
             ps.setString(6, user.getStatus());
             ps.setString(7, user.getImage());
             ps.setString(8, user.getGender());
-            ps.setString(9, user.getDayofbirth());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -51,7 +50,7 @@ public class UserDAO {
     }
 
     public boolean updateUser(User user) {
-        String sql = "UPDATE users SET full_name=?, email=?, password=?, phone=?, role_id=?, status=?, image=?, gender=?, dayofbirth=? WHERE user_id=?";
+        String sql = "UPDATE users SET full_name=?, email=?, password=?, phone=?, role_id=?, status=?, image=?, gender=? WHERE user_id=?";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getFullname());
             ps.setString(2, user.getEmail());
@@ -65,8 +64,7 @@ public class UserDAO {
             ps.setString(6, user.getStatus());
             ps.setString(7, user.getImage());
             ps.setString(8, user.getGender());
-            ps.setString(9, user.getDayofbirth());
-            ps.setInt(10, user.getUser_id());
+            ps.setInt(9, user.getUser_id());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -75,7 +73,7 @@ public class UserDAO {
     }
 
     public User getUserById(int userId) {
-        String sql = "SELECT u.user_id, u.full_name, u.email, u.password, u.phone, u.role_id, r.role_name, u.status, u.image, u.gender, u.dayofbirth "
+        String sql = "SELECT u.user_id, u.full_name, u.email, u.password, u.phone, u.role_id, r.role_name, u.status, u.image, u.gender "
                 + "FROM users u "
                 + "INNER JOIN roles r ON u.role_id = r.role_id "
                 + "WHERE u.user_id = ?";
@@ -96,7 +94,6 @@ public class UserDAO {
                     user.setStatus(rs.getString("status"));
                     user.setImage(rs.getString("image"));
                     user.setGender(rs.getString("gender"));
-                    user.setDayofbirth(rs.getString("dayofbirth"));
                     return user;
                 }
             }

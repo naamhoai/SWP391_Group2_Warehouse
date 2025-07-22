@@ -474,6 +474,23 @@ body {
     background: #f4f6f8;
 }
 
+.header-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    padding: 24px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+.header-card h2 {
+    margin: 0;
+    color: #223254;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
 @media (max-width: 767px) {
     .sidebar {
         display: none !important;

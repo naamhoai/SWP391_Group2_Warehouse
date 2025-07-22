@@ -20,10 +20,11 @@
         <div class="main-content">
             <div class="container request-history-detail-container">
 
-                <div class="page-header">
+                <div class="header-card">
                     <h1><i class="fas fa-file-alt"></i> Chi tiết yêu cầu vật tư</h1>
 
                 </div>
+                
 
                 <c:if test="${history != null}">
                     <div class="history-info">
@@ -124,13 +125,13 @@
                         </c:if>
                     </div>
                 </c:if>
-            
-            <a href="javascript:history.back()" class="btn-back">
-                <i class="fas fa-arrow-left"></i> Quay lại
-            </a>
+
+                <a href="javascript:history.back()" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Quay lại
+                </a>
+
+            </div>
 
         </div>
-
-    </div>
-</body>
+    </body>
 </html> 

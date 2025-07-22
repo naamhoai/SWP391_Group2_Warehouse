@@ -9,9 +9,9 @@
         <link rel="stylesheet" href="css/requestList.css">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
         <link rel="stylesheet" href="css/sidebar.css">
-        
+
         <!-- XÓA style nội bộ cũ liên quan request-table -->
-        
+
     </head>
     <body>
         <div class="main-layout">
@@ -54,7 +54,9 @@
                                 <input type="date" class="filter-input" name="endDate" id="endDateInput" value="${param.endDate}" max="">
                             </div>
                             <div class="filter-col filter-col-actions">
-                                <button type="submit" class="btn-primary" id="btnFilter"><i class="fas fa-filter"></i> Lọc</button>
+
+                                <button type="submit" class="btn-primary btn-sm" id="btnFilter"> Tìm</button>
+                                <button type="button" class="btn-secondary btn-sm" id="btnReset"><i class="fas fa-undo"></i> Đặt lại</button>
                             </div>
                         </div>
                         <c:if test="${not empty param.requestId}">
@@ -175,8 +177,8 @@
                                     </c:forEach>
                                     <c:if test="${totalPages > 4}">
                                         <li class="pagination-item disabled"><span class="pagination-link">...</span></li>
-                                    </c:if>
-                                    <c:if test="${totalPages > 3}">
+                                        </c:if>
+                                        <c:if test="${totalPages > 3}">
                                         <li class="pagination-item ${currentPage == totalPages ? 'active' : ''}">
                                             <a class="pagination-link" href="${pageUrl.concat('&page=').concat(totalPages)}">${totalPages}</a>
                                         </li>
@@ -188,12 +190,12 @@
                                     </li>
                                     <c:if test="${totalPages > 4}">
                                         <li class="pagination-item disabled"><span class="pagination-link">...</span></li>
-                                    </c:if>
-                                    <c:set var="beginPage" value="${totalPages - 2}" />
-                                    <c:if test="${beginPage < 2}">
-                                        <c:set var="beginPage" value="2" />
-                                    </c:if>
-                                    <c:forEach var="i" begin="${beginPage}" end="${totalPages}">
+                                        </c:if>
+                                        <c:set var="beginPage" value="${totalPages - 2}" />
+                                        <c:if test="${beginPage < 2}">
+                                            <c:set var="beginPage" value="2" />
+                                        </c:if>
+                                        <c:forEach var="i" begin="${beginPage}" end="${totalPages}">
                                         <li class="pagination-item ${currentPage == i ? 'active' : ''}">
                                             <a class="pagination-link" href="${pageUrl.concat('&page=').concat(i)}">${i}</a>
                                         </li>
@@ -212,7 +214,7 @@
                                             <a class="pagination-link" href="${pageUrl.concat('&page=').concat(currentPage + 1)}">${currentPage + 1}</a>
                                         </li>
                                         <li class="pagination-item disabled"><span class="pagination-link">...</span></li>
-                                    </c:if>
+                                        </c:if>
                                     <li class="pagination-item ${currentPage == totalPages ? 'active' : ''}">
                                         <a class="pagination-link" href="${pageUrl.concat('&page=').concat(totalPages)}">${totalPages}</a>
                                     </li>
@@ -228,5 +230,11 @@
         </div>
         <script src="js/requestForm.js"></script>
         <script src="js/requestList.js"></script>
+        <script>
+                                    document.getElementById('btnReset').addEventListener('click', function () {
+                                        const baseUrl = window.location.pathname;
+                                        window.location.href = baseUrl;
+                                    });
+        </script>
     </body>
 </html>

@@ -63,7 +63,7 @@
 
                                     <div class="column">
                                         <label for="phone">Số điện thoại:</label>
-                                        <input type="tel" id="phone" name="phone" value="${fn:escapeXml(phone)}" placeholder="VD: 0123456789" 
+                                        <input type="tel" id="phone" name="phone" value="${user.phone}" placeholder="VD: 0123456789" 
                                                pattern="[0-9]+" 
                                                oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
                                                maxlength="11" />
@@ -80,29 +80,20 @@
                                 </div>
 
                                 <div class="row">
-
                                     <div class="column">
-                                        <label for="dayofbirth">Ngày sinh:</label>
-                                        <input type="date" id="dayofbirth" name="dayofbirth" value="${user.dayofbirth}" />
+                                        <label for="status">Trạng thái:</label>
+                                        <input type="text" id="status" name="status" value="${user.status}" readonly />
                                     </div>
+
                                     <div class="column">
                                         <label for="role_name">Vai trò:</label>
                                         <input type="text" id="role_name" name="role_name" value="${user.role.rolename}" readonly />
                                     </div>
                                 </div>
 
-                                <div class="row">
-
-                                    <div class="column">
-                                        <label for="status">Trạng thái:</label>
-                                        <input type="text" id="status" name="status" value="${user.status}" readonly />
-                                    </div>
-                                </div>
-
-
                                 <div class="buttons">
 
-                                    <a href="${pageContext.request.contextPath}/UserDetailServlet" class="btn-back"></i> Huỷ</a>
+                                    <a href="${pageContext.request.contextPath}/UserDetailServlet" class="btn-back"> Huỷ</a>
                                     <button type="submit" class="btn save-btn">Lưu</button>
                                 </div>
 
@@ -114,47 +105,6 @@
         </div>
         <script src="${pageContext.request.contextPath}/js/sidebar.js"></script>
         <script src="${pageContext.request.contextPath}/js/updateUserProfile.js"></script>
-        <script>
-        // Validate số điện thoại
-        document.getElementById('phone').addEventListener('input', function() {
-            const phone = this.value;
-            const phoneError = document.getElementById('phoneError');
-            
-            // Chỉ cho phép nhập số
-            this.value = phone.replace(/[^0-9]/g, '');
-            
-            // Kiểm tra độ dài và format
-            if (this.value.length > 0) {
-                if (this.value.length < 10) {
-                    phoneError.textContent = 'Số điện thoại phải có ít nhất 10 chữ số';
-                    phoneError.style.display = 'block';
-                } else if (this.value.length > 11) {
-                    phoneError.textContent = 'Số điện thoại không được quá 11 chữ số';
-                    phoneError.style.display = 'block';
-                } else if (!/^0[0-9]{9,10}$/.test(this.value)) {
-                    phoneError.textContent = 'Số điện thoại phải bắt đầu bằng số 0';
-                    phoneError.style.display = 'block';
-                } else {
-                    phoneError.style.display = 'none';
-                }
-            } else {
-                phoneError.style.display = 'none';
-            }
-        });
-
-        // Validate form trước khi submit
-        document.getElementById('updateForm').addEventListener('submit', function(e) {
-            const phone = document.getElementById('phone').value;
-            const phoneError = document.getElementById('phoneError');
-            
-            if (phone.length > 0 && (phone.length < 10 || phone.length > 11 || !/^0[0-9]{9,10}$/.test(phone))) {
-                e.preventDefault();
-                phoneError.textContent = 'Vui lòng nhập số điện thoại hợp lệ';
-                phoneError.style.display = 'block';
-                return false;
-            }
-        });
-    </script>
     </body>
 </html>
 

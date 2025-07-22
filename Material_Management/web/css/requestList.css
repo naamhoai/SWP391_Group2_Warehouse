@@ -46,7 +46,7 @@ body {
     font-weight: 700;
 }
 
-/* Filter */
+/* FILTER FORM - PHẦN LỌC */
 .filter-form {
     background: #fff;
     border-radius: 10px;
@@ -54,23 +54,32 @@ body {
     padding: 20px 32px;
     margin-bottom: 24px;
 }
+
 .filter-row {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: flex-end;
     gap: 18px;
     margin-bottom: 0;
-    justify-content: center;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
 }
+
 .filter-col {
-    flex: 1 1 210px;
+    flex: 1 1 180px;
+    min-width: 160px;
     display: flex;
     flex-direction: column;
+    gap: 6px;
 }
+
 .filter-label {
     font-weight: 600;
-    margin-bottom: 6px;
     color: #263238;
+    margin-bottom: 2px;
+    font-size: 15px;
 }
+
 .filter-input, .filter-select {
     padding: 8px 12px;
     border: 1.5px solid #bdbdbd;
@@ -79,32 +88,65 @@ body {
     background: #fafbfc;
     transition: border 0.2s, box-shadow 0.2s;
 }
+
 .filter-input:focus, .filter-select:focus {
     border-color: #1976d2;
     outline: none;
     box-shadow: 0 0 0 2px #1976d220;
     background: #fff;
 }
-.btn-primary {
-    min-width: 110px;
-    padding: 10px 0;
-    font-size: 16px;
+
+.filter-col.filter-col-actions {
+    flex: 0 0 auto;
     display: flex;
-    justify-content: center;
+    flex-direction: row !important;
+    align-items: flex-end;
     gap: 8px;
-    width: auto;
-    margin-top: 22px;
+    min-width: 0;
+    margin-top: 0;
+}
+
+.btn-primary.btn-sm {
     background: linear-gradient(90deg, #1976d2, #42a5f5);
     color: #fff;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-weight: 600;
     box-shadow: 0 2px 8px #1976d220;
     cursor: pointer;
-    transition: background 0.2s;
+    padding: 0 26px;
+    height: 40px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s, box-shadow 0.2s;
 }
-.btn-primary:hover {
+.btn-primary.btn-sm:hover {
     background: linear-gradient(90deg, #1565c0, #1976d2);
+    box-shadow: 0 4px 12px #1976d220;
+}
+
+.btn-secondary.btn-sm {
+    background: #fff;
+    color: #1976d2;
+    border: 2px solid #bdbdbd;
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 0 22px;
+    height: 40px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 8px #1976d220;
+    cursor: pointer;
+    transition: border 0.2s, color 0.2s, background 0.2s;
+}
+.btn-secondary.btn-sm:hover {
+    border-color: #1976d2;
+    color: #1565c0;
+    background: #f5faff;
 }
 
 /* Table */

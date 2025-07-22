@@ -1,75 +1,81 @@
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.querySelector("form");
     
-    // Thêm event listeners cho các trường cần validate
-    document.getElementById("fullname").addEventListener("input", validateFullName);
-    document.getElementById("phone").addEventListener("input", validatePhone);
-    document.getElementById("dayofbirth").addEventListener("change", validateDayOfBirth);
-    document.getElementById("gender").addEventListener("change", validateGender);
-    
-    // Thêm event listener cho input file để xem trước ảnh
-    document.getElementById("imageFile").addEventListener("change", previewAvatar);
+    var fullnameInput = document.getElementById("fullname");
+    if (fullnameInput) fullnameInput.addEventListener("input", validateFullName);
 
-    form.addEventListener("submit", function (event) {
-        let isValid = true;
-        
-        // Xóa tất cả thông báo lỗi cũ
-        document.querySelectorAll(".error-message").forEach(el => el.textContent = "");
-        
-        // Validate các trường
-        if (!validateFullName())
-            isValid = false;
-        if (!validatePhone())
-            isValid = false;
-        if (!validateGender())
-            isValid = false;
-        if (!validateDayOfBirth())
-            isValid = false;
-        
-        // Validation cho file ảnh
-        const imageFile = document.getElementById("imageFile").files[0];
-        if (imageFile) {
-            if (!imageFile.type.startsWith('image/')) {
-                showError("imageFile", "Vui lòng chọn file ảnh hợp lệ.");
+    var phoneInput = document.getElementById("phone");
+    if (phoneInput) phoneInput.addEventListener("input", validatePhone);
+
+    var dayofbirthInput = document.getElementById("dayofbirth");
+    if (dayofbirthInput) dayofbirthInput.addEventListener("change", validateDayOfBirth);
+
+    var genderInput = document.getElementById("gender");
+    if (genderInput) genderInput.addEventListener("change", validateGender);
+
+    var imageFileInput = document.getElementById("imageFile");
+    if (imageFileInput) imageFileInput.addEventListener("change", previewAvatar);
+
+    if (form) {
+        form.addEventListener("submit", function (event) {
+            let isValid = true;
+            document.querySelectorAll(".error-message").forEach(el => el.textContent = "");
+            if (fullnameInput && !validateFullName())
                 isValid = false;
-            } else if (imageFile.size > 5 * 1024 * 1024) {
-                showError("imageFile", "Kích thước file không được vượt quá 5MB.");
+            if (phoneInput && !validatePhone())
                 isValid = false;
+            if (genderInput && !validateGender())
+                isValid = false;
+            if (dayofbirthInput && !validateDayOfBirth())
+                isValid = false;
+            const imageFile = imageFileInput ? imageFileInput.files[0] : null;
+            if (imageFile) {
+                if (!imageFile.type.startsWith('image/')) {
+                    showError("imageFile", "Vui lòng chọn file ảnh hợp lệ.");
+                    isValid = false;
+                } else if (imageFile.size > 5 * 1024 * 1024) {
+                    showError("imageFile", "Kích thước file không được vượt quá 5MB.");
+                    isValid = false;
+                }
             }
-        }
-        
-        if (!isValid) {
-            event.preventDefault();
-        }
-    });
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+    }
 });
 
 function showError(fieldId, message) {
     const field = document.getElementById(fieldId);
-    let errorDiv = field.parentNode.querySelector('.error-message');
-    if (!errorDiv) {
+    let errorDiv = field && field.parentNode ? field.parentNode.querySelector('.error-message') : null;
+    if (!errorDiv && field && field.parentNode) {
         errorDiv = document.createElement('div');
         errorDiv.className = 'error-message';
         field.parentNode.appendChild(errorDiv);
     }
-    errorDiv.textContent = message;
-    errorDiv.style.color = 'red';
-    errorDiv.style.fontSize = '12px';
-    errorDiv.style.marginTop = '5px';
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.color = 'red';
+        errorDiv.style.fontSize = '12px';
+        errorDiv.style.marginTop = '5px';
+    }
 }
 
 function hideError(fieldId) {
     const field = document.getElementById(fieldId);
-    let errorDiv = field.parentNode.querySelector('.error-message');
+    let errorDiv = field && field.parentNode ? field.parentNode.querySelector('.error-message') : null;
     if (errorDiv) {
         errorDiv.textContent = '';
     }
 }
 
 function validateFullName() {
-    const fullName = document.getElementById("fullname").value.trim();
-    const original = document.getElementById("originalFullname").value.trim();
-    if (fullName === original) {
+    const fullNameInput = document.getElementById("fullname");
+    const originalInput = document.getElementById("originalFullname");
+    if (!fullNameInput) return true;
+    const fullName = fullNameInput.value.trim();
+    const original = originalInput ? originalInput.value.trim() : "";
+    if (originalInput && fullName === original) {
         hideError("fullname");
         return true;
     }
@@ -92,11 +98,12 @@ function validateFullName() {
     return true;
 }
 
-
 function validatePhone() {
-    const phone = document.getElementById("phone").value.trim();
-    if (phone && !/^\d{10,11}$/.test(phone)) {
-        showError("phone", "Số điện thoại phải có 10-11 chữ số.");
+    const phoneInput = document.getElementById("phone");
+    if (!phoneInput) return true;
+    const phone = phoneInput.value.trim();
+    if (phone && (phone.length < 10 || phone.length > 11 || !/^0[0-9]{9,10}$/.test(phone))) {
+        showError("phone", "Vui lòng nhập số điện thoại hợp lệ (bắt đầu bằng 0, 10-11 số).");
         return false;
     }
     hideError("phone");
@@ -104,7 +111,9 @@ function validatePhone() {
 }
 
 function validateDayOfBirth() {
-    const dayofbirth = document.getElementById("dayofbirth").value;
+    const dayofbirthInput = document.getElementById("dayofbirth");
+    if (!dayofbirthInput) return true;
+    const dayofbirth = dayofbirthInput.value;
     if (!dayofbirth) {
         showError("dayofbirth", "Ngày sinh không được để trống.");
         return false;
@@ -134,7 +143,9 @@ function validateDayOfBirth() {
 }
 
 function validateGender() {
-    const gender = document.getElementById("gender").value;
+    const genderInput = document.getElementById("gender");
+    if (!genderInput) return true;
+    const gender = genderInput.value;
     if (!gender) {
         showError("gender", "Giới tính là bắt buộc.");
         return false;
@@ -145,21 +156,22 @@ function validateGender() {
 
 function previewAvatar(event) {
     const [file] = event.target.files;
-    
+    const preview = document.getElementById('avatarPreview');
     if (file) {
-        // Kiểm tra loại file
         if (!file.type.startsWith('image/')) {
             alert("Vui lòng chọn file ảnh hợp lệ.");
             return;
         }
-        
-        // Kiểm tra kích thước file (giới hạn 5MB)
         if (file.size > 5 * 1024 * 1024) {
             alert("Kích thước file không được vượt quá 5MB.");
             return;
         }
-        
-        const preview = document.getElementById('avatarPreview');
-        preview.src = URL.createObjectURL(file);
+        if (preview) {
+            preview.src = URL.createObjectURL(file);
+            preview.style.display = 'block';
+        }
+    } else if (preview) {
+        preview.style.display = 'none';
+        preview.src = '#';
     }
 } 

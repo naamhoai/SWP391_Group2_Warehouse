@@ -80,35 +80,17 @@
                             </div>
                             <div class="row">
                                 <div class="column">
-                                    <label for="dayofbirth">Ngày sinh:</label>
-                                    <input type="date" id="dayofbirth" value="${user.dayofbirth}" readonly />
+                                    <label for="status">Trạng thái:</label>
+                                    <input type="text" id="status" value="${user.status}" readonly />
                                 </div>
                                 <div class="column">
                                     <label for="role_name">Vai trò:</label>
                                     <input type="text" id="role_name" value="${user.role.rolename}" readonly />
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="column">
-                                    <label for="status">Trạng thái:</label>
-                                    <input type="text" id="status" value="${user.status}" readonly />
-                                </div>
-                            </div>
+
                             <div class="action-buttons">
-                                <c:choose>
-                                    <c:when test="${sessionScope.roleId == 1}">
-                                        <a class="btn-back" href="adminDashboard.jsp"><i class="fas fa-arrow-left"></i> Quay lại</a>
-                                    </c:when>
-                                    <c:when test="${sessionScope.roleId == 2}">
-                                        <a class="btn-back" href="director"><i class="fas fa-arrow-left"></i> Quay lại</a>
-                                    </c:when>
-                                    <c:when test="${sessionScope.roleId == 3}">
-                                        <a class="btn-back" href="warehouseEmployeeDashboard"><i class="fas fa-arrow-left"></i> Quay lại</a>
-                                    </c:when>
-                                    <c:when test="${sessionScope.roleId == 4}">
-                                        <a class="btn-back" href="staffDashboard"><i class="fas fa-arrow-left"></i> Quay lại</a>
-                                    </c:when>
-                                </c:choose>
+                                
                                 <a href="${pageContext.request.contextPath}/UpdateUserProfileServlet?userId=${user.user_id}" class="btn-edit">
                                     <i class="fas fa-edit"></i> Chỉnh sửa
                                 </a>

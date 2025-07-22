@@ -18,9 +18,10 @@
         <div class="container request-history-detail-container">
             <div class="content">
 
-                <div class="page-header">
+                <div class="header-card">
                     <h1><i class="fas fa-truck"></i> Chi tiết phiếu xuất kho</h1>
                 </div>
+                
                 <c:if test="${not empty error}">
                     <div style="color:red;">${error}</div>
                 </c:if>

@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import model.User;
 
 @WebServlet(name = "CreateExportFormServlet", urlPatterns = {"/createExportForm"})
 public class CreateExportFormServlet extends HttpServlet {
@@ -58,6 +59,10 @@ public class CreateExportFormServlet extends HttpServlet {
             request.setAttribute("request", req);
             request.setAttribute("details", details);
             request.setAttribute("inventoryMap", inventoryMap);
+            int userId = (Integer) request.getSession().getAttribute("userId");
+            UserDAO userDAO = new UserDAO();
+            User user = userDAO.getUserById(userId);
+            request.setAttribute("userName", user.getFullname());
 
             request.getRequestDispatcher("createExportForm.jsp").forward(request, response);
         } catch (Exception e) {
@@ -75,6 +80,9 @@ public class CreateExportFormServlet extends HttpServlet {
         try {
             int requestId = Integer.parseInt(request.getParameter("requestId"));
             int userId = (Integer) request.getSession().getAttribute("userId");
+            UserDAO userDAO = new UserDAO();
+            User user = userDAO.getUserById(userId);
+            request.setAttribute("userName", user.getFullname());
 
             RequestDAO requestDAO = new RequestDAO();
             req = requestDAO.getRequestById(requestId);
@@ -105,7 +113,7 @@ public class CreateExportFormServlet extends HttpServlet {
             boolean confirmPartial = "true".equals(request.getParameter("confirmPartialExport"));
             if (hasInsufficientStock && !confirmPartial) {
                 int StaffId = requestDAO.getStaffId();
-                UserDAO userDAO = new UserDAO();
+                
                 Integer directorId = userDAO.getDirectorId();
                 NotificationDAO notificationDAO = new NotificationDAO();
                 String message = "Yêu cầu #" + requestId + " thiếu: " + partialNote;

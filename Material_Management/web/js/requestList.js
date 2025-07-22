@@ -1,24 +1,28 @@
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const today = new Date().toISOString().split('T')[0];
     const startDateInput = document.getElementById('startDateInput');
     const endDateInput = document.getElementById('endDateInput');
-    if (startDateInput) startDateInput.setAttribute('max', today);
-    if (endDateInput) endDateInput.setAttribute('max', today);
+    if (startDateInput)
+        startDateInput.setAttribute('max', today);
+    if (endDateInput)
+        endDateInput.setAttribute('max', today);
 
     const statusSelect = document.getElementById('statusSelect');
     if (statusSelect) {
-        statusSelect.addEventListener('change', function() {
+        statusSelect.addEventListener('change', function () {
             const pageInput = document.getElementById('pageInput');
-            if (pageInput) pageInput.value = '1';
+            if (pageInput)
+                pageInput.value = '1';
             const filterForm = document.getElementById('filterForm');
-            if (filterForm) filterForm.submit();
+            if (filterForm)
+                filterForm.submit();
         });
     }
 
     const filterForm = document.getElementById('filterForm');
     if (filterForm) {
-        filterForm.addEventListener('submit', function(e) {
+        filterForm.addEventListener('submit', function (e) {
             if (!validateDates()) {
                 e.preventDefault();
                 return false;
@@ -31,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function validateDateInput(input) {
     const selectedDate = new Date(input.value);
     const today = new Date();
-    today.setHours(23, 59, 59, 999); 
+    today.setHours(23, 59, 59, 999);
 
     if (selectedDate > today) {
         showError(`Ngày ${input.name === 'startDate' ? 'bắt đầu' : 'kết thúc'} không được trong tương lai`);

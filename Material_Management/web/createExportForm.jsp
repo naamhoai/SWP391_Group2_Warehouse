@@ -38,6 +38,7 @@
 
                         <div class="form-section section-request-info">
                             <h3>Thông tin yêu cầu</h3>
+                            <div><b>Người xuất kho:</b> ${userName}</div>
                             <div><b>Tên dự án:</b> ${request.recipientName}</div>
                             <div><b>Địa chỉ giao hàng:</b> ${request.deliveryAddress}</div>
                             <div><b>Người liên hệ:</b> ${request.contactPerson}</div>

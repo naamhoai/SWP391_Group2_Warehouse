@@ -142,6 +142,7 @@ input[readonly] {
     transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
     color: #fff;
     text-decoration: none;
+
 }
 .btn-edit {
     background: #2563eb;
@@ -187,3 +188,4 @@ input[readonly] {
         width: 100%;
     }
 }
+

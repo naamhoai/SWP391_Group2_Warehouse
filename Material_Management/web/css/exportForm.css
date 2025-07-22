@@ -349,3 +349,57 @@ body {
     color: #fff !important;
     text-decoration: none;
 }
+
+/* --- FILTER ACTION BUTTONS STYLE (chuẩn như ảnh 2) --- */
+.filter-col.filter-col-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 10px;
+    min-width: 0;
+    margin-top: 0;
+    height: 100%;
+}
+
+.btn-primary.btn-sm {
+    background: linear-gradient(90deg, #1976d2, #42a5f5);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px #1976d220;
+    cursor: pointer;
+    padding: 0 26px;
+    height: 40px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+.btn-primary.btn-sm:hover {
+    background: linear-gradient(90deg, #1565c0, #1976d2);
+    box-shadow: 0 4px 12px #1976d220;
+}
+
+.btn-secondary.btn-sm {
+    background: #fff;
+    color: #1976d2;
+    border: 2px solid #bdbdbd;
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 0 22px;
+    height: 40px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 8px #1976d220;
+    cursor: pointer;
+    transition: border 0.2s, color 0.2s, background 0.2s;
+}
+.btn-secondary.btn-sm:hover {
+    border-color: #1976d2;
+    color: #1565c0;
+    background: #f5faff;
+}

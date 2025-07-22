@@ -4,6 +4,7 @@ import dao.UserDAO;
 import model.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.io.File;
@@ -63,33 +64,47 @@ public class UpdateUserProfileServlet extends HttpServlet {
         String fullname = request.getParameter("fullname");
         String phone = request.getParameter("phone");
         String gender = request.getParameter("gender");
-        String dobInput = request.getParameter("dayofbirth");
 
         boolean changed = false;
 
         if (!fullname.equals(user.getFullname())) {
-            if (fullname.trim().split("\\s+").length < 2) {
+            if (fullname == null || fullname.trim().split("\\s+").length < 2) {
                 request.setAttribute("error", "Họ và tên phải có ít nhất 2 từ.");
                 request.setAttribute("user", user);
                 request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);
                 return;
             }
+            for (String word : fullname.trim().split("\\s+")) {
+                if (!word.isEmpty() && !Character.isUpperCase(word.charAt(0))) {
+                    request.setAttribute("error", "Mỗi từ trong họ tên phải viết hoa chữ cái đầu.");
+                    request.setAttribute("user", user);
+                    request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);
+                    return;
+                }
+            }
             user.setFullname(fullname);
             changed = true;
         }
         if (!phone.equals(user.getPhone())) {
+            if (phone != null && !phone.isEmpty() && !phone.matches("^0[0-9]{9,10}$")) {
+                request.setAttribute("error", "Số điện thoại phải bắt đầu bằng số 0 và có 10-11 chữ số.");
+                request.setAttribute("user", user);
+                request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);
+                return;
+            }
             user.setPhone(phone);
             changed = true;
         }
         if (!gender.equals(user.getGender())) {
+            if (gender == null || gender.trim().isEmpty()) {
+                request.setAttribute("error", "Giới tính không được để trống.");
+                request.setAttribute("user", user);
+                request.getRequestDispatcher("updateUserProfile.jsp").forward(request, response);
+                return;
+            }
             user.setGender(gender);
             changed = true;
         }
-        if (!dobInput.equals(user.getDayofbirth())) {
-            user.setDayofbirth(dobInput);
-            changed = true;
-        }
-
 
         Part imagePart = request.getPart("imageFile");
         if (imagePart != null && imagePart.getSize() > 0) {
@@ -104,7 +119,7 @@ public class UpdateUserProfileServlet extends HttpServlet {
                 imagePart.write(buildImageDir + File.separator + fileName);
 
                 File buildImageDirFile = new File(buildImageDir);
-                File projectRoot = buildImageDirFile.getParentFile().getParentFile().getParentFile(); // build/web/image -> build/web -> build -> Material_Management
+                File projectRoot = buildImageDirFile.getParentFile().getParentFile().getParentFile();
                 File sourceImageDirFile = new File(projectRoot, "web/image");
                 if (!sourceImageDirFile.exists()) {
                     sourceImageDirFile.mkdirs();
@@ -117,7 +132,6 @@ public class UpdateUserProfileServlet extends HttpServlet {
                 changed = true;
             }
         }
-        
 
         if (!changed) {
             request.setAttribute("success", "Không có thông tin nào được thay đổi.");
