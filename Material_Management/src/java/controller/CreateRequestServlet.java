@@ -265,6 +265,8 @@ public class CreateRequestServlet extends HttpServlet {
                 notificationDAO.addNotification(directorId, message, requestId);
             }
 
+            // Sử dụng session để truyền thông báo thành công
+            request.getSession().setAttribute("success", "Tạo yêu cầu thành công!");
             response.sendRedirect("RequestListServlet");
         } catch (Exception e) {
             e.printStackTrace();

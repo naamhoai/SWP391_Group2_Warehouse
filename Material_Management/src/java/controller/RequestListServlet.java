@@ -32,6 +32,13 @@ public class RequestListServlet extends HttpServlet {
         Integer userId = (Integer) session.getAttribute("userId");
         Integer roleId = (Integer) session.getAttribute("roleId");
 
+        // Lấy thông báo thành công từ session (nếu có)
+        String success = (String) session.getAttribute("success");
+        if (success != null) {
+            request.setAttribute("success", success);
+            session.removeAttribute("success");
+        }
+
         if (userId == null) {
             response.sendRedirect("login.jsp");
             return;

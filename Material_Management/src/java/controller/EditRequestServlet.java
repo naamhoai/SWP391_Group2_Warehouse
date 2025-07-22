@@ -226,9 +226,8 @@ public class EditRequestServlet extends HttpServlet {
             }
 
             // Gửi thông báo thành công và điều hướng về RequestListServlet
-            String successMsg = "Yêu cầu #" + requestId + " đã được gửi lại thành công!";
-            String encodedMsg = java.net.URLEncoder.encode(successMsg, "UTF-8");
-            response.sendRedirect("RequestListServlet?success=" + encodedMsg);
+            request.getSession().setAttribute("success", "Yêu cầu #" + requestId + " đã được gửi lại thành công!");
+            response.sendRedirect("RequestListServlet");
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", e.getMessage());

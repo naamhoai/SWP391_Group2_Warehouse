@@ -99,8 +99,8 @@ public class ApproveOrRejectRequestServlet extends HttpServlet {
                 historyDAO.addRequestHistory(history);
 
                 String successMsg = "Yêu cầu #" + requestId + " đã được duyệt thành công!";
-                String encodedMsg = URLEncoder.encode(successMsg, StandardCharsets.UTF_8.toString());
-                response.sendRedirect(request.getContextPath() + "/RequestListServlet?success=" + encodedMsg);
+                request.getSession().setAttribute("success", successMsg);
+                response.sendRedirect(request.getContextPath() + "/RequestListServlet");
                 return;
 
             } else if ("reject".equals(action)) {
@@ -137,8 +137,8 @@ public class ApproveOrRejectRequestServlet extends HttpServlet {
                 history.setHistoryDetails(historyDetails);
                 historyDAO.addRequestHistory(history);
                 String rejectMsg = "Yêu cầu #" + requestId + " đã được duyệt thành công!";
-                String encodedRejectMsg = URLEncoder.encode(rejectMsg, StandardCharsets.UTF_8.toString());
-                response.sendRedirect(request.getContextPath() + "/RequestListServlet?success=" + encodedRejectMsg);
+                request.getSession().setAttribute("success", rejectMsg);
+                response.sendRedirect(request.getContextPath() + "/RequestListServlet");
                 return;
             } else {
                 request.setAttribute("error", "Hành động không hợp lệ.");

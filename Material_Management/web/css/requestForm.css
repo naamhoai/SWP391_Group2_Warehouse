@@ -1,6 +1,6 @@
 body {
     margin: 0;
-    font-family: 'Roboto', Arial, sans-serif;
+    font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
     background: #f4f6f8;
     min-height: 100vh;
 }
@@ -8,17 +8,6 @@ body {
 .main-layout {
     display: flex;
     min-height: 100vh;
-}
-
-.sidebar {
-    width: 250px;
-    background-color: #1e3a8a;
-    color: #fff;
-    transition: width 0.3s;
-    flex-shrink: 0;
-}
-.sidebar.collapsed {
-    width: 70px;
 }
 
 .main-content {
@@ -198,10 +187,6 @@ h2 {
     transform: translateY(-2px);
 }
 
-.footer {
-    margin-left: 50px !important;
-}
-
 @media (max-width: 767.98px) {
     html, body {
         margin: 0;
@@ -302,4 +287,7 @@ h2 {
     width: 100% !important;
     min-width: 280px !important;
     box-sizing: border-box;
+}
+.awesomplete .visually-hidden[role="status"] {
+    display: none !important;
 }

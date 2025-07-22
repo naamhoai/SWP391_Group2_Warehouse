@@ -7,15 +7,9 @@
         <title>Tạo yêu cầu vật tư</title>
         <link rel="stylesheet" href="css/sidebar.css">
         <link rel="stylesheet" href="css/requestForm.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.css">
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
-        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-        <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vi.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.css">
+        
     </head>
     <body>
         <div class="main-layout">
@@ -104,16 +98,16 @@
                                                     <td>
                                                         <input name="materialName" class="input-text materialNameInput" autocomplete="off" required pattern="[^<>\"']*"
                                                                value="${fn:escapeXml(name)}" />
-                                                        <div class="error-message"></div>
+                                                        
                                                     </td>
                                                     <td>
                                                         <input type="number" name="quantity" class="input-text" min="1" max="999999" required
                                                                value="${quantities[loop.index]}" />
-                                                        <div class="error-message"></div>
+                                                        
                                                     </td>
                                                     <td>
                                                         <input name="unit" class="input-text unitInput" autocomplete="off" required pattern="[^<>\"']*" />
-                                                        <div class="error-message"></div>
+                                                        
                                                     </td>
                                                     <td>
                                                         <select name="materialCondition" class="input-select" required title="Vui lòng chọn tình trạng vật tư">
@@ -121,7 +115,7 @@
                                                             <option value="Cũ" ${materialConditions[loop.index] == 'Cũ' ? 'selected' : ''}>Cũ</option>
                                                             <option value="Hỏng" ${materialConditions[loop.index] == 'Hỏng' ? 'selected' : ''}>Hỏng</option>
                                                         </select>
-                                                        <div class="error-message"></div>
+                                                        
                                                     </td>
                                                     <td class="col-action">
                                                         <button type="button" class="btn-remove" onclick="removeRow(this)">Xóa</button>
@@ -134,22 +128,22 @@
                                                 <td>
                                                     <input name="materialName" class="input-text materialNameInput" autocomplete="off" required pattern="[^<>\"']*"
                                                            value="" />
-                                                    <div class="error-message"></div>
+                                                    
                                                 </td>
                                                 <td>
                                                     <input type="number" name="quantity" class="input-text" min="1" max="999999" required >
-                                                    <div class="error-message"></div>
+                                                    
                                                 </td>
                                                 <td>
                                                     <input name="unit" class="input-text unitInput" autocomplete="off" required pattern="[^<>\"']*" />
-                                                    <div class="error-message"></div>
+                                                    
                                                 </td>
                                                 <td>
                                                     <select name="materialCondition" class="input-select" required title="Vui lòng chọn tình trạng vật tư">
                                                         <option value="Mới">Mới</option>
                                                         <option value="Cũ">Cũ</option>
                                                     </select>
-                                                    <div class="error-message"></div>
+                                                    
                                                 </td>
                                                 <td>
                                                     <button type="button" class="btn-remove" onclick="removeRow(this)">Xóa</button>
