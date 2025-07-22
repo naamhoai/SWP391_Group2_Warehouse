@@ -63,11 +63,7 @@
                         <input type="text" name="search" placeholder="Tìm kiếm tên sản phẩm..." value="${search != null ? search : ''}" />
                         <button type="submit" class="btn btn-secondary">Tìm</button>
                     </div>
-                    <a href="InventoryServlet?page=1&pageSize=${pageSize}
-                                <c:if test='${categoryId != null}'> &amp;categoryId=${categoryId}</c:if>
-                                <c:if test='${supplierId != null}'> &amp;supplierId=${supplierId}</c:if>
-                                <c:if test='${search != null && search != ""}'> &amp;search=${search}</c:if>
-                                <c:if test='${condition != null && condition != ""}'> &amp;condition=${condition}</c:if>" class="btn btn-primary"><i class="fa fa-history"></i> Lịch sử</a>
+                    <a href="InventoryHistoryServlet" class="btn btn-primary"><i class="fa fa-history"></i> Lịch sử</a>
                 </div>
             </form>
         </div>

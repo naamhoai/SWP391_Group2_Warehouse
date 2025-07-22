@@ -172,17 +172,7 @@
                                     <c:param name="supplier" value="${supplierFilter}"/>
                                     <c:param name="page" value="1"/>
                                 </c:url>
-                                <a href="${firstUrl}" class="page-link" title="Trang đầu">&laquo;&laquo;</a>
-                            </c:if>
-                            <!-- Nút về trang trước -->
-                            <c:if test="${currentPage > 1}">
-                                <c:url var="prevUrl" value="MaterialListServlet">
-                                    <c:param name="search" value="${searchQuery}"/>
-                                    <c:param name="category" value="${categoryFilter}"/>
-                                    <c:param name="supplier" value="${supplierFilter}"/>
-                                    <c:param name="page" value="${currentPage - 1}"/>
-                                </c:url>
-                                <a href="${prevUrl}" class="page-link">&laquo;</a>
+                                <a href="${firstUrl}" class="page-link" title="Trang đầu">&laquo;</a>
                             </c:if>
 
                             <c:forEach begin="${startPage}" end="${endPage}" var="i">
@@ -195,16 +185,6 @@
                                 <a href="${pageUrl}" class="page-link ${i == currentPage ? 'active' : ''}">${i}</a>
                             </c:forEach>
 
-                            <!-- Nút về trang sau -->
-                            <c:if test="${currentPage < totalPages}">
-                                <c:url var="nextUrl" value="MaterialListServlet">
-                                    <c:param name="search" value="${searchQuery}"/>
-                                    <c:param name="category" value="${categoryFilter}"/>
-                                    <c:param name="supplier" value="${supplierFilter}"/>
-                                    <c:param name="page" value="${currentPage + 1}"/>
-                                </c:url>
-                                <a href="${nextUrl}" class="page-link">&raquo;</a>
-                            </c:if>
                             <!-- Nút về trang cuối -->
                             <c:if test="${currentPage < totalPages}">
                                 <c:url var="lastUrl" value="MaterialListServlet">
@@ -213,7 +193,7 @@
                                     <c:param name="supplier" value="${supplierFilter}"/>
                                     <c:param name="page" value="${totalPages}"/>
                                 </c:url>
-                                <a href="${lastUrl}" class="page-link" title="Trang cuối">&raquo;&raquo;</a>
+                                <a href="${lastUrl}" class="page-link" title="Trang cuối">&raquo;</a>
                             </c:if>
                         </div>
                     </div>

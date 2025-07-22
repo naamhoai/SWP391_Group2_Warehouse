@@ -10,6 +10,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import model.InventoryHistoryRow;
+import java.sql.Date;
 
 public class DAO extends dal.DBContext {
 
@@ -124,6 +126,7 @@ public class DAO extends dal.DBContext {
         }
 
         return list;
+
     }
 
     public User userID(int user_ID, int role_id) {
