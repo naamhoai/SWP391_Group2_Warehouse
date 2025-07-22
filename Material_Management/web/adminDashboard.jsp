@@ -8,7 +8,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Bảng Điều Khiển - Hệ Thống Quản Lý Kho</title>
-        <link rel="stylesheet" href="css/dashboard.css">
+        <link rel="stylesheet" href="css/adminDashboard.css">
         <link rel="stylesheet" href="css/sidebar.css">
         <link rel="stylesheet" href="css/header.css"/>
         <link rel="stylesheet" href="css/footer.css"/>
