@@ -1,8 +1,7 @@
-/* Global variables */
 :root {
     /* Layout */
-    --sidebar-width: 260px;
-    --sidebar-collapsed-width: 70px;
+    --sidebar-width: 280px;
+    --sidebar-collapsed-width: 50px;
     --header-height: 60px;
     --content-padding: 20px;
     
