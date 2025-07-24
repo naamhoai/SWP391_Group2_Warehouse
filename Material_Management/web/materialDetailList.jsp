@@ -99,6 +99,7 @@
                             <input type="text" name="search" placeholder="Tìm kiếm theo tên vật tư..." value="${not empty searchQuery ? searchQuery : ''}"/>
                             <button type="submit" class="btn btn-secondary">Tìm</button>
                         </div>
+                        <a href="materialDetailHistory" class="btn btn-secondary" style="align-self:center;"><i class="fas fa-history"></i> Lịch sử sửa đổi</a>
                     </div>
                 </form>
             </div>

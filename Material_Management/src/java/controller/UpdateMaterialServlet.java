@@ -3,7 +3,13 @@ package controller;
 import dao.MaterialDAO;
 import dao.MaterialInfoDAO;
 import dao.UnitDAO;
+import dao.MaterialDetailHistoryDAO;
+import dao.CategoryDAO;
+import dao.SupplierDAO;
 import model.Material;
+import model.MaterialDetailHistory;
+import model.User;
+import java.sql.Timestamp;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -112,6 +118,115 @@ public class UpdateMaterialServlet extends HttpServlet {
 
             boolean success = dao.updateMaterial(material);
             if (success) {
+                // Ghi log lịch sử sửa đổi vật tư (gộp tất cả trường đổi vào 1 dòng)
+                try {
+                    User user = (User) request.getSession().getAttribute("Admin");
+                    int userId = user != null ? user.getUser_id() : -1;
+                    String roleName = (user != null && user.getRole() != null) ? user.getRole().getRolename() : "";
+                    MaterialDetailHistoryDAO historyDAO = new MaterialDetailHistoryDAO();
+                    Timestamp now = new Timestamp(System.currentTimeMillis());
+                    if (existingMaterial != null) {
+                        StringBuilder changedFields = new StringBuilder();
+                        StringBuilder oldValues = new StringBuilder();
+                        StringBuilder newValues = new StringBuilder();
+                        // Tên vật tư
+                        if (!existingMaterial.getName().equals(name)) {
+                            if (changedFields.length() > 0) { changedFields.append(", "); oldValues.append(", "); newValues.append(", "); }
+                            changedFields.append("Tên vật tư");
+                            oldValues.append(existingMaterial.getName());
+                            newValues.append(name);
+                        }
+                        // Danh mục
+                        if (existingMaterial.getCategoryId() != categoryId) {
+                            if (changedFields.length() > 0) { changedFields.append(", "); oldValues.append(", "); newValues.append(", "); }
+                            CategoryDAO categoryDAO = new CategoryDAO();
+                            String oldCategoryName = "";
+                            String newCategoryName = "";
+                            try { oldCategoryName = categoryDAO.getCategoryNameById(existingMaterial.getCategoryId()); } catch (Exception e) { oldCategoryName = "Không xác định"; }
+                            try { newCategoryName = categoryDAO.getCategoryNameById(categoryId); } catch (Exception e) { newCategoryName = "Không xác định"; }
+                            changedFields.append("Danh mục");
+                            oldValues.append(oldCategoryName);
+                            newValues.append(newCategoryName);
+                        }
+                        // Nhà cung cấp
+                        if (existingMaterial.getSupplierId() != supplierId) {
+                            if (changedFields.length() > 0) { changedFields.append(", "); oldValues.append(", "); newValues.append(", "); }
+                            SupplierDAO supplierDAO = new SupplierDAO();
+                            String oldSupplierName = "";
+                            String newSupplierName = "";
+                            try {
+                                model.Supplier oldSupplier = supplierDAO.getSupplierById(existingMaterial.getSupplierId());
+                                oldSupplierName = (oldSupplier != null) ? oldSupplier.getSupplierName() : "Không xác định";
+                            } catch (Exception e) { oldSupplierName = "Không xác định"; }
+                            try {
+                                model.Supplier newSupplier = supplierDAO.getSupplierById(supplierId);
+                                newSupplierName = (newSupplier != null) ? newSupplier.getSupplierName() : "Không xác định";
+                            } catch (Exception e) { newSupplierName = "Không xác định"; }
+                            changedFields.append("Nhà cung cấp");
+                            oldValues.append(oldSupplierName);
+                            newValues.append(newSupplierName);
+                        }
+                        // Đơn vị tính
+                        if (existingMaterial.getUnitId() != unitId) {
+                            if (changedFields.length() > 0) { changedFields.append(", "); oldValues.append(", "); newValues.append(", "); }
+                            UnitDAO unitDAO = new UnitDAO();
+                            String oldUnitName = "";
+                            String newUnitName = "";
+                            try {
+                                model.Unit oldUnit = unitDAO.getUnitById(existingMaterial.getUnitId());
+                                oldUnitName = (oldUnit != null) ? oldUnit.getUnit_name() : "Không xác định";
+                            } catch (Exception e) { oldUnitName = "Không xác định"; }
+                            try {
+                                model.Unit newUnit = unitDAO.getUnitById(unitId);
+                                newUnitName = (newUnit != null) ? newUnit.getUnit_name() : "Không xác định";
+                            } catch (Exception e) { newUnitName = "Không xác định"; }
+                            changedFields.append("Đơn vị tính");
+                            oldValues.append(oldUnitName);
+                            newValues.append(newUnitName);
+                        }
+                        // Mô tả
+                        if (existingMaterial.getDescription() == null ? description != null : !existingMaterial.getDescription().equals(description)) {
+                            if (changedFields.length() > 0) { changedFields.append(", "); oldValues.append(", "); newValues.append(", "); }
+                            changedFields.append("Mô tả");
+                            oldValues.append(existingMaterial.getDescription());
+                            newValues.append(description);
+                        }
+                        // Trạng thái
+                        if (existingMaterial.getStatus() == null ? status != null : !existingMaterial.getStatus().equals(status)) {
+                            if (changedFields.length() > 0) { changedFields.append(", "); oldValues.append(", "); newValues.append(", "); }
+                            String oldStatus = existingMaterial.getStatus();
+                            String newStatus = status;
+                            if ("active".equals(oldStatus)) oldStatus = "Đang kinh doanh";
+                            else if ("inactive".equals(oldStatus)) oldStatus = "Ngừng kinh doanh";
+                            if ("active".equals(newStatus)) newStatus = "Đang kinh doanh";
+                            else if ("inactive".equals(newStatus)) newStatus = "Ngừng kinh doanh";
+                            changedFields.append("Trạng thái");
+                            oldValues.append(oldStatus);
+                            newValues.append(newStatus);
+                        }
+                        // Ảnh
+                        if (existingMaterial.getImageUrl() == null ? imageUrl != null : !existingMaterial.getImageUrl().equals(imageUrl)) {
+                            if (changedFields.length() > 0) { changedFields.append(", "); oldValues.append(", "); newValues.append(", "); }
+                            changedFields.append("Ảnh");
+                            oldValues.append(existingMaterial.getImageUrl());
+                            newValues.append(imageUrl);
+                        }
+                        // Nếu có trường nào đổi thì ghi lịch sử
+                        if (changedFields.length() > 0) {
+                            MaterialDetailHistory h = new MaterialDetailHistory();
+                            h.setMaterialId(materialId);
+                            h.setFieldName(changedFields.toString());
+                            h.setOldValue(oldValues.toString());
+                            h.setNewValue(newValues.toString());
+                            h.setChangedBy(userId);
+                            h.setRoleName(roleName);
+                            h.setChangedAt(now);
+                            historyDAO.insertHistory(h);
+                        }
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace(); // Không làm gián đoạn flow nếu log lỗi
+                }
                 response.sendRedirect("MaterialListServlet");
             } else {
                 request.setAttribute("errorMessage", "Cập nhật vật tư thất bại, vui lòng thử lại.");

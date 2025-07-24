@@ -1,0 +1,215 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f4f6f8;
+  margin: 0;
+  color: #333;
+}
+
+.main-content {
+  margin-left: 250px;
+  padding: 24px;
+  transition: margin-left 0.3s ease;
+}
+
+body.sidebar-collapsed .main-content {
+  margin-left: 70px;
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #1e3a8a;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 18px;
+  border-radius: 6px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.btn-primary {
+  background-color: #3b82f6;
+  color: white;
+}
+.btn-primary:hover {
+  background-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-secondary {
+  background-color: #6b7280;
+  color: white;
+}
+.btn-secondary:hover {
+  background-color: #4b5563;
+}
+
+/* Đồng bộ style bảng lịch sử vật tư với bảng danh sách vật tư */
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  font-size: 16px;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.06);
+  overflow: hidden;
+  margin-top: 24px;
+}
+.data-table th, .data-table td {
+  padding: 18px 16px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+  background: #fff;
+}
+.data-table th {
+  font-weight: 700;
+  color: #222;
+  background: #fafbfc;
+  font-size: 17px;
+}
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+.data-table tbody tr:hover {
+  background: #f6f8fa;
+}
+.data-table td {
+  white-space: pre-line;
+  word-break: break-word;
+  font-size: 16px;
+}
+.data-table td .history-item {
+  display: block;
+  padding-left: 12px;
+  position: relative;
+  margin-bottom: 2px;
+}
+.data-table td .history-item:before {
+  content: "- ";
+  color: #bdbdbd;
+  position: absolute;
+  left: 0;
+}
+
+/* Style cho từng dòng trường bị sửa, giá trị cũ, giá trị mới */
+.data-table td br {
+  display: block;
+  margin-top: 4px;
+  content: "";
+}
+
+/* Card effect cho content */
+.content-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.06);
+  padding: 32px 28px 24px 28px;
+  margin-top: 32px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .data-table th, .data-table td {
+    font-size: 14px;
+    padding: 10px 6px;
+  }
+  .content-card {
+    padding: 12px 4px;
+  }
+}
+
+.data-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+}
+
+.filter-form { display: flex; flex-direction: column; gap: 16px; }
+.filter-row { display: flex; flex-wrap: nowrap; gap: 16px; overflow-x: auto; }
+.filter-group {
+  display: flex;
+  align-items: center;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding-left: 12px;
+}
+.filter-group i {
+  color: #6b7280;
+}
+.filter-group select,
+.filter-group input {
+  border: none;
+  background: transparent;
+  padding: 10px;
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.filter-group select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding-right: 24px;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 1em;
+}
+.btn.btn-secondary { background: #6b7280; color: #fff; border-radius: 6px; padding: 10px 18px; border: none; font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 0; }
+.btn.btn-secondary:hover { background: #4b5563; }
+.btn.btn-secondary.reset { background: #fff; color: #6b7280; border: 1px solid #e5e7eb; }
+.filter-group input[name="materialName"],
+.filter-group input[name="userName"] {
+  min-width: 0;
+  width: 230px;
+  max-width: 350px;
+}
+@media (max-width: 1200px) {
+  .filter-row { flex-wrap: wrap; }
+  .filter-group { min-width: 140px; }
+}
+
+@media (max-width: 768px) {
+  .header-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .header-buttons {
+    margin-top: 12px;
+  }
+  .content-card {
+    padding: 12px;
+  }
+  .data-table th, .data-table td {
+    padding: 8px;
+  }
+} 

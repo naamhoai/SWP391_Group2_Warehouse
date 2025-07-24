@@ -4,10 +4,14 @@ import dao.CategoryDAO;
 import dao.MaterialDAO;
 import dao.SupplierDAO;
 import dao.UnitDAO;
+import dao.MaterialDetailHistoryDAO;
 import model.Category;
 import model.Material;
 import model.Supplier;
 import model.Unit;
+import model.MaterialDetailHistory;
+import model.User;
+import java.sql.Timestamp;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -157,7 +161,7 @@ public class CreateMaterialDetailServlet extends HttpServlet {
 
             boolean success = materialDAO.addMaterialWithId(material);
             if (success) {
-                response.sendRedirect("MaterialListServlet");
+                response.sendRedirect("MaterialListServlet?actionStatus=addSuccess");
                 return;
             } else {
                 errorMessage = "Không thể tạo mới vật tư. Vui lòng thử lại.";

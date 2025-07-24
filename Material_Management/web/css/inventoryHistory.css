@@ -121,9 +121,6 @@ body.sidebar-collapsed .main-content {
   flex-grow: 0;
   flex-shrink: 0;
 }
-.filter-group.search-group input {
-  flex-grow: unset;
-}
 .filter-group.search-group input[type="text"] {
   width: 100%;
   min-width: 0;
