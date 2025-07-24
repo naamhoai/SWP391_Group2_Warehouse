@@ -15,13 +15,10 @@ import java.util.List;
 public class InventoryHistoryServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String type = request.getParameter("type");
-        // Nếu không có type, truyền null để lấy cả 3 loại
-        if (type != null && type.isEmpty()) type = null;
-        String material = request.getParameter("material");
-        String from = request.getParameter("from");
-        String to = request.getParameter("to");
-        String operator = request.getParameter("operator");
+        String keyword = request.getParameter("keyword");
+        String transactionType = request.getParameter("transactionType");
+        String fromDate = request.getParameter("fromDate");
+        String toDate = request.getParameter("toDate");
 
         int page = 1;
         int pageSize = 10;
@@ -39,11 +36,11 @@ public class InventoryHistoryServlet extends HttpServlet {
         } catch (Exception ignored) {}
 
         InventoryHistoryDAO dao = new InventoryHistoryDAO();
-        int totalRecords = dao.countInventoryHistory(type, material, from, to, operator);
+        int totalRecords = dao.countInventoryHistoryByKeyword(keyword, transactionType, fromDate, toDate);
         int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
         if (page < 1) page = 1;
         if (page > totalPages && totalPages > 0) page = totalPages;
-        List<InventoryHistoryRow> historyList = dao.getInventoryHistoryPaging(type, material, from, to, operator, page, pageSize);
+        List<InventoryHistoryRow> historyList = dao.getInventoryHistoryPagingByKeyword(keyword, transactionType, fromDate, toDate, page, pageSize);
         request.setAttribute("historyList", historyList);
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);
@@ -53,6 +50,10 @@ public class InventoryHistoryServlet extends HttpServlet {
         int endPage = Math.min(totalPages, page + 2);
         request.setAttribute("startPage", startPage);
         request.setAttribute("endPage", endPage);
+        request.setAttribute("keyword", keyword);
+        request.setAttribute("transactionType", transactionType);
+        request.setAttribute("fromDate", fromDate);
+        request.setAttribute("toDate", toDate);
         request.getRequestDispatcher("inventoryHistory.jsp").forward(request, response);
     }
 } 

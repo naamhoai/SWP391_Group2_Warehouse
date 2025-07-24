@@ -2,46 +2,38 @@ package model;
 import java.util.Date;
 
 public class InventoryHistoryRow {
-    private String type; // import/export/purchase
-    private Date date;
-    private String code; // mã phiếu
-    private String materialName;
-    private Integer quantity;
-    private String unit;
-    private String operator;
-    private String status;
-    private String note;
+    private String transactionType; // Loại giao dịch: Mua hàng, Xuất kho, Nhập kho
+    private Integer referenceId;    // Mã đơn
+    private Date transactionDate;   // Ngày thực hiện
+    private String materialName;    // Tên vật tư
+    private String materialCondition; // Trạng thái vật tư (Mới/Cũ)
+    private Integer quantity;       // Số lượng
+    private Integer materialId;     // ID vật tư (có thể null với nhập kho thủ công)
+    private String actorName;       // Tên người thực hiện
 
     public InventoryHistoryRow() {}
 
-    public InventoryHistoryRow(String type, Date date, String code, String materialName, Integer quantity, String unit, String operator, String status, String note) {
-        this.type = type;
-        this.date = date;
-        this.code = code;
-        this.materialName = materialName;
-        this.quantity = quantity;
-        this.unit = unit;
-        this.operator = operator;
-        this.status = status;
-        this.note = note;
-    }
+    public String getTransactionType() { return transactionType; }
+    public void setTransactionType(String transactionType) { this.transactionType = transactionType; }
 
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
-    public Date getDate() { return date; }
-    public void setDate(Date date) { this.date = date; }
-    public String getCode() { return code; }
-    public void setCode(String code) { this.code = code; }
+    public Integer getReferenceId() { return referenceId; }
+    public void setReferenceId(Integer referenceId) { this.referenceId = referenceId; }
+
+    public Date getTransactionDate() { return transactionDate; }
+    public void setTransactionDate(Date transactionDate) { this.transactionDate = transactionDate; }
+
     public String getMaterialName() { return materialName; }
     public void setMaterialName(String materialName) { this.materialName = materialName; }
+
+    public String getMaterialCondition() { return materialCondition; }
+    public void setMaterialCondition(String materialCondition) { this.materialCondition = materialCondition; }
+
     public Integer getQuantity() { return quantity; }
     public void setQuantity(Integer quantity) { this.quantity = quantity; }
-    public String getUnit() { return unit; }
-    public void setUnit(String unit) { this.unit = unit; }
-    public String getOperator() { return operator; }
-    public void setOperator(String operator) { this.operator = operator; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-    public String getNote() { return note; }
-    public void setNote(String note) { this.note = note; }
+
+    public Integer getMaterialId() { return materialId; }
+    public void setMaterialId(Integer materialId) { this.materialId = materialId; }
+
+    public String getActorName() { return actorName; }
+    public void setActorName(String actorName) { this.actorName = actorName; }
 } 

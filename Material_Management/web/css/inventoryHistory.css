@@ -151,25 +151,30 @@ body.sidebar-collapsed .main-content {
 
 .table-responsive {
   overflow-x: auto;
-  overflow-y: visible;
+  width: 100%;
 }
 .data-table {
   width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 15px;
+  background: #fff;
+  table-layout: fixed;
 }
 
 .data-table th, .data-table td {
-  padding: 12px 8px;
+  padding: 14px 10px;
   text-align: left;
   border-bottom: 1px solid #e5e7eb;
-  white-space: nowrap;
+  white-space: normal;
   vertical-align: middle;
+  word-break: break-word;
+  background: #fff;
 }
 
 .data-table th:nth-child(1), .data-table td:nth-child(1) { width: 90px; min-width: 90px; max-width: 90px; }
-.data-table th:nth-child(2), .data-table td:nth-child(2) { width: 110px; min-width: 110px; max-width: 110px; }
-.data-table th:nth-child(3), .data-table td:nth-child(3) { width: 90px; min-width: 90px; max-width: 90px; }
+.data-table th:nth-child(2), .data-table td:nth-child(2) { width: 90px; min-width: 70px; max-width: 100px; }
+.data-table th:nth-child(3), .data-table td:nth-child(3) { width: 130px; min-width: 110px; max-width: 140px; }
 .data-table th:nth-child(4), .data-table td:nth-child(4) { width: 260px; min-width: 180px; max-width: 320px; white-space: normal; word-break: break-word; }
 .data-table th:nth-child(5), .data-table td:nth-child(5) { width: 90px; min-width: 90px; max-width: 90px; }
 .data-table th:nth-child(6), .data-table td:nth-child(6) { width: 70px; min-width: 70px; max-width: 70px; }
@@ -182,12 +187,17 @@ body.sidebar-collapsed .main-content {
 }
 
 .data-table th {
-  font-weight: 600;
-  color: #374151;
+  font-weight: 700;
+  color: #1e293b;
+  background: #f1f5f9;
+  font-size: 16px;
 }
 
+.data-table tbody tr {
+  transition: background 0.2s;
+}
 .data-table tbody tr:hover {
-  background-color: #f9fafb;
+  background-color: #f3f4f6;
 }
 
 .data-table tbody tr.inactive-row {
@@ -197,8 +207,9 @@ body.sidebar-collapsed .main-content {
 
 .no-data {
   text-align: center;
-  padding: 40px;
+  padding: 40px 0;
   color: #6b7280;
+  background: #fff;
 }
 
 .status-badge {
@@ -342,4 +353,19 @@ body.sidebar-collapsed .main-content {
   .action-buttons {
     flex-direction: column;
 }
+} 
+
+@media (max-width: 900px) {
+  .data-table th, .data-table td {
+    font-size: 13px;
+    padding: 10px 6px;
+  }
+  .data-table th:nth-child(4), .data-table td:nth-child(4) {
+    min-width: 120px;
+    max-width: 200px;
+  }
+  .data-table th:nth-child(8), .data-table td:nth-child(8) {
+    min-width: 120px;
+    max-width: 200px;
+  }
 } 

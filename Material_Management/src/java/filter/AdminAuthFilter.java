@@ -19,7 +19,9 @@ public class AdminAuthFilter implements Filter {
         String path = httpRequest.getRequestURI();
         // Loại trừ file tĩnh ở mọi thư mục và các trang public
         if (path.matches(".*(\\.css|\\.js|\\.png|\\.jpg|\\.jpeg|\\.gif|\\.ico|\\.woff|\\.woff2|\\.ttf|\\.svg)$")
-            || path.endsWith("login.jsp") || path.endsWith("login") || path.endsWith("register.jsp") || path.endsWith("resetPassword.jsp")) {
+            || path.endsWith("login.jsp") || path.endsWith("login") || path.endsWith("register.jsp") || path.endsWith("resetPassword.jsp")
+            || path.endsWith("resetPassword") || path.endsWith("requestPassword")
+        ) {
             chain.doFilter(request, response);
             return;
         }
