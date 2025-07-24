@@ -1,9 +1,8 @@
 /* Giao diện tạo đơn mua vật tư giống supplier */
 .create-purchase-order-container {
-    width: calc(100% - 270px);
-    max-width: unset;
-    margin-left: 270px;
-    margin-right: 0;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
     margin-top: 24px;
     background: #fff;
     border-radius: 16px;
@@ -41,21 +40,65 @@
     background: #2563eb;
     color: #fff;
 }
+.form-header-row {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+.form-header-col {
+    flex: 1 1 0;
+    min-width: 220px;
+    max-width: 340px;
+    display: flex;
+    flex-direction: column;
+}
+.form-header-col label {
+    font-weight: 500;
+    font-size: 15px;
+    margin-bottom: 3px;
+    color: #222;
+}
+.form-header-col input,
+.form-header-col select {
+    padding: 7px 12px;
+    border: 1.5px solid #e3e3e3;
+    border-radius: 6px;
+    font-size: 15px;
+    background: #f8fafd;
+    margin-bottom: 2px;
+    width: 100%;
+    box-sizing: border-box;
+}
 .form-row {
     display: flex;
     gap: 24px;
     margin-bottom: 18px;
+    flex-wrap: wrap;
 }
 .form-group {
-    flex: 1;
+    flex: 1 1 0;
+    min-width: 180px;
+    max-width: 340px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
 }
-.form-group.supplier-filter {
-    flex: 0 0 40%;
-    max-width: 40%;
-    min-width: 180px;
+.form-group label {
+    font-weight: 500;
+    font-size: 15px;
+    margin-bottom: 3px;
+    color: #222;
+}
+.form-group input,
+.form-group select {
+    padding: 7px 12px;
+    border: 1.5px solid #e3e3e3;
+    border-radius: 6px;
+    font-size: 15px;
+    background: #f8fafd;
+    margin-bottom: 2px;
+    width: 100%;
+    box-sizing: border-box;
 }
 .form-label {
     font-weight: 500;
@@ -103,6 +146,7 @@
     display: flex;
     gap: 16px;
     margin-bottom: 18px;
+    margin-top: 10px;
 }
 .btn-add {
     background: #22c55e;
@@ -503,15 +547,19 @@ td span[style*="color:#388e3c"] {
 .create-order-btn:active {
     background: #15803d;
 }
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
+    .form-header-row, .form-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .form-header-col, .form-group {
+        max-width: 100%;
+        min-width: 0;
+    }
     .create-purchase-order-container {
         margin-left: 0;
         width: 100%;
         padding: 12px;
-    }
-    .form-row {
-        flex-direction: column;
-        gap: 10px;
     }
     .purchase-order-list-container {
         margin-left: 0;

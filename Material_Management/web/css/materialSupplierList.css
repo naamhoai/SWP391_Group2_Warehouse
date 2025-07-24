@@ -39,8 +39,9 @@ h1 {
 }
 
 .filter-input {
-    flex: 1;
-    min-width: 250px;
+    width: 240px !important;
+    min-width: 180px;
+    max-width: 300px;
     padding: 8px 12px;
     border: 1px solid #ddd;
     border-radius: 6px;

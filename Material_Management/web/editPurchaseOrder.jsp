@@ -287,18 +287,19 @@
                             <input type="text" class="form-control" value="${order.orderDate}" readonly>
                         </div>
                     </div>
+                    <!-- Nhà cung cấp: không cho sửa -->
+                    <div class="form-group">
+                        <label class="form-label">Nhà cung cấp *</label>
+                        <select name="supplierId" class="form-select" required>
+                            <option value="">Chọn nhà cung cấp</option>
+                            <c:forEach var="supplier" items="${suppliers}">
+                                <option value="${supplier.supplierId}" ${order.supplierId == supplier.supplierId ? 'selected' : ''}>
+                                    ${supplier.supplierName} - ${supplier.supplierPhone}
+                                </option>
+                            </c:forEach>
+                        </select>
+                    </div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Nhà cung cấp *</label>
-                            <select name="supplierId" class="form-select" required>
-                                <option value="">Chọn nhà cung cấp</option>
-                                <c:forEach var="supplier" items="${suppliers}">
-                                    <option value="${supplier.supplierId}" ${order.supplierId == supplier.supplierId ? 'selected' : ''}>
-                                        ${supplier.supplierName} - ${supplier.supplierPhone}
-                                    </option>
-                                </c:forEach>
-                            </select>
-                        </div>
                         <div class="form-group">
                             <label class="form-label">Người liên hệ</label>
                             <input type="text" class="form-control" value="${order.contactPerson}" readonly>
@@ -310,39 +311,52 @@
                     </div>
                 </div>
                 <!-- Danh sách vật tư dạng bảng -->
+                <c:if test="${not empty errorMsg}">
+                    <div style="background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; padding:15px; margin-bottom:20px; border-radius:8px;">
+                        <i class="fas fa-exclamation-triangle" style="margin-right:8px;"></i>
+                        <strong>LỖI!</strong> <c:out value="${errorMsg}" escapeXml="false"/>
+                    </div>
+                </c:if>
+                <c:if test="${not empty errorMessage}">
+                    <div style="background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; padding:15px; margin-bottom:20px; border-radius:8px;">
+                        <i class="fas fa-exclamation-triangle" style="margin-right:8px;"></i>
+                        <strong>LỖI!</strong> <c:out value="${errorMessage}" escapeXml="false"/>
+                    </div>
+                </c:if>
+                <!-- Bảng vật tư mới, chỉ còn các trường hợp lệ -->
                 <div class="form-section">
                     <h4 style="margin-bottom:16px;"><i class="fas fa-boxes"></i> Danh sách vật tư</h4>
                     <div style="overflow-x:auto;">
-                    <table class="table table-bordered" style="width:100%;background:white;">
-                        <thead>
-                            <tr style="background:#f8f9fa;">
-                                <th>Tên vật tư</th>
-                                <th>Số lượng</th>
-                                <th>Đơn vị</th>
-                                <th>Đơn vị gốc</th>
-                                <th>Đơn giá</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="materialsTableBody">
-                            <c:forEach var="detail" items="${details}" varStatus="status">
-                                <tr>
-                                    <td><input type="text" name="materialName[]" class="form-control material-name" value="${detail.materialName}" required></td>
-                                    <td><input type="number" name="quantity[]" class="form-control quantity" value="${detail.quantity}" min="1" required onchange="calculateTotal(this)"></td>
-                                    <td><input type="text" name="unit[]" class="form-control unit" value="${detail.unit}" required></td>
-                                    <td>
-                                        <select name="baseUnit[]" class="form-select base-unit">
-                                            <c:forEach var="unit" items="${convertedUnits}">
-                                                <option value="${unit.units.unit_name}" ${detail.convertedUnit == unit.units.unit_name ? 'selected' : ''}>${unit.units.unit_name}</option>
-                                            </c:forEach>
-                                        </select>
-                                    </td>
-                                    <td><input type="number" name="unitPrice[]" class="form-control unit-price" value="${detail.unitPrice}" min="0" step="0.01" required onchange="calculateTotal(this)"></td>
-                                    <td><button type="button" class="btn-remove-material" onclick="removeMaterialRow(this)"><i class="fas fa-trash"></i></button></td>
+                        <table class="table table-bordered" style="width:100%;background:white;">
+                            <thead>
+                                <tr style="background:#f8f9fa;">
+                                    <th>Tên vật tư</th>
+                                    <th>Số lượng</th>
+                                    <th>Đơn vị</th>
+                                    <th>Đơn vị gốc</th>
+                                    <th>Đơn giá</th>
+                                    <th></th>
                                 </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody id="materialsTableBody">
+                                <c:forEach var="detail" items="${details}" varStatus="status">
+                                    <tr>
+                                        <td><input type="text" name="materialName[]" class="form-control material-name" value="${detail.materialName}" required></td>
+                                        <td><input type="number" name="quantity[]" class="form-control quantity" value="${detail.quantity}" min="1" required></td>
+                                        <td>
+                                            <select name="unit[]" class="form-select unit">
+                                                <c:forEach var="unit" items="${supplierUnits}">
+                                                    <option value="${unit.unit_name}" ${detail.unit == unit.unit_name ? 'selected' : ''}>${unit.unit_name}</option>
+                                                </c:forEach>
+                                            </select>
+                                        </td>
+                                        <td><input type="text" name="baseUnit[]" class="form-control base-unit-input" value="${detail.convertedUnit}" placeholder="Đơn vị gốc" required readonly></td>
+                                        <td><input type="number" name="unitPrice[]" class="form-control unit-price" value="${detail.unitPrice}" min="0" step="0.01" required></td>
+                                        <td><button type="button" class="btn-remove-material" onclick="removeMaterialRow(this)"><i class="fas fa-trash"></i></button></td>
+                                    </tr>
+                                </c:forEach>
+                            </tbody>
+                        </table>
                     </div>
                     <div style="margin-top:12px;display:flex;gap:12px;">
                         <button type="button" class="btn-add-material" onclick="addMaterialRow()"><i class="fas fa-plus"></i> Thêm dòng vật tư</button>
@@ -367,6 +381,21 @@
     </div>
 
     <script>
+    function updateEditOrderTotal() {
+        let total = 0;
+        document.querySelectorAll('#materialsTableBody tr').forEach(row => {
+            const qty = parseFloat(row.querySelector('input[name="quantity[]"]')?.value) || 0;
+            const price = parseFloat(row.querySelector('input[name="unitPrice[]"]')?.value) || 0;
+            total += qty * price;
+        });
+        document.getElementById('grandTotal').textContent = total.toLocaleString('vi-VN');
+    }
+    document.addEventListener('input', function(e) {
+        if (e.target.name === 'quantity[]' || e.target.name === 'unitPrice[]') updateEditOrderTotal();
+    });
+    window.onload = function() {
+        updateEditOrderTotal();
+    };
     </script>
 </body>
 </html> 

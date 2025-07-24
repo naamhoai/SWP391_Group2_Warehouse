@@ -100,7 +100,7 @@ public class PurchaseOrderDAO {
     }
 
     // Lấy tất cả đơn mua với tìm kiếm
-    public List<PurchaseOrder> getAllPurchaseOrders(String fromDate, String toDate, String status, String supplier) throws SQLException {
+    public List<PurchaseOrder> getAllPurchaseOrders(String fromDate, String toDate, String status, String supplier, String sortOrder) throws SQLException {
         List<PurchaseOrder> orders = new ArrayList<>();
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT po.*, u.full_name, s.supplier_name, r.role_name FROM purchase_orders po ");
@@ -131,7 +131,12 @@ public class PurchaseOrderDAO {
             params.add("%" + supplier + "%");
         }
         
-        sql.append("ORDER BY po.order_date DESC");
+        // Sắp xếp theo ID
+        if (sortOrder != null && sortOrder.equalsIgnoreCase("asc")) {
+            sql.append("ORDER BY po.purchase_order_id ASC");
+        } else {
+            sql.append("ORDER BY po.purchase_order_id DESC");
+        }
         
         try (PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
             for (int i = 0; i < params.size(); i++) {

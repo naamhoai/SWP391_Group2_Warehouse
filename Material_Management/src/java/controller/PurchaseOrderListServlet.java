@@ -8,6 +8,7 @@ import jakarta.servlet.annotation.*;
 import java.io.IOException;
 import java.util.List;
 import dao.PurchaseOrderDetailDAO;
+import java.nio.charset.StandardCharsets;
 
 @WebServlet(name="PurchaseOrderListServlet", urlPatterns={"/purchaseOrderList"})
 public class PurchaseOrderListServlet extends HttpServlet {
@@ -34,6 +35,8 @@ public class PurchaseOrderListServlet extends HttpServlet {
             String pageStr = request.getParameter("page");
             String export = request.getParameter("export");
             String dateRange = request.getParameter("dateRange");
+            String sortOrder = request.getParameter("sortOrder");
+            if (sortOrder == null || sortOrder.isEmpty()) sortOrder = "desc";
             
             // Xử lý thông báo thành công từ createPurchaseOrder
             String success = request.getParameter("success");
@@ -84,7 +87,7 @@ public class PurchaseOrderListServlet extends HttpServlet {
             
             // Lấy danh sách đơn mua từ DAO
             PurchaseOrderDAO purchaseOrderDAO = new PurchaseOrderDAO();
-            List<PurchaseOrder> purchaseOrders = purchaseOrderDAO.getAllPurchaseOrders(fromDate, toDate, status, supplier);
+            List<PurchaseOrder> purchaseOrders = purchaseOrderDAO.getAllPurchaseOrders(fromDate, toDate, status, supplier, sortOrder);
             
             // Sau khi lấy purchaseOrders, nạp details cho từng order
             PurchaseOrderDetailDAO detailDAO = new PurchaseOrderDetailDAO();
@@ -177,63 +180,57 @@ public class PurchaseOrderListServlet extends HttpServlet {
                     // Xử lý duyệt đơn
                     PurchaseOrder order = purchaseOrderDAO.getPurchaseOrderById(orderId);
                     if (order != null) {
-                        order.setStatus("Approved");
+                        order.setStatus("Completed"); // Đã duyệt thì phải là Completed
                         order.setApprovalStatus("Approved");
                         order.setRejectionReason(null);
                         order.setNote(reason != null ? reason : "");
                         purchaseOrderDAO.updatePurchaseOrder(order);
                         // --- BẮT ĐẦU: Cập nhật inventory ---
-                        StringBuilder debugLog = new StringBuilder();
-                        debugLog.append("DEBUG: Duyệt đơn mua #").append(orderId).append("\n");
                         PurchaseOrderDetailDAO detailDAO = new PurchaseOrderDetailDAO();
                         List<PurchaseOrderDetail> details = detailDAO.getDetailsByOrderId(orderId);
                         InventoryDAO inventoryDAO = new InventoryDAO();
-                        MaterialDAO materialDAO = new MaterialDAO();
                         UnitConversionDao unitConversionDao = new UnitConversionDao();
+                        StringBuilder inventoryError = new StringBuilder();
                         for (PurchaseOrderDetail detail : details) {
                             int materialId = detail.getMaterialId();
-                            String materialName = detail.getMaterialName();
-                            String condition = detail.getMaterialCondition() != null ? detail.getMaterialCondition() : "Mới";
-                            int quantity = detail.getQuantity();
-                            String baseUnit = detail.getBaseUnit(); // đơn vị gốc
-                            String unit = detail.getUnit(); // đơn vị trên đơn mua
+                            int quantity = detail.getQuantity(); // số lượng trên đơn mua (cuộn)
+                            String unit = detail.getUnit(); // đơn vị trên đơn mua (Cuộn)
+                            String baseUnit = detail.getConvertedUnit(); // đơn vị gốc (Mét)
                             double unitPrice = detail.getUnitPrice();
-                            debugLog.append("Material: ").append(materialName).append(", materialId=").append(materialId).append(", quantity=").append(quantity).append(", unit=").append(unit).append(", baseUnit=").append(baseUnit).append("\n");
-                            if (materialId <= 0 && materialName != null && !materialName.trim().isEmpty()) {
-                                materialId = materialDAO.getMaterialIdByName(materialName.trim());
-                                debugLog.append("  -> Tìm materialId theo tên: ").append(materialId).append("\n");
-                            }
-                            // Quy đổi về đơn vị gốc
+                            // Lấy unit_id từ tên đơn vị
                             int supplierUnitId = unitConversionDao.getUnitIdByName(unit);
                             int warehouseUnitId = unitConversionDao.getUnitIdByName(baseUnit);
-                            String conversionFactorStr = unitConversionDao.getOldConversionValue(warehouseUnitId, supplierUnitId);
-                            double conversionFactor = 1.0;
-                            if (conversionFactorStr != null && !conversionFactorStr.isEmpty()) {
-                                try {
-                                    conversionFactor = Double.parseDouble(conversionFactorStr);
-                                } catch (NumberFormatException e) {}
-                            }
+                            // Lấy hệ số quy đổi từ DB
+                            double conversionFactor = unitConversionDao.getConversionFactor(supplierUnitId, warehouseUnitId);
                             int quantityInBaseUnit = (int) Math.round(quantity * conversionFactor);
-                            debugLog.append("  -> supplierUnitId: ").append(supplierUnitId).append(", warehouseUnitId: ").append(warehouseUnitId).append("\n");
-                            debugLog.append("  -> conversionFactorStr: ").append(conversionFactorStr).append(", conversionFactor: ").append(conversionFactor).append("\n");
-                            debugLog.append("  -> Quy đổi: ").append(quantity).append(" ").append(unit).append(" x ").append(conversionFactor).append(" = ").append(quantityInBaseUnit).append(" ").append(baseUnit).append("\n");
                             if (materialId > 0) {
                                 try {
-                                    // Gọi update inventory và log affectedRows
-                                    int affectedRows = inventoryDAO.addOrUpdateInventoryWithResult(materialId, materialName, quantityInBaseUnit, baseUnit, unitPrice);
-                                    debugLog.append("  -> Đã cập nhật tồn kho, affectedRows = ").append(affectedRows).append("\n");
+                                    int affectedRows = inventoryDAO.addOrUpdateInventoryWithResult(
+                                        materialId,
+                                        detail.getMaterialName(),
+                                        quantityInBaseUnit,
+                                        "Mới",
+                                        unitPrice
+                                    );
+                                    if (affectedRows == 0) {
+                                        inventoryError.append("Không thể cập nhật tồn kho cho vật tư ID: ").append(materialId)
+                                            .append(", Số lượng: ").append(quantityInBaseUnit).append(", Tình trạng: Mới<br>");
+                                    }
                                 } catch (Exception ex) {
-                                    debugLog.append("  -> LỖI cập nhật tồn kho: ").append(ex.getMessage()).append("\n");
+                                    inventoryError.append("Lỗi cập nhật tồn kho cho vật tư ID: ").append(materialId)
+                                        .append(", lỗi: ").append(ex.getMessage()).append("<br>");
                                 }
-                            } else {
-                                debugLog.append("  -> KHÔNG tìm được materialId, bỏ qua\n");
                             }
                         }
-                        request.getSession().setAttribute("debugLog", debugLog.toString());
+                        if (inventoryError.length() > 0) {
+                            response.setContentType("text/html;charset=UTF-8");
+                            response.getWriter().println("<h2 style='color:red'>Lỗi khi cập nhật tồn kho:</h2>");
+                            response.getWriter().println("<div style='color:#b71c1c; background:#ffebee; padding:12px 18px; border-radius:8px; margin:12px 0; font-weight:bold;'>" + inventoryError.toString() + "</div>");
+                            return;
+                        }
                         // --- KẾT THÚC: Cập nhật inventory ---
-                        response.setContentType("application/json");
-                        response.setCharacterEncoding("UTF-8");
-                        response.getWriter().write("{\"success\": true, \"message\": \"Đã duyệt đơn hàng thành công\"}");
+                        response.sendRedirect("purchaseOrderList?msg=approved");
+                        return;
                     } else {
                         response.setContentType("application/json");
                         response.setCharacterEncoding("UTF-8");
@@ -243,13 +240,12 @@ public class PurchaseOrderListServlet extends HttpServlet {
                     // Xử lý từ chối đơn
                     PurchaseOrder order = purchaseOrderDAO.getPurchaseOrderById(orderId);
                     if (order != null) {
-                        order.setStatus("Rejected");
+                        order.setStatus("Rejected"); // Đảm bảo cập nhật trạng thái
                         order.setApprovalStatus("Rejected");
                         order.setRejectionReason(reason != null ? reason : "");
                         purchaseOrderDAO.updatePurchaseOrder(order);
-                        response.setContentType("application/json");
-                        response.setCharacterEncoding("UTF-8");
-                        response.getWriter().write("{\"success\": true, \"message\": \"Đã từ chối đơn hàng\"}");
+                        response.sendRedirect("purchaseOrderList?msg=rejected");
+                        return;
                     } else {
                         response.setContentType("application/json");
                         response.setCharacterEncoding("UTF-8");

@@ -8,12 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashMap;
-import model.InventoryHistoryRow;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class InventoryDAO extends DBContext {
     private Connection conn;
@@ -24,8 +18,8 @@ public class InventoryDAO extends DBContext {
     }
     public List<Inventory> getInventoryList(Integer categoryId, Integer supplierId, String search, String condition, int page, int pageSize) throws SQLException {
         List<Inventory> list = new ArrayList<>();
-        String sql = "SELECT i.inventory_id, i.material_id, i.material_condition, i.quantity_on_hand, i.last_updated, " +
-                "m.name AS material_name, c.name AS category_name, s.supplier_name, u.unit_name, m.price " +
+        String sql = "SELECT i.inventory_id, i.material_id, i.material_condition, i.quantity_on_hand, i.price, i.last_updated, " +
+                "m.name AS material_name, c.name AS category_name, s.supplier_name, u.unit_name " +
                 "FROM inventory i " +
                 "JOIN materials m ON i.material_id = m.material_id " +
                 "JOIN categories c ON m.category_id = c.category_id " +
@@ -67,7 +61,7 @@ public class InventoryDAO extends DBContext {
                     inv.setCategoryName(rs.getString("category_name"));
                     inv.setSupplierName(rs.getString("supplier_name"));
                     inv.setUnitName(rs.getString("unit_name"));
-                    inv.setPrice(rs.getInt("price"));
+                    inv.setPrice(rs.getInt("price")); // Lấy giá từ inventory
                     list.add(inv);
                 }
             }
@@ -112,8 +106,8 @@ public class InventoryDAO extends DBContext {
     
     public List<Inventory> getInventoryWithMaterialInfo() {
         List<Inventory> inventories = new ArrayList<>();
-        String sql = "SELECT i.inventory_id, i.material_id, i.material_condition, i.quantity_on_hand, i.last_updated, "
-                + "m.name AS material_name, m.unit_id, c.name AS category_name, s.supplier_name, u.unit_name, m.price, m.status "
+        String sql = "SELECT i.inventory_id, i.material_id, i.material_condition, i.quantity_on_hand, i.price, i.last_updated, "
+                + "m.name AS material_name, m.unit_id, c.name AS category_name, s.supplier_name, u.unit_name, m.status "
                 + "FROM inventory i "
                 + "LEFT JOIN materials m ON i.material_id = m.material_id "
                 + "LEFT JOIN categories c ON m.category_id = c.category_id "
@@ -133,7 +127,7 @@ public class InventoryDAO extends DBContext {
                 inv.setSupplierName(rs.getString("supplier_name"));
                 inv.setUnitId(rs.getInt("unit_id"));
                 inv.setUnitName(rs.getString("unit_name"));
-                inv.setPrice(rs.getInt("price"));
+                inv.setPrice(rs.getInt("price")); // Lấy giá từ inventory
                 inv.setStatus(rs.getString("status"));
                 inventories.add(inv);
             }
@@ -299,8 +293,8 @@ public class InventoryDAO extends DBContext {
 
     public List<Inventory> getLowStockItems() {
         List<Inventory> lowStockItems = new ArrayList<>();
-        String sql = "SELECT i.inventory_id, i.material_id, i.material_condition, i.quantity_on_hand, i.last_updated, "
-                + "m.name AS material_name, c.name AS category_name, s.supplier_name, u.unit_name, m.price, m.status "
+        String sql = "SELECT i.inventory_id, i.material_id, i.material_condition, i.quantity_on_hand, i.price, i.last_updated, "
+                + "m.name AS material_name, c.name AS category_name, s.supplier_name, u.unit_name, m.status "
                 + "FROM inventory i "
                 + "LEFT JOIN materials m ON i.material_id = m.material_id "
                 + "LEFT JOIN categories c ON m.category_id = c.category_id "
@@ -321,7 +315,7 @@ public class InventoryDAO extends DBContext {
                 inv.setSupplierName(rs.getString("supplier_name"));
                 inv.setUnitId(rs.getInt("unit_id"));
                 inv.setUnitName(rs.getString("unit_name"));
-                inv.setPrice(rs.getInt("price"));
+                inv.setPrice(rs.getInt("price")); // Lấy giá từ inventory
                 inv.setStatus(rs.getString("status"));
                 lowStockItems.add(inv);
             }
@@ -331,14 +325,14 @@ public class InventoryDAO extends DBContext {
         return lowStockItems;
     }
 
-    public int addOrUpdateInventoryWithResult(int materialId, String materialName, int quantity, String baseUnit, double unitPrice) {
+    public int addOrUpdateInventoryWithResult(int materialId, String materialName, int quantity, String materialCondition, double unitPrice) {
         String selectSql = "SELECT inventory_id, quantity_on_hand FROM inventory WHERE material_id = ? AND material_condition = ?";
         String insertSql = "INSERT INTO inventory (material_id, material_condition, quantity_on_hand, last_updated, price) VALUES (?, ?, ?, NOW(), ?)";
         String updateSql = "UPDATE inventory SET quantity_on_hand = quantity_on_hand + ?, last_updated = NOW(), price = ? WHERE inventory_id = ?";
         try (Connection conn = getConnection();
              PreparedStatement selectPs = conn.prepareStatement(selectSql)) {
             selectPs.setInt(1, materialId);
-            selectPs.setString(2, baseUnit);
+            selectPs.setString(2, materialCondition);
             ResultSet rs = selectPs.executeQuery();
             if (rs.next()) {
                 int inventoryId = rs.getInt("inventory_id");
@@ -346,15 +340,21 @@ public class InventoryDAO extends DBContext {
                     updatePs.setInt(1, quantity);
                     updatePs.setDouble(2, unitPrice);
                     updatePs.setInt(3, inventoryId);
-                    return updatePs.executeUpdate();
+                    int result = updatePs.executeUpdate();
+                    // LOG cập nhật
+                    System.out.println("[INVENTORY UPDATE] Cộng dồn vật tư ID: " + materialId + ", Số lượng: +" + quantity + ", Giá: " + unitPrice + ", Tình trạng: " + materialCondition);
+                    return result;
                 }
             } else {
                 try (PreparedStatement insertPs = conn.prepareStatement(insertSql)) {
                     insertPs.setInt(1, materialId);
-                    insertPs.setString(2, baseUnit);
+                    insertPs.setString(2, materialCondition);
                     insertPs.setInt(3, quantity);
                     insertPs.setDouble(4, unitPrice);
-                    return insertPs.executeUpdate();
+                    int result = insertPs.executeUpdate();
+                    // LOG thêm mới
+                    System.out.println("[INVENTORY INSERT] Thêm mới vật tư ID: " + materialId + ", Số lượng: " + quantity + ", Giá: " + unitPrice + ", Tình trạng: " + materialCondition);
+                    return result;
                 }
             }
         } catch (SQLException e) {

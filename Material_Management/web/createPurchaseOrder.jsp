@@ -44,39 +44,77 @@
                 </div>
             </c:if>
             <form action="createPurchaseOrder" method="post" id="createOrderForm">
-                <div class="form-row">
-                    <div class="form-group">
+                <div class="form-header-row">
+                    <div class="form-header-col">
                         <label class="form-label">Người tạo đơn</label>
                         <input type="text" class="form-control" value="${currentUser.fullname}" readonly>
                     </div>
-                    <div class="form-group">
+                    <div class="form-header-col">
                         <label class="form-label">Vai trò hiện tại</label>
                         <input type="text" class="form-control" value="${currentUser.role.rolename}" readonly>
                     </div>
-                    <div class="form-group">
+                    <div class="form-header-col">
                         <label class="form-label">Ngày tạo</label>
                         <input type="text" class="form-control" id="createdDate" value="${createdDate}" readonly>
                     </div>
                 </div>
                 <div class="form-row">
-                <div class="form-group supplier-filter">
-                        <label class="form-label">Nhà cung cấp</label>
-                        <select name="supplierId" id="supplierSelect" class="form-select" required onchange="updateContactInfo()">
+                    <div class="form-group">
+                        <label class="form-label">Nhà cung cấp *</label>
+                        <select name="supplierId" id="supplierSelect" class="form-select" required>
                             <option value="">Chọn nhà cung cấp</option>
                             <c:forEach var="supplier" items="${suppliers}">
-                                <option value="${supplier.supplierId}" data-contact="${supplier.contactPerson}" data-phone="${supplier.supplierPhone}">${supplier.supplierName}</option>
+                                <option value="${supplier.supplierId}" data-contact="${supplier.contactPerson}" data-phone="${supplier.supplierPhone}">${supplier.supplierName} - ${supplier.supplierPhone}</option>
                             </c:forEach>
                         </select>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Người liên hệ</label>
-                        <input type="text" id="contactInfo" class="form-control" value="" readonly>
+                        <input type="text" id="contactInfo" name="contactPerson" class="form-control" value="" readonly>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Số điện thoại</label>
-                        <input type="text" id="contactPhone" class="form-control" value="" readonly>
+                        <input type="text" id="contactPhone" name="supplierPhone" class="form-control" value="" readonly>
                     </div>
                 </div>
+<script>
+document.getElementById('supplierSelect').addEventListener('change', function() {
+    var selected = this.options[this.selectedIndex];
+    document.getElementById('contactInfo').value = selected.getAttribute('data-contact') || '';
+    document.getElementById('contactPhone').value = selected.getAttribute('data-phone') || '';
+});
+</script>
+<style>
+.form-header-row {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 10px;
+}
+.form-header-col {
+    flex: 1 1 0;
+    min-width: 220px;
+    max-width: 340px;
+    display: flex;
+    flex-direction: column;
+}
+.form-header-col label {
+    font-weight: 500;
+    font-size: 15px;
+    margin-bottom: 3px;
+    color: #222;
+}
+.form-header-col input,
+.form-header-col select {
+    padding: 7px 12px;
+    border: 1.5px solid #e3e3e3;
+    border-radius: 6px;
+    font-size: 15px;
+    background: #f8fafd;
+    margin-bottom: 2px;
+    width: 100%;
+    box-sizing: border-box;
+}
+</style>
                 <h4 style="font-weight:600; color:#222; margin-bottom: 20px;">Danh sách vật tư</h4>
                 <div class="table-responsive">
                     <table class="table">
@@ -122,10 +160,39 @@
                         <i class="fas fa-minus"></i> Xóa dòng cuối
                     </button>
                 </div>
-                <div style="margin-bottom: 20px;">
-                    <label class="form-label">Ghi chú</label>
-                    <textarea name="note" class="form-control" rows="2" placeholder="Nhập ghi chú chung cho đơn mua..."></textarea>
-                </div>
+                <div class="form-group">
+    <label for="note" style="font-weight:600;color:#1976d2;">
+        <i class="fas fa-sticky-note" style="margin-right:6px;"></i>Ghi chú (không bắt buộc)
+    </label>
+    <textarea id="note" name="note" class="note-textarea" placeholder="Nhập ghi chú cho đơn mua này..." rows="3">${param.note != null ? param.note : ''}</textarea>
+</div>
+<style>
+.note-textarea {
+    width: 100%;
+    max-width: 600px;
+    min-height: 80px;
+    padding: 12px 16px;
+    border: 2px solid #e3e3e3;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.5;
+    background: #f8fafd;
+    color: #1976d2;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    margin-top: 6px;
+    margin-bottom: 18px;
+}
+.note-textarea:focus {
+    outline: none;
+    border-color: #1976d2;
+    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+}
+.note-textarea::placeholder {
+    color: #999;
+    font-style: italic;
+}
+</style>
                 <div class="submit-section">
                     <a href="purchaseOrderList" class="btn-secondary">Hủy</a>
                     <button type="submit" class="btn-primary">Tạo đơn mua</button>
@@ -168,6 +235,14 @@
                 if (container.rows.length > 1) {
                     container.deleteRow(container.rows.length - 1);
                     console.log("Đã xóa dòng cuối, tổng số dòng: " + container.rows.length);
+                } else {
+                    // Nếu chỉ còn 1 dòng, reset các input thay vì xóa
+                    const row = container.rows[0];
+                    row.querySelectorAll('input, select').forEach(el => {
+                        if (el.type === 'number' || el.type === 'text') el.value = '';
+                        if (el.tagName === 'SELECT') el.selectedIndex = 0;
+                    });
+                    console.log("Reset dòng cuối cùng, không xóa hết!");
                 }
             }
             function updateTotal() {

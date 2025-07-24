@@ -109,6 +109,23 @@
             transform: translateY(-1px); 
             box-shadow: 0 4px 8px rgba(244, 67, 54, 0.4); 
         }
+        .note-highlight {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-radius: 8px;
+            padding: 6px 16px;
+            margin-left: 8px;
+            font-size: 15px;
+            font-style: italic;
+            min-width: 80px;
+            box-shadow: 0 1px 4px #e0e0e0;
+        }
+        .note-empty {
+            color: #888;
+            background: #f5f5f5;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -129,13 +146,13 @@
             <div class="info-col">
                 <span class="info-label">Trạng thái:</span>
                 <c:choose>
-                    <c:when test="${order.status eq 'Approved' || order.status eq 'Đã duyệt'}">
+                    <c:when test="${order.status eq 'Completed'}">
                         <span class="badge badge-approved">Đã duyệt</span>
                     </c:when>
-                    <c:when test="${order.status eq 'Pending' || order.status eq 'Chờ duyệt'}">
+                    <c:when test="${order.status eq 'Pending'}">
                         <span class="badge badge-pending">Chờ duyệt</span>
                     </c:when>
-                    <c:when test="${order.status eq 'Rejected' || order.status eq 'Từ chối'}">
+                    <c:when test="${order.status eq 'Rejected'}">
                         <span class="badge badge-rejected">Từ chối</span>
                     </c:when>
                     <c:otherwise>
@@ -143,7 +160,18 @@
                     </c:otherwise>
                 </c:choose><br/>
                 <span class="info-label">Tổng tiền:</span><span class="info-value"><fmt:formatNumber value="${order.totalAmount}" type="number" groupingUsed="true"/></span><br/>
-                <span class="info-label">Ghi chú:</span><span class="info-value">${order.note}</span><br/>
+                <span class="info-label">Ghi chú:</span>
+                <c:choose>
+                    <c:when test="${not empty order.note}">
+                        <span class="note-highlight">
+                            <i class="fas fa-sticky-note" style="color:#1976d2;margin-right:6px;"></i>
+                            <span style="color:#1976d2;font-weight:500;">${order.note}</span>
+                        </span>
+                    </c:when>
+                    <c:otherwise>
+                        <span class="note-highlight note-empty">Không có ghi chú</span>
+                    </c:otherwise>
+                </c:choose>
             </div>
         </div>
     </div>
@@ -158,7 +186,6 @@
                     <th>Đơn vị</th>
                     <th>Đơn vị gốc</th>
                     <th>Đơn giá</th>
-                    <th>Tình trạng</th>
                 </tr>
             </thead>
             <tbody>
@@ -170,52 +197,63 @@
                         <td>${detail.unit}</td>
                         <td>${detail.convertedUnit}</td>
                         <td><fmt:formatNumber value="${detail.unitPrice}" type="number" groupingUsed="true"/> VNĐ</td>
-                        <td><span class="badge-status">${detail.materialCondition}</span></td>
                     </tr>
                 </c:forEach>
                 <c:if test="${empty details}">
-                    <tr><td colspan="7" style="text-align:center;">Không có dữ liệu</td></tr>
+                    <tr><td colspan="6" style="text-align:center;">Không có dữ liệu</td></tr>
                 </c:if>
             </tbody>
         </table>
     </div>
+    <%-- Lấy roleName từ session --%>
+    <%
+        String roleName = null;
+        if (session.getAttribute("Admin") != null) {
+            roleName = ((model.User)session.getAttribute("Admin")).getRole().getRolename();
+        } else if (session.getAttribute("user") != null) {
+            roleName = ((model.User)session.getAttribute("user")).getRole().getRolename();
+        } else if (session.getAttribute("staff") != null) {
+            roleName = ((model.User)session.getAttribute("staff")).getRole().getRolename();
+        }
+        request.setAttribute("roleName", roleName);
+    %>
     <c:if test="${order.status eq 'Pending' || order.status eq 'Chờ duyệt'}">
         <c:choose>
-            <c:when test="${(sessionScope.Admin.role.rolename eq 'Director' || sessionScope.Admin.role.rolename eq 'Giám đốc') || (sessionScope.user.role.rolename eq 'Director' || sessionScope.user.role.rolename eq 'Giám đốc') || (sessionScope.staff.role.rolename eq 'Director' || sessionScope.staff.role.rolename eq 'Giám đốc')}">
+            <c:when test="${roleName eq 'Giám đốc' || roleName eq 'Director'}">
                 <!-- Chỉ giám đốc mới thấy nút duyệt/từ chối -->
-        <div class="reason-section">
-            <form id="approveRejectForm" method="post" action="purchaseOrderList">
-                <input type="hidden" name="orderId" value="${order.purchaseOrderId}" />
-                <label for="reason" class="reason-label">
-                    <i class="fas fa-comment-alt" style="margin-right: 8px;"></i>
-                    Lý do (không bắt buộc khi duyệt, bắt buộc khi từ chối)
-                </label>
-                <textarea 
-                    id="reason" 
-                    name="reason" 
-                    class="reason-textarea" 
-                    placeholder="Nhập lý do phê duyệt hoặc từ chối đơn mua này..."
-                    rows="3"></textarea>
-                <div class="action-buttons">
-                    <button type="submit" name="action" value="approve" class="btn-approve">
-                        <i class="fas fa-check" style="margin-right: 8px;"></i>Duyệt
-                    </button>
-                    <button type="submit" name="action" value="reject" class="btn-reject">
-                        <i class="fas fa-times" style="margin-right: 8px;"></i>Từ chối
-                    </button>
+                <div class="reason-section">
+                    <form id="approveRejectForm" method="post" action="purchaseOrderList">
+                        <input type="hidden" name="orderId" value="${order.purchaseOrderId}" />
+                        <label for="reason" class="reason-label">
+                            <i class="fas fa-comment-alt" style="margin-right: 8px;"></i>
+                            Lý do (không bắt buộc khi duyệt, bắt buộc khi từ chối)
+                        </label>
+                        <textarea 
+                            id="reason" 
+                            name="reason" 
+                            class="reason-textarea" 
+                            placeholder="Nhập lý do phê duyệt hoặc từ chối đơn mua này..."
+                            rows="3"></textarea>
+                        <div class="action-buttons">
+                            <button type="submit" name="action" value="approve" class="btn-approve">
+                                <i class="fas fa-check" style="margin-right: 8px;"></i>Duyệt
+                            </button>
+                            <button type="submit" name="action" value="reject" class="btn-reject">
+                                <i class="fas fa-times" style="margin-right: 8px;"></i>Từ chối
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </form>
-        </div>
-        <script>
-        document.getElementById('approveRejectForm').addEventListener('submit', function(e) {
-            var action = document.activeElement.value;
-            var reason = document.getElementById('reason').value.trim();
-            if(action === 'reject' && reason === '') {
-                e.preventDefault();
-                alert('Vui lòng nhập lý do khi từ chối!');
-            }
-        });
-        </script>
+                <script>
+                document.getElementById('approveRejectForm').addEventListener('submit', function(e) {
+                    var action = document.activeElement.value;
+                    var reason = document.getElementById('reason').value.trim();
+                    if(action === 'reject' && reason === '') {
+                        e.preventDefault();
+                        alert('Vui lòng nhập lý do khi từ chối!');
+                    }
+                });
+                </script>
             </c:when>
             <c:otherwise>
                 <!-- Người dùng khác chỉ thấy thông báo -->
@@ -228,22 +266,22 @@
             </c:otherwise>
         </c:choose>
     </c:if>
-    <c:if test="${order.status eq 'Approved' || order.status eq 'Đã duyệt'}">
-        <div class="reason-section" style="background: #e8f5e8; border-color: #4caf50;">
-            <div style="display: flex; align-items: center; color: #388e3c; font-weight: 600; font-size: 16px;">
-                <i class="fas fa-check-circle" style="margin-right: 12px; font-size: 20px;"></i>
-                Đơn này đã được duyệt. Bạn chỉ có thể xem thông tin.
+    <%-- Thông báo trạng thái phê duyệt --%>
+    <c:choose>
+        <c:when test="${order.status == 'Đã duyệt'}">
+            <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 10px; margin-bottom: 20px; border-radius: 5px;">
+                <i class="fas fa-check-circle"></i> Đơn này đã được duyệt. Bạn chỉ có thể xem thông tin.
             </div>
-        </div>
-    </c:if>
-    <c:if test="${order.status eq 'Rejected' || order.status eq 'Từ chối'}">
-        <div class="reason-section" style="background: #ffebee; border-color: #f44336;">
-            <div style="display: flex; align-items: center; color: #d32f2f; font-weight: 600; font-size: 16px;">
-                <i class="fas fa-times-circle" style="margin-right: 12px; font-size: 20px;"></i>
-                Đơn này đã bị từ chối. Bạn chỉ có thể xem thông tin.
+        </c:when>
+        <c:when test="${order.status == 'Từ chối'}">
+            <div style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 10px; margin-bottom: 20px; border-radius: 5px;">
+                <i class="fas fa-times-circle"></i> Đơn này đã bị từ chối. Bạn chỉ có thể xem thông tin.
+                <c:if test="${not empty order.rejectionReason}">
+                    <br/><b>Lý do từ chối:</b> ${order.rejectionReason}
+                </c:if>
             </div>
-        </div>
-    </c:if>
+        </c:when>
+    </c:choose>
     <c:if test="${not empty param.success}">
         <script>
             alert('${param.success}');

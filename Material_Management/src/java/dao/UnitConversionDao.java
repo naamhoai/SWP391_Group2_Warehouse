@@ -322,27 +322,20 @@ public class UnitConversionDao extends dal.DBContext {
         return list;
     }
 
-    public List<UnitConversion> getConversionFactor(int supplierId, int supplierunitid) {
-        List<UnitConversion> list = new ArrayList<>();
-        String sql = "SELECT * FROM unit_conversion\n"
-                + "where supplier_unit_id = ? and warehouse_unit_id =?;";
-        try {
-            PreparedStatement st = connection.prepareStatement(sql);
-            st.setInt(1, supplierId);
-            st.setInt(2, supplierunitid);
-            ResultSet rs = st.executeQuery();
-            while (rs.next()) {
-                UnitConversion unit = new UnitConversion();
-                unit.setSupplierUnitId(rs.getInt("supplier_unit_id"));
-                unit.setWarehouseunitid(rs.getInt("warehouse_unit_id"));
-                unit.setConversionfactor(rs.getString("conversion_factor"));
-                list.add(unit);
+    public double getConversionFactor(int supplierUnitId, int warehouseUnitId) {
+        String sql = "SELECT conversion_factor FROM unit_conversion WHERE supplier_unit_id = ? AND warehouse_unit_id = ? AND status = 'hoạt động' LIMIT 1";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, supplierUnitId);
+            ps.setInt(2, warehouseUnitId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("conversion_factor");
             }
         } catch (SQLException e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
-        return list;
-
+        return 1.0; // Mặc định nếu không có quy đổi
     }
 
     public List<Unit> getSupplierUnits() {

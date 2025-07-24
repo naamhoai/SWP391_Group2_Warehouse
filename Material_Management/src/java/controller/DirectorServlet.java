@@ -36,7 +36,7 @@ public class DirectorServlet extends HttpServlet {
                     request.setAttribute("user", user);
 
                     NotificationDAO notificationDAO = new NotificationDAO();
-                    List<Notification> notifications = notificationDAO.getAllNotifications(userId);
+                    List<Notification> notifications = notificationDAO.getDirectorNotifications(userId);
                     request.setAttribute("notifications", notifications);
                 }
             } else {

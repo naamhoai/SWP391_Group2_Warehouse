@@ -44,117 +44,128 @@
                 </div>
             </div>
 
+            <!-- Dashboard filter -->
             <div class="dashboard-header">
-                <h1>Bảng Điều Khiển Giám Đốc</h1>
+                <h1>Tổng Quan</h1>
+                <div class="date-filter">
+                    <form action="dashboard" method="get" class="filter-form">
+                        <button type="submit" name="timeFilter" value="today" class="filter-btn ${timeFilter == 'today' ? 'active' : ''}">Hôm Nay</button>
+                        <button type="submit" name="timeFilter" value="week" class="filter-btn ${timeFilter == 'week' ? 'active' : ''}">Tuần</button>
+                        <button type="submit" name="timeFilter" value="month" class="filter-btn ${timeFilter == 'month' ? 'active' : ''}">Tháng</button>
+                        <button type="submit" name="timeFilter" value="year" class="filter-btn ${timeFilter == 'year' ? 'active' : ''}">Năm</button>
+                    </form>
+                </div>
             </div>
+
+            <!-- Dashboard stats -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon" style="background-color: #2563eb;"><i class="fas fa-box"></i></div>
+                    <div class="stat-icon" style="background-color: #6dbdf2;"><i class="fas fa-box"></i></div>
                     <div class="stat-info">
                         <h3>Tổng Vật Tư</h3>
                         <p class="stat-number">${totalItems}</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon" style="background-color: #2ecc71;"><i class="fas fa-coins"></i></div>
-                    <div class="stat-info">
-                        <h3>Giá Trị Mua Tháng Này</h3>
-                        <p class="stat-number"><fmt:formatNumber value="${totalPurchaseValueThisMonth}" type="number" maxFractionDigits="0"/> ₫</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon" style="background-color: #f1c40f;"><i class="fas fa-file-alt"></i></div>
-                    <div class="stat-info">
-                        <h3>Yêu Cầu Mua Tháng Này</h3>
-                        <p class="stat-number">${totalPurchaseRequestsThisMonth}</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon" style="background-color: #8e44ad;"><i class="fas fa-check-circle"></i></div>
-                    <div class="stat-info">
-                        <h3>Đơn Đã Duyệt Tháng Này</h3>
-                        <p class="stat-number">${totalApprovedRequestsThisMonth}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="charts-grid" style="grid-template-columns: 1fr;">
-                <div class="chart-card">
-                    <h3>Biểu Đồ Số Lượng Yêu Cầu Mua Theo Tháng</h3>
-                    <canvas id="requestMonthChart"></canvas>
-                </div>
-            </div>
-            <div class="charts-grid" style="grid-template-columns: 1fr;">
-                <div class="chart-card">
-                    <h3>Biểu Đồ Giá Trị Mua Hàng Theo Tháng</h3>
-                    <canvas id="purchaseValueChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Bảng thống kê - 2 bảng trên 1 dòng -->
-            <div class="stats-tables-row">
-                <!-- Bảng thống kê số lượng yêu cầu mua theo tháng -->
-                <div class="stats-table-container">
-                    <div class="table-card">
-                        <h3><i class="fas fa-chart-bar"></i> Bảng Thống Kê Số Lượng Yêu Cầu Mua Theo Tháng</h3>
-                        <div class="table-responsive">
-                            <table class="stats-table">
-                                <thead>
-                                    <tr>
-                                        <th>Tháng</th>
-                                        <th>Số lượng yêu cầu mua</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <c:forEach var="item" items="${requestCountByMonth}">
-                                        <tr>
-                                            <td>${item.month}</td>
-                                            <td>${item.count}</td>
-                                        </tr>
-                                    </c:forEach>
-                                    <c:if test="${empty requestCountByMonth}">
-                                        <tr>
-                                            <td colspan="2" class="no-data">Không có dữ liệu</td>
-                                        </tr>
-                                    </c:if>
-                                </tbody>
-                            </table>
-                        </div>
+                        <p class="stat-change positive"><i class="fas fa-arrow-up"></i> Đã Cập Nhật</p>
                     </div>
                 </div>
 
-                <!-- Bảng thống kê giá trị mua hàng theo tháng -->
-                <div class="stats-table-container">
-                    <div class="table-card">
-                        <h3><i class="fas fa-chart-line"></i> Bảng Thống Kê Giá Trị Mua Hàng Theo Tháng</h3>
-                        <div class="table-responsive">
-                            <table class="stats-table">
-                                <thead>
-                                    <tr>
-                                        <th>Tháng</th>
-                                        <th>Giá trị mua hàng (VNĐ)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <c:forEach var="item" items="${purchaseValueByMonth}">
-                                        <tr>
-                                            <td>${item.month}</td>
-                                            <td><fmt:formatNumber value="${item.value}" type="currency" currencySymbol="₫"/></td>
-                                        </tr>
-                                    </c:forEach>
-                                    <c:if test="${empty purchaseValueByMonth}">
-                                        <tr>
-                                            <td colspan="2" class="no-data">Không có dữ liệu</td>
-                                        </tr>
-                                    </c:if>
-                                </tbody>
-                            </table>
-                        </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #2ecc71;"><i class="fas fa-shopping-cart"></i></div>
+                    <div class="stat-info">
+                        <h3>Yêu Cầu</h3>
+                        <p class="stat-number">${monthlyOrders}</p>
+                        <p class="stat-change positive"><i class="fas fa-arrow-up"></i>
+                            <c:choose>
+                                <c:when test="${timeFilter == 'today'}">Hôm Nay</c:when>
+                                <c:when test="${timeFilter == 'week'}">Tuần Này</c:when>
+                                <c:when test="${timeFilter == 'year'}">Năm Nay</c:when>
+                                <c:otherwise>Tháng Này</c:otherwise>
+                            </c:choose>
+                        </p>
                     </div>
                 </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #e74c3c;"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="stat-info">
+                        <h3>Vật Tư Sắp Hết</h3>
+                        <p class="stat-number">${lowStockItems}</p>
+                        <p class="stat-change negative"><i class="fas fa-arrow-down"></i> Cần Chú Ý</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #f1c40f;"><i class="fas fa-truck"></i></div>
+                    <div class="stat-info">
+                        <h3>Đang Giao</h3>
+                        <p class="stat-number">${pendingDeliveries}</p>
+                        <p class="stat-change positive"><i class="fas fa-arrow-up"></i> Đang Xử Lý</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table low stock -->
+            <div class="table-card">
+                <h3>Vật Tư Sắp Hết</h3>
+                <table>
+                    <thead>
+                        <tr><th>Vật Tư</th><th>Tồn Kho</th><th>Tồn Tối Thiểu</th><th>Trạng Thái</th></tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach items="${lowStockItemsList}" var="item">
+                            <tr>
+                                <td>${item.name}</td>
+                                <td>${item.quantity}</td>
+                                <td>${item.minStock}</td>
+                                <td><span class="status-badge ${item.status == 'Critical' ? 'danger' : 'warning'}">${item.status}</span></td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Inventory summary -->
+            <div class="inventory-summary">
+                <h3>Tổng Quan Kho</h3>
+                <div class="inventory-stats">
+                    <div class="inventory-stat"><span class="label">Còn Hàng:</span><span class="value">${inventoryStats.inStock}</span></div>
+                    <div class="inventory-stat"><span class="label">Sắp Hết:</span><span class="value">${inventoryStats.lowStock}</span></div>
+                    <div class="inventory-stat"><span class="label">Hết Hàng:</span><span class="value">${inventoryStats.outOfStock}</span></div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="charts-grid">
+                <div class="chart-card"><h3>Phân Bổ Vật Tư Theo Danh Mục</h3><canvas id="materialCategoryChart"></canvas></div>
+                <div class="chart-card"><h3>Xu Hướng Tồn Kho</h3><canvas id="inventoryTrendChart"></canvas></div>
+            </div>
+
+            <!-- Recent transactions -->
+            <div class="table-card">
+                <h3>Các Giao Dịch Gần Đây</h3>
+                <table>
+                    <thead>
+                        <tr><th>Mã Giao Dịch</th><th>Vật Tư</th><th>Loại</th><th>Số Lượng</th><th>Ngày</th></tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="transaction" items="${recentTransactions}">
+                            <tr>
+                                <td>${transaction.id}</td>
+                                <td>${transaction.materialName}</td>
+                                <td>${transaction.type}</td>
+                                <td>${transaction.quantity}</td>
+                                <td><fmt:formatDate value="${transaction.date}" pattern="dd/MM/yyyy HH:mm"/></td>
+                            </tr>
+                        </c:forEach>
+                        <c:if test="${empty recentTransactions}">
+                            <tr><td colspan="5" style="text-align: center;">Không có giao dịch gần đây nào.</td></tr>
+                        </c:if>
+                    </tbody>
+                </table>
             </div>
 
             <jsp:include page="footer.jsp" />
         </div>
+
         <script src="js/directorDashboard.js"></script>
         <script>
             var contextPath = "${pageContext.request.contextPath}";
@@ -194,11 +205,25 @@
                                         li.style.opacity = '0.7';
 
                                     const a = document.createElement('a');
-                                    a.href = contextPath + '/viewRequestDetail?requestId=' + n.requestId;
+                                    // Xử lý link dựa trên loại thông báo
+                                    let link = '';
+                                    let markReadUrl = '';
+                                    
+                                    if (n.message && n.message.includes('đơn mua')) {
+                                        // Thông báo về purchase order
+                                        link = contextPath + '/purchaseOrderDetail?id=' + n.requestId;
+                                        markReadUrl = `markNotificationRead?notificationId=${n.id}&purchaseOrderId=${n.requestId}`;
+                                    } else {
+                                        // Thông báo về request
+                                        link = contextPath + '/viewRequestDetail?requestId=' + n.requestId;
+                                        markReadUrl = `markNotificationRead?notificationId=${n.id}&requestId=${n.requestId}`;
+                                    }
+                                    
+                                    a.href = link;
                                     a.style = 'display:block;text-decoration:none;color:#007bff;';
                                     a.onclick = e => {
                                         e.preventDefault();
-                                        fetch(`markNotificationRead?notificationId=${n.id}&requestId=${n.requestId}`)
+                                        fetch(markReadUrl)
                                                 .then(() => location.href = a.href);
                                     };
 
@@ -207,7 +232,7 @@
                                     message.style = 'font-weight:500;margin-bottom:4px';
 
                                     const bottom = document.createElement('div');
-bottom.style = 'display:flex;justify-content:space-between;align-items:center';
+                                    bottom.style = 'display:flex;justify-content:space-between;align-items:center';
 
                                     const time = document.createElement('span');
                                     time.textContent = n.createdAt || "";
@@ -231,60 +256,6 @@ bottom.style = 'display:flex;justify-content:space-between;align-items:center';
 
                 updateNotifications();
                 setInterval(updateNotifications, 5000);
-            });
-            // Biểu đồ số lượng yêu cầu mua theo tháng
-            var requestMonthLabels = [<c:forEach var="label" items="${requestMonthLabels}" varStatus="loop">"${label}"<c:if test="${!loop.last}">,</c:if></c:forEach>];
-            var requestMonthValues = [<c:forEach var="v" items="${requestMonthValues}" varStatus="loop">${v}<c:if test="${!loop.last}">,</c:if></c:forEach>];
-            var ctxRequestMonth = document.getElementById('requestMonthChart').getContext('2d');
-            var requestMonthChart = new Chart(ctxRequestMonth, {
-                type: 'bar',
-                data: {
-                    labels: requestMonthLabels,
-                    datasets: [{
-                        label: 'Số lượng yêu cầu mua',
-                        data: requestMonthValues,
-                        backgroundColor: '#2563eb',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: { display: true, text: 'Số lượng' }
-                        }
-                    }
-                }
-            });
-            // Biểu đồ giá trị mua hàng theo tháng
-            var purchaseMonthLabels = [<c:forEach var="label" items="${purchaseMonthLabels}" varStatus="loop">"${label}"<c:if test="${!loop.last}">,</c:if></c:forEach>];
-            var purchaseMonthValues = [<c:forEach var="v" items="${purchaseMonthValues}" varStatus="loop">${v}<c:if test="${!loop.last}">,</c:if></c:forEach>];
-            var ctxPurchaseValue = document.getElementById('purchaseValueChart').getContext('2d');
-            var purchaseValueChart = new Chart(ctxPurchaseValue, {
-                type: 'line',
-                data: {
-                    labels: purchaseMonthLabels,
-                    datasets: [{
-                        label: 'Giá trị mua hàng (₫)',
-                        data: purchaseMonthValues,
-                        borderColor: '#2ecc71',
-                        backgroundColor: 'rgba(46,204,113,0.1)',
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: true } },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: { display: true, text: 'Giá trị (₫)' }
-                        }
-                    }
-                }
             });
         </script>
 

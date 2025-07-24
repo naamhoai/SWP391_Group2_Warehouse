@@ -106,7 +106,6 @@
             </div>
         </div>
     </c:if>
-    <a href="suppliers" class="back-btn">Quay lại</a>
 </div>
 
 <script src="js/sidebar.js"></script>

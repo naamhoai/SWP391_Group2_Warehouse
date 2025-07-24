@@ -14,16 +14,6 @@
 </head>
 <body>
     <jsp:include page="sidebar.jsp" />
-<%
-    String debugLog = (String) session.getAttribute("debugLog");
-    if (debugLog != null) {
-        session.removeAttribute("debugLog");
-%>
-    <div style="background:#f8d7da;color:#721c24;padding:10px;margin:10px 0 20px 0;border:1px solid #f5c6cb;border-radius:4px;">
-        <b>DEBUG LOG:</b><br/>
-        <pre style="white-space:pre-wrap"><%= debugLog %></pre>
-    </div>
-<% } %>
     <div class="purchase-order-list-container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
             <h1 class="purchase-order-list-title">Danh Sách Đơn Mua Vật Tư</h1>
@@ -31,9 +21,6 @@
                 <i class="fas fa-plus"></i> Tạo đơn mua mới
             </a>
         </div>
-        
-        <!-- Debug info -->
-        <!-- Đã xóa khối debug-info theo yêu cầu -->
         
         <!-- Thông báo thành công/lỗi -->
         <c:if test="${not empty successMessage}">
@@ -46,6 +33,22 @@
                 <strong>Lỗi!</strong> ${param.message}
             </div>
         </c:if>
+        <c:if test="${param.success == 'true' && not empty param.message}">
+            <div style="background:#d4edda; color:#155724; border:1px solid #c3e6cb; padding:15px; margin-bottom:20px; border-radius:8px; display:flex; align-items:center;">
+                <i class="fas fa-check-circle" style="margin-right:8px;"></i>
+                <strong>Thành công!</strong> ${param.message}
+            </div>
+        </c:if>
+        <c:if test="${param.msg == 'approved'}">
+            <div style="background:#d4edda;color:#155724;padding:12px 24px;border-radius:8px;margin-bottom:18px;font-weight:600;">
+                Đơn mua đã được duyệt thành công!
+            </div>
+        </c:if>
+        <c:if test="${param.msg == 'rejected'}">
+            <div style="background:#f8d7da;color:#721c24;padding:12px 24px;border-radius:8px;margin-bottom:18px;font-weight:600;">
+                Đơn mua đã bị từ chối!
+            </div>
+        </c:if>
         
         <!-- Phần tìm kiếm -->
         <div class="search-section">
@@ -53,7 +56,7 @@
                 <div class="search-row">
                     <div>
                         <label>Ngày</label>
-                        <select name="dateRange" id="dateRangeSelect">
+                        <select name="dateRange" id="dateRangeSelect" onchange="this.form.submit()">
                             <option value="all" <c:if test='${dateRange == "all" || empty dateRange}'>selected</c:if>>Tất cả</option>
                             <option value="today" <c:if test='${dateRange == "today"}'>selected</c:if>>Hôm nay</option>
                             <option value="1day" <c:if test='${dateRange == "1day"}'>selected</c:if>>1 ngày trước</option>
@@ -63,7 +66,7 @@
                     </div>
                     <div>
                         <label>Trạng thái</label>
-                        <select name="status">
+                        <select name="status" onchange="this.form.submit()">
                             <option value="">Tất cả</option>
                             <option value="pending" <c:if test="${status == 'pending'}">selected</c:if>>Chờ duyệt</option>
                             <option value="approved" <c:if test="${status == 'approved'}">selected</c:if>>Đã duyệt</option>
@@ -72,7 +75,7 @@
                     </div>
                     <div>
                         <label>Nhà cung cấp</label>
-                        <select name="supplier">
+                        <select name="supplier" onchange="this.form.submit()">
                             <option value="">Tất cả</option>
                             <c:forEach var="name" items="${supplierNamesInOrders}">
                                 <option value="${name}" <c:if test='${supplier == name}'>selected</c:if>>${name}</option>
@@ -80,8 +83,15 @@
                         </select>
                     </div>
                     <div>
+                        <label for="sortOrder" style="display:block;">Sắp xếp ID</label>
+                        <select name="sortOrder" id="sortOrder" style="width:100%;padding:7px 12px;border:1.5px solid #e3e3e3;border-radius:6px;font-size:15px;background:#f8fafd;margin-bottom:2px;" onchange="this.form.submit()">
+                            <option value="desc" ${param.sortOrder == 'desc' || empty param.sortOrder ? 'selected' : ''}>Giảm dần</option>
+                            <option value="asc" ${param.sortOrder == 'asc' ? 'selected' : ''}>Tăng dần</option>
+                        </select>
+                    </div>
+                    <div>
                         <label>&nbsp;</label>
-                        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+                        <button type="submit" class="btn btn-primary" style="display:none;">Tìm kiếm</button>
                     </div>
                 </div>
             </form>
@@ -122,13 +132,13 @@
                         </td>
                         <td>
                             <c:choose>
-                                <c:when test="${order.status eq 'Approved' || order.status eq 'Đã duyệt'}">
+                                <c:when test="${order.status eq 'Completed'}">
                                     <span style="background:#d4f5e9;color:#2e7d32;padding:4px 12px;border-radius:8px;font-weight:600;">Đã duyệt</span>
                                 </c:when>
-                                <c:when test="${order.status eq 'Pending' || order.status eq 'Chờ duyệt'}">
+                                <c:when test="${order.status eq 'Pending'}">
                                     <span style="background:#fff8e1;color:#fbc02d;padding:4px 12px;border-radius:8px;font-weight:600;">Chờ duyệt</span>
                                 </c:when>
-                                <c:when test="${order.status eq 'Rejected' || order.status eq 'Từ chối'}">
+                                <c:when test="${order.status eq 'Rejected'}">
                                     <span style="background:#ffebee;color:#d32f2f;padding:4px 12px;border-radius:8px;font-weight:600;">Từ chối</span>
                                 </c:when>
                                 <c:otherwise>
@@ -141,15 +151,15 @@
                                 <i class="fas fa-eye"></i> Chi tiết
                             </a>
                             <c:choose>
-                                <c:when test="${order.status eq 'Pending' || order.status eq 'Chờ duyệt'}">
-                                    <a class="btn btn-warning" style="padding: 5px 10px; font-size: 12px; margin-left:4px; color:#fff;" href="editPurchaseOrder?orderId=${order.purchaseOrderId}">
-                                        <i class="fas fa-edit"></i> Sửa
-                                    </a>
-                                </c:when>
-                                <c:otherwise>
+                                <c:when test="${order.status eq 'Completed'}">
                                     <button class="btn btn-warning" style="padding: 5px 10px; font-size: 12px; margin-left:4px; color:#fff;" onclick="showEditWarning('${order.status}')">
                                         <i class="fas fa-edit"></i> Sửa
                                     </button>
+                                </c:when>
+                                <c:otherwise>
+                                    <a class="btn btn-warning" style="padding: 5px 10px; font-size: 12px; margin-left:4px; color:#fff;" href="editPurchaseOrder?orderId=${order.purchaseOrderId}">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </a>
                                 </c:otherwise>
                             </c:choose>
                             <a class="btn btn-info" style="padding: 5px 10px; font-size: 12px; margin-left:4px; color:#fff;" href="purchaseOrderHistory?orderId=${order.purchaseOrderId}">
@@ -171,18 +181,18 @@
           <div class="pagination-form" style="justify-content: center;">
             <c:choose>
               <c:when test="${currentPage > 1}">
-                <a href="purchaseOrderList?page=${currentPage - 1}&fromDate=${fromDate}&toDate=${toDate}&status=${status}&supplier=${supplier}" class="page-button" aria-label="Trang trước">&laquo;</a>
+                <a href="purchaseOrderList?page=${currentPage - 1}&fromDate=${fromDate}&toDate=${toDate}&status=${status}&supplier=${supplier}&sortOrder=${param.sortOrder}" class="page-button" aria-label="Trang trước">&laquo;</a>
               </c:when>
               <c:otherwise>
                 <button class="page-button" disabled aria-label="Trang trước">&laquo;</button>
               </c:otherwise>
             </c:choose>
             <c:forEach var="i" begin="1" end="${totalPages}">
-              <a href="purchaseOrderList?page=${i}&fromDate=${fromDate}&toDate=${toDate}&status=${status}&supplier=${supplier}" class="page-button${i == currentPage ? ' active' : ''}">${i}</a>
+              <a href="purchaseOrderList?page=${i}&fromDate=${fromDate}&toDate=${toDate}&status=${status}&supplier=${supplier}&sortOrder=${param.sortOrder}" class="page-button${i == currentPage ? ' active' : ''}">${i}</a>
             </c:forEach>
             <c:choose>
               <c:when test="${currentPage < totalPages}">
-                <a href="purchaseOrderList?page=${currentPage + 1}&fromDate=${fromDate}&toDate=${toDate}&status=${status}&supplier=${supplier}" class="page-button" aria-label="Trang sau">&raquo;</a>
+                <a href="purchaseOrderList?page=${currentPage + 1}&fromDate=${fromDate}&toDate=${toDate}&status=${status}&supplier=${supplier}&sortOrder=${param.sortOrder}" class="page-button" aria-label="Trang sau">&raquo;</a>
               </c:when>
               <c:otherwise>
                 <button class="page-button" disabled aria-label="Trang sau">&raquo;</button>
@@ -202,7 +212,7 @@
         function toggleDateInputs() {
             const dateRangeSelect = document.getElementById('dateRangeSelect');
             const dateInputs = document.getElementById('dateInputs');
-            
+            if (!dateInputs) return; // Fix lỗi null
             if (dateRangeSelect.value === 'custom') {
                 dateInputs.classList.add('show');
             } else {
@@ -272,5 +282,25 @@
             alert(message);
         }
     </script>
+    <script>
+window.onerror = function(message, source, lineno, colno, error) {
+    var errorDiv = document.createElement('div');
+    errorDiv.style.background = '#ffebee';
+    errorDiv.style.color = '#b71c1c';
+    errorDiv.style.padding = '12px 18px';
+    errorDiv.style.margin = '12px 0 12px auto';
+    errorDiv.style.border = '1px solid #f44336';
+    errorDiv.style.borderRadius = '8px';
+    errorDiv.style.fontWeight = 'bold';
+    errorDiv.style.fontSize = '15px';
+    errorDiv.style.width = '420px';
+    errorDiv.style.maxWidth = '90vw';
+    errorDiv.style.textAlign = 'right';
+    errorDiv.style.boxShadow = '0 2px 8px rgba(244,67,54,0.08)';
+    errorDiv.innerText = 'Lỗi JS: ' + message + ' (tại dòng ' + lineno + ')';
+    document.body.prepend(errorDiv);
+    return false;
+};
+</script>
 </body>
 </html> 

@@ -18,35 +18,16 @@ public class PurchaseOrderDetailDAO extends DBContext {
                     PurchaseOrderDetail detail = new PurchaseOrderDetail();
                     detail.setPurchaseOrderDetailId(rs.getInt("purchase_order_detail_id"));
                     detail.setPurchaseOrderId(rs.getInt("purchase_order_id"));
-                    
-                    // material_id có thể null
                     int materialId = rs.getInt("material_id");
                     if (!rs.wasNull()) {
                         detail.setMaterialId(materialId);
                     }
-                    
                     detail.setMaterialName(rs.getString("material_name"));
                     detail.setQuantity(rs.getInt("quantity"));
                     detail.setUnit(rs.getString("unit"));
-                    detail.setBaseUnit(rs.getString("base_unit"));
                     detail.setConvertedUnit(rs.getString("converted_unit"));
                     detail.setUnitPrice(rs.getDouble("unit_price"));
                     detail.setTotalPrice(rs.getDouble("total_price"));
-                    detail.setDescription(rs.getString("description"));
-                    detail.setMaterialCondition(rs.getString("material_condition"));
-                    
-                    // category_id có thể null
-                    int categoryId = rs.getInt("category_id");
-                    if (!rs.wasNull()) {
-                        detail.setCategoryId(categoryId);
-                    }
-                    
-                    // conversion_id có thể null
-                    int conversionId = rs.getInt("conversion_id");
-                    if (!rs.wasNull()) {
-                        detail.setConversionId(conversionId);
-                    }
-                    
                     list.add(detail);
                 }
             }
@@ -57,42 +38,41 @@ public class PurchaseOrderDetailDAO extends DBContext {
     }
 
     public String addPurchaseOrderDetail(PurchaseOrderDetail detail, Connection conn) {
-        String sql = "INSERT INTO purchase_order_details (purchase_order_id, material_id, material_name, category_id, conversion_id, quantity, unit, base_unit, converted_unit, unit_price, total_price, description, material_condition) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try {
+            // Lấy material_id từ material_name
+            int materialId = 0;
+            String sqlMaterial = "SELECT material_id FROM materials WHERE name = ? LIMIT 1";
+            try (PreparedStatement psMat = conn.prepareStatement(sqlMaterial)) {
+                psMat.setString(1, detail.getMaterialName());
+                try (ResultSet rsMat = psMat.executeQuery()) {
+                    if (rsMat.next()) {
+                        materialId = rsMat.getInt("material_id");
+                    } else {
+                        return "Không tìm thấy vật tư: '" + detail.getMaterialName() + "' trong hệ thống.";
+                    }
+                }
+            }
+            detail.setMaterialId(materialId);
+
+            String sql = "INSERT INTO purchase_order_details (purchase_order_id, material_id, material_name, quantity, unit, converted_unit, unit_price, total_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, detail.getPurchaseOrderId());
-            // material_id có thể null
             if (detail.getMaterialId() > 0) {
                 ps.setInt(2, detail.getMaterialId());
             } else {
-                ps.setNull(2, Types.INTEGER);
+                    ps.setNull(2, java.sql.Types.INTEGER);
             }
             ps.setString(3, detail.getMaterialName());
-            // category_id có thể null
-            if (detail.getCategoryId() > 0) {
-                ps.setInt(4, detail.getCategoryId());
-            } else {
-                ps.setNull(4, Types.INTEGER);
-            }
-            // conversion_id có thể null
-            if (detail.getConversionId() > 0) {
-                ps.setInt(5, detail.getConversionId());
-            } else {
-                ps.setNull(5, Types.INTEGER);
-            }
-            ps.setInt(6, detail.getQuantity());
-            ps.setString(7, detail.getUnit());
-            ps.setString(8, detail.getBaseUnit());
-            ps.setString(9, detail.getConvertedUnit());
-            ps.setDouble(10, detail.getUnitPrice());
-            ps.setDouble(11, detail.getTotalPrice());
-            ps.setString(12, detail.getDescription());
-            ps.setString(13, detail.getMaterialCondition());
-            System.out.println("==> Đang insert chi tiết: " + detail.getMaterialName());
+                ps.setInt(4, detail.getQuantity());
+                ps.setString(5, detail.getUnit());
+                ps.setString(6, detail.getConvertedUnit());
+                ps.setDouble(7, detail.getUnitPrice());
+                ps.setDouble(8, detail.getTotalPrice());
             ps.executeUpdate();
             return null;
-        } catch (SQLException e) {
+            }
+        } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("==> Lỗi khi insert chi tiết: " + detail.getMaterialName());
             return "Lỗi khi insert chi tiết: " + detail.getMaterialName() + " - " + e.getMessage();
         }
     }

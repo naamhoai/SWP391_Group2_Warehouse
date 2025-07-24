@@ -30,6 +30,8 @@ import com.google.gson.Gson;
 import dao.NotificationDAO;
 import dao.UserDAO;
 import dao.UnitDAO;
+import model.Material;
+import java.sql.Connection;
 
 @WebServlet(name="CreatePurchaseOrderServlet", urlPatterns={"/createPurchaseOrder"})
 public class CreatePurchaseOrderServlet extends HttpServlet {
@@ -164,44 +166,40 @@ public class CreatePurchaseOrderServlet extends HttpServlet {
             order.setApprovalStatus("Pending");
 
             // Lưu đơn mua
-            PurchaseOrderDAO orderDAO = new PurchaseOrderDAO();
-            orderDAO.addPurchaseOrder(order);
-
-            // Lưu chi tiết vật tư
-            PurchaseOrderDetailDAO detailDAO = new PurchaseOrderDetailDAO();
-            StringBuilder errorMsg = new StringBuilder();
-            java.sql.Connection conn = null;
+            Connection conn = null;
             int insertedCount = 0;
+            StringBuilder errorMsg = new StringBuilder();
             try {
                 conn = new DBContext().getConnection();
+                PurchaseOrderDAO orderDAO = new PurchaseOrderDAO(conn);
+                PurchaseOrderDetailDAO detailDAO = new PurchaseOrderDetailDAO();
+                // Lưu đơn mua
+                orderDAO.addPurchaseOrder(order); // id sẽ được set vào order
                 for (int i = 0; i < materialNames.length; i++) {
-                    System.out.println("=== DEBUG: Xử lý dòng " + (i+1) + " ===");
-                    System.out.println("materialNames[" + i + "]: '" + materialNames[i] + "'");
-                    System.out.println("quantities[" + i + "]: '" + quantities[i] + "'");
-                    System.out.println("units[" + i + "]: '" + units[i] + "'");
-                    System.out.println("baseUnits[" + i + "]: '" + baseUnits[i] + "'");
-                    System.out.println("unitPrices[" + i + "]: '" + unitPrices[i] + "'");
-                    
-                    if (materialNames[i] != null && !materialNames[i].trim().isEmpty()) {
-                        System.out.println("==> Dòng " + (i+1) + " có dữ liệu, sẽ insert");
-                        PurchaseOrderDetail detail = new PurchaseOrderDetail();
-                        detail.setPurchaseOrderId(order.getPurchaseOrderId());
-                        detail.setMaterialName(materialNames[i].trim());
-                        detail.setQuantity(Integer.parseInt(quantities[i]));
-                        detail.setUnit(units[i] != null ? units[i].trim() : "");
-                        detail.setConvertedUnit(baseUnits[i] != null ? baseUnits[i].trim() : "");
-                        detail.setBaseUnit("");
-                        detail.setUnitPrice(Double.parseDouble(unitPrices[i]));
-                        detail.setTotalPrice(detail.getQuantity() * detail.getUnitPrice());
-                        detail.setMaterialCondition("Mới");
-                        String error = detailDAO.addPurchaseOrderDetail(detail, conn);
-                        if (error != null) {
-                            errorMsg.append(error).append("<br>");
-                        } else {
-                            insertedCount++;
-                        }
+                    String matName = (materialNames[i] != null) ? materialNames[i].trim() : "";
+                    String qty = (quantities != null && i < quantities.length) ? quantities[i] : "";
+                    String unit = (units != null && i < units.length) ? units[i] : "";
+                    String convertedUnit = (baseUnits != null && i < baseUnits.length) ? baseUnits[i] : "";
+                    String unitPrice = (unitPrices != null && i < unitPrices.length) ? unitPrices[i] : "";
+
+                    if (matName.isEmpty() || qty.isEmpty() || unit.isEmpty() || convertedUnit.isEmpty() || unitPrice.isEmpty()) {
+                        System.out.println("==> Dòng " + (i+1) + " thiếu dữ liệu, bỏ qua. materialName='" + matName + "', quantity='" + qty + "', unit='" + unit + "', convertedUnit='" + convertedUnit + "', unitPrice='" + unitPrice + "'");
+                        continue;
+                    }
+                    System.out.println("==> Dòng " + (i+1) + " có dữ liệu, sẽ insert");
+                    PurchaseOrderDetail detail = new PurchaseOrderDetail();
+                    detail.setPurchaseOrderId(order.getPurchaseOrderId());
+                    detail.setMaterialName(matName);
+                    detail.setQuantity(Integer.parseInt(qty));
+                    detail.setUnit(unit);
+                    detail.setConvertedUnit(convertedUnit);
+                    detail.setUnitPrice(Double.parseDouble(unitPrice));
+                    detail.setTotalPrice(detail.getQuantity() * detail.getUnitPrice());
+                    String error = detailDAO.addPurchaseOrderDetail(detail, conn);
+                    if (error != null) {
+                        errorMsg.append(error).append("<br>");
                     } else {
-                        System.out.println("==> Dòng " + (i+1) + " TRỐNG, bỏ qua");
+                        insertedCount++;
                     }
                 }
                 System.out.println("=== DEBUG: Đã insert " + insertedCount + " dòng chi tiết ===");
@@ -212,29 +210,21 @@ public class CreatePurchaseOrderServlet extends HttpServlet {
                 if (conn != null) try { conn.close(); } catch (Exception e) {}
             }
             if (errorMsg.length() > 0) {
-                request.setAttribute("errorMsg", errorMsg.toString());
+                response.setContentType("text/html;charset=UTF-8");
+                response.getWriter().println("<h2 style='color:red'>Lỗi khi lưu chi tiết vật tư:</h2>");
+                response.getWriter().println("<div style='color:#b71c1c; background:#ffebee; padding:12px 18px; border-radius:8px; margin:12px 0; font-weight:bold;'>" + errorMsg.toString() + "</div>");
+                return;
             }
 
-            StringBuilder debugLog = new StringBuilder();
-            // Gửi thông báo cho giám đốc khi tạo đơn mua thành công
+            // Gửi thông báo cho giám đốc
             UserDAO userDAO = new UserDAO();
             Integer directorId = userDAO.getDirectorId();
-            debugLog.append("DEBUG: Director ID = ").append(directorId).append("\n");
             if (directorId != null) {
                 NotificationDAO notificationDAO = new NotificationDAO();
-                String message = "Có đơn mua mới #" + order.getPurchaseOrderId() + " cần phê duyệt.";
-                debugLog.append("DEBUG: Sending notification to director: ").append(message).append("\n");
-                try {
-                    notificationDAO.addPurchaseOrderNotification(directorId, message, order.getPurchaseOrderId());
-                    debugLog.append("DEBUG: Notification sent successfully\n");
-                } catch (Exception ex) {
-                    debugLog.append("ERROR: ").append(ex.getMessage()).append("\n");
-                }
-            } else {
-                debugLog.append("DEBUG: No director found in database\n");
+                String message = "Có đơn mua mới #" + order.getPurchaseOrderId() + " từ " + user.getFullname();
+                notificationDAO.addNotification(directorId, message, order.getPurchaseOrderId());
             }
-            request.getSession().setAttribute("debugLog", debugLog.toString());
-            
+
             // Chuyển hướng thành công ngay lập tức
             response.sendRedirect("purchaseOrderList?success=true&orderId=" + order.getPurchaseOrderId());
             return;
