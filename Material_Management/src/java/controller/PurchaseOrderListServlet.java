@@ -180,53 +180,59 @@ public class PurchaseOrderListServlet extends HttpServlet {
                     // Xử lý duyệt đơn
                     PurchaseOrder order = purchaseOrderDAO.getPurchaseOrderById(orderId);
                     if (order != null) {
-                        order.setStatus("Completed"); // Đã duyệt thì phải là Completed
+                        order.setStatus("Completed");
                         order.setApprovalStatus("Approved");
                         order.setRejectionReason(null);
                         order.setNote(reason != null ? reason : "");
                         purchaseOrderDAO.updatePurchaseOrder(order);
                         // --- BẮT ĐẦU: Cập nhật inventory ---
-                        PurchaseOrderDetailDAO detailDAO = new PurchaseOrderDetailDAO();
-                        List<PurchaseOrderDetail> details = detailDAO.getDetailsByOrderId(orderId);
-                        InventoryDAO inventoryDAO = new InventoryDAO();
-                        UnitConversionDao unitConversionDao = new UnitConversionDao();
-                        StringBuilder inventoryError = new StringBuilder();
-                        for (PurchaseOrderDetail detail : details) {
-                            int materialId = detail.getMaterialId();
-                            int quantity = detail.getQuantity(); // số lượng trên đơn mua (cuộn)
-                            String unit = detail.getUnit(); // đơn vị trên đơn mua (Cuộn)
-                            String baseUnit = detail.getConvertedUnit(); // đơn vị gốc (Mét)
-                            double unitPrice = detail.getUnitPrice();
-                            // Lấy unit_id từ tên đơn vị
-                            int supplierUnitId = unitConversionDao.getUnitIdByName(unit);
-                            int warehouseUnitId = unitConversionDao.getUnitIdByName(baseUnit);
-                            // Lấy hệ số quy đổi từ DB
-                            double conversionFactor = unitConversionDao.getConversionFactor(supplierUnitId, warehouseUnitId);
-                            int quantityInBaseUnit = (int) Math.round(quantity * conversionFactor);
-                            if (materialId > 0) {
-                                try {
-                                    int affectedRows = inventoryDAO.addOrUpdateInventoryWithResult(
-                                        materialId,
-                                        detail.getMaterialName(),
-                                        quantityInBaseUnit,
-                                        "Mới",
-                                        unitPrice
-                                    );
-                                    if (affectedRows == 0) {
-                                        inventoryError.append("Không thể cập nhật tồn kho cho vật tư ID: ").append(materialId)
-                                            .append(", Số lượng: ").append(quantityInBaseUnit).append(", Tình trạng: Mới<br>");
+                        try (java.sql.Connection conn = new dal.DBContext().getConnection()) {
+                            PurchaseOrderDetailDAO detailDAO = new PurchaseOrderDetailDAO(conn);
+                            java.util.List<PurchaseOrderDetail> details = detailDAO.getDetailsByOrderId(orderId);
+                            InventoryDAO inventoryDAO = new InventoryDAO(conn);
+                            UnitConversionDao unitConversionDao = new UnitConversionDao(conn);
+                            StringBuilder inventoryError = new StringBuilder();
+                            StringBuilder debugInfo = new StringBuilder();
+                            for (PurchaseOrderDetail detail : details) {
+                                int materialId = detail.getMaterialId();
+                                int quantity = detail.getQuantity();
+                                String unit = detail.getUnit();
+                                String baseUnit = detail.getConvertedUnit();
+                                double unitPrice = detail.getUnitPrice();
+                                int supplierUnitId = unitConversionDao.getUnitIdByName(unit);
+                                int warehouseUnitId = unitConversionDao.getUnitIdByName(baseUnit);
+                                double conversionFactor = unitConversionDao.getConversionFactor(supplierUnitId, warehouseUnitId);
+                                if (conversionFactor <= 0) conversionFactor = 1.0; // Nếu không tìm thấy hệ số quy đổi, mặc định là 1
+                                int quantityInBaseUnit = (int) Math.round(quantity * conversionFactor);
+                                String debugLine = "[DEBUG] ID: " + materialId + ", quantity: " + quantity + ", unit: " + unit + ", baseUnit: " + baseUnit + ", conversionFactor: " + conversionFactor + ", quantityInBaseUnit: " + quantityInBaseUnit + ", unitPrice: " + unitPrice + "<br>";
+                                debugInfo.append(debugLine);
+                                if (materialId > 0) {
+                                    try {
+                                        int affectedRows = inventoryDAO.addOrUpdateInventoryWithResult(
+                                            materialId,
+                                            detail.getMaterialName(),
+                                            quantityInBaseUnit,
+                                            "Mới",
+                                            unitPrice
+                                        );
+                                        if (affectedRows == 0) {
+                                            inventoryError.append("Không thể cập nhật tồn kho cho vật tư ID: ").append(materialId)
+                                                .append(", Số lượng: ").append(quantityInBaseUnit).append(", Tình trạng: Mới<br>");
+                                        }
+                                    } catch (Exception ex) {
+                                        inventoryError.append("Lỗi cập nhật tồn kho cho vật tư ID: ").append(materialId)
+                                            .append(", lỗi: ").append(ex.getMessage()).append("<br>");
                                     }
-                                } catch (Exception ex) {
-                                    inventoryError.append("Lỗi cập nhật tồn kho cho vật tư ID: ").append(materialId)
-                                        .append(", lỗi: ").append(ex.getMessage()).append("<br>");
                                 }
                             }
-                        }
-                        if (inventoryError.length() > 0) {
-                            response.setContentType("text/html;charset=UTF-8");
-                            response.getWriter().println("<h2 style='color:red'>Lỗi khi cập nhật tồn kho:</h2>");
-                            response.getWriter().println("<div style='color:#b71c1c; background:#ffebee; padding:12px 18px; border-radius:8px; margin:12px 0; font-weight:bold;'>" + inventoryError.toString() + "</div>");
-                            return;
+                            if (inventoryError.length() > 0 || debugInfo.length() > 0) {
+                                response.setContentType("text/html;charset=UTF-8");
+                                response.getWriter().println("<h2 style='color:red'>Lỗi khi cập nhật tồn kho:</h2>");
+                                response.getWriter().println("<div style='color:#b71c1c; background:#ffebee; padding:12px 18px; border-radius:8px; margin:12px 0; font-weight:bold;'>" + inventoryError.toString() + "</div>");
+                                response.getWriter().println("<h3>Thông tin debug từng vật tư:</h3>");
+                                response.getWriter().println("<div style='color:#333; background:#f5f5f5; padding:12px 18px; border-radius:8px; margin:12px 0;'>" + debugInfo.toString() + "</div>");
+                                return;
+                            }
                         }
                         // --- KẾT THÚC: Cập nhật inventory ---
                         response.sendRedirect("purchaseOrderList?msg=approved");

@@ -7,6 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PurchaseOrderDetailDAO extends DBContext {
+    private Connection conn;
+    public PurchaseOrderDetailDAO(Connection conn) { this.conn = conn; }
+    public PurchaseOrderDetailDAO() {}
+
     public List<PurchaseOrderDetail> getDetailsByOrderId(int orderId) {
         List<PurchaseOrderDetail> list = new ArrayList<>();
         String sql = "SELECT * FROM purchase_order_details WHERE purchase_order_id = ?";
@@ -39,9 +43,9 @@ public class PurchaseOrderDetailDAO extends DBContext {
 
     public String addPurchaseOrderDetail(PurchaseOrderDetail detail, Connection conn) {
         try {
-            // Lấy material_id từ material_name
+            
             int materialId = 0;
-            String sqlMaterial = "SELECT material_id FROM materials WHERE name = ? LIMIT 1";
+            String sqlMaterial = "SELECT material_id FROM materials WHERE name = ? ";
             try (PreparedStatement psMat = conn.prepareStatement(sqlMaterial)) {
                 psMat.setString(1, detail.getMaterialName());
                 try (ResultSet rsMat = psMat.executeQuery()) {

@@ -15,6 +15,10 @@ import model.*;
  */
 public class UnitConversionDao extends dal.DBContext {
 
+    private Connection conn;
+    public UnitConversionDao(Connection conn) { this.conn = conn; }
+    public UnitConversionDao() {}
+
     public List<UnitConversion> getAllUnit(int pages) {
         List<UnitConversion> list = new ArrayList<>();
         String sql = " SELECT d.conversion_id, u.unit_name, u.status AS unit_status, \n"
