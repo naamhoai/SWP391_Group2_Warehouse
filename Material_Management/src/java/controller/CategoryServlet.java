@@ -99,6 +99,8 @@ public class CategoryServlet extends HttpServlet {
         String sortBy = request.getParameter("sortBy");
         String pageStr = request.getParameter("page");
         String hiddenFilter = request.getParameter("hiddenFilter");
+        String sortOrder = request.getParameter("sortOrder");
+        if (sortOrder == null || sortOrder.isEmpty()) sortOrder = "asc";
 
         // Clean up keyword
         if (keyword != null) {
@@ -136,7 +138,7 @@ public class CategoryServlet extends HttpServlet {
         int totalCategories = categoryDAO.getTotalCategories(keyword, parentId, hiddenFilter);
 
         // Lấy danh sách category cho trang hiện tại (chỉ lấy danh mục con)
-        List<Category> categories = categoryDAO.getFilteredCategoriesWithPaging(keyword, parentId, sortBy, hiddenFilter, currentPage, PAGE_SIZE);
+        List<Category> categories = categoryDAO.getFilteredCategoriesWithPaging(keyword, parentId, sortBy, sortOrder, hiddenFilter, currentPage, PAGE_SIZE);
         
         // Lấy danh sách danh mục vật tư cho dropdown filter
         List<Category> parentCategories = categoryDAO.getVisibleParentCategories();

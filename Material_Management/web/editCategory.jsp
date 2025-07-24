@@ -9,7 +9,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Sửa Loại Vật Tư</title>
+        <title>Chỉnh sửa loại vật tư</title>
         <link rel="stylesheet" href="css/sidebar.css">
         <link rel="stylesheet" href="css/common.css">
         <link rel="stylesheet" href="css/category.css">
@@ -17,7 +17,8 @@
     <body>
         <div class="container">
             <div class="form-container">
-                <h2>Chỉnh sửa danh mục</h2>
+                <h1>Chỉnh sửa loại vật tư</h1>
+                <div style="height: 24px;"></div>
 
                 <!-- Thông báo thành công -->
                 <c:if test="${not empty success}">

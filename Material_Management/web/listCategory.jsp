@@ -24,7 +24,7 @@
                 <h1>Quản lý danh mục</h1>
             </div>
             <div class="header-actions">
-                <a href="categories?action=add" class="btn-add">+ Thêm danh mục mới</a>
+                <a href="categories?action=add" class="btn-add">+ Thêm mới loại vật tư</a>
             </div>
         </div>
 
@@ -61,9 +61,14 @@
                 <option value="hidden" ${param.hiddenFilter == 'hidden' ? 'selected' : ''}>Đã ẩn</option>
             </select>
 
-            <button type="submit" name="sortBy" value="id" class="sort-btn ${sortBy == 'id' ? 'active' : ''}">
+            <button type="submit" name="sortBy" value="id" class="sort-btn ${param.sortBy == 'id' ? 'active' : ''}" onclick="toggleSortOrder();">
                 Sắp xếp theo ID
+                <c:choose>
+                    <c:when test="${param.sortBy == 'id' && param.sortOrder == 'desc'}">↓</c:when>
+                    <c:otherwise>↑</c:otherwise>
+                </c:choose>
             </button>
+            <input type="hidden" id="sortOrder" name="sortOrder" value="${param.sortOrder != null ? param.sortOrder : 'asc'}" />
 
             <button type="submit" class="search-btn">Tìm kiếm</button>
         </form>
@@ -170,4 +175,15 @@
         
     </div>
 </body>
+<script>
+function toggleSortOrder() {
+    const sortOrderInput = document.getElementById('sortOrder');
+    const currentSortBy = '${param.sortBy}';
+    if (currentSortBy === 'id') {
+        sortOrderInput.value = sortOrderInput.value === 'asc' ? 'desc' : 'asc';
+    } else {
+        sortOrderInput.value = 'asc';
+    }
+}
+</script>
 </html>

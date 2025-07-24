@@ -9,7 +9,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Thêm Loại Vật Tư</title>
+        <title>Thêm mới loại vật tư</title>
         <link rel="stylesheet" href="css/sidebar.css">
         <link rel="stylesheet" href="css/common.css">
         <link rel="stylesheet" href="css/category.css">
@@ -17,7 +17,8 @@
     <body>
         <div class="container">
             <div class="form-container">
-                <h2>Thêm danh mục mới</h2>
+                <h1>Thêm mới loại vật tư</h1>
+                <div style="height: 24px;"></div>
                 <!-- Thông báo thành công -->
                 <c:if test="${not empty success}">
                     <div class="message success">
@@ -67,7 +68,7 @@
                     </div>
                     <div class="form-actions">
                         <a href="${pageContext.request.contextPath}/categories" class="btn-cancel">Hủy</a>
-                        <button type="submit" class="btn-submit">Thêm mới</button>
+                        <button type="submit" class="btn-add">+ Thêm mới loại vật tư</button>
                     </div>
                 </form>
             </div>

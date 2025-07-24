@@ -423,7 +423,7 @@ public class CategoryDAO extends DBContext {
         return null;
     }
 
-    public List<Category> getFilteredCategoriesWithPaging(String keyword, Integer parentId, String sortBy, String hiddenFilter, int page, int pageSize) {
+    public List<Category> getFilteredCategoriesWithPaging(String keyword, Integer parentId, String sortBy, String sortOrder, String hiddenFilter, int page, int pageSize) {
         List<Category> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM categories WHERE parent_id IS NOT NULL");
         List<Object> params = new ArrayList<>();
@@ -454,7 +454,12 @@ public class CategoryDAO extends DBContext {
                     break;
                 case "id":
                 default:
-                    sql.append(", category_id ASC");
+                    sql.append(", category_id ");
+                    if (sortOrder != null && sortOrder.equalsIgnoreCase("desc")) {
+                        sql.append("DESC");
+                    } else {
+                        sql.append("ASC");
+                    }
                     break;
             }
         } else {
