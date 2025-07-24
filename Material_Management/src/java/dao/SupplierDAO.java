@@ -51,6 +51,7 @@ public class SupplierDAO extends DBContext {
                     rs.getString("supplier_phone"),
                     rs.getString("address"),
                     rs.getString("status"),
+                    rs.getDate("start_date"),
                     rs.getTimestamp("created_at"),
                     rs.getTimestamp("updated_at")
                 ));
@@ -79,6 +80,7 @@ public class SupplierDAO extends DBContext {
                     rs.getString("supplier_phone"),
                     rs.getString("address"),
                     rs.getString("status"),
+                    rs.getDate("start_date"),
                     rs.getTimestamp("created_at"),
                     rs.getTimestamp("updated_at")
                 ));
@@ -108,6 +110,7 @@ public class SupplierDAO extends DBContext {
                     rs.getString("supplier_phone"),
                     rs.getString("address"),
                     rs.getString("status"),
+                    rs.getDate("start_date"),
                     rs.getTimestamp("created_at"),
                     rs.getTimestamp("updated_at")
                 );
@@ -238,6 +241,7 @@ public class SupplierDAO extends DBContext {
                     rs.getString("supplier_phone"),
                     rs.getString("address"),
                     rs.getString("status"),
+                    rs.getDate("start_date"),
                     rs.getTimestamp("created_at"),
                     rs.getTimestamp("updated_at")
                 ));
@@ -353,6 +357,7 @@ public class SupplierDAO extends DBContext {
                     rs.getString("supplier_phone"),
                     rs.getString("address"),
                     rs.getString("status"),
+                    rs.getDate("start_date"),
                     rs.getTimestamp("created_at"),
                     rs.getTimestamp("updated_at")
                 ));
@@ -399,6 +404,7 @@ public class SupplierDAO extends DBContext {
                     rs.getString("supplier_phone"),
                     rs.getString("address"),
                     rs.getString("status"),
+                    rs.getDate("start_date"),
                     rs.getTimestamp("created_at"),
                     rs.getTimestamp("updated_at")
                 );
@@ -429,5 +435,24 @@ public class SupplierDAO extends DBContext {
             closeResources();
         }
         return -1;
+    }
+
+    /**
+     * Cập nhật start_date và status cho supplier nếu đang là inactive
+     */
+    public boolean activateSupplierIfInactive(int supplierId) {
+        String sql = "UPDATE supplier SET start_date = CURDATE(), status = 'active' WHERE supplier_id = ? AND status = 'inactive' AND (start_date IS NULL OR start_date = '')";
+        try {
+            conn = new DBContext().getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, supplierId);
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Lỗi khi cập nhật start_date và status cho supplier: {0}", e.getMessage());
+            return false;
+        } finally {
+            closeResources();
+        }
     }
 } 

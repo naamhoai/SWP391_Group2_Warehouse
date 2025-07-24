@@ -128,11 +128,17 @@
     border-radius: 8px;
     overflow: hidden;
     font-size: 15px;
+    table-layout: auto;
 }
 .table th, .table td {
-    padding: 12px 10px;
+    padding: 8px 6px;
     border-bottom: 1px solid #e5e7eb;
     text-align: left;
+    font-size: 15px;
+    white-space: nowrap;
+    width: auto !important;
+    min-width: unset !important;
+    max-width: unset !important;
 }
 .table th {
     background: #f3f6fa;
@@ -252,8 +258,16 @@ textarea.form-control::placeholder {
 .table th:nth-child(4), .table td:nth-child(4) { width: 15%; }
 .table th:nth-child(5), .table td:nth-child(5) { width: 20%; }
 
-.table td input.material-name-input { width: 100%; min-width: 120px; }
-.table td input[type='number'] { width: 100%; min-width: 50px; }
+.table td input.material-name-input,
+.table td input[type='number'],
+.table td input,
+.table td select {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box;
+    margin: 0;
+}
 .autocomplete-suggestions {
     position: absolute;
     background: #fff;

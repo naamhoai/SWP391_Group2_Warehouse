@@ -16,6 +16,7 @@ public class Inventory implements Serializable {
     private int price;
     private String status; // active/inactive
     private int unitId;
+    private int supplierId;
 
     public Inventory() {}
 
@@ -128,6 +129,13 @@ public class Inventory implements Serializable {
 
     public void setUnitId(int unitId) {
         this.unitId = unitId;
+    }
+
+    public int getSupplierId() {
+        return supplierId;
+    }
+    public void setSupplierId(int supplierId) {
+        this.supplierId = supplierId;
     }
 
     @Override

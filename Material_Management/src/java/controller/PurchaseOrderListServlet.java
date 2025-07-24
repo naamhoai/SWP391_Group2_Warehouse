@@ -185,6 +185,9 @@ public class PurchaseOrderListServlet extends HttpServlet {
                         order.setRejectionReason(null);
                         order.setNote(reason != null ? reason : "");
                         purchaseOrderDAO.updatePurchaseOrder(order);
+                        // --- Cập nhật supplier nếu chưa hợp tác ---
+                        SupplierDAO supplierDAO = new SupplierDAO();
+                        supplierDAO.activateSupplierIfInactive(order.getSupplierId());
                         // --- BẮT ĐẦU: Cập nhật inventory ---
                         try (java.sql.Connection conn = new dal.DBContext().getConnection()) {
                             PurchaseOrderDetailDAO detailDAO = new PurchaseOrderDetailDAO(conn);
@@ -210,6 +213,7 @@ public class PurchaseOrderListServlet extends HttpServlet {
                                     try {
                                         int affectedRows = inventoryDAO.addOrUpdateInventoryWithResult(
                                             materialId,
+                                            order.getSupplierId(),
                                             detail.getMaterialName(),
                                             quantityInBaseUnit,
                                             "Mới",

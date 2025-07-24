@@ -18,12 +18,12 @@ public class InventoryDAO extends DBContext {
     }
     public List<Inventory> getInventoryList(Integer categoryId, Integer supplierId, String search, String condition, int page, int pageSize) throws SQLException {
         List<Inventory> list = new ArrayList<>();
-        String sql = "SELECT i.inventory_id, i.material_id, i.material_condition, i.quantity_on_hand, i.price, i.last_updated, " +
+        String sql = "SELECT i.inventory_id, i.material_id, i.supplier_id, i.material_condition, i.quantity_on_hand, i.price, i.last_updated, " +
                 "m.name AS material_name, c.name AS category_name, s.supplier_name, u.unit_name " +
                 "FROM inventory i " +
                 "JOIN materials m ON i.material_id = m.material_id " +
                 "JOIN categories c ON m.category_id = c.category_id " +
-                "JOIN supplier s ON m.supplier_id = s.supplier_id " +
+                "JOIN supplier s ON i.supplier_id = s.supplier_id " +
                 "JOIN units u ON m.unit_id = u.unit_id WHERE 1=1 ";
         List<Object> params = new ArrayList<>();
         if (categoryId != null && categoryId > 0) {
@@ -60,6 +60,7 @@ public class InventoryDAO extends DBContext {
                     inv.setMaterialName(rs.getString("material_name"));
                     inv.setCategoryName(rs.getString("category_name"));
                     inv.setSupplierName(rs.getString("supplier_name"));
+                    inv.setSupplierId(rs.getInt("supplier_id"));
                     inv.setUnitName(rs.getString("unit_name"));
                     inv.setPrice(rs.getInt("price")); // Lấy giá từ inventory
                     list.add(inv);
@@ -73,7 +74,7 @@ public class InventoryDAO extends DBContext {
         String sql = "SELECT COUNT(*) FROM inventory i " +
                 "JOIN materials m ON i.material_id = m.material_id " +
                 "JOIN categories c ON m.category_id = c.category_id " +
-                "JOIN supplier s ON m.supplier_id = s.supplier_id WHERE 1=1 ";
+                "JOIN supplier s ON i.supplier_id = s.supplier_id WHERE 1=1 ";
         List<Object> params = new ArrayList<>();
         if (categoryId != null && categoryId > 0) {
             sql += " AND c.category_id = ?";
@@ -325,20 +326,21 @@ public class InventoryDAO extends DBContext {
         return lowStockItems;
     }
 
-    public int addOrUpdateInventoryWithResult(int materialId, String materialName, int quantity, String materialCondition, double unitPrice) {
+    public int addOrUpdateInventoryWithResult(int materialId, int supplierId, String materialName, int quantity, String materialCondition, double unitPrice) {
         int safeQuantity = (int) quantity;
         double safePrice = unitPrice;
         if (safeQuantity <= 0 || safePrice < 0) {
             return 0;
         }
-        String selectSql = "SELECT inventory_id FROM inventory WHERE material_id = ? AND material_condition = ?";
-        String insertSql = "INSERT INTO inventory (material_id, material_condition, quantity_on_hand, last_updated, price) VALUES (?, ?, ?, NOW(), ?)";
+        String selectSql = "SELECT inventory_id FROM inventory WHERE material_id = ? AND material_condition = ? AND supplier_id = ?";
+        String insertSql = "INSERT INTO inventory (material_id, supplier_id, material_condition, quantity_on_hand, last_updated, price) VALUES (?, ?, ?, ?, NOW(), ?)";
         String updateSql = "UPDATE inventory SET quantity_on_hand = quantity_on_hand + ?, last_updated = NOW(), price = ? WHERE inventory_id = ?";
         try (
             PreparedStatement selectPs = this.conn.prepareStatement(selectSql)
         ) {
             selectPs.setInt(1, materialId);
             selectPs.setString(2, materialCondition);
+            selectPs.setInt(3, supplierId);
             ResultSet rs = selectPs.executeQuery();
             if (rs.next()) {
                 int inventoryId = rs.getInt("inventory_id");
@@ -351,9 +353,10 @@ public class InventoryDAO extends DBContext {
             } else {
                 try (PreparedStatement insertPs = this.conn.prepareStatement(insertSql)) {
                     insertPs.setInt(1, materialId);
-                    insertPs.setString(2, materialCondition);
-                    insertPs.setInt(3, safeQuantity);
-                    insertPs.setDouble(4, safePrice);
+                    insertPs.setInt(2, supplierId);
+                    insertPs.setString(3, materialCondition);
+                    insertPs.setInt(4, safeQuantity);
+                    insertPs.setDouble(5, safePrice);
                     return insertPs.executeUpdate();
                 }
             }
