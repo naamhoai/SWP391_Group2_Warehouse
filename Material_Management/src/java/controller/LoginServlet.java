@@ -15,7 +15,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
-import org.mindrot.jbcrypt.BCrypt;
 
 /**
  *
@@ -87,7 +86,7 @@ public class LoginServlet extends HttpServlet {
 
             for (User user2 : users) {
                 if (gmail.equals(user2.getEmail())) {
-                    if (!"active".equalsIgnoreCase(user2.getStatus())) {
+                    if (!"Hoạt động".equalsIgnoreCase(user2.getStatus())) {
                         request.setAttribute("mess", "Tài khoản đã bị khóa.");
                         request.getRequestDispatcher("login.jsp").forward(request, response);
                         return;
@@ -103,6 +102,7 @@ public class LoginServlet extends HttpServlet {
                         session.setAttribute("Admin", user2);
                         session.setAttribute("userId", user2.getUser_id());
                         session.setAttribute("role_id", user2.getRole().getRoleid());
+                        session.setAttribute("roleId", user2.getRole().getRoleid());
                         String redirectURL = (String) session.getAttribute("redirectURL");
                         if (redirectURL != null) {
                             session.removeAttribute("redirectURL");

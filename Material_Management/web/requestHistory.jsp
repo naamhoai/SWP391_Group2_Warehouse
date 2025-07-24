@@ -22,7 +22,7 @@
                 <!-- PHẦN 1: HEADER -->
                 <div class="dashboard-header">
                     <div class="header-left">
-                        <h2>Lịch sử yêu cầu xuất vật tư</h2>
+                        <h2>Lịch sử yêu cầu xuất kho</h2>
                     </div>
                     <div class="header-actions">
                         <a href="RequestListServlet" class="btn-add"><i class="fas fa-list"></i> Danh sách yêu cầu</a>

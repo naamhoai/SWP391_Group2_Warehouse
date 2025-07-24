@@ -46,7 +46,6 @@ public class CreateUserServlet extends HttpServlet {
         String status = request.getParameter("status");
         String priorityStr = request.getParameter("priority");
         String gender = request.getParameter("gender");
-        String description = request.getParameter("description");
         String email = request.getParameter("email");
 
         request.setAttribute("fullName", fullName);
@@ -54,7 +53,6 @@ public class CreateUserServlet extends HttpServlet {
         request.setAttribute("status", status);
         request.setAttribute("priority", priorityStr);
         request.setAttribute("gender", gender);
-        request.setAttribute("description", description);
         request.setAttribute("email", email);
         request.setAttribute("roleId", roleIdStr);
         request.setAttribute("password", password);

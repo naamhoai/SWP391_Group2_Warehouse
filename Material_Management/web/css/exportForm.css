@@ -403,3 +403,9 @@ body {
     color: #1565c0;
     background: #f5faff;
 }
+
+.creator-col {
+    min-width: 180px;
+    max-width: 300px;
+    width: 220px;
+}

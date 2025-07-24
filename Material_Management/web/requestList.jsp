@@ -20,7 +20,7 @@
                 <!-- PHẦN 1: HEADER -->
                 <div class="dashboard-header">
                     <div class="header-left">
-                        <h2>Danh sách yêu cầu xuất vật tư</h2>
+                        <h2>Danh sách yêu cầu xuất kho</h2>
                     </div>
                     <div class="header-actions">
                         <a href="createRequest" class="btn-add"><i class="fas fa-plus"></i> Tạo yêu cầu xuất kho</a>

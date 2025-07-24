@@ -18,7 +18,7 @@
             <div class="main-content">
                 <div class="request-form-container">
 
-                    <h2>Tạo đơn xuất kho</h2>
+                    <h2>Chi tiết tạo đơn xuất kho</h2>
                     <c:if test="${not empty message}">
                         <div class="alert alert-success">${message}</div>
                     </c:if>

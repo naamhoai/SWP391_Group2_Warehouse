@@ -194,5 +194,20 @@ public class NotificationDAO {
         }
     }
 
+    public void addNotificationToRole(int roleId, String message, Integer requestId) {
+        String sql = "SELECT user_id FROM users WHERE role_id = ?";
+        try (Connection conn = new dal.DBContext().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, roleId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    int userId = rs.getInt("user_id");
+                    addNotification(userId, message, requestId);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
    
 }

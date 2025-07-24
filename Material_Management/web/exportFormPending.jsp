@@ -20,10 +20,10 @@
                 <!-- PHẦN 1: HEADER -->
                 <div class="dashboard-header">
                     <div class="header-left">
-                        <h2>Danh sách phiếu chờ xuất kho</h2>
+                        <h2>Danh sách đơn xuất kho</h2>
                     </div>
                     <div class="header-actions">
-                        <a href="exportFormHistory" class="btn-add"><i class="fas fa-history"></i> Lịch sử xuất kho</a>
+                        <a href="exportFormHistory" class="btn-add"><i class="fas fa-history"></i> Lịch sử đơn xuất kho</a>
                     </div>
                 </div>
                 <!-- PHẦN 2: FILTER -->

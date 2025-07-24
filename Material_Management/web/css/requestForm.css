@@ -258,8 +258,8 @@ h2 {
 
 
 .request-items-table .col-material-name {
-    min-width: 300px;
-    width: 36%;
+    min-width: 260px;
+    width: 30%;
     text-align: center;
 }
 .request-items-table .col-quantity {
@@ -269,7 +269,7 @@ h2 {
 }
 .request-items-table .col-unit {
     min-width: 130px;
-    width: 16%;
+    width: 13%;
     text-align: center;
 }
 .request-items-table .col-condition {

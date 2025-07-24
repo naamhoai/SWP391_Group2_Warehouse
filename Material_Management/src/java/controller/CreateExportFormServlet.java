@@ -112,17 +112,10 @@ public class CreateExportFormServlet extends HttpServlet {
 
             boolean confirmPartial = "true".equals(request.getParameter("confirmPartialExport"));
             if (hasInsufficientStock && !confirmPartial) {
-                int StaffId = requestDAO.getStaffId();
-                
-                Integer directorId = userDAO.getDirectorId();
                 NotificationDAO notificationDAO = new NotificationDAO();
                 String message = "Yêu cầu #" + requestId + " thiếu: " + partialNote;
-                if (StaffId != -1) {
-                    notificationDAO.addNotification(StaffId, message, requestId);
-                }
-                if (directorId != null) {
-                    notificationDAO.addNotification(directorId, message, requestId);
-                }
+                notificationDAO.addNotificationToRole(4, message, requestId); // Gửi cho tất cả nhân viên công ty
+                notificationDAO.addNotificationToRole(2, message, requestId); // Gửi cho tất cả giám đốc
                 String warning = "Tồn kho không đủ cho một số vật tư. Bạn có muốn xuất từng phần với số lượng hiện có không?";
                 String warningMsg = warning + " " + partialNote.toString();
                 request.setAttribute("partialExportWarning", warningMsg);

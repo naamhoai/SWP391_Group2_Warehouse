@@ -23,7 +23,7 @@
 
                     <div class="container request-history-detail-container">
                         <div class="header-card">
-                            <h2><i class="fas fa-file-alt"></i> Chi tiết yêu cầu vật tư</h2>
+                            <h2><i class="fas fa-file-alt"></i> Chi tiết yêu cầu xuất kho</h2>
                         </div>
                         <c:if test="${not empty param.success}">
                             <div class="alert success">

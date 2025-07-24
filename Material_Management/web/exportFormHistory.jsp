@@ -17,10 +17,10 @@
                 <!-- PHẦN 1: HEADER -->
                 <div class="dashboard-header">
                     <div class="header-left">
-                        <h2>Lịch sử xuất kho</h2>
+                        <h2>Lịch sử đơn xuất kho</h2>
                     </div>
                     <div class="header-actions">
-                        <a href="exportFormPending" class="btn-add"><i class="fas fa-list"></i> Danh sách phiếu xuất kho</a>
+                        <a href="exportFormPending" class="btn-add"><i class="fas fa-list"></i> Danh sách đơn xuất kho</a>
                     </div>
                 </div>
                 <!-- PHẦN 2: FILTER -->

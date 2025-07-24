@@ -35,11 +35,9 @@ public class CreateRequestServlet extends HttpServlet {
             InventoryDAO inventoryDAO = new InventoryDAO();
             List<Inventory> inventoryList = inventoryDAO.getInventoryWithMaterialInfo();
             UnitConversionDao unitDao = new UnitConversionDao();
-           
 
             request.setAttribute("userName", user.getFullname());
             request.setAttribute("materialList", inventoryList);
-          
             request.setAttribute("parentCategories", parentCategories);
             request.setAttribute("subCategories", subCategories);
 
@@ -159,10 +157,16 @@ public class CreateRequestServlet extends HttpServlet {
                         break;
                     }
                 }
-                if (matched == null) {
-                    request.setAttribute("error", "Không tìm thấy vật tư: " + name);
-                    doGet(request, response);
-                    return;
+                if (matched != null) {
+                    int inventoryQty = matched.getQuantityOnHand();
+                    if (qty > inventoryQty) {
+                        request.setAttribute("error", "Số lượng yêu cầu ở dòng " + (i + 1) + " vượt quá số lượng tồn kho hiện có (" + inventoryQty + ").");
+                        request.setAttribute("materialNames", materialNames);
+                        request.setAttribute("quantities", quantities);
+                        request.setAttribute("materialConditions", materialConditions);
+                        doGet(request, response);
+                        return;
+                    }
                 }
                 if (condition == null || condition.trim().isEmpty()) {
                     request.setAttribute("error", "Điều kiện vật tư ở dòng " + (i + 1) + " không được để trống.");
@@ -226,7 +230,7 @@ public class CreateRequestServlet extends HttpServlet {
 
             new RequestHistoryDAO().addRequestHistory(history);
 
-            dao.RequestDetailDAO detailDAO = new dao.RequestDetailDAO();
+            RequestDetailDAO detailDAO = new RequestDetailDAO();
             for (int i = 0; i < materialNames.length; i++) {
                 String name = materialNames[i];
                 int qty = Integer.parseInt(quantities[i]);
@@ -259,11 +263,10 @@ public class CreateRequestServlet extends HttpServlet {
             UserDAO userDAO = new UserDAO();
             Integer directorId = userDAO.getDirectorId();
             User sender = userDAO.getUserById(userId);
-            if (directorId != null) {
-                NotificationDAO notificationDAO = new NotificationDAO();
-                String message = "Có yêu cầu vật tư mới từ " + sender.getFullname();
-                notificationDAO.addNotification(directorId, message, requestId);
-            }
+            // Gửi thông báo cho tất cả giám đốc (role_id=2)
+            NotificationDAO notificationDAO = new NotificationDAO();
+            String message = "Có yêu cầu vật tư mới từ " + sender.getFullname();
+            notificationDAO.addNotificationToRole(2, message, requestId);
 
             // Sử dụng session để truyền thông báo thành công
             request.getSession().setAttribute("success", "Tạo yêu cầu thành công!");

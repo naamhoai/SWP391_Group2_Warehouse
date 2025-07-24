@@ -63,14 +63,10 @@ public class ApproveOrRejectRequestServlet extends HttpServlet {
 
             if ("approve".equals(action)) {
                 requestDAO.updateStatusAndNote(requestId, "Đã duyệt", directorNote);
-                int warehouseStaffId = requestDAO.getWarehouseStaffId();
-                if (warehouseStaffId != -1) {
-                    notificationDAO.addNotification(
-                            warehouseStaffId,
-                            "Yêu cầu vật tư #" + requestId + " đã được phê duyệt. Vui lòng tiến hành xuất kho.",
-                            requestId
-                    );
-                }
+                // Gửi thông báo cho tất cả nhân viên kho (role_id=3)
+                notificationDAO.addNotificationToRole(3,
+                    "Yêu cầu xuất kho #" + requestId + " đã được phê duyệt, vui lòng tiến hành xuất kho.",
+                    requestId);
 
                 int directorId = (Integer) request.getSession().getAttribute("userId");
                 RequestHistoryDAO historyDAO = new RequestHistoryDAO();
@@ -105,13 +101,10 @@ public class ApproveOrRejectRequestServlet extends HttpServlet {
 
             } else if ("reject".equals(action)) {
                 requestDAO.updateStatusAndNote(requestId, "Từ chối", directorNote);
-                int staffUserId = requestDAO.getRequestCreatorId(requestId);
-                notificationDAO.addNotification(
-                        staffUserId,
-                        "Yêu cầu vật tư #" + requestId + " đã bị từ chối. Lý do: " + directorNote + " Vui lòng chỉnh sửa và gửi lại.",
-                        requestId
-                );
-
+                // Gửi thông báo cho tất cả nhân viên công ty (role_id=4)
+                notificationDAO.addNotificationToRole(4,
+                    "Yêu cầu vật tư #" + requestId + " đã bị từ chối. Lý do: " + directorNote + " Vui lòng chỉnh sửa và gửi lại.",
+                    requestId);
                 int directorId = (Integer) request.getSession().getAttribute("userId");
                 RequestHistoryDAO historyDAO = new RequestHistoryDAO();
                 String lastEmployeeReason = historyDAO.getLastEmployeeChangeReason(requestId, 2);

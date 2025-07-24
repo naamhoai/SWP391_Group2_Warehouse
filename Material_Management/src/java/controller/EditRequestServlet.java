@@ -65,11 +65,33 @@ public class EditRequestServlet extends HttpServlet {
         String reason = request.getParameter("reason");
         String[] materialNames = request.getParameterValues("materialName");
         String[] quantities = request.getParameterValues("quantity");
-        String[] unitNames = request.getParameterValues("unit");
         String[] materialConditions = request.getParameterValues("materialCondition");
         int requestId = Integer.parseInt(request.getParameter("requestId"));
 
         try {
+            // Thêm log debug các trường nhận được
+            System.out.println("==== DEBUG: EditRequestServlet doPost ====");
+            System.out.println("requestId=" + requestId);
+            System.out.println("reason=" + reason);
+            System.out.println("recipientName=" + request.getParameter("recipientName"));
+            System.out.println("deliveryAddress=" + request.getParameter("deliveryAddress"));
+            System.out.println("contactPerson=" + request.getParameter("contactPerson"));
+            System.out.println("contactPhone=" + request.getParameter("contactPhone"));
+            if (materialNames != null) {
+                for (int i = 0; i < materialNames.length; i++) {
+                    System.out.println("materialName[" + i + "]=" + materialNames[i]);
+                }
+            }
+            if (quantities != null) {
+                for (int i = 0; i < quantities.length; i++) {
+                    System.out.println("quantity[" + i + "]=" + quantities[i]);
+                }
+            }
+            if (materialConditions != null) {
+                for (int i = 0; i < materialConditions.length; i++) {
+                    System.out.println("materialCondition[" + i + "]=" + materialConditions[i]);
+                }
+            }
             String error = null;
             if (reason == null || reason.trim().isEmpty() || reason.length() > 500) {
                 error = "Lý do không được để trống và không vượt quá 500 ký tự.";
@@ -84,7 +106,6 @@ public class EditRequestServlet extends HttpServlet {
                 for (int i = 0; i < materialNames.length; i++) {
                     String name = materialNames[i];
                     String quantity = quantities[i];
-                    String unit = unitNames[i];
                     String condition = (materialConditions != null && materialConditions.length > i) ? materialConditions[i] : null;
                     if (name == null || name.trim().isEmpty() || name.length() > 100) {
                         error = "Tên vật tư ở dòng " + (i + 1) + " không hợp lệ.";
@@ -112,15 +133,11 @@ public class EditRequestServlet extends HttpServlet {
                             break;
                         }
                     }
-                    
                     if (matched == null) {
                         error = "Không tìm thấy vật tư: " + name + " với tình trạng: " + condition;
                         break;
                     }
-                    if (unit == null || unit.trim().isEmpty() || unit.length() > 20) {
-                        error = "Đơn vị ở dòng " + (i + 1) + " không hợp lệ.";
-                        break;
-                    }
+                    // Không cần validate unit nữa
                     if (condition == null || condition.trim().isEmpty()) {
                         error = "Điều kiện vật tư ở dòng " + (i + 1) + " không được để trống.";
                         break;
@@ -218,12 +235,10 @@ public class EditRequestServlet extends HttpServlet {
                 detailDAO.addRequestDetail(d);
             }
 
-            int directorId = requestDAO.getDirectorId();
-            if (directorId != -1) {
-                new NotificationDAO().addNotification(directorId,
-                        "Yêu cầu vật tư #" + requestId + " đã được chỉnh sửa và gửi lại. Vui lòng xem xét.",
-                        requestId);
-            }
+            // Gửi thông báo cho tất cả giám đốc (role_id=2)
+            new NotificationDAO().addNotificationToRole(2,
+                "Yêu cầu vật tư #" + requestId + " đã được chỉnh sửa và gửi lại. Vui lòng xem xét.",
+                requestId);
 
             // Gửi thông báo thành công và điều hướng về RequestListServlet
             request.getSession().setAttribute("success", "Yêu cầu #" + requestId + " đã được gửi lại thành công!");

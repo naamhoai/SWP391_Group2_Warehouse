@@ -21,7 +21,7 @@
             <div class="container request-history-detail-container">
 
                 <div class="header-card">
-                    <h1><i class="fas fa-file-alt"></i> Chi tiết yêu cầu vật tư</h1>
+                    <h1><i class="fas fa-file-alt"></i> Chi tiết yêu cầu xuất kho</h1>
 
                 </div>
                 

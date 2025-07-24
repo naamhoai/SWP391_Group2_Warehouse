@@ -99,7 +99,7 @@
                     </div>
                     <div class="buttons">
                         <a href="${pageContext.request.contextPath}/settinglist" class="btn back-btn">Quay lại</a>
-                        <button type="submit" class="btn save-btn">Add User</button>
+                        <button type="submit" class="btn save-btn">Thêm người dùng</button>
                     </div>
                 </form>
             </div>

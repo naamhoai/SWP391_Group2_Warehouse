@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
@@ -7,14 +7,20 @@
         <title>Tạo yêu cầu vật tư</title>
         <link rel="stylesheet" href="css/sidebar.css">
         <link rel="stylesheet" href="css/requestForm.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.css">
-        
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vi.js"></script>
     </head>
     <body>
         <div class="main-layout">
             <div class="sidebar">
-                <%@include file="sidebar.jsp" %>
+                <jsp:include page="sidebar.jsp" />
             </div>
             <div class="main-content">
                 <div class="request-form-container">
@@ -66,13 +72,12 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">SĐT người liên hệ:</label>
-                                        <input type="tel" id="phone" name="contactPhone" class="input-text" required 
-                                               value="${not empty contactPhone ? fn:escapeXml(contactPhone) : fn:escapeXml(param.contactPhone)}"
-                                               placeholder="Nhập số điện thoại người liên hệ" 
-                                               pattern="[0-9]+" 
-                                               oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
-                                               maxlength="11" />
-                                        <div class="error-message" id="phoneError"></div>
+                                        <input type="text" name="contactPhone" class="input-text" required
+                                               pattern="0[0-9]{9,10}"
+                                               maxlength="11"
+                                               placeholder="Nhập số điện thoại liên hệ"
+                                               value="${not empty contactPhone ? fn:escapeXml(contactPhone) : fn:escapeXml(param.contactPhone)}" />
+
                                     </div>
                                 </div>
                             </div>
@@ -85,9 +90,10 @@
                                     <tr>
                                         <th class="col-material-name">Tên vật tư</th>
                                         <th class="col-quantity">Số lượng</th>
+                                        <th class="col-unit">Tồn kho</th>
                                         <th class="col-unit">Đơn vị</th>
                                         <th class="col-condition">Tình trạng</th>
-                                        <th class="col-action"> Hành động</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody id="itemsBody">
@@ -96,28 +102,30 @@
                                             <c:forEach var="name" items="${materialNames}" varStatus="loop">
                                                 <tr>
                                                     <td>
-                                                        <input name="materialName" class="input-text materialNameInput" autocomplete="off" required pattern="[^<>\"']*"
-                                                               value="${fn:escapeXml(name)}" />
-                                                        
+                                                        <input name="materialName" class="input-text materialNameInput" autocomplete="off" required
+                                                               pattern="[^<>\"']*" value="${fn:escapeXml(name)}" />
+                                                        <div class="error-message"></div>
                                                     </td>
                                                     <td>
                                                         <input type="number" name="quantity" class="input-text" min="1" max="999999" required
                                                                value="${quantities[loop.index]}" />
-                                                        
+                                                        <div class="error-message"></div>
                                                     </td>
                                                     <td>
-                                                        <input name="unit" class="input-text unitInput" autocomplete="off" required pattern="[^<>\"']*" />
-                                                        
+                                                        <input type="text" class="input-text inventoryInput" readonly />
                                                     </td>
                                                     <td>
-                                                        <select name="materialCondition" class="input-select" required title="Vui lòng chọn tình trạng vật tư">
+                                                        <input type="text" class="input-text unitInput" readonly />
+                                                    </td>
+                                                    <td>
+                                                        <select name="materialCondition" class="input-select" required>
                                                             <option value="Mới" ${materialConditions[loop.index] == 'Mới' ? 'selected' : ''}>Mới</option>
                                                             <option value="Cũ" ${materialConditions[loop.index] == 'Cũ' ? 'selected' : ''}>Cũ</option>
                                                             <option value="Hỏng" ${materialConditions[loop.index] == 'Hỏng' ? 'selected' : ''}>Hỏng</option>
                                                         </select>
-                                                        
+                                                        <div class="error-message"></div>
                                                     </td>
-                                                    <td class="col-action">
+                                                    <td>
                                                         <button type="button" class="btn-remove" onclick="removeRow(this)">Xóa</button>
                                                     </td>
                                                 </tr>
@@ -125,33 +133,22 @@
                                         </c:when>
                                         <c:otherwise>
                                             <tr>
+                                                <td><input name="materialName" class="input-text materialNameInput" autocomplete="off" required pattern="[^<>\"']*" /></td>
+                                                <td><input type="number" name="quantity" class="input-text" min="1" max="999999" required /></td>
+                                                <td><input type="text" class="input-text inventoryInput" readonly /></td>
+                                                <td><input type="text" class="input-text unitInput" readonly /></td>
                                                 <td>
-                                                    <input name="materialName" class="input-text materialNameInput" autocomplete="off" required pattern="[^<>\"']*"
-                                                           value="" />
-                                                    
-                                                </td>
-                                                <td>
-                                                    <input type="number" name="quantity" class="input-text" min="1" max="999999" required >
-                                                    
-                                                </td>
-                                                <td>
-                                                    <input name="unit" class="input-text unitInput" autocomplete="off" required pattern="[^<>\"']*" />
-                                                    
-                                                </td>
-                                                <td>
-                                                    <select name="materialCondition" class="input-select" required title="Vui lòng chọn tình trạng vật tư">
+                                                    <select name="materialCondition" class="input-select" required>
                                                         <option value="Mới">Mới</option>
                                                         <option value="Cũ">Cũ</option>
                                                     </select>
-                                                    
                                                 </td>
-                                                <td>
-                                                    <button type="button" class="btn-remove" onclick="removeRow(this)">Xóa</button>
-                                                </td>
+                                                <td><button type="button" class="btn-remove" onclick="removeRow(this)">Xóa</button></td>
                                             </tr>
                                         </c:otherwise>
                                     </c:choose>
                                 </tbody>
+
                             </table>
                             <button type="button" class="btn-add" onclick="addRow()">Thêm vật tư</button>
                         </div>
@@ -173,17 +170,31 @@
             "${fn:escapeXml(m.materialName)}"<c:if test="${!loop.last}">,</c:if>
             </c:forEach>
             ];
-            console.log("materialNames:", window.materialNames);
             window.materialUnitMap = {
             <c:forEach var="m" items="${materialList}" varStatus="loop">
             "${fn:escapeXml(m.materialName)}": "${fn:escapeXml(m.unitName)}"<c:if test="${!loop.last}">,</c:if>
             </c:forEach>
             };
+            window.materialInventoryMap = (function() {
+            const map = {};
+            <c:forEach var="m" items="${materialList}">
+            (function() {
+            const name = "${fn:escapeXml(m.materialName)}";
+            const condition = "${fn:escapeXml(m.materialCondition)}".toLowerCase();
+            const qty = ${m.quantityOnHand};
+            if (!map[name]) map[name] = {};
+            map[name][condition] = qty;
+            })();
+            </c:forEach>
+            return map;
+            })();
+            console.log("materialNames:", window.materialNames);
             console.log("materialUnitMap:", window.materialUnitMap);
-        </script>
+            console.log("materialInventoryMap:", window.materialInventoryMap);</script>
+
+        <script src="js/sidebar.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script>
         <script src="js/requestForm.js"></script>
-        <script src="${pageContext.request.contextPath}/js/createUser.js"></script>
         <script>
             document.addEventListener("DOMContentLoaded", function() {
             setupAwesompleteInputs();
