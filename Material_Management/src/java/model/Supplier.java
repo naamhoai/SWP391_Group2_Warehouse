@@ -13,6 +13,7 @@ public class Supplier {
     private Timestamp createdAt;
     private Timestamp updatedAt;
     private java.sql.Date startDate;
+    private int soNgayHopTac;
 
     // Constructor mặc định
     public Supplier() {
@@ -122,6 +123,13 @@ public class Supplier {
     }
     public void setStartDate(java.sql.Date startDate) {
         this.startDate = startDate;
+    }
+
+    public int getSoNgayHopTac() {
+        return soNgayHopTac;
+    }
+    public void setSoNgayHopTac(int soNgayHopTac) {
+        this.soNgayHopTac = soNgayHopTac;
     }
 
     // Phương thức kiểm tra trạng thái

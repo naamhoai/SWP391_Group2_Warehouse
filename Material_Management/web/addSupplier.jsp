@@ -37,6 +37,9 @@
                     ${error}
                 </div>
             </c:if>
+            <c:if test="${not empty errorDetail}">
+                <pre style="color: red; background: #fff0f0; border: 1px solid #fbb; padding: 10px; overflow-x: auto; max-width: 100%;">${errorDetail}</pre>
+            </c:if>
             
             <form action="${pageContext.request.contextPath}/suppliers" method="post" class="supplier-form">
                 <input type="hidden" name="action" value="add">

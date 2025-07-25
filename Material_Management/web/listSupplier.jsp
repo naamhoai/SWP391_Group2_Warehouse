@@ -127,7 +127,12 @@
                     <div class="pagination-form">
                         <c:choose>
                             <c:when test="${currentPage > 1}">
-                                <a href="${pageContext.request.contextPath}/suppliers?page=${currentPage - 1}&keyword=${param.keyword}&status=${param.status}&sortBy=${param.sortBy}&sortOrder=${param.sortOrder}&itemsPerPage=${param.itemsPerPage}"
+                                <a href="${pageContext.request.contextPath}/suppliers?page=${currentPage - 1
+                                    }${param.keyword != null ? '&keyword=' + param.keyword : ''
+                                    }${param.status != null ? '&status=' + param.status : ''
+                                    }${param.sortBy != null ? '&sortBy=' + param.sortBy : ''
+                                    }${param.sortOrder != null ? '&sortOrder=' + param.sortOrder : ''
+                                    }${param.itemsPerPage != null ? '&itemsPerPage=' + param.itemsPerPage : ''}"
                                    class="page-button" aria-label="Trang trước">&laquo;</a>
                             </c:when>
                             <c:otherwise>
@@ -136,13 +141,23 @@
                         </c:choose>
 
                         <c:forEach begin="${startPage}" end="${endPage}" var="i">
-                            <a href="${pageContext.request.contextPath}/suppliers?page=${i}&keyword=${param.keyword}&status=${param.status}&sortBy=${param.sortBy}&sortOrder=${param.sortOrder}&itemsPerPage=${param.itemsPerPage}"
+                            <a href="${pageContext.request.contextPath}/suppliers?page=${i
+                                }${param.keyword != null ? '&keyword=' + param.keyword : ''
+                                }${param.status != null ? '&status=' + param.status : ''
+                                }${param.sortBy != null ? '&sortBy=' + param.sortBy : ''
+                                }${param.sortOrder != null ? '&sortOrder=' + param.sortOrder : ''
+                                }${param.itemsPerPage != null ? '&itemsPerPage=' + param.itemsPerPage : ''}"
                                class="page-button${i == currentPage ? ' active' : ''}">${i}</a>
                         </c:forEach>
 
                         <c:choose>
                             <c:when test="${currentPage < totalPages}">
-                                <a href="${pageContext.request.contextPath}/suppliers?page=${currentPage + 1}&keyword=${param.keyword}&status=${param.status}&sortBy=${param.sortBy}&sortOrder=${param.sortOrder}&itemsPerPage=${param.itemsPerPage}"
+                                <a href="${pageContext.request.contextPath}/suppliers?page=${currentPage + 1
+                                    }${param.keyword != null ? '&keyword=' + param.keyword : ''
+                                    }${param.status != null ? '&status=' + param.status : ''
+                                    }${param.sortBy != null ? '&sortBy=' + param.sortBy : ''
+                                    }${param.sortOrder != null ? '&sortOrder=' + param.sortOrder : ''
+                                    }${param.itemsPerPage != null ? '&itemsPerPage=' + param.itemsPerPage : ''}"
                                    class="page-button" aria-label="Trang sau">&raquo;</a>
                             </c:when>
                             <c:otherwise>
