@@ -15,17 +15,20 @@ public class Supplier {
     private java.sql.Date startDate;
     private int soNgayHopTac;
 
+    // Constructor mặc định
     public Supplier() {
     }
 
+    // Constructor đầy đủ tham số (bổ sung startDate)
     public Supplier(int supplierId, String supplierName, String contactPerson, String supplierPhone, 
-            String address, String status, Timestamp createdAt, Timestamp updatedAt) {
+            String address, String status, java.sql.Date startDate, Timestamp createdAt, Timestamp updatedAt) {
         this.supplierId = supplierId;
         this.supplierName = supplierName;
         this.contactPerson = contactPerson;
         this.supplierPhone = supplierPhone;
         this.address = address;
         this.status = status;
+        this.startDate = startDate;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -113,6 +116,8 @@ public class Supplier {
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    // Getter/setter cho startDate
     public java.sql.Date getStartDate() {
         return startDate;
     }
@@ -126,6 +131,8 @@ public class Supplier {
     public void setSoNgayHopTac(int soNgayHopTac) {
         this.soNgayHopTac = soNgayHopTac;
     }
+
+    // Phương thức kiểm tra trạng thái
     public boolean isActive() {
         return "active".equalsIgnoreCase(this.status);
     }

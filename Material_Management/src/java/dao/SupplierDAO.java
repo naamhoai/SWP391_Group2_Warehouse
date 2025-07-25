@@ -49,6 +49,7 @@ public class SupplierDAO extends DBContext {
                     rs.getString("supplier_phone"),
                     rs.getString("address"),
                     rs.getString("status"),
+                    rs.getDate("start_date"),
                     rs.getTimestamp("created_at"),
                     rs.getTimestamp("updated_at")
                 ));
@@ -76,6 +77,7 @@ public class SupplierDAO extends DBContext {
                     rs.getString("supplier_phone"),
                     rs.getString("address"),
                     rs.getString("status"),
+                    rs.getDate("start_date"),
                     rs.getTimestamp("created_at"),
                     rs.getTimestamp("updated_at")
                 ));
@@ -103,6 +105,7 @@ public class SupplierDAO extends DBContext {
                     rs.getString("supplier_phone"),
                     rs.getString("address"),
                     rs.getString("status"),
+                    rs.getDate("start_date"),
                     rs.getTimestamp("created_at"),
                     rs.getTimestamp("updated_at")
                 );
@@ -205,6 +208,7 @@ public class SupplierDAO extends DBContext {
                     rs.getString("supplier_phone"),
                     rs.getString("address"),
                     rs.getString("status"),
+                    rs.getDate("start_date"),
                     rs.getTimestamp("created_at"),
                     rs.getTimestamp("updated_at")
                 ));
@@ -305,6 +309,7 @@ public class SupplierDAO extends DBContext {
                     rs.getString("supplier_phone"),
                     rs.getString("address"),
                     rs.getString("status"),
+                    rs.getDate("start_date"),
                     rs.getTimestamp("created_at"),
                     rs.getTimestamp("updated_at")
                 ));
@@ -351,6 +356,7 @@ public class SupplierDAO extends DBContext {
                     rs.getString("supplier_phone"),
                     rs.getString("address"),
                     rs.getString("status"),
+                    rs.getDate("start_date"),
                     rs.getTimestamp("created_at"),
                     rs.getTimestamp("updated_at")
                 );
@@ -393,45 +399,9 @@ public class SupplierDAO extends DBContext {
         return -1;
     }
 
-    public int countAllSuppliers() {
-        String sql = "SELECT COUNT(*) FROM supplier";
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }
-
-    public int countActiveSuppliers() {
-        String sql = "SELECT COUNT(*) FROM supplier WHERE LOWER(status) = 'active' OR LOWER(status) = 'đang hợp tác'";
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }
-
-    public int countInactiveSuppliers() {
-        String sql = "SELECT COUNT(*) FROM supplier WHERE NOT (LOWER(status) = 'active' OR LOWER(status) = 'đang hợp tác')";
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }
-    
+    /**
+     * Cập nhật start_date và status cho supplier nếu đang là inactive
+     */
     public boolean activateSupplierIfInactive(int supplierId, java.sql.Date approvedDate) {
         String query = "UPDATE supplier SET status = 'active', start_date = ? WHERE supplier_id = ? AND status = 'inactive'";
         try {

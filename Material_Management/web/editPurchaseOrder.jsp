@@ -333,7 +333,6 @@
                                     <th>Tên vật tư</th>
                                     <th>Số lượng</th>
                                     <th>Đơn vị</th>
-                                    <th>Đơn vị gốc</th>
                                     <th>Đơn giá</th>
                                     <th></th>
                                 </tr>
@@ -350,7 +349,6 @@
                                                 </c:forEach>
                                             </select>
                                         </td>
-                                        <td><input type="text" name="baseUnit[]" class="form-control base-unit-input" value="${detail.convertedUnit}" placeholder="Đơn vị gốc" required readonly></td>
                                         <td><input type="number" name="unitPrice[]" class="form-control unit-price" value="${detail.unitPrice}" min="0" step="0.01" required></td>
                                         <td><button type="button" class="btn-remove-material" onclick="removeMaterialRow(this)"><i class="fas fa-trash"></i></button></td>
                                     </tr>

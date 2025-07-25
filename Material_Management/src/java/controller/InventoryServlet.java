@@ -58,7 +58,7 @@ public class InventoryServlet extends HttpServlet {
         CategoryDAO categoryDAO = new CategoryDAO();
         SupplierDAO supplierDAO = new SupplierDAO();
 
-            List<Inventory> inventoryList = inventoryDAO.getInventoryList(categoryId, supplierId, search, condition, page, pageSize);
+            List<Inventory> inventoryList = inventoryDAO.getInventoryGroupedByNameAndCondition(categoryId, search, condition, page, pageSize);
             int totalRecords = inventoryDAO.countInventory(categoryId, supplierId, search, condition);
             int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
             List<Category> categoryList = categoryDAO.getAllCategories();

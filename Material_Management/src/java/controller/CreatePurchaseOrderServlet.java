@@ -73,9 +73,11 @@ public class CreatePurchaseOrderServlet extends HttpServlet {
             List<model.Inventory> inventoryList = inventoryDAO.getInventoryWithMaterialInfo();
             request.setAttribute("inventoryList", inventoryList);
 
-            // Lấy danh sách đơn vị (unit_name) có is_system_unit=0 và status='Hoạt động'
+            // Lấy danh sách đơn vị (unit_name) có status='Hoạt động' (bất kể is_system_unit)
             UnitDAO unitDAO = new UnitDAO();
-            List<model.Unit> supplierUnits = unitDAO.getSupplierUnits();
+            List<model.Unit> supplierUnits = unitDAO.getAllUnits().stream()
+                .filter(u -> "Hoạt động".equals(u.getStatus()))
+                .collect(java.util.stream.Collectors.toList());
             request.setAttribute("supplierUnits", supplierUnits);
 
             request.getRequestDispatcher("createPurchaseOrder.jsp").forward(request, response);
@@ -100,7 +102,6 @@ public class CreatePurchaseOrderServlet extends HttpServlet {
             String[] materialNames = request.getParameterValues("materialName[]");
             String[] quantities = request.getParameterValues("quantity[]");
             String[] units = request.getParameterValues("unit[]");
-            String[] baseUnits = request.getParameterValues("baseUnit[]");
             String[] unitPrices = request.getParameterValues("unitPrice[]");
             String supplierIdStr = request.getParameter("supplierId");
             if (supplierIdStr == null || supplierIdStr.isEmpty()) {
@@ -128,10 +129,6 @@ public class CreatePurchaseOrderServlet extends HttpServlet {
             System.out.println("=== DEBUG: UNITS ===");
             for (int i = 0; i < units.length; i++) {
                 System.out.println("units[" + i + "]: '" + units[i] + "'");
-            }
-            System.out.println("=== DEBUG: BASE UNITS ===");
-            for (int i = 0; i < baseUnits.length; i++) {
-                System.out.println("baseUnits[" + i + "]: '" + baseUnits[i] + "'");
             }
             System.out.println("=== DEBUG: UNIT PRICES ===");
             for (int i = 0; i < unitPrices.length; i++) {
@@ -179,11 +176,10 @@ public class CreatePurchaseOrderServlet extends HttpServlet {
                     String matName = (materialNames[i] != null) ? materialNames[i].trim() : "";
                     String qty = (quantities != null && i < quantities.length) ? quantities[i] : "";
                     String unit = (units != null && i < units.length) ? units[i] : "";
-                    String convertedUnit = (baseUnits != null && i < baseUnits.length) ? baseUnits[i] : "";
                     String unitPrice = (unitPrices != null && i < unitPrices.length) ? unitPrices[i] : "";
 
-                    if (matName.isEmpty() || qty.isEmpty() || unit.isEmpty() || convertedUnit.isEmpty() || unitPrice.isEmpty()) {
-                        System.out.println("==> Dòng " + (i+1) + " thiếu dữ liệu, bỏ qua. materialName='" + matName + "', quantity='" + qty + "', unit='" + unit + "', convertedUnit='" + convertedUnit + "', unitPrice='" + unitPrice + "'");
+                    if (matName.isEmpty() || qty.isEmpty() || unit.isEmpty() || unitPrice.isEmpty()) {
+                        System.out.println("==> Dòng " + (i+1) + " thiếu dữ liệu, bỏ qua. materialName='" + matName + "', quantity='" + qty + "', unit='" + unit + "', unitPrice='" + unitPrice + "'");
                         continue;
                     }
                     System.out.println("==> Dòng " + (i+1) + " có dữ liệu, sẽ insert");
@@ -192,7 +188,6 @@ public class CreatePurchaseOrderServlet extends HttpServlet {
                     detail.setMaterialName(matName);
                     detail.setQuantity(Integer.parseInt(qty));
                     detail.setUnit(unit);
-                    detail.setConvertedUnit(convertedUnit);
                     detail.setUnitPrice(Double.parseDouble(unitPrice));
                     detail.setTotalPrice(detail.getQuantity() * detail.getUnitPrice());
                     String error = detailDAO.addPurchaseOrderDetail(detail, conn);

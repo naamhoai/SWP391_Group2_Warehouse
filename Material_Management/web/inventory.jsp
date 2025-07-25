@@ -75,7 +75,6 @@
                         <th>Mã VT</th>
                         <th>Tên sản phẩm</th>
                         <th>Loại vật tư</th>
-                        <th>Nhà cung cấp</th>
                         <th>Tình trạng vật tư</th>
                         <th>Số lượng</th>
                         <th>Đơn vị</th>
@@ -90,7 +89,6 @@
                                     <td>${item.materialId}</td>
                                     <td>${item.materialName}</td>
                                     <td>${item.categoryName}</td>
-                                    <td>${item.supplierName}</td>
                                     <td>
                                         <span class="status-badge ${item.materialCondition eq 'Mới' ? 'status-active' : 'status-inactive'}">
                                             ${item.materialCondition}

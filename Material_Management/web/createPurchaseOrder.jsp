@@ -64,7 +64,7 @@
                         <select name="supplierId" id="supplierSelect" class="form-select" required>
                             <option value="">Chọn nhà cung cấp</option>
                             <c:forEach var="supplier" items="${suppliers}">
-                                <option value="${supplier.supplierId}" data-contact="${supplier.contactPerson}" data-phone="${supplier.supplierPhone}">${supplier.supplierName} - ${supplier.supplierPhone}</option>
+                                <option value="${supplier.supplierId}" data-contact="${supplier.contactPerson}" data-phone="${supplier.supplierPhone}">${supplier.supplierName}</option>
                             </c:forEach>
                         </select>
                     </div>
@@ -123,8 +123,8 @@ document.getElementById('supplierSelect').addEventListener('change', function() 
                                 <th style="width: 25%">Tên vật tư</th>
                                 <th style="width: 12%">Số lượng</th>
                                 <th style="width: 15%">Đơn vị</th>
-                                <th style="width: 15%">Đơn vị gốc</th>
                                 <th style="width: 18%">Đơn giá</th>
+                                <th style="width: 8%"></th>
                             </tr>
                         </thead>
                         <tbody id="materialsContainer">
@@ -133,16 +133,9 @@ document.getElementById('supplierSelect').addEventListener('change', function() 
                                     <input type="text" name="materialName[]" class="form-control material-name-input" placeholder="Nhập tên vật tư" autocomplete="off" required oninput="showMaterialSuggestions(this)">
                                 </td>
                                 <td><input type="number" name="quantity[]" class="form-control" placeholder="Số lượng" min="1" required oninput="updateTotal()"></td>
-                            <td>
-                                <select name="unit[]" class="form-control unit-input" required>
-                                    <option value="">Chọn đơn vị</option>
-                                    <c:forEach var="unit" items="${supplierUnits}">
-                                        <option value="${unit.unit_name}">${unit.unit_name}</option>
-                                    </c:forEach>
-                                </select>
-                            </td>
-                                <td><input type="text" name="baseUnit[]" class="form-control base-unit-input" placeholder="Đơn vị gốc" required readonly></td>
-                            <td><input type="number" name="unitPrice[]" class="form-control price-input" placeholder="Đơn giá" min="0" step="0.01" required oninput="updateTotal()"></td>
+                                <td><input type="text" name="unit[]" class="form-control base-unit-input" placeholder="Đơn vị" required readonly></td>
+                                <td><input type="number" name="unitPrice[]" class="form-control price-input" placeholder="Đơn giá" min="0" step="0.01" required oninput="updateTotal()"></td>
+                                <td><button type="button" class="btn-remove-row" onclick="removeMaterialRow(this)" title="Xóa dòng"><i class="fas fa-trash"></i></button></td>
                             </tr>
                         </tbody>
                     </table>
@@ -155,9 +148,6 @@ document.getElementById('supplierSelect').addEventListener('change', function() 
                 <div class="button-group">
                     <button type="button" class="btn-add" onclick="addMaterialRow()">
                         <i class="fas fa-plus"></i> Thêm dòng vật tư
-                    </button>
-                    <button type="button" class="btn-remove" onclick="removeLastMaterialRow()">
-                        <i class="fas fa-minus"></i> Xóa dòng cuối
                     </button>
                 </div>
                 <div class="form-group">
@@ -216,33 +206,25 @@ document.getElementById('supplierSelect').addEventListener('change', function() 
                 row.innerHTML = `
                     <td><input type="text" name="materialName[]" class="form-control material-name-input" placeholder="Nhập tên vật tư" autocomplete="off" required oninput="showMaterialSuggestions(this)"></td>
                     <td><input type="number" name="quantity[]" class="form-control" placeholder="Số lượng" min="1" required oninput="updateTotal()"></td>
-            <td>
-                <select name="unit[]" class="form-control unit-input" required>
-                    <option value="">Chọn đơn vị</option>
-                    <c:forEach var="unit" items="${supplierUnits}">
-                        <option value="${unit.unit_name}">${unit.unit_name}</option>
-                    </c:forEach>
-                </select>
-            </td>
-                    <td><input type="text" name="baseUnit[]" class="form-control base-unit-input" placeholder="Đơn vị gốc" required readonly></td>
-            <td><input type="number" name="unitPrice[]" class="form-control price-input" placeholder="Đơn giá" min="0" step="0.01" required oninput="updateTotal()"></td>
+                    <td><input type="text" name="unit[]" class="form-control base-unit-input" placeholder="Đơn vị" required readonly></td>
+                    <td><input type="number" name="unitPrice[]" class="form-control price-input" placeholder="Đơn giá" min="0" step="0.01" required oninput="updateTotal()"></td>
+                    <td><button type="button" class="btn-remove-row" onclick="removeMaterialRow(this)" title="Xóa dòng"><i class="fas fa-trash"></i></button></td>
                 `;
                 container.appendChild(row);
                 console.log("Đã thêm dòng mới, tổng số dòng: " + container.rows.length);
             }
-            function removeLastMaterialRow() {
+            function removeMaterialRow(btn) {
+                const row = btn.closest('tr');
                 const container = document.getElementById('materialsContainer');
                 if (container.rows.length > 1) {
-                    container.deleteRow(container.rows.length - 1);
-                    console.log("Đã xóa dòng cuối, tổng số dòng: " + container.rows.length);
+                    row.remove();
+                    updateTotal();
                 } else {
                     // Nếu chỉ còn 1 dòng, reset các input thay vì xóa
-                    const row = container.rows[0];
                     row.querySelectorAll('input, select').forEach(el => {
                         if (el.type === 'number' || el.type === 'text') el.value = '';
                         if (el.tagName === 'SELECT') el.selectedIndex = 0;
                     });
-                    console.log("Reset dòng cuối cùng, không xóa hết!");
                 }
             }
             function updateTotal() {
@@ -296,10 +278,9 @@ document.getElementById('supplierSelect').addEventListener('change', function() 
                 input.value = value;
                 const row = input.closest('tr');
                 if (row) {
-                    const baseUnitInput = row.querySelector('input[name="baseUnit[]"]');
-                    const priceInput = row.querySelector('input[name="unitPrice[]"]');
-            if (baseUnitInput) baseUnitInput.value = unit || '';
-            if (priceInput) priceInput.value = price || '';
+                    const baseUnitInput = row.querySelector('input[name="unit[]"]');
+                    if (baseUnitInput) baseUnitInput.value = unit || '';
+                    // Không tự động gán giá vào input unitPrice[] nữa
                 }
                 suggestionBox.classList.remove('show');
                 suggestionBox.innerHTML = '';
@@ -323,7 +304,6 @@ document.getElementById('supplierSelect').addEventListener('change', function() 
                 const materialNames = document.querySelectorAll('input[name="materialName[]"]');
                 const quantities = document.querySelectorAll('input[name="quantity[]"]');
                 const units = document.querySelectorAll('input[name="unit[]"]');
-                const baseUnits = document.querySelectorAll('input[name="baseUnit[]"]');
                 const unitPrices = document.querySelectorAll('input[name="unitPrice[]"]');
 
                 console.log("Số lượng dòng vật tư: " + materialNames.length);
@@ -332,8 +312,7 @@ document.getElementById('supplierSelect').addEventListener('change', function() 
             console.log("Dòng " + (i+1) + ":");
                     console.log("  - Tên: '" + materialNames[i].value + "'");
                     console.log("  - SL: '" + quantities[i].value + "'");
-                    console.log("  - ĐV: '" + units[i].value + "'");
-                    console.log("  - ĐV gốc: '" + baseUnits[i].value + "'");
+                    console.log("  - Đơn vị: '" + units[i].value + "'");
                     console.log("  - Giá: '" + unitPrices[i].value + "'");
                 }
             });

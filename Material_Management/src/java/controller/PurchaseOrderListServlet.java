@@ -34,7 +34,6 @@ public class PurchaseOrderListServlet extends HttpServlet {
             String supplier = request.getParameter("supplier");
             String pageStr = request.getParameter("page");
             String export = request.getParameter("export");
-            String dateRange = request.getParameter("dateRange");
             String sortOrder = request.getParameter("sortOrder");
             if (sortOrder == null || sortOrder.isEmpty()) sortOrder = "desc";
             
@@ -44,8 +43,18 @@ public class PurchaseOrderListServlet extends HttpServlet {
             if ("true".equals(success) && orderId != null) {
                 request.setAttribute("successMessage", "Đã tạo đơn mua #" + orderId + " thành công!");
             }
-            java.time.LocalDate today = java.time.LocalDate.now();
             
+            // Phân trang
+            int page = 1;
+            int pageSize = 10;
+            if (pageStr != null && !pageStr.isEmpty()) {
+                page = Integer.parseInt(pageStr);
+            }
+            
+            // Lấy danh sách đơn mua từ DAO
+            PurchaseOrderDAO purchaseOrderDAO = new PurchaseOrderDAO();
+            String dateRange = request.getParameter("dateRange");
+            java.time.LocalDate today = java.time.LocalDate.now();
             // Mặc định chọn tất cả nếu không có tham số dateRange
             if (dateRange == null || dateRange.isEmpty()) {
                 dateRange = "all";
@@ -77,16 +86,6 @@ public class PurchaseOrderListServlet extends HttpServlet {
                         break;
                 }
             }
-            
-            // Phân trang
-            int page = 1;
-            int pageSize = 10;
-            if (pageStr != null && !pageStr.isEmpty()) {
-                page = Integer.parseInt(pageStr);
-            }
-            
-            // Lấy danh sách đơn mua từ DAO
-            PurchaseOrderDAO purchaseOrderDAO = new PurchaseOrderDAO();
             List<PurchaseOrder> purchaseOrders = purchaseOrderDAO.getAllPurchaseOrders(fromDate, toDate, status, supplier, sortOrder);
             
             // Sau khi lấy purchaseOrders, nạp details cho từng order
@@ -130,9 +129,9 @@ public class PurchaseOrderListServlet extends HttpServlet {
             request.setAttribute("roleName", user.getRole().getRolename());
             request.setAttribute("fromDate", fromDate);
             request.setAttribute("toDate", toDate);
+            request.setAttribute("dateRange", dateRange);
             request.setAttribute("status", status);
             request.setAttribute("supplier", supplier);
-            request.setAttribute("dateRange", dateRange);
             
             // Thống kê
             request.setAttribute("totalOrders", totalOrders);
@@ -177,7 +176,7 @@ public class PurchaseOrderListServlet extends HttpServlet {
                 PurchaseOrderDAO purchaseOrderDAO = new PurchaseOrderDAO();
                 String reason = request.getParameter("reason");
                 if ("approve".equals(action)) {
-                    // Xử lý duyệt đơn
+                   
                     PurchaseOrder order = purchaseOrderDAO.getPurchaseOrderById(orderId);
                     if (order != null) {
                         order.setStatus("Completed");
@@ -185,10 +184,10 @@ public class PurchaseOrderListServlet extends HttpServlet {
                         order.setRejectionReason(null);
                         order.setNote(reason != null ? reason : "");
                         purchaseOrderDAO.updatePurchaseOrder(order);
-                        // --- Cập nhật supplier nếu chưa hợp tác ---
+                      
                         SupplierDAO supplierDAO = new SupplierDAO();
-                        supplierDAO.activateSupplierIfInactive(order.getSupplierId());
-                        // --- BẮT ĐẦU: Cập nhật inventory ---
+                        supplierDAO.activateSupplierIfInactive(order.getSupplierId(), new java.sql.Date(System.currentTimeMillis()));
+                       
                         try (java.sql.Connection conn = new dal.DBContext().getConnection()) {
                             PurchaseOrderDetailDAO detailDAO = new PurchaseOrderDetailDAO(conn);
                             java.util.List<PurchaseOrderDetail> details = detailDAO.getDetailsByOrderId(orderId);
@@ -200,28 +199,21 @@ public class PurchaseOrderListServlet extends HttpServlet {
                                 int materialId = detail.getMaterialId();
                                 int quantity = detail.getQuantity();
                                 String unit = detail.getUnit();
-                                String baseUnit = detail.getConvertedUnit();
                                 double unitPrice = detail.getUnitPrice();
-                                int supplierUnitId = unitConversionDao.getUnitIdByName(unit);
-                                int warehouseUnitId = unitConversionDao.getUnitIdByName(baseUnit);
-                                double conversionFactor = unitConversionDao.getConversionFactor(supplierUnitId, warehouseUnitId);
-                                if (conversionFactor <= 0) conversionFactor = 1.0; // Nếu không tìm thấy hệ số quy đổi, mặc định là 1
-                                int quantityInBaseUnit = (int) Math.round(quantity * conversionFactor);
-                                String debugLine = "[DEBUG] ID: " + materialId + ", quantity: " + quantity + ", unit: " + unit + ", baseUnit: " + baseUnit + ", conversionFactor: " + conversionFactor + ", quantityInBaseUnit: " + quantityInBaseUnit + ", unitPrice: " + unitPrice + "<br>";
-                                debugInfo.append(debugLine);
+                                // Không còn quy đổi, nhập kho đúng số lượng và đơn vị đã chọn
                                 if (materialId > 0) {
                                     try {
                                         int affectedRows = inventoryDAO.addOrUpdateInventoryWithResult(
                                             materialId,
                                             order.getSupplierId(),
                                             detail.getMaterialName(),
-                                            quantityInBaseUnit,
+                                            quantity, // nhập kho đúng số lượng
                                             "Mới",
                                             unitPrice
                                         );
                                         if (affectedRows == 0) {
                                             inventoryError.append("Không thể cập nhật tồn kho cho vật tư ID: ").append(materialId)
-                                                .append(", Số lượng: ").append(quantityInBaseUnit).append(", Tình trạng: Mới<br>");
+                                                .append(", Số lượng: ").append(quantity).append(", Tình trạng: Mới<br>");
                                         }
                                     } catch (Exception ex) {
                                         inventoryError.append("Lỗi cập nhật tồn kho cho vật tư ID: ").append(materialId)

@@ -76,7 +76,9 @@ public class EditPurchaseOrderServlet extends HttpServlet {
             MaterialDAO materialDAO = new MaterialDAO();
             List<String> allMaterialNames = materialDAO.getAllMaterialNames();
             UnitDAO unitDAO = new UnitDAO();
-            List<Unit> supplierUnits = unitDAO.getSupplierUnits();
+            List<Unit> supplierUnits = unitDAO.getAllUnits().stream()
+                .filter(u -> "Hoạt động".equals(u.getStatus()))
+                .collect(java.util.stream.Collectors.toList());
             request.setAttribute("supplierUnits", supplierUnits);
             request.setAttribute("order", order);
             request.setAttribute("details", details);

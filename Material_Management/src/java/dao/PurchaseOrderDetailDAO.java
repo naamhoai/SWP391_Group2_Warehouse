@@ -29,7 +29,6 @@ public class PurchaseOrderDetailDAO extends DBContext {
                     detail.setMaterialName(rs.getString("material_name"));
                     detail.setQuantity(rs.getInt("quantity"));
                     detail.setUnit(rs.getString("unit"));
-                    detail.setConvertedUnit(rs.getString("converted_unit"));
                     detail.setUnitPrice(rs.getDouble("unit_price"));
                     detail.setTotalPrice(rs.getDouble("total_price"));
                     list.add(detail);
@@ -58,7 +57,7 @@ public class PurchaseOrderDetailDAO extends DBContext {
             }
             detail.setMaterialId(materialId);
 
-            String sql = "INSERT INTO purchase_order_details (purchase_order_id, material_id, material_name, quantity, unit, converted_unit, unit_price, total_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO purchase_order_details (purchase_order_id, material_id, material_name, quantity, unit, unit_price, total_price) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, detail.getPurchaseOrderId());
             if (detail.getMaterialId() > 0) {
@@ -69,9 +68,8 @@ public class PurchaseOrderDetailDAO extends DBContext {
             ps.setString(3, detail.getMaterialName());
                 ps.setInt(4, detail.getQuantity());
                 ps.setString(5, detail.getUnit());
-                ps.setString(6, detail.getConvertedUnit());
-                ps.setDouble(7, detail.getUnitPrice());
-                ps.setDouble(8, detail.getTotalPrice());
+                ps.setDouble(6, detail.getUnitPrice());
+                ps.setDouble(7, detail.getTotalPrice());
             ps.executeUpdate();
             return null;
             }

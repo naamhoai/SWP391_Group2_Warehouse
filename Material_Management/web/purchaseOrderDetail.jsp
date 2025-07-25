@@ -184,7 +184,6 @@
                     <th>Tên vật tư</th>
                     <th>Số lượng</th>
                     <th>Đơn vị</th>
-                    <th>Đơn vị gốc</th>
                     <th>Đơn giá</th>
                 </tr>
             </thead>
@@ -195,12 +194,15 @@
                         <td>${detail.materialName}</td>
                         <td>${detail.quantity}</td>
                         <td>${detail.unit}</td>
-                        <td>${detail.convertedUnit}</td>
                         <td><fmt:formatNumber value="${detail.unitPrice}" type="number" groupingUsed="true"/> VNĐ</td>
                     </tr>
                 </c:forEach>
                 <c:if test="${empty details}">
+
                     <tr><td colspan="6" style="text-align:center;">Không có dữ liệu</td></tr>
+
+                    <tr><td colspan="5" class="no-data">Không có dữ liệu</td></tr>
+
                 </c:if>
             </tbody>
         </table>
