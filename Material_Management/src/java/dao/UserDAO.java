@@ -168,4 +168,91 @@ public class UserDAO {
         }
         return null;
     }
+
+    public int countAllUsers() {
+        String sql = "SELECT COUNT(*) FROM users";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countActiveUsers() {
+        String sql = "SELECT COUNT(*) FROM users WHERE LOWER(status) = 'active' OR LOWER(status) = 'hoạt động'";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countInactiveUsers() {
+        String sql = "SELECT COUNT(*) FROM users WHERE NOT (LOWER(status) = 'active' OR LOWER(status) = 'hoạt động')";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countAllUsersToMonth(String endDate) {
+        String sql = "SELECT COUNT(*) FROM users WHERE 1=1";
+        if (endDate != null && !endDate.isEmpty()) {
+            // Giả sử có trường created_at kiểu DATETIME
+            java.time.YearMonth ym = java.time.YearMonth.parse(endDate);
+            int lastDay = ym.lengthOfMonth();
+            sql += " AND created_at <= ?";
+            endDate = endDate + "-" + lastDay + " 23:59:59";
+        }
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            if (endDate != null && !endDate.isEmpty()) {
+                ps.setString(1, endDate);
+            }
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countUsersByDateRange(String startDate, String endDate) {
+        String sql = "SELECT COUNT(*) FROM users WHERE 1=1";
+        List<Object> params = new ArrayList<>();
+        if (startDate != null && !startDate.isEmpty()) {
+            sql += " AND created_at >= ?";
+            params.add(startDate + "-01 00:00:00");
+        }
+        if (endDate != null && !endDate.isEmpty()) {
+            sql += " AND created_at <= ?";
+            params.add(endDate + "-31 23:59:59");
+        }
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }

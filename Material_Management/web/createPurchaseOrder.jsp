@@ -11,15 +11,15 @@
     </head>
     <body>
         <jsp:include page="sidebar.jsp" />
-<div class="purchase-order-list-container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <h1 class="purchase-order-list-title">Tạo Đơn Mua Vật Tư</h1>
-        <a href="purchaseOrderList" class="create-order-btn">
-            <i class="fas fa-list"></i> Danh sách đơn mua
-        </a>
-    </div>
-    <div class="form-section" style="background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); padding: 32px 36px; margin-left: 0;">
-        <c:if test="${not empty successMessage}">
+<div class="create-purchase-order-container">
+        <div class="form-section">
+            <div class="header-section">
+            <h2 class="create-purchase-order-title">Tạo Đơn Mua Vật Tư</h2>
+                <a href="purchaseOrderList" class="btn-outline-primary">
+                    <i class="fas fa-list"></i> Danh sách đơn mua
+                </a>
+            </div>
+            <c:if test="${not empty successMessage}">
                 <div style="background:#d4edda; color:#155724; border:1px solid #c3e6cb; padding:15px; margin-bottom:20px; border-radius:8px; display:flex; align-items:center;">
                     <i class="fas fa-check-circle" style="margin-right:8px;"></i>
                     <strong>Thành công!</strong> ${successMessage}
@@ -84,6 +84,37 @@ document.getElementById('supplierSelect').addEventListener('change', function() 
     document.getElementById('contactPhone').value = selected.getAttribute('data-phone') || '';
 });
 </script>
+<style>
+.form-header-row {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 10px;
+}
+.form-header-col {
+    flex: 1 1 0;
+    min-width: 220px;
+    max-width: 340px;
+    display: flex;
+    flex-direction: column;
+}
+.form-header-col label {
+    font-weight: 500;
+    font-size: 15px;
+    margin-bottom: 3px;
+    color: #222;
+}
+.form-header-col input,
+.form-header-col select {
+    padding: 7px 12px;
+    border: 1.5px solid #e3e3e3;
+    border-radius: 6px;
+    font-size: 15px;
+    background: #f8fafd;
+    margin-bottom: 2px;
+    width: 100%;
+    box-sizing: border-box;
+}
+</style>
                 <h4 style="font-weight:600; color:#222; margin-bottom: 20px;">Danh sách vật tư</h4>
                 <div class="table-responsive">
                     <table class="table">
@@ -160,23 +191,6 @@ document.getElementById('supplierSelect').addEventListener('change', function() 
 .note-textarea::placeholder {
     color: #999;
     font-style: italic;
-}
-#global-autocomplete-suggestions {
-    display: none;
-    position: absolute;
-    background: #fff;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    max-height: 300px;
-    overflow-y: auto;
-    z-index: 99999;
-}
-#global-autocomplete-suggestions.show {
-    display: block;
-}
-.purchase-order-list-container {
-    margin-top: 0 !important;
 }
 </style>
                 <div class="submit-section">

@@ -9,14 +9,13 @@
     <title>Danh Sách Đơn Mua Vật Tư</title>
     <link rel="stylesheet" href="css/createPurchaseOrder.css">
     <link rel="stylesheet" href="css/sidebar.css">
-    <link rel="stylesheet" href="css/purchaseOrderList.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
 </head>
 <body>
     <jsp:include page="sidebar.jsp" />
     <div class="purchase-order-list-container">
-        <div class="purchase-order-list-header">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
             <h1 class="purchase-order-list-title">Danh Sách Đơn Mua Vật Tư</h1>
             <a href="createPurchaseOrder" class="create-order-btn">
                 <i class="fas fa-plus"></i> Tạo đơn mua mới
@@ -25,28 +24,28 @@
         
         <!-- Thông báo thành công/lỗi -->
         <c:if test="${not empty successMessage}">
-            <div class="alert-success">
+            <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 10px; margin-bottom: 20px; border-radius: 5px;">
                 <strong>Thành công!</strong> ${successMessage}
             </div>
         </c:if>
         <c:if test="${param.error == 'true'}">
-            <div class="alert-error">
+            <div style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 10px; margin-bottom: 20px; border-radius: 5px;">
                 <strong>Lỗi!</strong> ${param.message}
             </div>
         </c:if>
         <c:if test="${param.success == 'true' && not empty param.message}">
-            <div class="alert-success-flex">
-                <i class="fas fa-check-circle icon-margin-right"></i>
+            <div style="background:#d4edda; color:#155724; border:1px solid #c3e6cb; padding:15px; margin-bottom:20px; border-radius:8px; display:flex; align-items:center;">
+                <i class="fas fa-check-circle" style="margin-right:8px;"></i>
                 <strong>Thành công!</strong> ${param.message}
             </div>
         </c:if>
         <c:if test="${param.msg == 'approved'}">
-            <div class="alert-approved">
+            <div style="background:#d4edda;color:#155724;padding:12px 24px;border-radius:8px;margin-bottom:18px;font-weight:600;">
                 Đơn mua đã được duyệt thành công!
             </div>
         </c:if>
         <c:if test="${param.msg == 'rejected'}">
-            <div class="alert-rejected">
+            <div style="background:#f8d7da;color:#721c24;padding:12px 24px;border-radius:8px;margin-bottom:18px;font-weight:600;">
                 Đơn mua đã bị từ chối!
             </div>
         </c:if>
@@ -84,15 +83,15 @@
                         </select>
                     </div>
                     <div>
-                        <label for="sortOrder" class="label-block">Sắp xếp ID</label>
-                        <select name="sortOrder" id="sortOrder" class="sort-order-select" onchange="this.form.submit()">
+                        <label for="sortOrder" style="display:block;">Sắp xếp ID</label>
+                        <select name="sortOrder" id="sortOrder" style="width:100%;padding:7px 12px;border:1.5px solid #e3e3e3;border-radius:6px;font-size:15px;background:#f8fafd;margin-bottom:2px;" onchange="this.form.submit()">
                             <option value="desc" ${param.sortOrder == 'desc' || empty param.sortOrder ? 'selected' : ''}>Giảm dần</option>
                             <option value="asc" ${param.sortOrder == 'asc' ? 'selected' : ''}>Tăng dần</option>
                         </select>
                     </div>
                     <div>
                         <label>&nbsp;</label>
-                        <button type="submit" class="btn btn-primary btn-search">Tìm kiếm</button>
+                        <button type="submit" class="btn btn-primary" style="display:none;">Tìm kiếm</button>
                     </div>
                 </div>
             </form>
@@ -121,10 +120,10 @@
                         <td>
                             <c:choose>
                                 <c:when test="${order.status eq 'Rejected' || order.status eq 'Từ chối'}">
-                                    <span class="note-rejected">${order.rejectionReason}</span>
+                                    <span style="color:#d32f2f;font-weight:600;">${order.rejectionReason}</span>
                                 </c:when>
                                 <c:when test="${order.status eq 'Approved' || order.status eq 'Đã duyệt'}">
-                                    <span class="note-approved">${order.note}</span>
+                                    <span style="color:#388e3c;font-weight:600;">${order.note}</span>
                                 </c:when>
                                 <c:otherwise>
                                     ${order.note}
@@ -134,13 +133,13 @@
                         <td>
                             <c:choose>
                                 <c:when test="${order.status eq 'Completed'}">
-                                    <span class="status-approved">Đã duyệt</span>
+                                    <span style="background:#d4f5e9;color:#2e7d32;padding:4px 12px;border-radius:8px;font-weight:600;">Đã duyệt</span>
                                 </c:when>
                                 <c:when test="${order.status eq 'Pending'}">
-                                    <span class="status-pending">Chờ duyệt</span>
+                                    <span style="background:#fff8e1;color:#fbc02d;padding:4px 12px;border-radius:8px;font-weight:600;">Chờ duyệt</span>
                                 </c:when>
                                 <c:when test="${order.status eq 'Rejected'}">
-                                    <span class="status-rejected">Từ chối</span>
+                                    <span style="background:#ffebee;color:#d32f2f;padding:4px 12px;border-radius:8px;font-weight:600;">Từ chối</span>
                                 </c:when>
                                 <c:otherwise>
                                     <span>${order.status}</span>
@@ -148,38 +147,38 @@
                             </c:choose>
                         </td>
                         <td>
-                            <a class="btn btn-view" href="purchaseOrderDetail?id=${order.purchaseOrderId}">
-                                Chi tiết
+                            <a class="btn btn-primary" style="padding: 5px 10px; font-size: 12px; margin-left:0;" href="purchaseOrderDetail?id=${order.purchaseOrderId}">
+                                <i class="fas fa-eye"></i> Chi tiết
                             </a>
                             <c:choose>
                                 <c:when test="${order.status eq 'Completed'}">
-                                    <button class="btn btn-edit btn-edit-disabled" onclick="showEditWarning('${order.status}')">
-                                        Sửa
+                                    <button class="btn btn-warning" style="padding: 5px 10px; font-size: 12px; margin-left:4px; color:#fff;" onclick="showEditWarning('${order.status}')">
+                                        <i class="fas fa-edit"></i> Sửa
                                     </button>
                                 </c:when>
                                 <c:otherwise>
-                                    <a class="btn btn-edit btn-edit" href="editPurchaseOrder?orderId=${order.purchaseOrderId}">
-                                        Sửa
+                                    <a class="btn btn-warning" style="padding: 5px 10px; font-size: 12px; margin-left:4px; color:#fff;" href="editPurchaseOrder?orderId=${order.purchaseOrderId}">
+                                        <i class="fas fa-edit"></i> Sửa
                                     </a>
                                 </c:otherwise>
                             </c:choose>
-                            <a class="btn btn-history btn-history" href="purchaseOrderHistory?orderId=${order.purchaseOrderId}">
-                                Lịch sử
+                            <a class="btn btn-info" style="padding: 5px 10px; font-size: 12px; margin-left:4px; color:#fff;" href="purchaseOrderHistory?orderId=${order.purchaseOrderId}">
+                                <i class="fas fa-history"></i> Lịch sử
                             </a>
                         </td>
                     </tr>
                 </c:forEach>
                 <c:if test="${empty purchaseOrders}">
                     <tr>
-                        <td colspan="7" class="no-data">Không có dữ liệu</td>
+                        <td colspan="7" style="text-align: center; padding: 20px;">Không có dữ liệu</td>
                     </tr>
                 </c:if>
             </tbody>
         </table>
 
         <!-- Phân trang -->
-        <div class="pagination">
-          <div class="pagination-form">
+        <div class="pagination" style="flex-direction: column; align-items: center; gap: 8px; margin-top: 32px;">
+          <div class="pagination-form" style="justify-content: center;">
             <c:choose>
               <c:when test="${currentPage > 1}">
                 <a href="purchaseOrderList?page=${currentPage - 1}&fromDate=${fromDate}&toDate=${toDate}&status=${status}&supplier=${supplier}&sortOrder=${param.sortOrder}" class="page-button" aria-label="Trang trước">&laquo;</a>
@@ -200,7 +199,7 @@
               </c:otherwise>
             </c:choose>
           </div>
-          <div class="pagination-info">
+          <div class="pagination-info" style="margin-top: 8px; color: #6b7280; font-size: 16px; font-weight: 500;">
             Tổng số đơn mua: ${totalOrders}
           </div>
         </div>
@@ -286,7 +285,18 @@
     <script>
 window.onerror = function(message, source, lineno, colno, error) {
     var errorDiv = document.createElement('div');
-    errorDiv.className = 'js-error-alert';
+    errorDiv.style.background = '#ffebee';
+    errorDiv.style.color = '#b71c1c';
+    errorDiv.style.padding = '12px 18px';
+    errorDiv.style.margin = '12px 0 12px auto';
+    errorDiv.style.border = '1px solid #f44336';
+    errorDiv.style.borderRadius = '8px';
+    errorDiv.style.fontWeight = 'bold';
+    errorDiv.style.fontSize = '15px';
+    errorDiv.style.width = '420px';
+    errorDiv.style.maxWidth = '90vw';
+    errorDiv.style.textAlign = 'right';
+    errorDiv.style.boxShadow = '0 2px 8px rgba(244,67,54,0.08)';
     errorDiv.innerText = 'Lỗi JS: ' + message + ' (tại dòng ' + lineno + ')';
     document.body.prepend(errorDiv);
     return false;

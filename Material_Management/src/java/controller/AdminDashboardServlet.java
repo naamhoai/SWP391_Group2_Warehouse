@@ -4,6 +4,8 @@ import dao.InventoryDAO;
 import dao.ExportMaterialDAO;
 import dao.RequestDAO;
 import dao.DeliveryDAO;
+import dao.PurchaseOrderDAO;
+import dao.PurchaseOrderDetailDAO;
 import model.Inventory;
 import model.ExportMaterial;
 import model.Delivery;
@@ -14,6 +16,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
+import com.google.gson.Gson;
+import model.PurchaseOrder;
+import java.util.stream.Collectors;
+import java.util.Comparator;
 
 @WebServlet(name = "AdminDashboardServlet", urlPatterns = {"/adminDashboard"})
 public class AdminDashboardServlet extends HttpServlet {
@@ -44,6 +50,10 @@ public class AdminDashboardServlet extends HttpServlet {
         requestStats.put("outgoingCount", outgoingCount);
         request.setAttribute("requestStats", requestStats);
 
+        // Lấy số lượng đơn đã duyệt
+        int approvedRequestCount = requestDAO.countFilteredRequests(null, "Đã duyệt", null, null, null);
+        request.setAttribute("approvedRequestCount", approvedRequestCount);
+
         // Lấy tham số thời gian từ request
         String startMonth = request.getParameter("startMonth");
         String startYear = request.getParameter("startYear");
@@ -71,31 +81,16 @@ public class AdminDashboardServlet extends HttpServlet {
             endDate = now.toString().substring(0, 7);
         }
         
-        // Lấy dữ liệu nhập/xuất theo khoảng thời gian
-        Map<String, Integer> importByMonth = inventoryDAO.getTotalImportedByMonthRange(startDate, endDate);
-        Map<String, Integer> exportByMonth = inventoryDAO.getTotalExportedByMonthRange(startDate, endDate);
-        
-        // Tạo danh sách tháng trong khoảng thời gian
-        Set<String> allMonths = new TreeSet<>();
-        allMonths.addAll(importByMonth.keySet());
-        allMonths.addAll(exportByMonth.keySet());
-        
-        // Nếu không có dữ liệu thực, tạo dữ liệu mẫu cho khoảng thời gian
-        if (allMonths.isEmpty()) {
-            java.time.YearMonth start = java.time.YearMonth.parse(startDate);
-            java.time.YearMonth end = java.time.YearMonth.parse(endDate);
-            for (java.time.YearMonth m = start; !m.isAfter(end); m = m.plusMonths(1)) {
-                allMonths.add(m.toString());
-            }
+        // Lấy dữ liệu nhập/xuất theo khoảng thời gian (đã lọc đúng điều kiện ở DAO)
+        List<String> monthLabels = new ArrayList<>();
+        java.time.YearMonth startYM = java.time.YearMonth.parse(startDate);
+        java.time.YearMonth endYM = java.time.YearMonth.parse(endDate);
+        for (java.time.YearMonth m = startYM; !m.isAfter(endYM); m = m.plusMonths(1)) {
+            monthLabels.add(m.toString());
         }
-        
-        List<String> monthLabels = new ArrayList<>(allMonths);
-        Collections.sort(monthLabels);
-        
         // Định dạng tháng sang tiếng Việt
         List<String> formattedMonthLabels = new ArrayList<>();
         String[] vietnameseMonths = {"T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12"};
-        
         for (String month : monthLabels) {
             String[] parts = month.split("-");
             if (parts.length == 2) {
@@ -106,17 +101,51 @@ public class AdminDashboardServlet extends HttpServlet {
                 formattedMonthLabels.add(month);
             }
         }
-        
+        Map<String, Integer> importByMonth = inventoryDAO.getTotalImportedByMonthRange(startDate, endDate);
+        Map<String, Integer> exportByMonth = inventoryDAO.getTotalExportedByMonthRange(startDate, endDate);
         List<Integer> importValues = new ArrayList<>();
         List<Integer> exportValues = new ArrayList<>();
         for (String month : monthLabels) {
             importValues.add(importByMonth.getOrDefault(month, 0));
             exportValues.add(exportByMonth.getOrDefault(month, 0));
         }
-        
+        Gson gson = new Gson();
         request.setAttribute("importExportMonthLabels", formattedMonthLabels);
-        request.setAttribute("importByMonth", importValues);
-        request.setAttribute("exportByMonth", exportValues);
+        request.setAttribute("importByMonthJson", gson.toJson(importValues));
+        request.setAttribute("exportByMonthJson", gson.toJson(exportValues));
+        
+        // Lấy số lượng đơn đã duyệt theo tháng
+        Map<String, Integer> approvedRequestByMonth = requestDAO.getApprovedRequestCountByMonth(startDate, endDate);
+        List<Integer> approvedRequestValues = new ArrayList<>();
+        for (String month : monthLabels) {
+            approvedRequestValues.add(approvedRequestByMonth.getOrDefault(month, 0));
+        }
+        request.setAttribute("approvedRequestByMonth", approvedRequestValues);
+        request.setAttribute("approvedRequestByMonthJson", gson.toJson(approvedRequestValues));
+        
+        // Lấy số lượng đơn mua đã duyệt theo tháng
+        PurchaseOrderDAO purchaseOrderDAO = new PurchaseOrderDAO();
+        Map<String, Integer> approvedPurchaseOrderByMonth = purchaseOrderDAO.getApprovedPurchaseOrderCountByMonth(startDate, endDate);
+        List<Integer> approvedPurchaseOrderValues = new ArrayList<>();
+        for (String month : monthLabels) {
+            approvedPurchaseOrderValues.add(approvedPurchaseOrderByMonth.getOrDefault(month, 0));
+        }
+        request.setAttribute("approvedPurchaseOrderByMonth", approvedPurchaseOrderValues);
+        request.setAttribute("approvedPurchaseOrderByMonthJson", gson.toJson(approvedPurchaseOrderValues));
+        
+        // Lấy danh sách 5 đơn hàng mua đã hoàn thành (status = 'Approved') từ PurchaseOrderDAO và truyền sang JSP với tên recentPurchases.
+        List<PurchaseOrder> recentPurchases = new ArrayList<>();
+        try {
+            recentPurchases = purchaseOrderDAO.getPurchaseOrdersByStatus("Completed");
+            recentPurchases = recentPurchases.stream().sorted(Comparator.comparing(PurchaseOrder::getOrderDate).reversed()).limit(5).collect(Collectors.toList());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        PurchaseOrderDetailDAO detailDAO = new PurchaseOrderDetailDAO();
+        for (PurchaseOrder order : recentPurchases) {
+            order.setDetails(detailDAO.getDetailsByOrderId(order.getPurchaseOrderId()));
+        }
+        request.setAttribute("recentPurchases", recentPurchases);
         
         // Lưu tham số thời gian để hiển thị trên form
         request.setAttribute("startDate", startDate);

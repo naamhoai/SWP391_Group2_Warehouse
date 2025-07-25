@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashMap;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class InventoryDAO extends DBContext {
     private Connection conn;
@@ -16,14 +18,21 @@ public class InventoryDAO extends DBContext {
     }
     public InventoryDAO(){
     }
+    private void writeDebugLog(String message) {
+        try (FileWriter fw = new FileWriter("debug_inventorydao.log", true)) {
+            fw.write(message + "\n");
+        } catch (IOException e) {
+            
+        }
+    }
     public List<Inventory> getInventoryList(Integer categoryId, Integer supplierId, String search, String condition, int page, int pageSize) throws SQLException {
         List<Inventory> list = new ArrayList<>();
-        String sql = "SELECT i.inventory_id, i.material_id, i.supplier_id, i.material_condition, i.quantity_on_hand, i.price, i.last_updated, " +
+        String sql = "SELECT i.inventory_id, i.material_id, i.material_condition, i.quantity_on_hand, i.price, i.last_updated, " +
                 "m.name AS material_name, c.name AS category_name, s.supplier_name, u.unit_name " +
                 "FROM inventory i " +
                 "JOIN materials m ON i.material_id = m.material_id " +
                 "JOIN categories c ON m.category_id = c.category_id " +
-                "JOIN supplier s ON i.supplier_id = s.supplier_id " +
+                "JOIN supplier s ON m.supplier_id = s.supplier_id " +
                 "JOIN units u ON m.unit_id = u.unit_id WHERE 1=1 ";
         List<Object> params = new ArrayList<>();
         if (categoryId != null && categoryId > 0) {
@@ -60,7 +69,6 @@ public class InventoryDAO extends DBContext {
                     inv.setMaterialName(rs.getString("material_name"));
                     inv.setCategoryName(rs.getString("category_name"));
                     inv.setSupplierName(rs.getString("supplier_name"));
-                    inv.setSupplierId(rs.getInt("supplier_id"));
                     inv.setUnitName(rs.getString("unit_name"));
                     inv.setPrice(rs.getInt("price")); // Lấy giá từ inventory
                     list.add(inv);
@@ -74,7 +82,7 @@ public class InventoryDAO extends DBContext {
         String sql = "SELECT COUNT(*) FROM inventory i " +
                 "JOIN materials m ON i.material_id = m.material_id " +
                 "JOIN categories c ON m.category_id = c.category_id " +
-                "JOIN supplier s ON i.supplier_id = s.supplier_id WHERE 1=1 ";
+                "JOIN supplier s ON m.supplier_id = s.supplier_id WHERE 1=1 ";
         List<Object> params = new ArrayList<>();
         if (categoryId != null && categoryId > 0) {
             sql += " AND c.category_id = ?";
@@ -225,21 +233,23 @@ public class InventoryDAO extends DBContext {
         String sql = "SELECT DATE_FORMAT(po.order_date, '%Y-%m') AS month, SUM(pod.quantity) AS total_imported " +
                 "FROM purchase_orders po " +
                 "JOIN purchase_order_details pod ON po.purchase_order_id = pod.purchase_order_id " +
-                "WHERE 1=1 ";
+                "WHERE 1=1 AND po.approval_status = 'Approved' ";
         
         List<Object> params = new ArrayList<>();
         if (startDate != null && !startDate.isEmpty()) {
             sql += "AND po.order_date >= ? ";
-            params.add(startDate + "-01");
+            params.add(startDate + "-01 00:00:00");
         }
         if (endDate != null && !endDate.isEmpty()) {
+            java.time.YearMonth endYM = java.time.YearMonth.parse(endDate);
+            int lastDay = endYM.lengthOfMonth();
             sql += "AND po.order_date <= ? ";
-            params.add(endDate + "-31");
+            params.add(endDate + "-" + lastDay + " 23:59:59");
         }
         
         sql += "GROUP BY month ORDER BY month";
         
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             for (int i = 0; i < params.size(); i++) {
                 ps.setObject(i + 1, params.get(i));
             }
@@ -264,21 +274,23 @@ public class InventoryDAO extends DBContext {
         String sql = "SELECT DATE_FORMAT(ef.export_date, '%Y-%m') AS month, SUM(em.quantity) AS total_exported " +
                 "FROM export_forms ef " +
                 "JOIN export_materials em ON ef.export_id = em.export_id " +
-                "WHERE 1=1 ";
+                "WHERE 1=1 AND ef.status = 'Hoàn thành' ";
         
         List<Object> params = new ArrayList<>();
         if (startDate != null && !startDate.isEmpty()) {
             sql += "AND ef.export_date >= ? ";
-            params.add(startDate + "-01");
+            params.add(startDate + "-01 00:00:00");
         }
         if (endDate != null && !endDate.isEmpty()) {
+            java.time.YearMonth endYM = java.time.YearMonth.parse(endDate);
+            int lastDay = endYM.lengthOfMonth();
             sql += "AND ef.export_date <= ? ";
-            params.add(endDate + "-31");
+            params.add(endDate + "-" + lastDay + " 23:59:59");
         }
         
         sql += "GROUP BY month ORDER BY month";
         
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             for (int i = 0; i < params.size(); i++) {
                 ps.setObject(i + 1, params.get(i));
             }
@@ -326,6 +338,44 @@ public class InventoryDAO extends DBContext {
         return lowStockItems;
     }
 
+    public int addOrUpdateInventoryWithResult(int materialId, String materialName, int quantity, String materialCondition, double unitPrice) {
+        int safeQuantity = (int) quantity;
+        double safePrice = unitPrice;
+        if (safeQuantity <= 0 || safePrice < 0) {
+            return 0;
+        }
+        String selectSql = "SELECT inventory_id FROM inventory WHERE material_id = ? AND material_condition = ?";
+        String insertSql = "INSERT INTO inventory (material_id, material_condition, quantity_on_hand, last_updated, price) VALUES (?, ?, ?, NOW(), ?)";
+        String updateSql = "UPDATE inventory SET quantity_on_hand = quantity_on_hand + ?, last_updated = NOW(), price = ? WHERE inventory_id = ?";
+        try (
+            PreparedStatement selectPs = this.conn.prepareStatement(selectSql)
+        ) {
+            selectPs.setInt(1, materialId);
+            selectPs.setString(2, materialCondition);
+            ResultSet rs = selectPs.executeQuery();
+            if (rs.next()) {
+                int inventoryId = rs.getInt("inventory_id");
+                try (PreparedStatement updatePs = this.conn.prepareStatement(updateSql)) {
+                    updatePs.setInt(1, safeQuantity);
+                    updatePs.setDouble(2, safePrice);
+                    updatePs.setInt(3, inventoryId);
+                    return updatePs.executeUpdate();
+                }
+            } else {
+                try (PreparedStatement insertPs = this.conn.prepareStatement(insertSql)) {
+                    insertPs.setInt(1, materialId);
+                    insertPs.setString(2, materialCondition);
+                    insertPs.setInt(3, safeQuantity);
+                    insertPs.setDouble(4, safePrice);
+                    return insertPs.executeUpdate();
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
     public int addOrUpdateInventoryWithResult(int materialId, int supplierId, String materialName, int quantity, String materialCondition, double unitPrice) {
         int safeQuantity = (int) quantity;
         double safePrice = unitPrice;

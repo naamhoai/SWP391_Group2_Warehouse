@@ -93,16 +93,11 @@ public class SupplierListServlet extends HttpServlet {
         int currentPage = 1;
         int itemsPerPage = 5;
         if (pageStr != null) {
-            try { currentPage = Integer.parseInt(pageStr); } catch (Exception ignored) {}
+            try { currentPage = Math.max(1, Integer.parseInt(pageStr)); } catch (Exception ignored) {}
         }
-        if (currentPage < 1) currentPage = 1;
         if (itemsPerPageStr != null) {
-            try { itemsPerPage = Integer.parseInt(itemsPerPageStr); } catch (Exception ignored) {}
+            try { itemsPerPage = Math.max(1, Integer.parseInt(itemsPerPageStr)); } catch (Exception ignored) {}
         }
-        if (itemsPerPage < 1) itemsPerPage = 5;
-
-        // Map sortBy 'id' thành 'supplier_id' để đúng tên cột trong DB
-        if ("id".equals(sortBy)) sortBy = "supplier_id";
 
         // Đếm tổng số supplier sau filter/search
         int totalSuppliers = supplierDAO.countSuppliers(keyword, status);
@@ -321,24 +316,10 @@ public class SupplierListServlet extends HttpServlet {
                 request.getSession().setAttribute("message", "Thêm nhà cung cấp thành công");
             } else {
                 request.getSession().setAttribute("error", "Không thể thêm nhà cung cấp");
-                // Nếu có lỗi chi tiết, truyền lên giao diện
-                Throwable lastException = supplierDAO.getLastException();
-                if (lastException != null) {
-                    java.io.StringWriter sw = new java.io.StringWriter();
-                    lastException.printStackTrace(new java.io.PrintWriter(sw));
-                    request.setAttribute("errorDetail", sw.toString());
-                }
-                request.getRequestDispatcher("/addSupplier.jsp").forward(request, response);
-                return;
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error in addSupplier: {0}", e.getMessage());
             request.getSession().setAttribute("error", "Lỗi khi thêm nhà cung cấp: " + e.getMessage());
-            java.io.StringWriter sw = new java.io.StringWriter();
-            e.printStackTrace(new java.io.PrintWriter(sw));
-            request.setAttribute("errorDetail", sw.toString());
-            request.getRequestDispatcher("/addSupplier.jsp").forward(request, response);
-            return;
         }
         response.sendRedirect(request.getContextPath() + "/suppliers");
     }

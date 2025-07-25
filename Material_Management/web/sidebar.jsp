@@ -33,14 +33,7 @@
                         <span class="menu-text">Bảng Điều Khiển</span>
                     </a>
                 </li>
-                <% if (roleId != null && roleId == 2) { %>
-                <li class="menu-item">
-                    <a href="${pageContext.request.contextPath}/requesrList" class="menu-link">
-                        <i class="fas fa-user-check menu-icon"></i>
-                        <span class="menu-text">Duyệt yêu cầu xuất kho</span>
-                    </a>
-                </li>
-                <% } %>
+                
                 <% if (roleId != null && roleId == 3) { %>
                 <li class="menu-item">
                     <a href="${pageContext.request.contextPath}/CreateExportFormServlet" class="menu-link">

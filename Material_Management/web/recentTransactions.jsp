@@ -31,17 +31,29 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <c:forEach var="transaction" items="${recentTransactions}">
+                    <c:forEach var="order" items="${allPurchases}">
                         <tr>
-                            <td>${transaction.id}</td>
-                            <td>${transaction.materialName}</td>
-                            <td>${transaction.type}</td>
-                            <td>${transaction.quantity}</td>
-                            <td><fmt:formatDate value="${transaction.date}" pattern="dd/MM/yyyy HH:mm"/></td>
+                            <td>${order.purchaseOrderId}</td>
+                            <td>
+                                <c:forEach var="detail" items="${order.details}" varStatus="loop">
+                                    ${detail.materialName}<c:if test="${!loop.last}">, </c:if>
+                                </c:forEach>
+                            </td>
+                            <td>Mua</td>
+                            <td>
+                                <c:set var="totalQty" value="0" />
+                                <c:forEach var="detail" items="${order.details}">
+                                    <c:set var="totalQty" value="${totalQty + detail.quantity}" />
+                                </c:forEach>
+                                ${totalQty}
+                            </td>
+                            <td><fmt:formatDate value="${order.orderDate}" pattern="dd/MM/yyyy HH:mm"/></td>
                         </tr>
                     </c:forEach>
-                    <c:if test="${empty recentTransactions}">
-                        <tr><td colspan="5" style="text-align: center;">Không có giao dịch nào.</td></tr>
+                    <c:if test="${empty allPurchases}">
+                        <tr>
+                            <td colspan="5" style="text-align: center;">Không có đơn mua nào.</td>
+                        </tr>
                     </c:if>
                 </tbody>
             </table>

@@ -192,4 +192,33 @@ public class PurchaseOrderDAO {
             return rowsAffected > 0;
         }
     }
+    
+    // Lấy số lượng đơn mua đã duyệt theo tháng
+    public java.util.Map<String, Integer> getApprovedPurchaseOrderCountByMonth(String startDate, String endDate) {
+        java.util.Map<String, Integer> result = new java.util.LinkedHashMap<>();
+        String sql = "SELECT DATE_FORMAT(order_date, '%Y-%m') AS month, COUNT(*) AS total_approved_orders " +
+                     "FROM purchase_orders WHERE approval_status = 'Approved' ";
+        java.util.List<Object> params = new java.util.ArrayList<>();
+        if (startDate != null && !startDate.isEmpty()) {
+            sql += "AND order_date >= ? ";
+            params.add(startDate + "-01 00:00:00");
+        }
+        if (endDate != null && !endDate.isEmpty()) {
+            sql += "AND order_date <= ? ";
+            params.add(endDate + "-31 23:59:59");
+        }
+        sql += "GROUP BY month ORDER BY month";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                result.put(rs.getString("month"), rs.getInt("total_approved_orders"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
 }

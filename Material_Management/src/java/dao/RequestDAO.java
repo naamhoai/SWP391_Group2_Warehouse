@@ -4,7 +4,9 @@ import dal.DBContext;
 import model.Request;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RequestDAO extends DBContext {
 
@@ -536,6 +538,35 @@ public class RequestDAO extends DBContext {
             }
         }
         return list;
+    }
+    
+    // Lấy số lượng đơn đã duyệt theo tháng
+    public Map<String, Integer> getApprovedRequestCountByMonth(String startDate, String endDate) {
+        Map<String, Integer> result = new LinkedHashMap<>();
+        String sql = "SELECT DATE_FORMAT(created_at, '%Y-%m') AS month, COUNT(*) AS total_approved " +
+                "FROM requests WHERE request_status = 'Đã duyệt' ";
+        List<Object> params = new ArrayList<>();
+        if (startDate != null && !startDate.isEmpty()) {
+            sql += "AND created_at >= ? ";
+            params.add(startDate + "-01 00:00:00");
+        }
+        if (endDate != null && !endDate.isEmpty()) {
+            sql += "AND created_at <= ? ";
+            params.add(endDate + "-31 23:59:59");
+        }
+        sql += "GROUP BY month ORDER BY month";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                result.put(rs.getString("month"), rs.getInt("total_approved"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
 }

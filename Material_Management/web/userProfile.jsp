@@ -45,12 +45,7 @@
                             <div class="avatar-container">
                                 <c:choose>
                                     <c:when test="${not empty user.image}">
-                                        <% 
-                                            model.User userObj = (model.User) request.getAttribute("user");
-                                            if (userObj != null) {
-                                                System.out.println("[userProfile.jsp] Đường dẫn ảnh user: " + request.getServletContext().getRealPath(userObj.getImage()));
-                                            }
-                                        %>
+                                        
                                         <img src="${pageContext.request.contextPath}${user.image}?v=<%= System.currentTimeMillis() %>" alt="Avatar" />
                                     </c:when>
                                     <c:otherwise>

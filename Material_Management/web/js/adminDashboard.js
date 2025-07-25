@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        min: 10,
+                        min: 0,
                         max: 100,
                         title: {
                             display: true,

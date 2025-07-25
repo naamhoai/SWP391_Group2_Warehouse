@@ -187,7 +187,7 @@ public class PurchaseOrderListServlet extends HttpServlet {
                         purchaseOrderDAO.updatePurchaseOrder(order);
                         // --- Cập nhật supplier nếu chưa hợp tác ---
                         SupplierDAO supplierDAO = new SupplierDAO();
-                        supplierDAO.activateSupplierIfInactive(order.getSupplierId(), new java.sql.Date(System.currentTimeMillis()));
+                        supplierDAO.activateSupplierIfInactive(order.getSupplierId());
                         // --- BẮT ĐẦU: Cập nhật inventory ---
                         try (java.sql.Connection conn = new dal.DBContext().getConnection()) {
                             PurchaseOrderDetailDAO detailDAO = new PurchaseOrderDetailDAO(conn);
