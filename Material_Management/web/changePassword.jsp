@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Đổi mật khẩu</title>
     <link rel="stylesheet" href="./css/resetpassword.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
@@ -12,15 +13,24 @@
         <form action="changePassword" method="POST" onsubmit="return validateForm();">
             <div class="form-group">
                 <label for="old_password">Mật khẩu cũ</label>
-                <input type="password" name="old_password" id="old_password" required placeholder="Nhập mật khẩu cũ">
+                <div class="input-eye-wrapper">
+                    <input type="password" name="old_password" id="old_password" required placeholder="Nhập mật khẩu cũ">
+                    <span class="toggle-password" toggle="#old_password"><i class="fa-regular fa-eye"></i></span>
+                </div>
             </div>
             <div class="form-group">
                 <label for="new_password">Mật khẩu mới</label>
-                <input type="password" name="new_password" id="new_password" required placeholder="Nhập mật khẩu mới">
+                <div class="input-eye-wrapper">
+                    <input type="password" name="new_password" id="new_password" required placeholder="Nhập mật khẩu mới">
+                    <span class="toggle-password" toggle="#new_password"><i class="fa-regular fa-eye"></i></span>
+                </div>
             </div>
             <div class="form-group">
                 <label for="confirm_password">Xác nhận mật khẩu mới</label>
-                <input type="password" name="confirm_password" id="confirm_password" required placeholder="Nhập lại mật khẩu mới">
+                <div class="input-eye-wrapper">
+                    <input type="password" name="confirm_password" id="confirm_password" required placeholder="Nhập lại mật khẩu mới">
+                    <span class="toggle-password" toggle="#confirm_password"><i class="fa-regular fa-eye"></i></span>
+                </div>
             </div>
             <button type="submit" class="btn-submit">Đổi mật khẩu</button>
             <div class="back-link-container">
@@ -58,5 +68,19 @@ function validateForm() {
     }
     return true;
 }
+// Hiện/ẩn mật khẩu
+const togglePasswordIcons = document.querySelectorAll('.toggle-password');
+togglePasswordIcons.forEach(icon => {
+    icon.addEventListener('click', function() {
+        const input = document.querySelector(this.getAttribute('toggle'));
+        if (input.type === 'password') {
+            input.type = 'text';
+            this.innerHTML = '<i class="fa-regular fa-eye-slash"></i>';
+        } else {
+            input.type = 'password';
+            this.innerHTML = '<i class="fa-regular fa-eye"></i>';
+        }
+    });
+});
 </script>
 </html> 

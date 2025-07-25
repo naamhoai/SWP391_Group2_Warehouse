@@ -21,12 +21,32 @@ public class MaterialDetailHistoryServlet extends HttpServlet {
         String materialName = request.getParameter("materialName");
         String roleName = request.getParameter("roleName");
         String userName = request.getParameter("userName");
+        int page = 1;
+        int pageSize = 10;
+        try {
+            String pageParam = request.getParameter("page");
+            if (pageParam != null && !pageParam.isEmpty()) {
+                page = Integer.parseInt(pageParam);
+            }
+        } catch (Exception ignored) {}
+        try {
+            String pageSizeParam = request.getParameter("pageSize");
+            if (pageSizeParam != null && !pageSizeParam.isEmpty()) {
+                pageSize = Integer.parseInt(pageSizeParam);
+            }
+        } catch (Exception ignored) {}
         MaterialDetailHistoryDAO dao = new MaterialDetailHistoryDAO();
         if (materialIdStr == null) {
-            // Lấy toàn bộ lịch sử hoặc có filter
-            List<MaterialDetailHistory> historyList = dao.getFilteredHistory(fromDate, toDate, materialName, roleName, userName);
+            int totalRecords = dao.countFilteredHistory(fromDate, toDate, materialName, roleName, userName);
+            int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
+            if (page < 1) page = 1;
+            if (page > totalPages && totalPages > 0) page = totalPages;
+            List<MaterialDetailHistory> historyList = dao.getFilteredHistoryPaging(fromDate, toDate, materialName, roleName, userName, page, pageSize);
             request.setAttribute("historyList", historyList);
             request.setAttribute("showAll", true);
+            request.setAttribute("currentPage", page);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("pageSize", pageSize);
             request.getRequestDispatcher("materialDetailHistory.jsp").forward(request, response);
             return;
         }

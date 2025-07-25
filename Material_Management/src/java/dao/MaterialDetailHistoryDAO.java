@@ -155,4 +155,105 @@ public class MaterialDetailHistoryDAO extends DBContext {
         }
         return list;
     }
+
+    public int countFilteredHistory(String fromDate, String toDate, String materialName, String roleName, String userName) {
+        int count = 0;
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM material_detail_history h LEFT JOIN materials m ON h.material_id = m.material_id LEFT JOIN users u ON h.changed_by = u.user_id WHERE 1=1");
+        List<Object> params = new ArrayList<>();
+        if (fromDate != null && !fromDate.isEmpty()) {
+            sql.append(" AND DATE(h.changed_at) >= ?");
+            params.add(fromDate);
+        }
+        if (toDate != null && !toDate.isEmpty()) {
+            sql.append(" AND DATE(h.changed_at) <= ?");
+            params.add(toDate);
+        }
+        if (materialName != null && !materialName.isEmpty()) {
+            sql.append(" AND m.name LIKE ?");
+            params.add("%" + materialName + "%");
+        }
+        if (roleName != null && !roleName.isEmpty()) {
+            sql.append(" AND h.role_name = ?");
+            params.add(roleName);
+        }
+        if (userName != null && !userName.isEmpty()) {
+            sql.append(" AND u.full_name LIKE ?");
+            params.add("%" + userName + "%");
+        }
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    count = rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+
+    public List<MaterialDetailHistory> getFilteredHistoryPaging(String fromDate, String toDate, String materialName, String roleName, String userName, int page, int pageSize) {
+        List<MaterialDetailHistory> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT h.*, m.name as material_name, u.full_name as user_name FROM material_detail_history h LEFT JOIN materials m ON h.material_id = m.material_id LEFT JOIN users u ON h.changed_by = u.user_id WHERE 1=1");
+        List<Object> params = new ArrayList<>();
+        if (fromDate != null && !fromDate.isEmpty()) {
+            sql.append(" AND DATE(h.changed_at) >= ?");
+            params.add(fromDate);
+        }
+        if (toDate != null && !toDate.isEmpty()) {
+            sql.append(" AND DATE(h.changed_at) <= ?");
+            params.add(toDate);
+        }
+        if (materialName != null && !materialName.isEmpty()) {
+            sql.append(" AND m.name LIKE ?");
+            params.add("%" + materialName + "%");
+        }
+        if (roleName != null && !roleName.isEmpty()) {
+            sql.append(" AND h.role_name = ?");
+            params.add(roleName);
+        }
+        if (userName != null && !userName.isEmpty()) {
+            sql.append(" AND u.full_name LIKE ?");
+            params.add("%" + userName + "%");
+        }
+        sql.append(" ORDER BY h.changed_at DESC, h.history_id DESC LIMIT ? OFFSET ?");
+        params.add(pageSize);
+        params.add((page - 1) * pageSize);
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    MaterialDetailHistory h = new MaterialDetailHistory(
+                        rs.getInt("history_id"),
+                        rs.getInt("material_id"),
+                        rs.getString("field_name"),
+                        rs.getString("old_value"),
+                        rs.getString("new_value"),
+                        rs.getInt("changed_by"),
+                        rs.getString("role_name"),
+                        rs.getTimestamp("changed_at")
+                    );
+                    try {
+                        java.lang.reflect.Field f = h.getClass().getDeclaredField("materialName");
+                        f.setAccessible(true);
+                        f.set(h, rs.getString("material_name"));
+                    } catch (Exception ignore) {}
+                    try {
+                        java.lang.reflect.Field f2 = h.getClass().getDeclaredField("userName");
+                        f2.setAccessible(true);
+                        f2.set(h, rs.getString("user_name"));
+                    } catch (Exception ignore) {}
+                    list.add(h);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 } 

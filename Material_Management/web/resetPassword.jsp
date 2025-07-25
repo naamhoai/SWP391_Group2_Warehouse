@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Đặt lại mật khẩu</title>
     <link rel="stylesheet" href="./css/resetpassword.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <div class="container">
@@ -20,11 +21,17 @@
             </div>
             <div class="form-group">
                 <label for="password">Mật khẩu mới</label>
-                <input type="password" name="password" id="password" required placeholder="Nhập mật khẩu mới">
+                <div class="password-wrapper">
+                    <input type="password" name="password" id="password" required placeholder="Nhập mật khẩu mới">
+                    <span class="toggle-password" onclick="togglePassword('password', this)"><i class="fas fa-eye"></i></span>
+                </div>
             </div>
             <div class="form-group">
                 <label for="confirm_password">Xác nhận mật khẩu</label>
-                <input type="password" name="confirm_password" id="confirm_password" required placeholder="Nhập lại mật khẩu mới">
+                <div class="password-wrapper">
+                    <input type="password" name="confirm_password" id="confirm_password" required placeholder="Nhập lại mật khẩu mới">
+                    <span class="toggle-password" onclick="togglePassword('confirm_password', this)"><i class="fas fa-eye"></i></span>
+                </div>
             </div>
             <button type="submit" class="btn-submit">Đặt lại mật khẩu</button>
             <div class="back-link-container">
@@ -34,4 +41,19 @@
         </form>
     </div>
 </body>
+<script>
+function togglePassword(fieldId, el) {
+    var input = document.getElementById(fieldId);
+    var icon = el.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+</script>
 </html>

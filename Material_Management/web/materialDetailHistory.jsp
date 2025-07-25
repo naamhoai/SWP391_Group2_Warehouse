@@ -124,6 +124,51 @@
                 </tbody>
             </table>
         </div>
+        <c:if test="${showAll && totalPages > 1}">
+            <div class="pagination-container" style="margin-top: 24px; display: flex; justify-content: center; align-items: center; gap: 8px;">
+                <c:choose>
+                    <c:when test="${currentPage > 1}">
+                        <a href="?page=${currentPage - 1}&pageSize=${pageSize}
+                            <c:if test='${not empty param.fromDate}'> &fromDate=${param.fromDate}</c:if>
+                            <c:if test='${not empty param.toDate}'> &toDate=${param.toDate}</c:if>
+                            <c:if test='${not empty param.materialName}'> &materialName=${param.materialName}</c:if>
+                            <c:if test='${not empty param.roleName}'> &roleName=${param.roleName}</c:if>
+                            <c:if test='${not empty param.userName}'> &userName=${param.userName}</c:if>" class="page-link">&laquo; Trước</a>
+                    </c:when>
+                    <c:otherwise>
+                        <span class="page-link" style="color: #ccc; cursor: default;">&laquo; Trước</span>
+                    </c:otherwise>
+                </c:choose>
+                <c:forEach var="i" begin="1" end="${totalPages}">
+                    <c:choose>
+                        <c:when test="${i == currentPage}">
+                            <span class="page-link active">${i}</span>
+                        </c:when>
+                        <c:otherwise>
+                            <a href="?page=${i}&pageSize=${pageSize}
+                                <c:if test='${not empty param.fromDate}'> &fromDate=${param.fromDate}</c:if>
+                                <c:if test='${not empty param.toDate}'> &toDate=${param.toDate}</c:if>
+                                <c:if test='${not empty param.materialName}'> &materialName=${param.materialName}</c:if>
+                                <c:if test='${not empty param.roleName}'> &roleName=${param.roleName}</c:if>
+                                <c:if test='${not empty param.userName}'> &userName=${param.userName}</c:if>" class="page-link">${i}</a>
+                        </c:otherwise>
+                    </c:choose>
+                </c:forEach>
+                <c:choose>
+                    <c:when test="${currentPage < totalPages}">
+                        <a href="?page=${currentPage + 1}&pageSize=${pageSize}
+                            <c:if test='${not empty param.fromDate}'> &fromDate=${param.fromDate}</c:if>
+                            <c:if test='${not empty param.toDate}'> &toDate=${param.toDate}</c:if>
+                            <c:if test='${not empty param.materialName}'> &materialName=${param.materialName}</c:if>
+                            <c:if test='${not empty param.roleName}'> &roleName=${param.roleName}</c:if>
+                            <c:if test='${not empty param.userName}'> &userName=${param.userName}</c:if>" class="page-link">Sau &raquo;</a>
+                    </c:when>
+                    <c:otherwise>
+                        <span class="page-link" style="color: #ccc; cursor: default;">Sau &raquo;</span>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </c:if>
     </div>
 </body>
 </html> 
