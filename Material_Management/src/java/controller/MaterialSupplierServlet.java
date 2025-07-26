@@ -1,8 +1,10 @@
 package controller;
 
 import dao.MaterialSupplierDAO;
+import dao.InventoryDAO;
 import dao.SupplierDAO;
 import model.MaterialSupplier;
+import model.MaterialSupplierInventory;
 import model.Supplier;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -20,7 +22,6 @@ public class MaterialSupplierServlet extends HttpServlet {
         // Get filter parameters
         String supplierIdStr = request.getParameter("supplier_id");
         String keyword = request.getParameter("keyword");
-        String status = request.getParameter("status");
         
         // Parse supplier ID
         int supplierId = 0;
@@ -52,58 +53,38 @@ public class MaterialSupplierServlet extends HttpServlet {
         MaterialSupplierDAO materialSupplierDAO = new MaterialSupplierDAO();
         SupplierDAO supplierDAO = new SupplierDAO();
         
-        // Get all materials by supplier (if supplier is selected)
-        List<MaterialSupplier> list = new ArrayList<>();
+        List<MaterialSupplierInventory> list = new ArrayList<>();
         if (supplierId > 0) {
-            list = materialSupplierDAO.getMaterialsBySupplierId(supplierId);
-        } else {
-            // If no supplier selected, get all materials
-            list = materialSupplierDAO.getAllMaterialSuppliers();
+            try (java.sql.Connection conn = new dal.DBContext().getConnection()) {
+                InventoryDAO inventoryDAO = new InventoryDAO(conn);
+                list = inventoryDAO.getMaterialsBySupplierWithQuantity(supplierId);
+            } catch (java.sql.SQLException e) {
+                throw new ServletException("Lỗi truy vấn vật tư theo supplier từ inventory", e);
+            }
         }
-        
-        // Apply filters
-        List<MaterialSupplier> filtered = new ArrayList<>();
+        // Filter by keyword
+        List<MaterialSupplierInventory> filtered = new ArrayList<>();
         if (list != null) {
-            for (MaterialSupplier ms : list) {
+            for (MaterialSupplierInventory ms : list) {
                 boolean matchesKeyword = true;
-                boolean matchesStatus = true;
-                
-                // Filter by keyword
-            if (keyword != null && !keyword.trim().isEmpty()) {
-                    if (ms.getMaterialName() == null || 
-                        !ms.getMaterialName().toLowerCase().contains(keyword.toLowerCase())) {
+                if (keyword != null && !keyword.trim().isEmpty()) {
+                    if (ms.getMaterialName() == null || !ms.getMaterialName().toLowerCase().contains(keyword.toLowerCase())) {
                         matchesKeyword = false;
                     }
                 }
-                
-                // Filter by status
-                if (status != null && !status.trim().isEmpty()) {
-                    if ("available".equals(status)) {
-                        // For now, assume all materials from active suppliers are available
-                        // You can add actual material status logic here
-                        matchesStatus = true;
-            } else {
-                        matchesStatus = true;
-                    }
-                }
-                
-                if (matchesKeyword && matchesStatus) {
+                if (matchesKeyword) {
                     filtered.add(ms);
+                }
             }
         }
-        }
-        
-        // Calculate pagination
         int total = filtered != null ? filtered.size() : 0;
         int totalPages = (int)Math.ceil((double)total / pageSize);
         if (totalPages == 0) totalPages = 1;
         if (currentPage < 1) currentPage = 1;
         if (currentPage > totalPages) currentPage = totalPages;
-        
-        // Get page data
         int start = (currentPage - 1) * pageSize;
         int end = Math.min(start + pageSize, total);
-        List<MaterialSupplier> pageList = new ArrayList<>();
+        List<MaterialSupplierInventory> pageList = new ArrayList<>();
         if (filtered != null && !filtered.isEmpty() && start < end) {
             pageList = filtered.subList(start, end);
         }
@@ -120,7 +101,6 @@ public class MaterialSupplierServlet extends HttpServlet {
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("keyword", keyword);
         request.setAttribute("supplier_id", supplierIdStr);
-        request.setAttribute("status", status);
         
         request.getRequestDispatcher("materialSupplierList.jsp").forward(request, response);
     }

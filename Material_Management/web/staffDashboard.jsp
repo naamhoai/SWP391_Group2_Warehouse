@@ -315,13 +315,43 @@ var categoryLabels = [<c:forEach var="item" items="${categoryStats}" varStatus="
                                     li.style = `padding:8px 0;border-bottom:1px solid #eee;${n.read ? 'opacity:0.7;' : ''}`;
 
                                     const a = document.createElement('a');
-                                    const isRejected = n.message && n.message.includes('bị từ chối');
-                                    const linkUrl = isRejected ? 'editRequest?requestId=' + n.requestId : n.link;
-                                    a.href = linkUrl || "#";
+                                    let linkUrl = "#";
+                                    
+                                    // Xử lý link dựa trên loại thông báo
+                                    if (n.notificationType === 'purchase_order' || (n.message && n.message.includes('đơn mua'))) {
+                                        // Thông báo về purchase order
+                                        if (n.message && n.message.includes('bị từ chối')) {
+                                            // Nếu bị từ chối, link đến editPurchaseOrder
+                                            linkUrl = 'editPurchaseOrder?id=' + n.requestId;
+                                        } else {
+                                            // Nếu được duyệt, link đến purchaseOrderDetail
+                                            linkUrl = 'purchaseOrderDetail?id=' + n.requestId;
+                                        }
+                                    } else {
+                                        // Thông báo về request
+                                        if (n.message && n.message.includes('bị từ chối')) {
+                                            linkUrl = 'editRequest?requestId=' + n.requestId;
+                                        } else {
+                                            linkUrl = n.link || "#";
+                                        }
+                                    }
+                                    
+                                    a.href = linkUrl;
                                     a.style = 'color:#007bff;text-decoration:none;display:block;';
                                     a.onclick = e => {
                                         e.preventDefault();
-                                        fetch(`markNotificationRead?notificationId=${n.id}&requestId=${n.requestId}`)
+                                        let markReadUrl = '';
+                                        
+                                        // Xử lý URL mark as read dựa trên loại thông báo
+                                        if (n.notificationType === 'purchase_order' || (n.message && n.message.includes('đơn mua'))) {
+                                            // Thông báo về purchase order
+                                            markReadUrl = `markNotificationRead?notificationId=${n.id}&purchaseOrderId=${n.requestId}`;
+                                        } else {
+                                            // Thông báo về request
+                                            markReadUrl = `markNotificationRead?notificationId=${n.id}&requestId=${n.requestId}`;
+                                        }
+                                        
+                                        fetch(markReadUrl)
                                                 .then(() => location.href = a.href);
                                     };
 

@@ -119,7 +119,7 @@ public class PurchaseOrderListServlet extends HttpServlet {
             
             // Xuất Excel nếu được yêu cầu
             if ("excel".equals(export)) {
-                exportToExcel(response, purchaseOrders);
+                // exportToExcel(response, purchaseOrders); // This line is removed
                 return;
             }
             
@@ -194,7 +194,6 @@ public class PurchaseOrderListServlet extends HttpServlet {
                             InventoryDAO inventoryDAO = new InventoryDAO(conn);
                             UnitConversionDao unitConversionDao = new UnitConversionDao(conn);
                             StringBuilder inventoryError = new StringBuilder();
-                            StringBuilder debugInfo = new StringBuilder();
                             for (PurchaseOrderDetail detail : details) {
                                 int materialId = detail.getMaterialId();
                                 int quantity = detail.getQuantity();
@@ -221,15 +220,23 @@ public class PurchaseOrderListServlet extends HttpServlet {
                                     }
                                 }
                             }
-                            if (inventoryError.length() > 0 || debugInfo.length() > 0) {
+                            if (inventoryError.length() > 0) {
                                 response.setContentType("text/html;charset=UTF-8");
                                 response.getWriter().println("<h2 style='color:red'>Lỗi khi cập nhật tồn kho:</h2>");
                                 response.getWriter().println("<div style='color:#b71c1c; background:#ffebee; padding:12px 18px; border-radius:8px; margin:12px 0; font-weight:bold;'>" + inventoryError.toString() + "</div>");
-                                response.getWriter().println("<h3>Thông tin debug từng vật tư:</h3>");
-                                response.getWriter().println("<div style='color:#333; background:#f5f5f5; padding:12px 18px; border-radius:8px; margin:12px 0;'>" + debugInfo.toString() + "</div>");
                                 return;
                             }
                         }
+                        
+                        // Gửi thông báo cho người tạo đơn
+                        try {
+                            NotificationDAO notificationDAO = new NotificationDAO();
+                            String message = "Đơn mua #" + order.getPurchaseOrderId() + " đã được phê duyệt thành công.";
+                            notificationDAO.addPurchaseOrderNotification(order.getUserId(), message, order.getPurchaseOrderId());
+                        } catch (Exception e) {
+                            System.out.println("Lỗi gửi thông báo: " + e.getMessage());
+                        }
+                        
                         // --- KẾT THÚC: Cập nhật inventory ---
                         response.sendRedirect("purchaseOrderList?msg=approved");
                         return;
@@ -246,6 +253,19 @@ public class PurchaseOrderListServlet extends HttpServlet {
                         order.setApprovalStatus("Rejected");
                         order.setRejectionReason(reason != null ? reason : "");
                         purchaseOrderDAO.updatePurchaseOrder(order);
+                        
+                        // Gửi thông báo cho người tạo đơn
+                        try {
+                            NotificationDAO notificationDAO = new NotificationDAO();
+                            String message = "Đơn mua #" + order.getPurchaseOrderId() + " đã bị từ chối.";
+                            if (reason != null && !reason.trim().isEmpty()) {
+                                message += " Lý do: " + reason;
+                            }
+                            notificationDAO.addPurchaseOrderNotification(order.getUserId(), message, order.getPurchaseOrderId());
+                        } catch (Exception e) {
+                            System.out.println("Lỗi gửi thông báo: " + e.getMessage());
+                        }
+                        
                         response.sendRedirect("purchaseOrderList?msg=rejected");
                         return;
                     } else {
@@ -263,29 +283,5 @@ public class PurchaseOrderListServlet extends HttpServlet {
         } else {
             doGet(request, response);
         }
-    }
-    
-    private void exportToExcel(HttpServletResponse response, List<PurchaseOrder> orders) throws IOException {
-        response.setContentType("application/vnd.ms-excel");
-        response.setHeader("Content-Disposition", "attachment; filename=purchase_orders.xls");
-        
-        StringBuilder sb = new StringBuilder();
-        sb.append("<table border='1'>");
-        sb.append("<tr><th>ID</th><th>Người tạo</th><th>Vai trò</th><th>Ngày tạo</th><th>Nhà cung cấp</th><th>Tổng tiền</th><th>Trạng thái</th></tr>");
-        
-        for (PurchaseOrder order : orders) {
-            sb.append("<tr>");
-            sb.append("<td>").append(order.getPurchaseOrderId()).append("</td>");
-            sb.append("<td>").append(order.getCreatorName()).append("</td>");
-            sb.append("<td>").append(order.getCreatorRoleName()).append("</td>");
-            sb.append("<td>").append(order.getOrderDate()).append("</td>");
-            sb.append("<td>").append(order.getSupplierName()).append("</td>");
-            sb.append("<td>").append(order.getTotalAmount()).append("</td>");
-            sb.append("<td>").append(order.getStatus()).append("</td>");
-            sb.append("</tr>");
-        }
-        
-        sb.append("</table>");
-        response.getWriter().write(sb.toString());
     }
 } 

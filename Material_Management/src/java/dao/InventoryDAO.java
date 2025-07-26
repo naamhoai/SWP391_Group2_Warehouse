@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 import java.io.FileWriter;
 import java.io.IOException;
+import model.MaterialSupplierInventory;
 
 public class InventoryDAO extends DBContext {
     private Connection conn;
@@ -458,6 +459,46 @@ public class InventoryDAO extends DBContext {
                 }
             }
         }
+        return list;
+    }
+
+    /**
+     * Lấy danh sách vật tư của 1 supplier có trong inventory, kèm tổng số lượng
+     * Lấy thông tin supplier từ purchase_orders thay vì từ bảng materials
+     */
+    public List<MaterialSupplierInventory> getMaterialsBySupplierWithQuantity(int supplierId) throws SQLException {
+        List<MaterialSupplierInventory> list = new ArrayList<>();
+        String sql = "SELECT m.material_id, m.name AS material_name, s.supplier_id, s.supplier_name, " +
+                "SUM(pod.quantity) AS total_quantity " +
+                "FROM purchase_order_details pod " +
+                "JOIN purchase_orders po ON pod.purchase_order_id = po.purchase_order_id " +
+                "JOIN materials m ON pod.material_id = m.material_id " +
+                "JOIN supplier s ON po.supplier_id = s.supplier_id " +
+                "WHERE po.supplier_id = ? AND po.approval_status = 'Approved' " +
+                "GROUP BY m.material_id, m.name, s.supplier_id, s.supplier_name " +
+                "ORDER BY m.name ASC";
+        
+        writeDebugLog("getMaterialsBySupplierWithQuantity - supplierId: " + supplierId);
+        writeDebugLog("SQL: " + sql);
+        
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, supplierId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    MaterialSupplierInventory msi = new MaterialSupplierInventory();
+                    msi.setMaterialId(rs.getInt("material_id"));
+                    msi.setMaterialName(rs.getString("material_name"));
+                    msi.setSupplierId(rs.getInt("supplier_id"));
+                    msi.setSupplierName(rs.getString("supplier_name"));
+                    msi.setQuantity(rs.getInt("total_quantity"));
+                    list.add(msi);
+                    
+                    writeDebugLog("Found: " + msi.getMaterialName() + " - Qty: " + msi.getQuantity());
+                }
+            }
+        }
+        
+        writeDebugLog("Total items found: " + list.size());
         return list;
     }
 }

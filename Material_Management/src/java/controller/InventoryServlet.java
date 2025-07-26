@@ -28,7 +28,6 @@ public class InventoryServlet extends HttpServlet {
         int page = 1;
         int pageSize = 10;
         Integer categoryId = null;
-        Integer supplierId = null;
         String search = null;
         String condition = null;
         try {
@@ -40,9 +39,6 @@ public class InventoryServlet extends HttpServlet {
             }
             if (request.getParameter("categoryId") != null && !request.getParameter("categoryId").isEmpty()) {
                 categoryId = Integer.parseInt(request.getParameter("categoryId"));
-            }
-            if (request.getParameter("supplierId") != null && !request.getParameter("supplierId").isEmpty()) {
-                supplierId = Integer.parseInt(request.getParameter("supplierId"));
             }
             if (request.getParameter("search") != null && !request.getParameter("search").isEmpty()) {
                 search = request.getParameter("search");
@@ -59,7 +55,7 @@ public class InventoryServlet extends HttpServlet {
         SupplierDAO supplierDAO = new SupplierDAO();
 
             List<Inventory> inventoryList = inventoryDAO.getInventoryGroupedByNameAndCondition(categoryId, search, condition, page, pageSize);
-            int totalRecords = inventoryDAO.countInventory(categoryId, supplierId, search, condition);
+            int totalRecords = inventoryDAO.countInventory(categoryId, null, search, condition);
             int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
             List<Category> categoryList = categoryDAO.getAllCategories();
             List<Supplier> supplierList = supplierDAO.getAllSuppliers();
@@ -72,7 +68,6 @@ public class InventoryServlet extends HttpServlet {
             request.setAttribute("totalRecords", totalRecords);
             request.setAttribute("totalPages", totalPages);
             request.setAttribute("categoryId", categoryId);
-            request.setAttribute("supplierId", supplierId);
             request.setAttribute("search", search);
             request.setAttribute("condition", condition);
 

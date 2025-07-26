@@ -39,7 +39,10 @@ public class EditPurchaseOrderServlet extends HttpServlet {
                 response.sendRedirect("login.jsp");
                 return;
             }
-            String orderIdStr = request.getParameter("orderId");
+            String orderIdStr = request.getParameter("id");
+            if (orderIdStr == null || orderIdStr.isEmpty()) {
+                orderIdStr = request.getParameter("orderId"); // Fallback
+            }
             if (orderIdStr == null || orderIdStr.isEmpty()) {
                 response.sendRedirect("purchaseOrderList?error=true&message=Không tìm thấy đơn hàng");
                 return;
@@ -51,24 +54,19 @@ public class EditPurchaseOrderServlet extends HttpServlet {
                 response.sendRedirect("purchaseOrderList?error=true&message=Không tìm thấy đơn hàng");
                 return;
             }
-            if ("Completed".equals(order.getStatus())) {
-                response.sendRedirect("purchaseOrderList?error=true&message=Chỉ có thể chỉnh sửa đơn hàng đã được duyệt!");
+            
+            // Debug: In ra trạng thái đơn hàng
+            System.out.println("=== DEBUG: EditPurchaseOrderServlet - Order ID: " + orderId);
+            System.out.println("=== DEBUG: Order Status: '" + order.getStatus() + "'");
+            System.out.println("=== DEBUG: Order Approval Status: '" + order.getApprovalStatus() + "'");
+            
+            // Chỉ cho phép edit đơn mua khi trạng thái là "Rejected"
+            if (!"Rejected".equals(order.getStatus())) {
+                System.out.println("=== DEBUG: Order status is not 'Rejected', redirecting...");
+                response.sendRedirect("purchaseOrderList?error=true&message=Chỉ có thể chỉnh sửa đơn hàng bị từ chối! Trạng thái hiện tại: " + order.getStatus());
                 return;
             }
-            // Nếu đơn hàng đang bị từ chối, chuyển lại trạng thái về Pending và gửi lại thông báo cho giám đốc
-            if ("Rejected".equals(order.getStatus())) {
-                order.setStatus("Pending");
-                order.setApprovalStatus("Pending");
-                order.setRejectionReason(null);
-                // Gửi lại thông báo cho giám đốc
-                UserDAO userDAO = new UserDAO();
-                Integer directorId = userDAO.getDirectorId();
-                if (directorId != null) {
-                    NotificationDAO notificationDAO = new NotificationDAO();
-                    String message = "Đơn mua #" + order.getPurchaseOrderId() + " đã được gửi lại sau khi chỉnh sửa. Vui lòng phê duyệt lại.";
-                    notificationDAO.addNotification(directorId, message, order.getPurchaseOrderId());
-                }
-            }
+            // Không tự động chuyển trạng thái nữa, để user tự chọn khi nào gửi lại
             PurchaseOrderDetailDAO detailDAO = new PurchaseOrderDetailDAO();
             List<PurchaseOrderDetail> details = detailDAO.getDetailsByOrderId(orderId);
             SupplierDAO supplierDAO = new SupplierDAO();
@@ -118,6 +116,7 @@ public class EditPurchaseOrderServlet extends HttpServlet {
             String[] baseUnits = request.getParameterValues("baseUnit[]");
             String[] unitPrices = request.getParameterValues("unitPrice[]");
             String supplierIdStr = request.getParameter("supplierId");
+            
             System.out.println("orderIdStr=" + orderIdStr);
             System.out.println("note=" + note);
             System.out.println("materialNames=" + java.util.Arrays.toString(materialNames));
@@ -158,27 +157,34 @@ public class EditPurchaseOrderServlet extends HttpServlet {
                 response.getWriter().println("<h2 style='color:red'>Không tìm thấy đơn hàng!</h2>");
                 return;
             }
-            if ("Completed".equals(order.getStatus())) {
+            // Chỉ cho phép edit đơn mua khi trạng thái là "Rejected"
+            if (!"Rejected".equals(order.getStatus())) {
                 response.setContentType("text/html;charset=UTF-8");
-                response.getWriter().println("<h2 style='color:red'>Chỉ có thể chỉnh sửa đơn hàng đã được duyệt!</h2>");
+                response.getWriter().println("<h2 style='color:red'>Chỉ có thể chỉnh sửa đơn hàng bị từ chối!</h2>");
                 return;
             }
-            // Nếu đơn hàng đang bị từ chối, chuyển lại trạng thái về Pending và gửi lại thông báo cho giám đốc
-            if ("Rejected".equals(order.getStatus())) {
-                order.setStatus("Pending");
-                order.setApprovalStatus("Pending");
-                order.setRejectionReason(null);
-                // Gửi lại thông báo cho giám đốc
-                UserDAO userDAO = new UserDAO();
-                Integer directorId = userDAO.getDirectorId();
-                if (directorId != null) {
-                    NotificationDAO notificationDAO = new NotificationDAO();
-                    String message = "Đơn mua #" + order.getPurchaseOrderId() + " đã được gửi lại sau khi chỉnh sửa. Vui lòng phê duyệt lại.";
-                    notificationDAO.addNotification(directorId, message, order.getPurchaseOrderId());
-                }
-                // Cập nhật lại đơn hàng vào DB
-                orderDAO.updatePurchaseOrder(order);
+            
+            // Cập nhật thông tin đơn hàng
+            order.setSupplierId(supplierId);
+            order.setNote(note);
+            order.setTotalAmount(totalAmount);
+            
+            // Gửi lại cho giám đốc
+            order.setStatus("Pending");
+            order.setApprovalStatus("Pending");
+            order.setRejectionReason(null);
+            
+            // Gửi lại thông báo cho giám đốc
+            UserDAO userDAO = new UserDAO();
+            Integer directorId = userDAO.getDirectorId();
+            if (directorId != null) {
+                NotificationDAO notificationDAO = new NotificationDAO();
+                String message = "Đơn mua #" + order.getPurchaseOrderId() + " đã được gửi lại sau khi chỉnh sửa. Vui lòng phê duyệt lại.";
+                notificationDAO.addPurchaseOrderNotification(directorId, message, order.getPurchaseOrderId());
             }
+            
+            // Cập nhật lại đơn hàng vào DB
+            orderDAO.updatePurchaseOrder(order);
             PurchaseOrderDetailDAO detailDAO = new PurchaseOrderDetailDAO();
             DBContext dbContext = new DBContext();
             conn = dbContext.getConnection();
@@ -207,6 +213,7 @@ public class EditPurchaseOrderServlet extends HttpServlet {
                 response.getWriter().println("<div style='color:#b71c1c; background:#ffebee; padding:12px 18px; border-radius:8px; margin:12px 0; font-weight:bold;'>" + errorMsg.toString() + "</div>");
                 return;
             }
+            
             response.sendRedirect("purchaseOrderList?success=true&message=Đơn hàng đã được gửi lại cho giám đốc phê duyệt!");
             return;
         } catch (Exception e) {

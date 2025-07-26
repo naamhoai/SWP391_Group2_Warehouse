@@ -88,66 +88,49 @@
                 
                 <c:choose>
                     <c:when test="${supplier.status == 'active'}">
+                        <c:if test="${not empty firstPurchaseDate}">
                         <div class="detail-row">
                             <div class="detail-label">Thời gian bắt đầu hợp tác:</div>
                             <div class="detail-value timestamp">
-                                <c:choose>
-                                    <c:when test="${not empty firstPurchaseDate}">
-                                        <fmt:formatDate value="${firstPurchaseDate}" pattern="dd/MM/yyyy"/>
-                                    </c:when>
-                                    <c:otherwise>Chưa có dữ liệu</c:otherwise>
-                                </c:choose>
+                                <fmt:formatDate value="${firstPurchaseDate}" pattern="dd/MM/yyyy"/>
                             </div>
                         </div>
+                        </c:if>
                     </c:when>
                     <c:when test="${supplier.status == 'terminated'}">
+                        <c:if test="${not empty latestPurchaseDate}">
                         <div class="detail-row">
                             <div class="detail-label">Thời gian hoạt động gần nhất:</div>
                             <div class="detail-value timestamp">
-                                <c:choose>
-                                    <c:when test="${not empty latestPurchaseDate}">
-                                        <fmt:formatDate value="${latestPurchaseDate}" pattern="dd/MM/yyyy"/>
-                                    </c:when>
-                                    <c:otherwise>Chưa có dữ liệu</c:otherwise>
-                                </c:choose>
+                                <fmt:formatDate value="${latestPurchaseDate}" pattern="dd/MM/yyyy"/>
                             </div>
                         </div>
+                        </c:if>
+                        <c:if test="${not empty endCooperationDate}">
                         <div class="detail-row">
                             <div class="detail-label">Thời gian kết thúc hợp tác:</div>
                             <div class="detail-value timestamp">
-                                <c:choose>
-                                    <c:when test="${not empty endCooperationDate}">
-                                        <fmt:formatDate value="${endCooperationDate}" pattern="dd/MM/yyyy"/>
-                                    </c:when>
-                                    <c:otherwise>Chưa có dữ liệu</c:otherwise>
-                                </c:choose>
+                                <fmt:formatDate value="${endCooperationDate}" pattern="dd/MM/yyyy"/>
                             </div>
                         </div>
+                        </c:if>
                     </c:when>
                 </c:choose>
-                <c:if test="${supplier.status == 'active'}">
-                    <div class="detail-row">
-                        <div class="detail-label">Thời gian hợp tác:</div>
-                        <div class="detail-value timestamp">
-                            <c:choose>
-                                <c:when test="${not empty cooperationYears || not empty cooperationRemainMonths}">
-                                    <c:choose>
-                                        <c:when test="${cooperationYears > 0 && cooperationRemainMonths > 0}">
-                                            ${cooperationYears} năm ${cooperationRemainMonths} tháng
-                                        </c:when>
-                                        <c:when test="${cooperationYears > 0}">
-                                            ${cooperationYears} năm
-                                        </c:when>
-                                        <c:when test="${cooperationRemainMonths > 0}">
-                                            ${cooperationRemainMonths} tháng
-                                        </c:when>
-                                        <c:otherwise>Chưa có dữ liệu</c:otherwise>
-                                    </c:choose>
-                                </c:when>
-                                <c:otherwise>Chưa có dữ liệu</c:otherwise>
-                            </c:choose>
-                        </div>
+                <c:if test="${(cooperationYears > 0) || (cooperationRemainMonths > 0)}">
+                <div class="detail-row">
+                    <div class="detail-label">Thời gian hợp tác:</div>
+                    <div class="detail-value timestamp">
+                        <c:if test="${cooperationYears > 0 && cooperationRemainMonths > 0}">
+                            ${cooperationYears} năm ${cooperationRemainMonths} tháng
+                        </c:if>
+                        <c:if test="${cooperationYears > 0 && cooperationRemainMonths == 0}">
+                            ${cooperationYears} năm
+                        </c:if>
+                        <c:if test="${cooperationYears == 0 && cooperationRemainMonths > 0}">
+                            ${cooperationRemainMonths} tháng
+                        </c:if>
                     </div>
+                </div>
                 </c:if>
                 <c:if test="${not empty supplier.statusReason}">
                     <div class="detail-row">

@@ -8,9 +8,12 @@ body {
 }
 
 .container {
-    margin-left: 250px;
-    padding: 24px;
+    margin-left: var(--sidebar-width);
+    margin-right: 24px;
+    max-width: calc(100vw - var(--sidebar-width) - 48px);
+    padding: 24px 32px 32px 32px;
     transition: margin-left 0.3s ease;
+    box-sizing: border-box;
 }
 
 body.sidebar-collapsed .container {

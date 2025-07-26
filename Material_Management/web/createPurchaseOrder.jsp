@@ -190,7 +190,7 @@ document.getElementById('supplierSelect').addEventListener('change', function() 
             </form>
     </div>
         </div>
-        <div id="global-autocomplete-suggestions" class="autocomplete-suggestions"></div>
+        <div id="global-autocomplete-suggestions" class="autocomplete-suggestions" style="display: none;"></div>
         <script>
             function updateContactInfo() {
                 const select = document.getElementById('supplierSelect');
@@ -242,11 +242,14 @@ document.getElementById('supplierSelect').addEventListener('change', function() 
             function showMaterialSuggestions(input) {
                 const value = input.value.trim();
                 const suggestionBox = document.getElementById('global-autocomplete-suggestions');
+                
+                // Ẩn suggestions nếu input rỗng hoặc không có giá trị
                 if (value.length < 1) {
-                    suggestionBox.classList.remove('show');
-                    suggestionBox.innerHTML = '';
+                    hideSuggestions();
                     return;
                 }
+                
+                // Chỉ hiện suggestions khi đang nhập (có ít nhất 1 ký tự)
                 const rect = input.getBoundingClientRect();
                 suggestionBox.style.position = 'fixed';
                 suggestionBox.style.top = (rect.bottom + window.scrollY) + 'px';
@@ -254,27 +257,44 @@ document.getElementById('supplierSelect').addEventListener('change', function() 
                 suggestionBox.style.width = rect.width + 'px';
                 suggestionBox.style.zIndex = 99999;
                 suggestionBox.innerHTML = '';
+                
                 fetch('${pageContext.request.contextPath}/MaterialAutocompleteServlet?query=' + encodeURIComponent(value))
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.length > 0) {
-                                suggestionBox.innerHTML = data.map(item =>
-                                    "<div class='suggestion-item' style='padding:8px 12px;cursor:pointer;' onclick=\"selectMaterialSuggestionGlobal('" +
-                                            input.name + "', '" + item.name.replace(/'/g, "\\'") + "', '" + item.unitName.replace(/'/g, "\\'") + "', '" + item.price + "', this)\">" +
-                                            item.name + " <span style='color:#888;font-size:12px;'>(" + item.categoryName + ")</span></div>"
-                                ).join('');
-                                suggestionBox.classList.add('show');
-                                suggestionBox._activeInput = input;
-                            } else {
-                                suggestionBox.classList.remove('show');
-                                suggestionBox.innerHTML = '';
-                            }
-                        });
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.length > 0) {
+                            suggestionBox.innerHTML = data.map(item =>
+                                "<div class='suggestion-item' style='padding:8px 12px;cursor:pointer;' onclick=\"selectMaterialSuggestionGlobal('" +
+                                input.name + "', '" + item.name.replace(/'/g, "\\'") + "', '" + item.unitName.replace(/'/g, "\\'") + "', '" + item.price + "', this)\">" +
+                                item.name + " <span style='color:#888;font-size:12px;'>(" + item.categoryName + ")</span></div>"
+                            ).join('');
+                            suggestionBox.classList.add('show');
+                            suggestionBox.style.display = 'block'; // Đảm bảo hiện
+                            suggestionBox._activeInput = input;
+                        } else {
+                            hideSuggestions();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching suggestions:', error);
+                        hideSuggestions();
+                    });
             }
+            
+            function hideSuggestions() {
+                const suggestionBox = document.getElementById('global-autocomplete-suggestions');
+                if (suggestionBox) {
+                    suggestionBox.classList.remove('show');
+                    suggestionBox.innerHTML = '';
+                    suggestionBox._activeInput = null;
+                    suggestionBox.style.display = 'none'; // Đảm bảo ẩn hoàn toàn
+                }
+            }
+            
             function selectMaterialSuggestionGlobal(inputName, value, unit, price, element) {
                 const suggestionBox = document.getElementById('global-autocomplete-suggestions');
                 const input = suggestionBox._activeInput;
-        if (!input) return;
+                if (!input) return;
+                
                 input.value = value;
                 const row = input.closest('tr');
                 if (row) {
@@ -282,20 +302,37 @@ document.getElementById('supplierSelect').addEventListener('change', function() 
                     if (baseUnitInput) baseUnitInput.value = unit || '';
                     // Không tự động gán giá vào input unitPrice[] nữa
                 }
-                suggestionBox.classList.remove('show');
-                suggestionBox.innerHTML = '';
+                
+                // Ẩn suggestions sau khi chọn
+                hideSuggestions();
             }
-    document.addEventListener('click', function(e) {
+            
+            // Ẩn suggestions khi click ra ngoài
+            document.addEventListener('click', function(e) {
                 const suggestionBox = document.getElementById('global-autocomplete-suggestions');
                 if (!suggestionBox.contains(e.target)) {
-                    suggestionBox.classList.remove('show');
-                    suggestionBox.innerHTML = '';
+                    hideSuggestions();
+                }
+            });
+            
+            // Ẩn suggestions khi focus ra khỏi input
+            document.addEventListener('focusout', function(e) {
+                if (e.target.classList.contains('material-name-input')) {
+                    // Delay một chút để cho phép click vào suggestions
+                    setTimeout(() => {
+                        const suggestionBox = document.getElementById('global-autocomplete-suggestions');
+                        if (!suggestionBox.contains(document.activeElement)) {
+                            hideSuggestions();
+                        }
+                    }, 150);
                 }
             });
 
             // Chỉ reset nút khi có lỗi (load lại trang)
-    window.onload = function() {
+            window.onload = function() {
                 updateTotal();
+                // Đảm bảo suggestions ẩn khi trang load
+                hideSuggestions();
             };
 
             // Debug khi submit form

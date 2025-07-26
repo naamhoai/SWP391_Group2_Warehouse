@@ -209,7 +209,7 @@
                                     let link = '';
                                     let markReadUrl = '';
                                     
-                                    if (n.message && n.message.includes('đơn mua')) {
+                                    if (n.notificationType === 'purchase_order' || (n.message && n.message.includes('đơn mua'))) {
                                         // Thông báo về purchase order
                                         link = contextPath + '/purchaseOrderDetail?id=' + n.requestId;
                                         markReadUrl = `markNotificationRead?notificationId=${n.id}&purchaseOrderId=${n.requestId}`;
@@ -261,3 +261,4 @@
 
     </body>
 </html>
+

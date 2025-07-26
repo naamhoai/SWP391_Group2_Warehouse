@@ -155,12 +155,22 @@ public class NotificationDAO {
         Map<Integer, Notification> latestNotiByRequest = new LinkedHashMap<>();
         Map<Integer, Notification> resendNotiByRequest = new LinkedHashMap<>();
         Map<Integer, Notification> shortageNotiByRequest = new LinkedHashMap<>();
+        Map<Integer, Notification> purchaseOrderNotifications = new LinkedHashMap<>();
         RequestDAO requestDAO = new RequestDAO();
 
         for (Notification noti : allNotifications) {
             try {
-                Request req = requestDAO.getRequestById(noti.getRequestId());
                 String msg = noti.getMessage() != null ? noti.getMessage().toLowerCase() : "";
+                
+                // Kiểm tra thông báo về purchase order
+                if (noti.getNotificationType() != null && noti.getNotificationType().equals("purchase_order")) {
+                    // Thêm tất cả thông báo purchase order cho staff
+                    purchaseOrderNotifications.put(noti.getId(), noti);
+                    continue;
+                }
+                
+                // Kiểm tra thông báo về request
+                Request req = requestDAO.getRequestById(noti.getRequestId());
                 if (noti.getMessage() != null
                         && noti.getMessage().toLowerCase().startsWith("yêu cầu #")
                         && noti.getMessage().toLowerCase().contains("thiếu:")) {
@@ -180,6 +190,7 @@ public class NotificationDAO {
             latestNotiByRequest.put(reqId, resendNotiByRequest.get(reqId));
         }
         latestNotiByRequest.putAll(shortageNotiByRequest);
+        latestNotiByRequest.putAll(purchaseOrderNotifications);
 
         return new ArrayList<>(latestNotiByRequest.values());
     }

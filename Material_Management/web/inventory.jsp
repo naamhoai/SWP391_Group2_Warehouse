@@ -31,15 +31,6 @@
                         </select>
                     </div>
                     <div class="filter-group">
-                        <i class="fa fa-truck"></i>
-                        <select name="supplierId" onchange="this.form.submit()">
-                            <option value="">Tất cả nhà cung cấp</option>
-                            <c:forEach var="sup" items="${supplierList}">
-                                <option value="${sup.supplierId}" ${sup.supplierId == supplierId ? 'selected' : ''}>${sup.supplierName}</option>
-                            </c:forEach>
-                        </select>
-                    </div>
-                    <div class="filter-group">
                         <i class="fa fa-tags"></i>
                         <select name="condition" onchange="this.form.submit()">
                             <option value="">Tất cả tình trạng</option>
@@ -104,7 +95,7 @@
                             </c:forEach>
                         </c:when>
                         <c:otherwise>
-                            <tr><td colspan="8" class="no-data">Không có dữ liệu tồn kho phù hợp.</td></tr>
+                            <tr><td colspan="7" class="no-data">Không có dữ liệu tồn kho phù hợp.</td></tr>
                         </c:otherwise>
                     </c:choose>
                     </tbody>
@@ -117,7 +108,6 @@
                         <c:if test="${page > 1}">
                             <a href="InventoryServlet?page=1&pageSize=${pageSize}
                                 <c:if test='${categoryId != null}'> &amp;categoryId=${categoryId}</c:if>
-                                <c:if test='${supplierId != null}'> &amp;supplierId=${supplierId}</c:if>
                                 <c:if test='${search != null && search != ""}'> &amp;search=${search}</c:if>
                                 <c:if test='${condition != null && condition != ""}'> &amp;condition=${condition}</c:if>" class="page-link" title="Trang đầu">&laquo;</a>
                         </c:if>
@@ -127,7 +117,6 @@
                         <c:forEach var="i" begin="${startPage}" end="${endPage}">
                             <a href="InventoryServlet?page=${i}&amp;pageSize=${pageSize}
                                 <c:if test='${categoryId != null}'> &amp;categoryId=${categoryId}</c:if>
-                                <c:if test='${supplierId != null}'> &amp;supplierId=${supplierId}</c:if>
                                 <c:if test='${search != null && search != ""}'> &amp;search=${search}</c:if>
                                 <c:if test='${condition != null && condition != ""}'> &amp;condition=${condition}</c:if>" class="page-link ${i == page ? 'active' : ''}">${i}</a>
                         </c:forEach>
@@ -135,7 +124,6 @@
                         <c:if test="${page < totalPages}">
                             <a href="InventoryServlet?page=${totalPages}&amp;pageSize=${pageSize}
                                 <c:if test='${categoryId != null}'> &amp;categoryId=${categoryId}</c:if>
-                                <c:if test='${supplierId != null}'> &amp;supplierId=${supplierId}</c:if>
                                 <c:if test='${search != null && search != ""}'> &amp;search=${search}</c:if>
                                 <c:if test='${condition != null && condition != ""}'> &amp;condition=${condition}</c:if>" class="page-link" title="Trang cuối">&raquo;</a>
                         </c:if>

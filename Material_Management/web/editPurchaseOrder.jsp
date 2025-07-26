@@ -343,11 +343,12 @@
                                         <td><input type="text" name="materialName[]" class="form-control material-name" value="${detail.materialName}" required></td>
                                         <td><input type="number" name="quantity[]" class="form-control quantity" value="${detail.quantity}" min="1" required></td>
                                         <td>
-                                            <select name="unit[]" class="form-select unit">
+                                            <select name="unit[]" class="form-select unit" onchange="updateBaseUnit(this)">
                                                 <c:forEach var="unit" items="${supplierUnits}">
                                                     <option value="${unit.unit_name}" ${detail.unit == unit.unit_name ? 'selected' : ''}>${unit.unit_name}</option>
                                                 </c:forEach>
                                             </select>
+                                            <input type="hidden" name="baseUnit[]" value="${detail.unit}">
                                         </td>
                                         <td><input type="number" name="unitPrice[]" class="form-control unit-price" value="${detail.unitPrice}" min="0" step="0.01" required></td>
                                         <td><button type="button" class="btn-remove-material" onclick="removeMaterialRow(this)"><i class="fas fa-trash"></i></button></td>
@@ -369,10 +370,19 @@
                     <label class="form-label">Ghi chú</label>
                     <textarea name="note" class="form-control" rows="3" placeholder="Nhập ghi chú chung cho đơn mua...">${order.note}</textarea>
                 </div>
+                
+                <!-- Thông báo hướng dẫn -->
+                <div style="background:#e3f2fd; color:#1565c0; border:1px solid #bbdefb; padding:15px; margin-bottom:20px; border-radius:8px;">
+                    <h5 style="margin-bottom:8px;"><i class="fas fa-info-circle"></i> Hướng dẫn:</h5>
+                    <ul style="margin:0; padding-left:20px;">
+                        <li><strong>Gửi lại đơn mua:</strong> Lưu thay đổi và gửi lại đơn hàng cho giám đốc phê duyệt</li>
+                    </ul>
+                </div>
+                
                 <!-- Nút thao tác -->
                 <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:20px;">
                     <a href="purchaseOrderList" class="btn-back" style="background:#6c757d;color:white;padding:12px 28px;font-size:16px;"><i class="fas fa-arrow-left"></i> Hủy</a>
-                    <button type="submit" class="btn-submit" style="font-size:16px;"><i class="fas fa-save"></i> Lưu thay đổi</button>
+                    <button type="submit" class="btn-submit" style="font-size:16px;background:linear-gradient(135deg, #007bff, #0056b3);"><i class="fas fa-paper-plane"></i> Gửi lại đơn mua</button>
                 </div>
             </form>
         </div>
@@ -388,11 +398,68 @@
         });
         document.getElementById('grandTotal').textContent = total.toLocaleString('vi-VN');
     }
+    
+    function updateBaseUnit(selectElement) {
+        const row = selectElement.closest('tr');
+        const baseUnitInput = row.querySelector('input[name="baseUnit[]"]');
+        if (baseUnitInput) {
+            baseUnitInput.value = selectElement.value;
+        }
+    }
+    
+    function addMaterialRow() {
+        const tbody = document.getElementById('materialsTableBody');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td><input type="text" name="materialName[]" class="form-control material-name" required></td>
+            <td><input type="number" name="quantity[]" class="form-control quantity" min="1" required></td>
+            <td>
+                <select name="unit[]" class="form-select unit" onchange="updateBaseUnit(this)">
+                    <c:forEach var="unit" items="${supplierUnits}">
+                        <option value="${unit.unit_name}">${unit.unit_name}</option>
+                    </c:forEach>
+                </select>
+                <input type="hidden" name="baseUnit[]" value="">
+            </td>
+            <td><input type="number" name="unitPrice[]" class="form-control unit-price" min="0" step="0.01" required></td>
+            <td><button type="button" class="btn-remove-material" onclick="removeMaterialRow(this)"><i class="fas fa-trash"></i></button></td>
+        `;
+        tbody.appendChild(newRow);
+        
+        // Cập nhật baseUnit cho dòng mới
+        const newSelect = newRow.querySelector('select[name="unit[]"]');
+        if (newSelect) {
+            updateBaseUnit(newSelect);
+        }
+    }
+    
+    function removeMaterialRow(button) {
+        const row = button.closest('tr');
+        if (row) {
+            row.remove();
+            updateEditOrderTotal();
+        }
+    }
+    
+    function removeLastMaterialRow() {
+        const tbody = document.getElementById('materialsTableBody');
+        const rows = tbody.querySelectorAll('tr');
+        if (rows.length > 1) {
+            rows[rows.length - 1].remove();
+            updateEditOrderTotal();
+        }
+    }
+    
     document.addEventListener('input', function(e) {
         if (e.target.name === 'quantity[]' || e.target.name === 'unitPrice[]') updateEditOrderTotal();
     });
+    
+    // Cập nhật baseUnit cho tất cả các dòng hiện có khi trang load
     window.onload = function() {
         updateEditOrderTotal();
+        document.querySelectorAll('select[name="unit[]"]').forEach(select => {
+            updateBaseUnit(select);
+        });
     };
     </script>
 </body>

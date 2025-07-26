@@ -34,13 +34,6 @@
             </select>
         </div>
         <div class="filter-group">
-            <label>Trạng thái:</label>
-            <select name="status" onchange="this.form.submit()">
-                <option value="" ${status == null || status.isEmpty() ? 'selected' : ''}>Tất cả</option>
-                <option value="available" ${status == 'available' ? 'selected' : ''}>Có sẵn</option>
-            </select>
-        </div>
-        <div class="filter-group">
             <label>Hiển thị:</label>
             <select name="pageSize" onchange="this.form.submit()">
                 <option value="5" ${pageSize == 5 ? 'selected' : ''}>5 items</option>
@@ -56,7 +49,7 @@
             <tr>
                 <th>Tên vật tư</th>
                 <th>Nhà cung cấp</th>
-                <th>Trạng thái</th>
+                <th>Số lượng</th>
             </tr>
         </thead>
         <tbody>
@@ -66,7 +59,7 @@
                         <tr>
                             <td>${ms.materialName}</td>
                             <td>${ms.supplierName}</td>
-                            <td class="status-active">Có sẵn</td>
+                            <td>${ms.quantity}</td>
                         </tr>
                     </c:forEach>
                 </c:when>
@@ -81,7 +74,7 @@
             <div class="pagination-buttons">
                 <c:choose>
                     <c:when test="${currentPage > 1}">
-                        <a href="material-suppliers?page=${currentPage-1}&supplier_id=${supplier_id}&keyword=${keyword}&status=${status}&pageSize=${pageSize}" class="page-button" aria-label="Trang trước">&laquo;</a>
+                        <a href="material-suppliers?page=${currentPage-1}&supplier_id=${supplier_id}&keyword=${keyword}&pageSize=${pageSize}" class="page-button" aria-label="Trang trước">&laquo;</a>
                     </c:when>
                     <c:otherwise>
                         <button class="page-button" disabled aria-label="Trang trước">&laquo;</button>
@@ -89,12 +82,12 @@
                 </c:choose>
                 
                 <c:forEach begin="1" end="${totalPages}" var="i">
-                    <a href="material-suppliers?page=${i}&supplier_id=${supplier_id}&keyword=${keyword}&status=${status}&pageSize=${pageSize}" class="page-button${i == currentPage ? ' active' : ''}">${i}</a>
+                    <a href="material-suppliers?page=${i}&supplier_id=${supplier_id}&keyword=${keyword}&pageSize=${pageSize}" class="page-button${i == currentPage ? ' active' : ''}">${i}</a>
                 </c:forEach>
                 
                 <c:choose>
                     <c:when test="${currentPage < totalPages}">
-                        <a href="material-suppliers?page=${currentPage+1}&supplier_id=${supplier_id}&keyword=${keyword}&status=${status}&pageSize=${pageSize}" class="page-button" aria-label="Trang sau">&raquo;</a>
+                        <a href="material-suppliers?page=${currentPage+1}&supplier_id=${supplier_id}&keyword=${keyword}&pageSize=${pageSize}" class="page-button" aria-label="Trang sau">&raquo;</a>
                     </c:when>
                     <c:otherwise>
                         <button class="page-button" disabled aria-label="Trang sau">&raquo;</button>
