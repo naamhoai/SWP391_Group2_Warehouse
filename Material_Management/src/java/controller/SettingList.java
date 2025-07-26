@@ -109,9 +109,7 @@ public class SettingList extends HttpServlet {
             System.out.println(e.getMessage());
             request.setAttribute("mess", "Invalid page number.");
 
-        } finally {
-            dao.close();
-        }
+        } 
         request.getRequestDispatcher("settinglist.jsp").forward(request, response);
     }
 

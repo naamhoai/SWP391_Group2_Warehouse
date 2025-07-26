@@ -187,3 +187,29 @@ body {
     }
     
 }
+#projectSelect {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid #bfc9d1;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    background: #fff;
+    color: #222;
+    transition: border 0.2s, box-shadow 0.2s;
+    outline: none;
+    margin-top: 4px;
+    margin-bottom: 8px;
+    box-sizing: border-box;
+}
+#projectSelect:focus, #projectSelect:hover {
+    border: 1.5px solid #3182ce;
+    box-shadow: 0 0 0 2px #3182ce22;
+}
+
+/* Đảm bảo label và select cùng hàng, đẹp trên desktop */
+.form-group label[for="projectSelect"] {
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: block;
+    color: #222;
+}

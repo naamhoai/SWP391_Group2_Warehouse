@@ -16,8 +16,125 @@ import model.*;
 public class UnitConversionDao extends dal.DBContext {
 
     private Connection conn;
-    public UnitConversionDao(Connection conn) { this.conn = conn; }
-    public UnitConversionDao() {}
+
+    public UnitConversionDao(Connection conn) {
+        this.conn = conn;
+    }
+
+    public UnitConversionDao() {
+    }
+
+   
+    public List<Unit> getAllUnits(int page, int pageSize) {
+        List<Unit> list = new ArrayList<>();
+        String sql = "SELECT unit_id, unit_name, status FROM units LIMIT ? OFFSET ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setInt(1, pageSize);
+            st.setInt(2, (page - 1) * pageSize);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                Unit unit = new Unit();
+                unit.setUnit_id(rs.getInt("unit_id"));
+                unit.setUnit_name(rs.getString("unit_name"));
+                unit.setStatus(rs.getString("status"));
+                list.add(unit);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public int countAllUnits() {
+        String sql = "SELECT COUNT(*) FROM units";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public List<Unit> searchUnitsByName(String keyword, int page, int pageSize) {
+        List<Unit> list = new ArrayList<>();
+        String sql = "SELECT unit_id, unit_name, status FROM units WHERE unit_name LIKE ? LIMIT ? OFFSET ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, "%" + keyword + "%");
+            st.setInt(2, pageSize);
+            st.setInt(3, (page - 1) * pageSize);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                Unit unit = new Unit();
+                unit.setUnit_id(rs.getInt("unit_id"));
+                unit.setUnit_name(rs.getString("unit_name"));
+                unit.setStatus(rs.getString("status"));
+                list.add(unit);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public int countUnitsByName(String keyword) {
+        String sql = "SELECT COUNT(*) FROM units WHERE unit_name LIKE ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, "%" + keyword + "%");
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public void addUnit(String unitName) {
+        String sql = "INSERT INTO units (unit_name, status, is_system_unit) VALUES (?, 'Hoạt động', 1)";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, unitName);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void toggleUnitStatus(int unitId) {
+        String sql = "UPDATE units SET status = IF(status='Hoạt động','Không hoạt động','Hoạt động') WHERE unit_id = ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setInt(1, unitId);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int getUnitIdByName(String unitName) {
+        String sql = "SELECT unit_id FROM units WHERE unit_name = ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, unitName.trim());
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("unit_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public void addUnitWithStatus(String unitName, String status) throws SQLException {
+        String sql = "INSERT INTO units (unit_name, status) VALUES (?, ?)";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, unitName);
+            st.setString(2, status);
+            st.executeUpdate();
+        }
+    }
 
     public List<UnitConversion> getAllUnit(int pages) {
         List<UnitConversion> list = new ArrayList<>();
@@ -62,27 +179,7 @@ public class UnitConversionDao extends dal.DBContext {
         return list;
     }
 
-    public List<Material> getMaterial() {
-        List<Material> list = new ArrayList<>();
-        String sql = "SELECT material_id,name FROM materials;";
-        try {
-            PreparedStatement ca = connection.prepareStatement(sql);
-            ResultSet st = ca.executeQuery();
-            while (st.next()) {
-                Material mate = new Material();
-                mate.setName(st.getString("name"));
-                mate.setMaterialId(st.getInt("material_id"));
-
-                list.add(mate);
-            }
-
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-
-        return list;
-
-    }
+   
 
     public List<Category> getAllpre() {
         List<Category> list = new ArrayList<>();
@@ -105,25 +202,7 @@ public class UnitConversionDao extends dal.DBContext {
 
     }
 
-    public UnitConversion Update(String conversionfactor, int supplierunitid, int warehouseunitid) {
-        String sql = "update unit_conversion\n"
-                + "set conversion_factor = ?\n"
-                + "where supplier_unit_id =?\n"
-                + "and warehouse_unit_id = ?";
-        try {
-            PreparedStatement sm = connection.prepareStatement(sql);
-
-            sm.setString(1, conversionfactor);
-            sm.setInt(2, supplierunitid);
-            sm.setInt(3, warehouseunitid);
-            sm.executeUpdate();
-
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-        return null;
-
-    }
+    
 
     public List<Category> getname() {
         List<Category> list = new ArrayList<>();
@@ -146,25 +225,7 @@ public class UnitConversionDao extends dal.DBContext {
         return list;
     }
 
-    public User unitCreate2(String base_unit, String converted_unit, String note, double conversion_factor, int material_id) {
-        String sql = "INSERT INTO unit_conversion (base_unit, converted_unit, note,conversion_factor, material_id)\n"
-                + "VALUES (?, ? ,?, ?, ?);";
-        try {
-            PreparedStatement st = connection.prepareStatement(sql);
-            st.setString(1, base_unit);
-            st.setString(2, converted_unit);
-            st.setString(3, note);
-            st.setDouble(4, conversion_factor);
-            st.setInt(5, material_id);
-            st.executeUpdate();
-
-        } catch (SQLException e) {
-            System.out.println(e);
-        }
-
-        return null;
-
-    }
+   
 
     public int getcountPage() {
         String sql = " SELECT COUNT(*) FROM unit_conversion";
@@ -188,78 +249,10 @@ public class UnitConversionDao extends dal.DBContext {
 
     }
 
-    public UnitConversion updateStUnit(String status, int unit_id) {
-        String sql = "UPDATE unit_conversion\n"
-                + "SET status =?\n"
-                + "WHERE conversion_id = ?;";
-        try {
-            PreparedStatement st = connection.prepareStatement(sql);
-            st.setString(1, status);
-            st.setInt(2, unit_id);
-            st.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println(e);
-        }
-        return null;
+  
 
-    }
 
-    public Unit getUnitsconferi(int unit_id) {
-        String sql = "UPDATE unit_conversion\n"
-                + "SET status =?\n"
-                + "WHERE conversion_id = ?;";
-        try {
-            PreparedStatement st = connection.prepareStatement(sql);
-            st.setInt(1, unit_id);
-            st.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println(e);
-        }
-        return null;
-
-    }
-
-    public List<UnitConversion> searchUnit(String unitName, int page) {
-        List<UnitConversion> list = new ArrayList<>();
-        String sql = "SELECT \n"
-                + "d.conversion_id, u.unit_id,u.unit_name,u.status,d.conversion_factor,d.note,d.status,\n"
-                + "uw.unit_name AS warehouse_unit_name\n"
-                + "FROM units u\n"
-                + "JOIN unit_conversion d \n"
-                + "ON u.unit_id = d.supplier_unit_id\n"
-                + "JOIN units uw \n"
-                + "ON uw.unit_id = d.warehouse_unit_id\n"
-                + "WHERE u.unit_name LIKE ? \n"
-                + "ORDER BY d.conversion_id \n"
-                + "LIMIT 5 OFFSET ?;";
-        try {
-            PreparedStatement st = connection.prepareStatement(sql);
-            int offset = (page - 1) * 5;
-            st.setString(1, "%" + unitName + "%");
-            st.setInt(2, offset);
-            ResultSet sm = st.executeQuery();
-            while (sm.next()) {
-                UnitConversion unit = new UnitConversion();
-                Unit uni = new Unit();
-
-                unit.setConversionid(sm.getInt("conversion_id"));
-                uni.setUnit_id(sm.getInt("unit_id"));
-                uni.setUnit_name(sm.getString("unit_name"));
-                uni.setUnit_namePr(sm.getString("warehouse_unit_name"));
-                uni.setStatus(sm.getString("status"));
-
-                unit.setUnits(uni);
-                unit.setConversionfactor(sm.getString("conversion_factor"));
-                unit.setNote(sm.getString("note"));
-                unit.setStatus(sm.getString("status"));
-
-                list.add(unit);
-            }
-        } catch (SQLException e) {
-            System.out.println("Error in searchUnit(): " + e.getMessage());
-        }
-        return list;
-    }
+   
 
     public List<Unit> getnameUnit() {
         List<Unit> list = new ArrayList<>();
@@ -301,46 +294,9 @@ public class UnitConversionDao extends dal.DBContext {
         return list;
     }
 
-    public List<UnitConversion> getALL() {
-        List<UnitConversion> list = new ArrayList<>();
-        String sql = "SELECT * FROM material_system_5.unit_conversion;";
-        try {
-            PreparedStatement ca = connection.prepareStatement(sql);
-            ResultSet sm = ca.executeQuery();
-            while (sm.next()) {
-                UnitConversion unit = new UnitConversion();
+   
 
-                unit.setConversionid(sm.getInt("conversion_id"));
-
-                unit.setConversionfactor(sm.getString("conversion_factor"));
-                unit.setNote(sm.getString("note"));
-                unit.setStatus(sm.getString("status"));
-
-                list.add(unit);
-            }
-
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-
-        return list;
-    }
-
-    public double getConversionFactor(int supplierUnitId, int warehouseUnitId) {
-        String sql = "SELECT conversion_factor FROM unit_conversion WHERE supplier_unit_id = ? AND warehouse_unit_id = ? AND status = 'hoạt động' LIMIT 1";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, supplierUnitId);
-            ps.setInt(2, warehouseUnitId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getDouble("conversion_factor");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 1.0; // Mặc định nếu không có quy đổi
-    }
+    
 
     public List<Unit> getSupplierUnits() {
         List<Unit> list = new ArrayList<>();
@@ -359,65 +315,13 @@ public class UnitConversionDao extends dal.DBContext {
         return list;
     }
 
-    public List<UnitConversion> getBaseUnitsBySupplier(int supplierUnitId) {
-        List<UnitConversion> list = new ArrayList<>();
-        String sql = "SELECT uc.*, u.unit_name AS warehouse_name FROM unit_conversion uc "
-                + "JOIN units u ON uc.warehouse_unit_id = u.unit_id "
-                + "WHERE uc.supplier_unit_id = ?";
-        try (PreparedStatement st = connection.prepareStatement(sql)) {
-            st.setInt(1, supplierUnitId);
-            ResultSet rs = st.executeQuery();
-            while (rs.next()) {
-                UnitConversion uc = new UnitConversion();
+   
 
-                uc.setWarehouseunitid(rs.getInt("warehouse_unit_id"));
-                uc.setConversionfactor(rs.getString("conversion_factor"));
-                uc.setStatus(rs.getString("status"));
-                Unit baseUnit = new Unit();
-                baseUnit.setUnit_id(rs.getInt("warehouse_unit_id"));
-                baseUnit.setUnit_name(rs.getString("warehouse_name"));
-                uc.setUnits(baseUnit);
 
-                list.add(uc);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
 
-    public int unitDesc(String unitName) {
-        String sql = "INSERT INTO units (unit_name, is_system_unit) VALUES (?, 0)";
-        try (PreparedStatement st = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            st.setString(1, unitName);
-            st.executeUpdate();
-            ResultSet rs = st.getGeneratedKeys();
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
 
-    public void insertUnitConversion(int supplierUnitId, int warehouseUnitId, String factor, String note, int unitID) {
-        String sql = "INSERT INTO unit_conversion (supplier_unit_id, warehouse_unit_id, conversion_factor, note) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement st = connection.prepareStatement(sql)) {
 
-            int supplierId = (unitID == 0) ? supplierUnitId : unitID;
-
-            st.setInt(1, supplierId);
-            st.setInt(2, warehouseUnitId);
-            st.setString(3, factor);
-            st.setString(4, note);
-            st.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public int getUnitIdByName(String unitName) {
+    public int getUnitIdByNames(String unitName) {
         String sql = "SELECT unit_id FROM units WHERE unit_name = ?";
         try (PreparedStatement st = connection.prepareStatement(sql)) {
             st.setString(1, unitName.trim());
@@ -432,61 +336,11 @@ public class UnitConversionDao extends dal.DBContext {
 
     }
 
-    public int isUnitexit(int supplierId, int warehouseId) {
-        String sql = "SELECT 1 FROM unit_conversion WHERE supplier_unit_id = ? AND warehouse_unit_id = ?";
-        try (PreparedStatement st = connection.prepareStatement(sql)) {
-            st.setInt(1, supplierId);
-            st.setInt(2, warehouseId);
-            ResultSet rs = st.executeQuery();
-            if (rs.next()) {
-                return 1;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }
+  
 
-    public List<UnitChangeHistory> getAllHistories() throws SQLException {
-        List<UnitChangeHistory> list = new ArrayList<>();
-        String query = "SELECT * FROM unit_change_history ORDER BY changed_at DESC";
+    
 
-        try (PreparedStatement ps = connection.prepareStatement(query); ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                UnitChangeHistory history = new UnitChangeHistory(
-                        rs.getInt("history_id"),
-                        rs.getInt("unit_id"),
-                        rs.getString("unit_name"),
-                        rs.getString("action_type"),
-                        rs.getString("old_value"),
-                        rs.getString("new_value"),
-                        rs.getString("changed_by"),
-                        rs.getString("role"),
-                        rs.getString("note"),
-                        rs.getTimestamp("changed_at")
-                );
-                list.add(history);
-            }
-        }
-        return list;
-    }
-
-    public void insertHistory(UnitChangeHistory history) throws SQLException {
-        String sql = "INSERT INTO unit_change_history (unit_id, unit_name, action_type, old_value, new_value, changed_by, role, note, changed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, history.getUnitId());
-            ps.setString(2, history.getUnitName());
-            ps.setString(3, history.getActionType());
-            ps.setString(4, history.getOldValue());
-            ps.setString(5, history.getNewValue());
-            ps.setString(6, history.getChangedBy());
-            ps.setString(7, history.getRole());
-            ps.setString(8, history.getNote());
-            ps.setTimestamp(9, history.getChangedAt());
-            ps.executeUpdate();
-        }
-    }
+    
 
     public String getUnitNameById(int unitId) {
         String sql = "SELECT unit_name FROM units WHERE unit_id = ?";
@@ -502,21 +356,7 @@ public class UnitConversionDao extends dal.DBContext {
         return null;
     }
 
-    public String getOldConversionValue(int warehouseUnitId, int supplierUnitId) {
-        String sql = "SELECT conversion_factor FROM unit_conversion WHERE warehouse_unit_id = ? AND supplier_unit_id = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, warehouseUnitId);
-            ps.setInt(2, supplierUnitId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getString("conversion_factor");
-            }
-        } catch (SQLException e) {
-            System.out.println("Lỗi khi lấy conversion cũ: " + e.getMessage());
-        }
-        return null;
-    }
+   
 
     public String getUnitName(int unitId) throws SQLException {
         String sql = "SELECT unit_name FROM units WHERE unit_id = ?";
@@ -531,68 +371,8 @@ public class UnitConversionDao extends dal.DBContext {
         return "";
     }
 
-    public String getOldStatus(int unitId) throws SQLException {
-        String sql = "SELECT status FROM unit_conversion WHERE conversion_id = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, unitId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getString("status");
-            }
-        }
-        return "";
-    }
 
-    public List<UnitChangeHistory> getFilHistory(String search, String actionType, String role, String date, int page) {
-        List<UnitChangeHistory> list = new ArrayList<>();
-        int pageSize = 5;
-        int offset = (page - 1) * pageSize;
-
-        try {
-            String sql = "SELECT * FROM unit_change_history WHERE 1=1";
-
-            if (search != null && !search.isEmpty()) {
-                sql += " AND (unit_name LIKE '%" + search + "%' OR changed_by LIKE '%" + search + "%')";
-            }
-
-            if (actionType != null && !actionType.isEmpty()) {
-                sql += " AND action_type = '" + actionType + "'";
-            }
-
-            if (role != null && !role.isEmpty()) {
-                sql += " AND role = '" + role + "'";
-            }
-
-            if (date != null && !date.isEmpty()) {
-                sql += " AND DATE(changed_at) = '" + date + "'";
-            }
-
-            sql += " ORDER BY changed_at DESC LIMIT " + pageSize + " OFFSET " + offset;
-
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                UnitChangeHistory h = new UnitChangeHistory();
-                h.setHistoryId(rs.getInt("history_id"));
-                h.setUnitName(rs.getString("unit_name"));
-                h.setActionType(rs.getString("action_type"));
-                h.setOldValue(rs.getString("old_value"));
-                h.setNewValue(rs.getString("new_value"));
-                h.setChangedBy(rs.getString("changed_by"));
-                h.setRole(rs.getString("role"));
-                h.setNote(rs.getString("note"));
-                h.setChangedAt(rs.getTimestamp("changed_at"));
-                list.add(h);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return list;
-    }
-
+   
     public int countpage(String search, String actionType, String role, String date) {
         int total = 0;
 
@@ -650,17 +430,31 @@ public class UnitConversionDao extends dal.DBContext {
     }
 
     public boolean updateQuantity(int materialId, String condition, int quantityChange) {
-        String sql = "UPDATE inventory "
-                + "SET quantity_on_hand = GREATEST(quantity_on_hand + ?, 0) "
-                + "WHERE material_id = ? AND material_condition = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, quantityChange);
-            ps.setInt(2, materialId);
-            ps.setString(3, condition);
-
-            int affectedRows = ps.executeUpdate();
-            return affectedRows > 0;
-
+        // Kiểm tra xem record có tồn tại không
+        String checkSql = "SELECT COUNT(*) FROM inventory WHERE material_id = ? AND material_condition = ?";
+        try (PreparedStatement checkPs = connection.prepareStatement(checkSql)) {
+            checkPs.setInt(1, materialId);
+            checkPs.setString(2, condition);
+            ResultSet rs = checkPs.executeQuery();
+            if (rs.next() && rs.getInt(1) == 0) {
+                // Nếu chưa có record, tạo mới
+                String insertSql = "INSERT INTO inventory (material_id, material_condition, quantity_on_hand) VALUES (?, ?, ?)";
+                try (PreparedStatement insertPs = connection.prepareStatement(insertSql)) {
+                    insertPs.setInt(1, materialId);
+                    insertPs.setString(2, condition);
+                    insertPs.setInt(3, quantityChange);
+                    return insertPs.executeUpdate() > 0;
+                }
+            } else {
+                // Nếu đã có record, update
+                String updateSql = "UPDATE inventory SET quantity_on_hand = GREATEST(quantity_on_hand + ?, 0) WHERE material_id = ? AND material_condition = ?";
+                try (PreparedStatement updatePs = connection.prepareStatement(updateSql)) {
+                    updatePs.setInt(1, quantityChange);
+                    updatePs.setInt(2, materialId);
+                    updatePs.setString(3, condition);
+                    return updatePs.executeUpdate() > 0;
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -684,20 +478,238 @@ public class UnitConversionDao extends dal.DBContext {
         return 0;
     }
 
+    public List<String> getExportedProjects() {
+        List<String> projects = new ArrayList<>();
+        String sql = "SELECT DISTINCT recipient_name FROM export_forms ";
+        try (PreparedStatement st = connection.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
+            while (rs.next()) {
+                projects.add(rs.getString("recipient_name"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return projects;
+    }
+
+    public List<Material> getMaterialsByProject(String projectName) {
+        List<Material> list = new ArrayList<>();
+        String sql = "SELECT m.material_id, m.name, u.unit_name "
+                + "FROM export_forms ef "
+                + "JOIN export_materials em ON ef.export_id = em.export_id "
+                + "JOIN materials m ON em.material_id = m.material_id "
+                + "JOIN units u ON em.warehouse_unit_id = u.unit_id "
+                + "WHERE ef.recipient_name = ? ";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, projectName);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                Material mate = new Material();
+                mate.setMaterialId(rs.getInt("material_id"));
+                mate.setName(rs.getString("name"));
+                mate.setUnitName(rs.getString("unit_name"));
+                list.add(mate);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // Lấy thông tin vật tư theo id
+    public Material getMaterialById(int materialId) {
+        String sql = "SELECT m.material_id, m.name, u.unit_name FROM materials m JOIN units u ON m.unit_id = u.unit_id WHERE m.material_id = ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setInt(1, materialId);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                Material mate = new Material();
+                mate.setMaterialId(rs.getInt("material_id"));
+                mate.setName(rs.getString("name"));
+                mate.setUnitName(rs.getString("unit_name"));
+                return mate;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // Thêm một dòng vào bảng import_history
+    public void insertImportHistory(ImportHistory history) {
+        String sql = "INSERT INTO import_history (roles, reason, delivered_by, received_by, delivery_phone, project_name, material_name, quantity, unit, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, history.getRoles());
+            st.setString(2, history.getReason());
+            st.setString(3, history.getDeliveredBy());
+            st.setString(4, history.getReceivedBy());
+            st.setString(5, history.getDeliveryPhone());
+            st.setString(6, history.getProjectName());
+            st.setString(7, history.getMaterialName());
+            st.setInt(8, history.getQuantity());
+            st.setString(9, history.getUnit());
+            st.setString(10, history.getStatus());
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<ImportHistory> getImportHistoryList() {
+        List<ImportHistory> list = new ArrayList<>();
+        String sql = "SELECT \n"
+                + "  MIN(id) as id, \n"
+                + "  project_name, \n"
+                + "  MIN(reason) as reason, \n"
+                + "  MIN(created_at) as created_at, \n"
+                + "  MIN(status) as status, \n"
+                + "  COUNT(*) as total_items\n"
+                + "FROM import_history\n"
+                + "GROUP BY project_name, DATE(created_at), reason\n"
+                + "ORDER BY MIN(created_at) DESC;";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                ImportHistory summary = new ImportHistory();
+                summary.setId(rs.getInt("id"));
+                summary.setProjectName(rs.getString("project_name"));
+                summary.setReason(rs.getString("reason"));
+                summary.setCreatedAt(rs.getTimestamp("created_at"));
+                summary.setStatus(rs.getString("status"));
+
+                list.add(summary);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    /**
+     * Lấy chi tiết phiếu nhập (danh sách vật tư) theo import_id
+     */
+    public List<ImportHistory> getImportHistoryDetail(int importId) {
+        List<ImportHistory> list = new ArrayList<>();
+        // Lấy tất cả vật tư có cùng project_name, created_at, reason với import_id này
+        String sql = "SELECT * FROM import_history WHERE project_name = (SELECT project_name FROM import_history WHERE id = ?) " +
+                    "AND DATE(created_at) = (SELECT DATE(created_at) FROM import_history WHERE id = ?) " +
+                    "AND reason = (SELECT reason FROM import_history WHERE id = ?) " +
+                    "ORDER BY id ASC";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setInt(1, importId);
+            st.setInt(2, importId);
+            st.setInt(3, importId);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                ImportHistory h = new ImportHistory();
+                h.setId(rs.getInt("id"));
+                h.setRoles(rs.getString("roles"));
+                h.setReason(rs.getString("reason"));
+                h.setDeliveredBy(rs.getString("delivered_by"));
+                h.setReceivedBy(rs.getString("received_by"));
+                h.setDeliveryPhone(rs.getString("delivery_phone"));
+                h.setProjectName(rs.getString("project_name"));
+                h.setMaterialName(rs.getString("material_name"));
+                h.setQuantity(rs.getInt("quantity"));
+                h.setUnit(rs.getString("unit"));
+                h.setStatus(rs.getString("status"));
+                h.setCreatedAt(rs.getTimestamp("created_at"));
+                list.add(h);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    /**
+     * Lấy danh sách import history với lọc và phân trang
+     */
+    public List<ImportHistory> getImportHistoryListFiltered(String projectName, String createdDate, int page, int pageSize) {
+        List<ImportHistory> list = new ArrayList<>();
+        int offset = (page - 1) * pageSize;
+        
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT MIN(id) as id, project_name, MIN(reason) as reason, ");
+        sql.append("MIN(created_at) as created_at, MIN(status) as status, COUNT(*) as total_items ");
+        sql.append("FROM import_history WHERE 1=1");
+        
+        List<Object> params = new ArrayList<>();
+        int paramIndex = 1;
+        
+        if (projectName != null && !projectName.trim().isEmpty()) {
+            sql.append(" AND project_name LIKE ?");
+            params.add("%" + projectName.trim() + "%");
+        }
+        
+        if (createdDate != null && !createdDate.trim().isEmpty()) {
+            sql.append(" AND DATE(created_at) = ?");
+            params.add(createdDate.trim());
+        }
+        
+        sql.append(" GROUP BY project_name, DATE(created_at), reason ");
+        sql.append("ORDER BY MIN(created_at) DESC LIMIT ? OFFSET ?");
+        params.add(pageSize);
+        params.add(offset);
+        
+        try (PreparedStatement st = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                st.setObject(i + 1, params.get(i));
+            }
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                ImportHistory summary = new ImportHistory();
+                summary.setId(rs.getInt("id"));
+                summary.setProjectName(rs.getString("project_name"));
+                summary.setReason(rs.getString("reason"));
+                summary.setCreatedAt(rs.getTimestamp("created_at"));
+                summary.setStatus(rs.getString("status"));
+                list.add(summary);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    /**
+     * Đếm tổng số trang cho phân trang
+     */
+    public int countImportHistoryFiltered(String projectName, String createdDate) {
+        int total = 0;
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT COUNT(DISTINCT CONCAT(project_name, DATE(created_at), reason)) as total ");
+        sql.append("FROM import_history WHERE 1=1");
+        
+        List<Object> params = new ArrayList<>();
+        
+        if (projectName != null && !projectName.trim().isEmpty()) {
+            sql.append(" AND project_name LIKE ?");
+            params.add("%" + projectName.trim() + "%");
+        }
+        
+        if (createdDate != null && !createdDate.trim().isEmpty()) {
+            sql.append(" AND DATE(created_at) = ?");
+            params.add(createdDate.trim());
+        }
+        
+        try (PreparedStatement st = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                st.setObject(i + 1, params.get(i));
+            }
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                total = rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return total;
+    }
+
     public static void main(String[] args) {
         UnitConversionDao n = new UnitConversionDao();
-        List<Material> k = n.getALls();
-
-        List<UnitConversion> jjj = n.getAllUnit(1);
-        System.out.println(k);
-//        for (UnitConversion unitConversion : jjj) {
-//            System.out.println("sup" + unitConversion.getSupplierUnitId());
-//            System.out.println("wa" + unitConversion.getWarehouseunitid());
-//        }
-
-//        int f = n.getAllunitCount(999,1);
-//        System.out.println(f);
-//        
+//        List<ImportHistory> jjj = n.getImportHistoryDetail("");
+//        System.out.println(jjj);
     }
 
 }

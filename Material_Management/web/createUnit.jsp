@@ -10,65 +10,41 @@
     </head>
     <body>
         <div class="container">
-            <h1><i class="fas fa-plus-circle"></i> Thêm đơn vị quy đổi mới</h1>
-            <p class="subtitle">Tạo các đơn vị mới và quy đổi về 1 trong 4 đơn vị gốc: cái, lít, kg, mét</p>
+            <h1><i class="fas fa-plus-circle"></i> Thêm đơn vị mới</h1>
             <h2 style="color: red">${requestScope.mess}</h2>
-            <form id="conversion-form" action="CreateUnitServlet" method="post">
+            <form id="create-unit-form" action="CreateUnitServlet" method="post">
                 <table class="conversion-table">
                     <thead>
                         <tr>
                             <th>TÊN ĐƠN VỊ MỚI</th>
-                            <th>MÔ TẢ</th>
-                            <th>ĐƠN VỊ LƯU KHO</th>
-                            <th>TỈ LỆ QUY ĐỔI</th>
-                            <th></th>
+                            <th>TRẠNG THÁI</th>
                         </tr>
                     </thead>
-                    <tbody id="conversion-tbody">
+                    <tbody>
                         <tr>
-                            <td><input type="text" name="unitName" placeholder="VD: Thùng, Hộp..."
-                                       required maxlength="10"
-                                       pattern="^[\p{L}0-9\s]{1,10}$"
-                                       title="Chỉ nhập chữ, số, không nhập kí tự đặc biệt, tối đa 10 ký tự."
-                                       ></td>
-                            <td><input type="text" name="unitDesc" placeholder="Mô tả"></td>
+                            <td><input type="text" name="unitName" placeholder="VD: Mét, Kg, Cái..." required maxlength="20" pattern="^[\p{L}0-9\s]{1,20}$" title="Chỉ nhập chữ, số, không nhập kí tự đặc biệt, tối đa 20 ký tự."></td>
                             <td>
-                                <select name="baseUnitID" required>
-                                    <option value="">Chọn đơn vị lưu kho</option>
-                                    <option value="1">Cái</option>
-                                    <option value="2">Mét</option>
-                                    <option value="3">Kg</option>
-                                    <option value="4">Lít</option>
-
-
+                                <select name="status" required>
+                                    <option value="Hoạt động">Hoạt động</option>
+                                    <option value="Không hoạt động">Không hoạt động</option>
                                 </select>
                             </td>
-                            <td><input type="number" name="ratio" min="1" step="any" placeholder="Tỉ lệ" required></td>
-
                         </tr>
                     </tbody>
                 </table>
                 <div class="form-actions">
-                    <button type="submit"  class="btn-add-row"><i class="fas fa-plus"></i>Tạo mới </button>
-                    <button type="button"  class="btn-add-row"> <a href="unitConversionSeverlet" class="btn-add-row">
-                            <i class="fas fa-plus"></i> Trở về
+                    <button type="submit" class="btn-add-row"><i class="fas fa-plus"></i> Tạo mới </button>
+                    <button type="button" class="btn-add-row"> <a href="unitConversionSeverlet" class="btn-add-row">
+                            <i class="fas fa-arrow-left"></i> Trở về
                         </a> </button>
                 </div>
-
             </form>
         </div>
         <script>
-            document.getElementById('conversion-form').addEventListener('submit', function (e) {
-                var unitName = document.querySelector('input[name="unitName"]').value.trim().toLowerCase();
-                var validUnits = ['thùng', 'cuộn', 'hộp', 'gói'];
-                if (validUnits.includes(unitName)) {
-                    if (!confirm('Bạn có chắc chắn muốn tạo đơn vị quy đổi mới?')) {
-                        e.preventDefault();
-                    }
-                } else {
-                    if (!confirm('Đơn vị không đúng, bạn có chắc chắn muốn tạo không?')) {
-                        e.preventDefault();
-                    }
+            document.getElementById('create-unit-form').addEventListener('submit', function (e) {
+                var unitName = document.querySelector('input[name="unitName"]').value.trim();
+                if (!window.confirm('Bạn có chắc chắn muốn tạo đơn vị mới: ' + unitName + ' ?')) {
+                    e.preventDefault();
                 }
             });
         </script>

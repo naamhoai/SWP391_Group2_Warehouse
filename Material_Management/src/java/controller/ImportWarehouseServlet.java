@@ -18,6 +18,7 @@ import model.*;
 import com.google.gson.Gson;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Arrays;
 
 /**
  *
@@ -64,33 +65,27 @@ public class ImportWarehouseServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        User nameandid = (User) session.getAttribute("Admin");
-        String username = (nameandid != null) ? nameandid.getFullname() : "";
-        String role = (nameandid != null && nameandid.getRole() != null) ? nameandid.getRole().getRolename() : "";
-        System.out.println("usernaem" + username);
+        User user = (User) request.getSession().getAttribute("Admin");
+
+        String username = user.getFullname();
+
+        response.setCharacterEncoding("UTF-8");
         UnitConversionDao dao = new UnitConversionDao();
-        List<Material> list = dao.getALls();
-        if (list != null) {
-System.out.println("materialList: " + request.getAttribute("materialList"));
-            System.out.println("username: " + request.getAttribute("username"));
-            System.out.println("role: " + request.getAttribute("role"));
-
-            request.setAttribute("materialList", list);
-            request.setAttribute("role", role);
-            request.setAttribute("username", username);
-
+        String action = request.getParameter("action");
+        if ("getMaterialsByProject".equals(action)) {
+            String project = request.getParameter("project");
+            List<Material> list = dao.getMaterialsByProject(project);
+            request.setAttribute("list", list);
+            String json = new com.google.gson.Gson().toJson(list);
+            response.setContentType("application/json");
+            response.getWriter().write(json);
+            return;
         }
 
-        Map<String, String> materialUnitMap = new HashMap<>();
-        for (Material m : list) {
-            materialUnitMap.put(m.getMaterialId() + "-" + m.getName(), m.getUnitName());
-        }
-        String materialUnitMapJson = new Gson().toJson(materialUnitMap);
-        request.setAttribute("materialUnitMapJson", materialUnitMapJson);
-
+        List<String> projectList = dao.getExportedProjects();
+        request.setAttribute("projectList", projectList);
+        request.setAttribute("username", username);
         request.getRequestDispatcher("importWarehouse.jsp").forward(request, response);
-        return;
     }
 
     /**
@@ -106,73 +101,54 @@ System.out.println("materialList: " + request.getAttribute("materialList"));
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         UnitConversionDao dao = new UnitConversionDao();
+        User user = (User) request.getSession().getAttribute("Admin");
 
         String[] namevts = request.getParameterValues("namevt[]");
         String[] numbers = request.getParameterValues("number[]");
-        String[] units = request.getParameterValues("unit[]");
         String[] statuses = request.getParameterValues("status[]");
-
         String reason = request.getParameter("reason");
         String nguoiGiao = request.getParameter("nguoiGiao");
         String nguoiNhan = request.getParameter("nguoiNhan");
         String soDienThoaiNguoiGiao = request.getParameter("soDienThoaiNguoiGiao");
-        String tenDuAn = request.getParameter("tenDuAn");
+        String project = request.getParameter("project");
+        String roles = user != null && user.getRole() != null ? user.getRole().getRolename() : "";
 
-        HttpSession session = request.getSession();
-        User nameandid = (User) session.getAttribute("Admin");
-        String username = (nameandid != null) ? nameandid.getFullname() : "";
-        String role = (nameandid != null && nameandid.getRole() != null) ? nameandid.getRole().getRolename() : "";
+        try {
+            for (int i = 0; i < namevts.length; i++) {
+                if (namevts[i] == null || namevts[i].trim().isEmpty()
+                        || numbers[i] == null || numbers[i].trim().isEmpty()
+                        || statuses[i] == null || statuses[i].trim().isEmpty()) {
+                    continue;
+                }
+                int materialId = Integer.parseInt(namevts[i]);
+                int quantity = Integer.parseInt(numbers[i]);
+                String condition = statuses[i];
+                
+                Boolean update = dao.updateQuantity(materialId, condition, quantity);
+                if (!update) {
+                    String username = user.getFullname();
+                    request.setAttribute("mess", "Nhập lại vật tư thất bại");
+                    request.setAttribute("username", username);
+                    List<String> projectList = dao.getExportedProjects();
+                    request.setAttribute("projectList", projectList);
+                    request.getRequestDispatcher("importWarehouse.jsp").forward(request, response);
+                    return;
+                }
 
-        boolean allSuccess = true;
+                Material material = dao.getMaterialById(materialId);
+                String materialName = material != null ? material.getName() : "";
+                String unit = material != null ? material.getUnitName() : "";
 
-        for (int i = 0; i < namevts.length; i++) {
-            String namevt = namevts[i];
-            String number = numbers[i];
-            String unit = units[i];
-            String status = statuses[i];
-
-            int materi = 0;
-            if (namevt != null && namevt.contains("-")) {
-                String[] parts = namevt.split("-");
-                materi = Integer.parseInt(parts[0].trim());
-            } else if (namevt != null) {
-                materi = Integer.parseInt(namevt.trim());
+                ImportHistory history = new ImportHistory(roles, reason, nguoiGiao, nguoiNhan, soDienThoaiNguoiGiao, project, materialName, quantity, unit, condition);
+                dao.insertImportHistory(history);
             }
-
-            int num = Integer.parseInt(number);
-            boolean success = dao.updateQuantity(materi, status, num);
-
-            if (success) {
-            
-                ImportHistory importHistory = new model.ImportHistory(
-                        role,
-                        reason,
-                        nguoiGiao,
-                        nguoiNhan,
-                        soDienThoaiNguoiGiao,
-                        tenDuAn,
-                        namevt,
-                        num,
-unit,
-                        status
-                );
-                new dao.ImportHistoryDAO().insertImportHistory(importHistory);
-            } else {
-                allSuccess = false;
-                break; 
-            }
+        } catch (NumberFormatException e) {
+            System.out.println(e.getMessage());
         }
-
-        if (allSuccess) {
-            request.setAttribute("mess", "Nhập đơn vị thành công!");
-            List<Material> list = dao.getALls();
-            request.setAttribute("materialList", list);
-            request.setAttribute("username", username);
-            request.setAttribute("role", role);
-            request.getRequestDispatcher("importWarehouse.jsp").forward(request, response);
-        } else {
-            response.sendRedirect("error.jsp");
-        }
+        request.setAttribute("mess", "Nhập lại vật tư thành công");
+        List<String> projectList = dao.getExportedProjects();
+        request.setAttribute("projectList", projectList);
+        request.getRequestDispatcher("/importHistoryList").forward(request, response);
     }
 
     /**
