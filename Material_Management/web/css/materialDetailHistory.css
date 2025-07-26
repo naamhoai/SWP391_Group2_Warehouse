@@ -71,23 +71,24 @@ body.sidebar-collapsed .main-content {
   border-collapse: separate;
   border-spacing: 0;
   background: #fff;
-  font-size: 16px;
+  font-size: 14px;
   border-radius: 16px;
   box-shadow: 0 4px 24px 0 rgba(0,0,0,0.06);
   overflow: hidden;
   margin-top: 24px;
 }
 .data-table th, .data-table td {
-  padding: 18px 16px;
+  padding: 16px;
   text-align: left;
   border-bottom: 1px solid #f0f0f0;
   background: #fff;
+  font-size: 14px;
 }
 .data-table th {
   font-weight: 700;
   color: #222;
   background: #fafbfc;
-  font-size: 17px;
+  font-size: 14px;
 }
 .data-table tr:last-child td {
   border-bottom: none;

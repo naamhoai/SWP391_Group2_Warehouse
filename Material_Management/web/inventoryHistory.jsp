@@ -28,11 +28,13 @@
                     </div>
                     <div class="filter-group">
                         <i class="fas fa-calendar-alt"></i>
-                        <input type="date" name="fromDate" placeholder="Từ ngày" value="${fromDate}"/>
+                        <label for="fromDate" style="margin-right: 6px; font-weight: 500; color: #374151;">Từ ngày</label>
+                        <input type="date" id="fromDate" name="fromDate" placeholder="Từ ngày" value="${fromDate}"/>
                     </div>
                     <div class="filter-group">
                         <i class="fas fa-calendar-alt"></i>
-                        <input type="date" name="toDate" placeholder="Đến ngày" value="${toDate}"/>
+                        <label for="toDate" style="margin-right: 6px; font-weight: 500; color: #374151;">Đến ngày</label>
+                        <input type="date" id="toDate" name="toDate" placeholder="Đến ngày" value="${toDate}"/>
                     </div>
                     <div class="filter-group">
                         <i class="fas fa-exchange-alt"></i>
