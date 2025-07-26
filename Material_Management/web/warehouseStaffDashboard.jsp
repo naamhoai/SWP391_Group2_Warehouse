@@ -15,9 +15,11 @@
         <link rel="stylesheet" href="css/footer.css"/>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+        <!-- Chart.js CDN -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     </head>
     <body>
-        <jsp:include page="sidebar_warehouse_staff.jsp" />
+        <jsp:include page="sidebar.jsp" />
         <div id="main-content">
             <div class="header">
                 <div class="header-left">
@@ -76,6 +78,12 @@
                         <h3>Cảnh Báo Sắp Hết</h3>
                         <p class="stat-number"></p>
                     </div>
+                </div>
+            </div>
+            <div class="charts-grid charts-grid-1">
+                <div class="chart-card full-width">
+                    <h3>Biểu Đồ Mua/Xuất Vật Tư Theo Tháng</h3>
+                    <canvas id="importExportLineChart"></canvas>
                 </div>
             </div>
             <div class="table-card">
@@ -168,6 +176,97 @@
 
                 updateNotifications();
                 setInterval(updateNotifications, 5000);
+            });
+        </script>
+
+        <script>
+            var importExportMonthLabels = [<c:forEach var="label" items="${importExportMonthLabels}" varStatus="loop">"${label}"<c:if test="${!loop.last}">,</c:if></c:forEach>];
+            var importByMonth = <c:out value="${importByMonthJson}" default="[]"/>;
+            var exportByMonth = <c:out value="${exportByMonthJson}" default="[]"/>;
+            
+            var ctxImportExport = document.getElementById('importExportLineChart').getContext('2d');
+            var importExportLineChart = new Chart(ctxImportExport, {
+                type: 'bar',
+                data: {
+                    labels: importExportMonthLabels,
+                    datasets: [
+                        {
+                            label: 'Số lượng mua',
+                            data: importByMonth,
+                            backgroundColor: '#2980b9',
+                            borderColor: '#2471a3',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Số lượng xuất',
+                            data: exportByMonth,
+                            backgroundColor: '#e74c3c',
+                            borderColor: '#c0392b',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 16
+                                },
+                                padding: 25
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Biểu Đồ Mua/Xuất Vật Tư Theo Tháng',
+                            font: {
+                                size: 20,
+                                weight: 'bold'
+                            },
+                            padding: {
+                                top: 15,
+                                bottom: 25
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Số lượng',
+                                font: {
+                                    size: 16,
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Tháng',
+                                font: {
+                                    size: 16,
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        }
+                    }
+                }
             });
         </script>
 

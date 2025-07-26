@@ -141,52 +141,12 @@
             --%>
 
             <!-- Charts Grid -->
-            <%--
-            <div class="charts-grid">
-                <div class="chart-card">
-                    <h3>Phân Bổ Yêu Cầu</h3>
-                    <canvas id="requestDistributionChart"></canvas>
-                </div>
-                <div class="chart-card">
-                    <h3>Xu Hướng Chi Phí</h3>
-                    <canvas id="costTrendChart"></canvas>
-                </div>
-                <div class="chart-card">
-                    <h3>Phân Bổ Vật Tư Theo Danh Mục</h3>
-                    <canvas id="materialCategoryChart"></canvas>
-                </div>
-                <div class="chart-card">
-                    <h3>Xu Hướng Tồn Kho</h3>
-                    <canvas id="inventoryTrendChart"></canvas>
-                </div>
-                <div class="calendar-card">
-                    <h3>Lịch</h3>
-                    <div class="calendar-container">
-                        <div class="calendar-header">
-                            <span class="month-year">
-                                <span class="month" id="currentMonth"></span>
-                                <span class="year" id="currentYear"></span>
-                            </span>
-                        </div>
-                        <table class="calendar-table" id="calendarTable">
-                            <thead>
-                                <tr>
-                                    <th>Su</th>
-                                    <th>Mo</th>
-                                    <th>Tu</th>
-                                    <th>We</th>
-                                    <th>Th</th>
-                                    <th>Fr</th>
-                                    <th>Sa</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
+            <div class="charts-grid charts-grid-1">
+                <div class="chart-card full-width" style="min-height: 600px; padding: 30px;">
+                    <h3>Biểu Đồ Mua/Xuất Vật Tư Theo Tháng</h3>
+                    <canvas id="importExportLineChart" style="height: 500px !important;"></canvas>
                 </div>
             </div>
-            --%>
 
             <!-- Low Stock Items Table -->
             <%--
@@ -263,7 +223,6 @@
         </div>
 
         <!-- Chart Data -->
-        <%--
         <script>
             var requestLabels = ["Mua Vật Tư", "Xuất Kho", "Sửa Chữa"];
             var requestData = [<c:out value="${requestStats.purchaseCount}" default="0"/>,
@@ -279,7 +238,6 @@ var categoryLabels = [<c:forEach var="item" items="${categoryStats}" varStatus="
                     var inventoryTrendLabels = [<c:forEach var="label" items="${inventoryTrendLabels}" varStatus="loop">"${label}"<c:if test="${!loop.last}">,</c:if></c:forEach>];
             var inventoryTrendData = [<c:forEach var="value" items="${inventoryTrend}" varStatus="loop">${value}<c:if test="${!loop.last}">,</c:if></c:forEach>];
         </script>
-        --%>
         <script>
             const contextPath = "${pageContext.request.contextPath}";
 
@@ -387,6 +345,95 @@ var categoryLabels = [<c:forEach var="item" items="${categoryStats}" varStatus="
             });
         </script>
 
+        <script>
+            var importExportMonthLabels = [<c:forEach var="label" items="${importExportMonthLabels}" varStatus="loop">"${label}"<c:if test="${!loop.last}">,</c:if></c:forEach>];
+            var importByMonth = <c:out value="${importByMonthJson}" default="[]"/>;
+            var exportByMonth = <c:out value="${exportByMonthJson}" default="[]"/>;
+            var ctxImportExport = document.getElementById('importExportLineChart').getContext('2d');
+            var importExportLineChart = new Chart(ctxImportExport, {
+                type: 'bar',
+                data: {
+                    labels: importExportMonthLabels,
+                    datasets: [
+                        {
+                            label: 'Số lượng mua',
+                            data: importByMonth,
+                            backgroundColor: '#2980b9',
+                            borderColor: '#2471a3',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Số lượng xuất',
+                            data: exportByMonth,
+                            backgroundColor: '#e74c3c',
+                            borderColor: '#c0392b',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 16
+                                },
+                                padding: 25
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Biểu Đồ Mua/Xuất Vật Tư Theo Tháng',
+                            font: {
+                                size: 20,
+                                weight: 'bold'
+                            },
+                            padding: {
+                                top: 15,
+                                bottom: 25
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Số lượng',
+                                font: {
+                                    size: 16,
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Tháng',
+                                font: {
+                                    size: 16,
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        </script>
         <script src="js/adminDashboard.js"></script>
     </body>
 </html>

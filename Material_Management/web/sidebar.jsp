@@ -18,8 +18,8 @@
                 switch (roleId) {
                     case 1: dashboardPath = "/adminDashboard"; break;
                     case 2: dashboardPath = "/director"; break;
-                    case 3: dashboardPath = "/warehouseStaffDashboard.jsp"; break;
-                    case 4: dashboardPath = "/staffDashboard.jsp"; break;
+                    case 3: dashboardPath = "/warehouseStaffDashboard"; break; // Đổi sang servlet
+                    case 4: dashboardPath = "/staffDashboard"; break;
                     default: dashboardPath = "/adminDashboard"; 
                 }
             }

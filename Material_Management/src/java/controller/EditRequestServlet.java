@@ -137,6 +137,12 @@ public class EditRequestServlet extends HttpServlet {
                         error = "Không tìm thấy vật tư: " + name + " với tình trạng: " + condition;
                         break;
                     }
+                    // Check tồn kho
+                    int inventoryQty = matched.getQuantityOnHand();
+                    if (q > inventoryQty) {
+                        error = "Số lượng yêu cầu ở dòng " + (i + 1) + " vượt quá số lượng tồn kho hiện có (" + inventoryQty + ").";
+                        break;
+                    }
                     // Không cần validate unit nữa
                     if (condition == null || condition.trim().isEmpty()) {
                         error = "Điều kiện vật tư ở dòng " + (i + 1) + " không được để trống.";
