@@ -16,15 +16,13 @@ public class MaterialDetailHistoryServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String materialIdStr = request.getParameter("materialId");
+        String keyword = request.getParameter("keyword");
         String fromDate = request.getParameter("fromDate");
         String toDate = request.getParameter("toDate");
-        String materialName = request.getParameter("materialName");
         String roleName = request.getParameter("roleName");
-        String userName = request.getParameter("userName");
         MaterialDetailHistoryDAO dao = new MaterialDetailHistoryDAO();
         if (materialIdStr == null) {
-            // Lấy toàn bộ lịch sử hoặc có filter
-            List<MaterialDetailHistory> historyList = dao.getFilteredHistory(fromDate, toDate, materialName, roleName, userName);
+            List<MaterialDetailHistory> historyList = dao.getFilteredHistory(fromDate, toDate, keyword, roleName, keyword);
             request.setAttribute("historyList", historyList);
             request.setAttribute("showAll", true);
             request.getRequestDispatcher("materialDetailHistory.jsp").forward(request, response);

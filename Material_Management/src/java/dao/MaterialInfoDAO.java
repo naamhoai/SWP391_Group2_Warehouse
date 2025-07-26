@@ -26,21 +26,6 @@ public class MaterialInfoDAO extends DBContext{
         return categories;
     }
 
-    public List<String> getAllSuppliers() {
-        List<String> suppliers = new ArrayList<>();
-        String sql = "SELECT DISTINCT supplier_name FROM supplier WHERE status = 'active' ORDER BY supplier_name";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                suppliers.add(rs.getString("supplier_name"));
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return suppliers;
-    }
-
     public List<Category> getAllCategoriesForDropdown() throws SQLException {
         List<Category> categories = new ArrayList<>();
         String sql = "SELECT category_id, name, parent_id FROM categories WHERE hidden = 0 ORDER BY name";
@@ -57,22 +42,6 @@ public class MaterialInfoDAO extends DBContext{
             }
         }
         return categories;
-    }
-
-    public List<Supplier> getAllSuppliersForDropdown() throws SQLException {
-        List<Supplier> suppliers = new ArrayList<>();
-        String sql = "SELECT supplier_id, supplier_name FROM supplier WHERE status = 'active' ORDER BY supplier_name";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                Supplier sup = new Supplier();
-                sup.setSupplierId(rs.getInt("supplier_id"));
-                sup.setSupplierName(rs.getString("supplier_name"));
-                suppliers.add(sup);
-            }
-        }
-        return suppliers;
     }
 
     public List<Unit> getAllWarehouseUnits() throws SQLException {

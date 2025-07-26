@@ -39,7 +39,6 @@ public class UpdateMaterialServlet extends HttpServlet {
             int materialId = Integer.parseInt(request.getParameter("materialId"));
             String name = request.getParameter("name");
             int categoryId = Integer.parseInt(request.getParameter("categoryId"));
-            int supplierId = Integer.parseInt(request.getParameter("supplierId"));
             int unitId = Integer.parseInt(request.getParameter("unit"));
             String description = request.getParameter("description");
             String status = request.getParameter("status");
@@ -56,7 +55,6 @@ public class UpdateMaterialServlet extends HttpServlet {
                     request.setAttribute("material", existingMaterial);
                     MaterialInfoDAO infoDAO = new MaterialInfoDAO();
                     request.setAttribute("categories", infoDAO.getAllCategoriesForDropdown());
-                    request.setAttribute("suppliers", infoDAO.getAllSuppliersForDropdown());
                     UnitDAO unitDAO = new UnitDAO();
                     request.setAttribute("units", unitDAO.getWarehouseUnits());
                     request.getRequestDispatcher("/updateMaterialDetail.jsp").forward(request, response);
@@ -109,9 +107,9 @@ public class UpdateMaterialServlet extends HttpServlet {
             material.setMaterialId(materialId);
             material.setName(name);
             material.setCategoryId(categoryId);
-            material.setSupplierId(supplierId);
+            material.setSupplierId(existingMaterial.getSupplierId());
             material.setUnitId(unitId);
-            // material.setPrice(price); // KHÔNG SET GIÁ
+            // material.setPrice(existingMaterial.getPrice()); // Nếu cần giữ giá
             material.setDescription(description);
             material.setImageUrl(imageUrl);
             material.setStatus(status);
@@ -147,24 +145,6 @@ public class UpdateMaterialServlet extends HttpServlet {
                             changedFields.append("Danh mục");
                             oldValues.append(oldCategoryName);
                             newValues.append(newCategoryName);
-                        }
-                        // Nhà cung cấp
-                        if (existingMaterial.getSupplierId() != supplierId) {
-                            if (changedFields.length() > 0) { changedFields.append(", "); oldValues.append(", "); newValues.append(", "); }
-                            SupplierDAO supplierDAO = new SupplierDAO();
-                            String oldSupplierName = "";
-                            String newSupplierName = "";
-                            try {
-                                model.Supplier oldSupplier = supplierDAO.getSupplierById(existingMaterial.getSupplierId());
-                                oldSupplierName = (oldSupplier != null) ? oldSupplier.getSupplierName() : "Không xác định";
-                            } catch (Exception e) { oldSupplierName = "Không xác định"; }
-                            try {
-                                model.Supplier newSupplier = supplierDAO.getSupplierById(supplierId);
-                                newSupplierName = (newSupplier != null) ? newSupplier.getSupplierName() : "Không xác định";
-                            } catch (Exception e) { newSupplierName = "Không xác định"; }
-                            changedFields.append("Nhà cung cấp");
-                            oldValues.append(oldSupplierName);
-                            newValues.append(newSupplierName);
                         }
                         // Đơn vị tính
                         if (existingMaterial.getUnitId() != unitId) {
@@ -233,7 +213,6 @@ public class UpdateMaterialServlet extends HttpServlet {
                 request.setAttribute("material", material);
                 MaterialInfoDAO infoDAO = new MaterialInfoDAO();
                 request.setAttribute("categories", infoDAO.getAllCategoriesForDropdown());
-                request.setAttribute("suppliers", infoDAO.getAllSuppliersForDropdown());
                 UnitDAO unitDAO = new UnitDAO();
                 request.setAttribute("units", unitDAO.getWarehouseUnits());
                 request.getRequestDispatcher("/updateMaterialDetail.jsp").forward(request, response);

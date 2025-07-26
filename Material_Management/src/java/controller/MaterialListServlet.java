@@ -15,6 +15,8 @@ import java.util.Arrays;
 import model.*;
 import java.util.ArrayList;
 import dao.CategoryDAO;
+import dao.MaterialDetailHistoryDAO;
+import java.sql.Timestamp;
 
 @WebServlet(name = "MaterialListServlet", urlPatterns = {"/MaterialListServlet"})
 public class MaterialListServlet extends HttpServlet {
@@ -53,7 +55,14 @@ public class MaterialListServlet extends HttpServlet {
         if (categoryId != null) {
             categoryFilter = String.valueOf(categoryId);
         }
-        String supplierFilter = request.getParameter("supplier") == null ? "All" : request.getParameter("supplier");
+        Integer unitFilter = null;
+        if (request.getParameter("unit") != null && !request.getParameter("unit").isEmpty() && !request.getParameter("unit").equals("All")) {
+            try {
+                unitFilter = Integer.parseInt(request.getParameter("unit"));
+            } catch (NumberFormatException e) {
+                unitFilter = null;
+            }
+        }
         String statusFilter = request.getParameter("status") == null ? "All" : request.getParameter("status");
         String sortField = request.getParameter("sort") == null ? "material_id" : request.getParameter("sort");
         String sortDir = request.getParameter("dir") == null ? "asc" : request.getParameter("dir");
@@ -74,7 +83,7 @@ public class MaterialListServlet extends HttpServlet {
         }
 
         MaterialDAO dao = new MaterialDAO();
-        int totalItems = dao.getTotalMaterialsForAdmin(searchQuery, categoryId, supplierFilter, statusFilter);
+        int totalItems = dao.getTotalMaterialsForAdmin(searchQuery, categoryId, unitFilter, statusFilter);
         int totalPages = (int) Math.ceil((double) totalItems / itemsPerPage);
 
         if (currentPage > totalPages && totalPages > 0) {
@@ -84,24 +93,30 @@ public class MaterialListServlet extends HttpServlet {
             currentPage = 1;
         }
 
-        List<Material> materials = dao.getMaterialsForAdmin(searchQuery, categoryId, supplierFilter, statusFilter, currentPage, itemsPerPage, sortField, sortDir);
+        List<Material> materials = dao.getMaterialsForAdmin(searchQuery, categoryId, unitFilter, statusFilter, currentPage, itemsPerPage, sortField, sortDir);
 
         CategoryDAO categoryDAO = new CategoryDAO();
         MaterialInfoDAO infoDAO = new MaterialInfoDAO();
         List<Category> categories = categoryDAO.getVisibleCategories();
-        List<String> suppliers = infoDAO.getAllSuppliers();
+        List<Unit> units;
+        try {
+            units = infoDAO.getAllWarehouseUnits();
+        } catch (Exception e) {
+            units = new ArrayList<>();
+            e.printStackTrace();
+        }
         List<Integer> itemsPerPageOptions = Arrays.asList(5, 10, 20, 50);
 
         request.setAttribute("materials", materials);
         request.setAttribute("categories", categories);
-        request.setAttribute("suppliers", suppliers);
+        request.setAttribute("units", units);
         request.setAttribute("itemsPerPageOptions", itemsPerPageOptions);
         request.setAttribute("currentPage", currentPage);
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("itemsPerPage", itemsPerPage);
         request.setAttribute("searchQuery", searchQuery);
         request.setAttribute("categoryFilter", categoryFilter);
-        request.setAttribute("supplierFilter", supplierFilter);
+        request.setAttribute("unitFilter", unitFilter);
         request.setAttribute("statusFilter", statusFilter);
         request.setAttribute("sortField", sortField);
         request.setAttribute("sortDir", sortDir);
@@ -126,6 +141,11 @@ public class MaterialListServlet extends HttpServlet {
             if (idArr != null && idArr.length > 0) {
                 try {
                     MaterialDAO dao = new MaterialDAO();
+                    User user = (User) request.getSession().getAttribute("Admin");
+                    int userId = user != null ? user.getUser_id() : -1;
+                    String roleName = (user != null && user.getRole() != null) ? user.getRole().getRolename() : "";
+                    MaterialDetailHistoryDAO historyDAO = new MaterialDetailHistoryDAO();
+                    Timestamp now = new Timestamp(System.currentTimeMillis());
                     for (String idStr : idArr) {
                         int materialId;
                         try {
@@ -151,24 +171,17 @@ public class MaterialListServlet extends HttpServlet {
                             // Đang kinh doanh -> luôn cho chuyển sang ngừng kinh doanh
                             newStatus = "inactive";
                         } else {
-                            // Ngừng kinh doanh -> chỉ cho chuyển nếu category không ẩn và supplier hợp tác
-                            if (!material.isCategoryHidden() && "active".equalsIgnoreCase(material.getSupplierStatus())) {
+                            // Ngừng kinh doanh -> chỉ cho chuyển nếu category không ẩn (bỏ kiểm tra supplierStatus)
+                            if (!material.isCategoryHidden()) {
                                 newStatus = "active";
                             } else {
-                                String reason = "";
-                                if (material.isCategoryHidden()) {
-                                    reason += "danh mục bị ẩn";
-                                }
-                                if (!"active".equalsIgnoreCase(material.getSupplierStatus())) {
-                                    if (!reason.isEmpty()) reason += " hoặc ";
-                                    reason += "nhà cung cấp không hợp tác";
-                                }
-                                errorMessages.add("Không thể chuyển vật tư ID: " + materialId + " sang Đang kinh doanh vì " + reason + ".");
+                                errorMessages.add("Không thể chuyển vật tư ID: " + materialId + " sang Đang kinh doanh vì danh mục bị ẩn.");
                                 continue;
                             }
                         }
                         try {
                             dao.updateMaterialStatus(materialId, newStatus);
+                            // Không ghi lịch sử khi chuyển trạng thái hàng loạt
                         } catch (Exception e) {
                             errorMessages.add("Lỗi khi cập nhật vật tư ID: " + materialId + ", lỗi: " + e.getMessage());
                         }

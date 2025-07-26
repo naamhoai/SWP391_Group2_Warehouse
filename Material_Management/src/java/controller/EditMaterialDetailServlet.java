@@ -26,22 +26,12 @@ public class EditMaterialDetailServlet extends HttpServlet {
             int materialId = Integer.parseInt(request.getParameter("id"));
             MaterialDAO materialDAO = new MaterialDAO();
             MaterialInfoDAO infoDAO = new MaterialInfoDAO();
-
-            // Lấy thông tin vật tư cần chỉnh sửa
             Material material = materialDAO.getMaterialById(materialId);
-
-            // Lấy danh sách các danh mục, nhà cung cấp, đơn vị tính cho dropdown
             List<Category> categories = infoDAO.getAllCategoriesForDropdown();
-            List<Supplier> suppliers = infoDAO.getAllSuppliersForDropdown();
             List<Unit> units = new UnitDAO().getWarehouseUnits();
-
-            // Đặt các đối tượng vào request scope
             request.setAttribute("material", material);
             request.setAttribute("categories", categories);
-            request.setAttribute("suppliers", suppliers);
             request.setAttribute("units", units);
-
-            // Chuyển tiếp đến trang JSP chỉnh sửa
             request.getRequestDispatcher("/updateMaterialDetail.jsp").forward(request, response);
 
         } catch (NumberFormatException e) {

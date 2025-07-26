@@ -68,20 +68,13 @@
                             </select>
                         </div>
                         <div class="info-item">
-                            <label for="supplierId">Nhà cung cấp:</label>
-                            <select id="supplierId" name="supplierId" class="value" required>
-                                <option value="">-- Chọn nhà cung cấp --</option>
-                                <c:forEach items="${suppliers}" var="sup">
-                                    <option value="${sup.supplierId}" ${material.supplierId == sup.supplierId ? 'selected' : ''}>${sup.supplierName}</option>
-                                </c:forEach>
-                            </select>
-                        </div>
-                        <div class="info-item">
                             <label for="unit">Đơn vị tính:</label>
                             <select id="unit" name="unit" class="value" required>
                                 <option value="">-- Chọn đơn vị --</option>
                                 <c:forEach items="${units}" var="unit">
-                                    <option value="${unit.unit_id}" ${material.unitId == unit.unit_id ? 'selected' : ''}>${unit.unit_name}</option>
+                                    <option value="${unit.unit_id}" ${material.unitId == unit.unit_id ? 'selected' : ''}>
+                                        ${unit.unit_name}
+                                    </option>
                                 </c:forEach>
                             </select>
                         </div>

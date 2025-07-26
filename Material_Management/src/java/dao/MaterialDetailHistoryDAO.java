@@ -96,7 +96,7 @@ public class MaterialDetailHistoryDAO extends DBContext {
         return list;
     }
 
-    public List<MaterialDetailHistory> getFilteredHistory(String fromDate, String toDate, String materialName, String roleName, String userName) {
+    public List<MaterialDetailHistory> getFilteredHistory(String fromDate, String toDate, String keyword, String roleName, String unused) {
         List<MaterialDetailHistory> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT h.*, m.name as material_name, u.full_name as user_name FROM material_detail_history h LEFT JOIN materials m ON h.material_id = m.material_id LEFT JOIN users u ON h.changed_by = u.user_id WHERE 1=1");
         List<Object> params = new ArrayList<>();
@@ -108,17 +108,14 @@ public class MaterialDetailHistoryDAO extends DBContext {
             sql.append(" AND DATE(h.changed_at) <= ?");
             params.add(toDate);
         }
-        if (materialName != null && !materialName.isEmpty()) {
-            sql.append(" AND m.name LIKE ?");
-            params.add("%" + materialName + "%");
+        if (keyword != null && !keyword.isEmpty()) {
+            sql.append(" AND (m.name LIKE ? OR u.full_name LIKE ?)");
+            params.add("%" + keyword + "%");
+            params.add("%" + keyword + "%");
         }
         if (roleName != null && !roleName.isEmpty()) {
             sql.append(" AND h.role_name = ?");
             params.add(roleName);
-        }
-        if (userName != null && !userName.isEmpty()) {
-            sql.append(" AND u.full_name LIKE ?");
-            params.add("%" + userName + "%");
         }
         sql.append(" ORDER BY h.changed_at DESC, h.history_id DESC");
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {

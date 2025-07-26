@@ -36,9 +36,6 @@ public class CreateMaterialDetailServlet extends HttpServlet {
         CategoryDAO categoryDAO = new CategoryDAO();
         List<Category> categories = categoryDAO.getAllCategories();
         request.setAttribute("categories", categories);
-        SupplierDAO supplierDAO = new SupplierDAO();
-        List<Supplier> suppliers = supplierDAO.getAllSuppliers();
-        request.setAttribute("suppliers", suppliers);
         UnitDAO unitDao = new UnitDAO();
         List<Unit> units = null;
         try {
@@ -63,7 +60,6 @@ public class CreateMaterialDetailServlet extends HttpServlet {
         String materialIdStr = request.getParameter("materialId");
         String name = request.getParameter("name");
         String categoryIdStr = request.getParameter("categoryId");
-        String supplierIdStr = request.getParameter("supplierId");
         String unitIdStr = request.getParameter("unit");
         String description = request.getParameter("description");
         String status = request.getParameter("status");
@@ -73,14 +69,12 @@ public class CreateMaterialDetailServlet extends HttpServlet {
         try {
             if (name == null || name.trim().isEmpty() ||
                 categoryIdStr == null || categoryIdStr.isEmpty() ||
-                supplierIdStr == null || supplierIdStr.isEmpty() ||
                 unitIdStr == null || unitIdStr.isEmpty()) {
                 throw new Exception("Vui lòng nhập đầy đủ thông tin bắt buộc.");
             }
 
             int materialId = Integer.parseInt(materialIdStr);
             int categoryId = Integer.parseInt(categoryIdStr);
-            int supplierId = Integer.parseInt(supplierIdStr);
             int unitId = Integer.parseInt(unitIdStr);
 
             if (name.length() > 50) {
@@ -103,15 +97,12 @@ public class CreateMaterialDetailServlet extends HttpServlet {
                     request.setAttribute("materialId", materialIdStr);
                     request.setAttribute("name", name);
                     request.setAttribute("category", categoryIdStr);
-                    request.setAttribute("supplier", supplierIdStr);
                     request.setAttribute("unit", unitIdStr);
                     request.setAttribute("description", description);
                     CategoryDAO categoryDAO2 = new CategoryDAO();
-                    SupplierDAO supplierDAO2 = new SupplierDAO();
                     UnitDAO unitDao2 = new UnitDAO();
                     try {
                         request.setAttribute("categories", categoryDAO2.getAllCategories());
-                        request.setAttribute("suppliers", supplierDAO2.getAllSuppliers());
                         try {
                             request.setAttribute("units", unitDao2.getWarehouseUnits());
                         } catch (Exception ex) {
@@ -120,7 +111,6 @@ public class CreateMaterialDetailServlet extends HttpServlet {
                         request.getRequestDispatcher("createMaterialDetail.jsp").forward(request, response);
                     } finally {
                         categoryDAO2.closeConnection();
-                        supplierDAO2.closeConnection();
                         unitDao2.closeConnection();
                     }
                     return;
@@ -153,7 +143,7 @@ public class CreateMaterialDetailServlet extends HttpServlet {
             material.setMaterialId(materialId);
             material.setName(name);
             material.setCategoryId(categoryId);
-            material.setSupplierId(supplierId);
+            // Không lấy supplierId từ request, giữ nguyên giá trị mặc định (0 hoặc giá trị cũ nếu có)
             material.setUnitId(unitId);
             material.setImageUrl(imageUrl);
             material.setDescription(description);
@@ -180,18 +170,15 @@ public class CreateMaterialDetailServlet extends HttpServlet {
                 request.setAttribute("name", name);
             }
             request.setAttribute("category", categoryIdStr);
-            request.setAttribute("supplier", supplierIdStr);
             request.setAttribute("unit", unitIdStr);
             request.setAttribute("description", description);
         }
 
         CategoryDAO categoryDAO = new CategoryDAO();
-        SupplierDAO supplierDAO = new SupplierDAO();
         UnitDAO unitDao = new UnitDAO();
 
         try {
             request.setAttribute("categories", categoryDAO.getAllCategories());
-            request.setAttribute("suppliers", supplierDAO.getAllSuppliers());
             try {
                 request.setAttribute("units", unitDao.getWarehouseUnits());
             } catch (Exception ex) {
@@ -202,7 +189,6 @@ public class CreateMaterialDetailServlet extends HttpServlet {
             request.getRequestDispatcher("createMaterialDetail.jsp").forward(request, response);
         } finally {
             categoryDAO.closeConnection();
-            supplierDAO.closeConnection();
             unitDao.closeConnection();
         }
     }

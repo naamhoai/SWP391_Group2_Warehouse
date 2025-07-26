@@ -61,17 +61,13 @@
                                     <span class="value">${material.categoryName}</span>
                                 </div>
                                 <div class="info-item">
-                                    <label>Nhà cung cấp:</label>
-                                    <span class="value">${material.supplierName}</span>
-                                </div>
-                                <div class="info-item">
                                     <label>Đơn vị tính:</label>
                                     <span class="value">${material.unitName}</span>
                                 </div>
                                 <div class="info-item">
                                     <label>Trạng thái:</label>
-                                    <span class="value status-badge ${material.status eq 'active' and material.supplierStatus eq 'active' and not material.categoryHidden ? 'status-active' : 'status-inactive'}">
-                                        ${material.status eq 'active' and material.supplierStatus eq 'active' and not material.categoryHidden ? 'Đang kinh doanh' : 'Ngừng kinh doanh'}
+                                    <span class="value status-badge ${material.status eq 'active' and not material.categoryHidden ? 'status-active' : 'status-inactive'}">
+                                        ${material.status eq 'active' and not material.categoryHidden ? 'Đang kinh doanh' : 'Ngừng kinh doanh'}
                                     </span>
                                 </div>
                                 <div class="info-item info-item-full">

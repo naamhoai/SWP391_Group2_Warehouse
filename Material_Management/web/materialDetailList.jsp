@@ -67,11 +67,11 @@
                             </select>
                         </div>
                         <div class="filter-group">
-                            <i class="fas fa-truck"></i>
-                            <select name="supplier" onchange="this.form.submit()">
-                                <option value="All">Tất cả nhà cung cấp</option>
-                                <c:forEach items="${suppliers}" var="sup">
-                                    <option value="${sup}" <c:if test="${sup eq supplierFilter}">selected</c:if>>${sup}</option>
+                            <i class="fas fa-balance-scale"></i>
+                            <select name="unit" onchange="this.form.submit()">
+                                <option value="All">Tất cả đơn vị tính</option>
+                                <c:forEach items="${units}" var="unit">
+                                    <option value="${unit.unit_id}" <c:if test="${unit.unit_id eq unitFilter}">selected</c:if>>${unit.unit_name}</option>
                                 </c:forEach>
                             </select>
                         </div>
@@ -114,7 +114,7 @@
                                     <th>Mã VT</th>
                                     <th>Tên vật tư</th>
                                     <th>Loại vật tư</th>
-                                    <th>Nhà cung cấp</th>
+                                    <th>Đơn vị tính</th>
                                     <th>Trạng thái</th>
                                     <th>Chi tiết</th>
                                 </tr>
@@ -131,12 +131,11 @@
                                                 <td>#${material.materialId}</td>
                                                 <td>${material.name}</td>
                                                 <td>${material.categoryName}</td>
-                                                <td>${material.supplierName}</td>
+                                                <td>${material.unitName}</td>
                                                 <td>
-                                                    <c:set var="isActive" value="${material.status == 'active' && material.supplierStatus == 'active' && !material.categoryHidden}" />
-                                                    <span class="status-badge status-${isActive ? 'active' : 'inactive'}">
+                                                    <span class="status-badge status-${material.status == 'active' ? 'active' : 'inactive'}">
                                                         <c:choose>
-                                                            <c:when test="${isActive}">
+                                                            <c:when test="${material.status == 'active'}">
                                                                 Đang kinh doanh
                                                             </c:when>
                                                             <c:otherwise>

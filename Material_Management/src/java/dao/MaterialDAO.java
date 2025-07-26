@@ -15,17 +15,16 @@ import java.sql.Connection;
 
 public class MaterialDAO extends DBContext {
 
-    public List<Material> getMaterialsForAdmin(String searchQuery, Integer categoryId, String supplierFilter, String statusFilter,
+    public List<Material> getMaterialsForAdmin(String searchQuery, Integer categoryId, Integer unitFilter, String statusFilter,
             int page, int itemsPerPage, String sortField, String sortDir) {
         List<Material> materials = new ArrayList<>();
-        String sql = "SELECT m.*, c.name as category_name, c.hidden as category_hidden, s.supplier_name, s.status as supplier_status, u.unit_name "
+        String sql = "SELECT m.*, c.name as category_name, c.hidden as category_hidden, u.unit_name "
                 + "FROM materials m "
                 + "LEFT JOIN categories c ON m.category_id = c.category_id "
-                + "LEFT JOIN supplier s ON m.supplier_id = s.supplier_id "
                 + "LEFT JOIN units u ON m.unit_id = u.unit_id "
                 + "WHERE 1=1 ";
         ArrayList<Object> params = new ArrayList<>();
-        sql = buildWhereClauses(sql, params, searchQuery, categoryId, supplierFilter, statusFilter);
+        sql = buildWhereClauses(sql, params, searchQuery, categoryId, unitFilter, statusFilter);
         sql += " ORDER BY m.material_id ASC";
         sql += " LIMIT ? OFFSET ?";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -46,13 +45,13 @@ public class MaterialDAO extends DBContext {
         return materials;
     }
 
-    public int getTotalMaterialsForAdmin(String searchQuery, Integer categoryId, String supplierFilter, String statusFilter) {
+    public int getTotalMaterialsForAdmin(String searchQuery, Integer categoryId, Integer unitFilter, String statusFilter) {
         String sql = "SELECT COUNT(*) as total FROM materials m "
                 + "LEFT JOIN categories c ON m.category_id = c.category_id "
-                + "LEFT JOIN supplier s ON m.supplier_id = s.supplier_id "
+                + "LEFT JOIN units u ON m.unit_id = u.unit_id "
                 + "WHERE 1=1 ";
         ArrayList<Object> params = new ArrayList<>();
-        sql = buildWhereClauses(sql, params, searchQuery, categoryId, supplierFilter, statusFilter);
+        sql = buildWhereClauses(sql, params, searchQuery, categoryId, unitFilter, statusFilter);
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             for (int i = 0; i < params.size(); i++) {
                 ps.setObject(i + 1, params.get(i));
@@ -198,25 +197,22 @@ try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = c
         }
     }
 
-    private String buildWhereClauses(String sql, List<Object> params, String searchQuery, Integer categoryId, String supplierFilter, String statusFilter) {
+    private String buildWhereClauses(String sql, List<Object> params, String searchQuery, Integer categoryId, Integer unitFilter, String statusFilter) {
         if (searchQuery != null && !searchQuery.trim().isEmpty()) {
-            sql += "AND m.name LIKE ? ";
+            sql += " AND m.name LIKE ?";
             params.add("%" + searchQuery.trim() + "%");
         }
         if (categoryId != null) {
-            sql += "AND c.category_id = ? ";
+            sql += " AND m.category_id = ?";
             params.add(categoryId);
         }
-        if (supplierFilter != null && !supplierFilter.trim().isEmpty() && !supplierFilter.equals("All")) {
-            sql += "AND s.supplier_name = ? ";
-            params.add(supplierFilter.trim());
+        if (unitFilter != null) {
+            sql += " AND m.unit_id = ?";
+            params.add(unitFilter);
         }
-        if (statusFilter != null && !statusFilter.trim().isEmpty() && !statusFilter.equals("All")) {
-            if (statusFilter.equals("inactive")) {
-                sql += "AND (s.status != 'active' OR c.hidden = 1) ";
-            } else if (statusFilter.equals("active")) {
-                sql += "AND s.status = 'active' AND (c.hidden = 0 OR c.hidden IS NULL) ";
-            }
+        if (statusFilter != null && !statusFilter.equals("All")) {
+            sql += " AND m.status = ?";
+            params.add(statusFilter);
         }
         return sql;
     }
@@ -244,13 +240,11 @@ return "m.name";
         material.setSupplierId(rs.getInt("supplier_id"));
         material.setUnitId(rs.getInt("unit_id"));
         material.setCategoryName(rs.getString("category_name"));
-        material.setSupplierName(rs.getString("supplier_name"));
         material.setImageUrl(rs.getString("image_url"));
         material.setPrice(rs.getLong("price"));
         material.setDescription(rs.getString("description"));
         material.setUnitName(rs.getString("unit_name"));
         material.setStatus(rs.getString("status"));
-        material.setSupplierStatus(rs.getString("supplier_status"));
         try {
             material.setCategoryHidden(rs.getBoolean("category_hidden"));
         } catch (SQLException e) {
