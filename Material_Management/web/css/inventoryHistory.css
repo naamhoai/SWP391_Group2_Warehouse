@@ -1,4 +1,4 @@
-/* ================== General & Resets ================== */
+
 * {
   box-sizing: border-box;
 }
@@ -8,35 +8,27 @@ body {
   background-color: #f4f6f8;
   margin: 0;
   color: #333;
-  /* Bỏ display:flex ở body để dùng margin-left */
+
 }
 
-
-/* ================== Sidebar Layout ================== */
-/* Áp dụng cho thẻ nav hoặc div chứa sidebar của bạn */
-/* Ví dụ: <nav class="sidebar">...</nav> */
 .sidebar {
-  width: 270px; /* Tăng độ rộng sidebar */
-  position: fixed; /* Cố định sidebar */
+  width: 270px;
+  position: fixed; 
   top: 0;
   left: 0;
   height: 100%;
-  background-color: #1e293b; /* Màu nền ví dụ */
-  transition: width 0.3s ease;
-  z-index: 100; /* Đảm bảo sidebar nằm trên */
-  /* Thêm các style khác cho sidebar của bạn ở đây */
+  background-color: #1e293b;
+  z-index: 100;
 }
 
 body.sidebar-collapsed .sidebar {
   width: 70px;
 }
 
-
-/* ================== Main Content Layout (ĐÃ SỬA THEO YÊU CẦU) ================== */
 .main-content {
-  margin-left: 270px; /* Đặt margin-left như yêu cầu */
+  margin-left: 270px;
   padding: 24px;
-  width: calc(100% - 270px); /* Tính toán độ rộng còn lại */
+  width: calc(100% - 270px);
   transition: margin-left 0.3s, width 0.3s;
 }
 
@@ -46,7 +38,6 @@ body.sidebar-collapsed .main-content {
 }
 
 
-/* ================== Header & Page Title ================== */
 .header-section {
   display: flex;
   justify-content: space-between;
@@ -63,8 +54,6 @@ body.sidebar-collapsed .main-content {
   margin: 0;
 }
 
-
-/* ================== Content Card & Forms ================== */
 .content-card {
   background-color: #ffffff;
   border-radius: 8px;
@@ -117,8 +106,17 @@ body.sidebar-collapsed .main-content {
     width: 250px;
 }
 
+.filter-group select {
+  border: none;
+  background: transparent;
+  padding: 10px;
+  font-size: 14px;
+  outline: none;
+  width: 160px;
+  color: #333;
+  appearance: none;
+}
 
-/* ================== Tables ================== */
 .table-responsive {
   width: 100%;
   overflow-x: auto;
@@ -164,22 +162,19 @@ body.sidebar-collapsed .main-content {
   font-size: 16px;
 }
 
-/* --- Cấu hình độ rộng các cột bằng colgroup --- */
-.data-table col.col-type      { width: 130px; }
-.data-table col.col-date      { width: 160px; }
-.data-table col.col-id        { width: 100px; }
-.data-table col.col-name      { /* Để trống, sẽ tự co giãn */ }
-.data-table col.col-status    { width: 100px; }
-.data-table col.col-quantity  { width: 100px; }
-.data-table col.col-actor     { width: 200px; }
-.data-table col.col-ref       { width: 120px; }
+.data-table col.col-type      { width: 110px; }
+.data-table col.col-date      { width: 150px; }
+.data-table col.col-id        { width: 80px; }
+.data-table col.col-name      { width: 220px; }
+.data-table col.col-status    { width: 90px; }
+.data-table col.col-quantity  { width: 90px; }
+.data-table col.col-actor     { width: 130px; }
+.data-table col.col-ref       { width: 90px; }
 
-/* Căn lề cho các cột cụ thể */
 .data-table td:nth-child(3), .data-table td:nth-child(8) { text-align: center; } /* Mã VT & Mã TC */
-.data-table td:nth-child(6) { text-align: right; padding-right: 20px; font-weight: 500;} /* Số lượng */
+.data-table td:nth-child(6) { text-align: center; font-weight: 500;} 
 
 
-/* ================== Badges ================== */
 .badge {
   padding: 5px 12px;
   border-radius: 9999px;
@@ -192,8 +187,6 @@ body.sidebar-collapsed .main-content {
 .badge-info { background-color: #e0f2fe; color: #075985; }
 .badge-danger { background-color: #fee2e2; color: #991b1b; }
 
-
-/* ================== Buttons ================== */
 .btn {
   padding: 10px 18px;
   border-radius: 6px;
@@ -227,11 +220,9 @@ body.sidebar-collapsed .main-content {
   transform: translateY(-1px);
 }
 
-
-/* ================== Pagination ================== */
 .pagination-container {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-top: 24px;
   padding-top: 24px;

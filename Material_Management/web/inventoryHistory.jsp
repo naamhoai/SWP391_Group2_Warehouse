@@ -28,11 +28,11 @@
                     </div>
                     <div class="filter-group">
                         <i class="fas fa-calendar-alt"></i>
-                        <input type="date" name="fromDate" value="${fromDate}"/>
+                        <input type="date" name="fromDate" placeholder="Từ ngày" value="${fromDate}"/>
                     </div>
                     <div class="filter-group">
                         <i class="fas fa-calendar-alt"></i>
-                        <input type="date" name="toDate" value="${toDate}"/>
+                        <input type="date" name="toDate" placeholder="Đến ngày" value="${toDate}"/>
                     </div>
                     <div class="filter-group">
                         <i class="fas fa-exchange-alt"></i>
@@ -60,6 +60,17 @@
         <div class="content-card">
             <div class="table-responsive">
                 <table class="data-table">
+                    <colgroup>
+                        <col class="col-type" />
+                        <col class="col-date" />
+                        <col class="col-id" />
+                        <col class="col-name" />
+                        <col class="col-status" />
+                        <col class="col-quantity" />
+                        <col class="col-actor" />
+                        <col class="col-ref" />
+                        <col style="width: 90px;" /> 
+                    </colgroup>
                     <thead>
                         <tr>
                             <th>Loại Giao Dịch</th>
@@ -69,7 +80,7 @@
                             <th>Tình Trạng</th>
                             <th>Số Lượng</th>
                             <th>Người Thực Hiện</th>
-                            <th>Mã Tham Chiếu</th>
+                            <th>Mã Phiếu</th>
                             <th>Thao tác</th>
                         </tr>
                     </thead>
@@ -133,25 +144,24 @@
                     </tbody>
                 </table>
             </div>
-            
-            <div class.pagination-container">
-                <div class="pagination-info">
-                    Hiển thị ${fn:length(historyList)} của ${totalRecords} kết quả.
-                </div>
-                <c:if test="${totalPages > 1}">
-                    <nav class="pagination">
-                        <c:if test="${currentPage > 1}">
-                            <a href="InventoryHistoryServlet?page=${currentPage - 1}&keyword=${fn:escapeXml(keyword)}&fromDate=${fromDate}&toDate=${toDate}&transactionType=${transactionType}" class="page-link">«</a>
-                        </c:if>
-                        <c:forEach begin="${startPage}" end="${endPage}" var="i">
-                            <a href="InventoryHistoryServlet?page=${i}&keyword=${fn:escapeXml(keyword)}&fromDate=${fromDate}&toDate=${toDate}&transactionType=${transactionType}" class="page-link ${currentPage == i ? 'active' : ''}">${i}</a>
-                        </c:forEach>
-                        <c:if test="${currentPage < totalPages}">
-                            <a href="InventoryHistoryServlet?page=${currentPage + 1}&keyword=${fn:escapeXml(keyword)}&fromDate=${fromDate}&toDate=${toDate}&transactionType=${transactionType}" class="page-link">»</a>
-                        </c:if>
-                    </nav>
-                </c:if>
+        </div>
+        <div class="pagination-container">
+            <div class="pagination-info">
+                Hiển thị ${fn:length(historyList)} của ${totalRecords} kết quả.
             </div>
+            <c:if test="${totalPages > 1}">
+                <nav class="pagination">
+                    <c:if test="${currentPage > 1}">
+                        <a href="InventoryHistoryServlet?page=${currentPage - 1}&keyword=${fn:escapeXml(keyword)}&fromDate=${fromDate}&toDate=${toDate}&transactionType=${transactionType}" class="page-link">«</a>
+                    </c:if>
+                    <c:forEach begin="${startPage}" end="${endPage}" var="i">
+                        <a href="InventoryHistoryServlet?page=${i}&keyword=${fn:escapeXml(keyword)}&fromDate=${fromDate}&toDate=${toDate}&transactionType=${transactionType}" class="page-link ${currentPage == i ? 'active' : ''}">${i}</a>
+                    </c:forEach>
+                    <c:if test="${currentPage < totalPages}">
+                        <a href="InventoryHistoryServlet?page=${currentPage + 1}&keyword=${fn:escapeXml(keyword)}&fromDate=${fromDate}&toDate=${toDate}&transactionType=${transactionType}" class="page-link">»</a>
+                    </c:if>
+                </nav>
+            </c:if>
         </div>
     </div>
 </body>

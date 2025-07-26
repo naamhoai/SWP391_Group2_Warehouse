@@ -72,9 +72,11 @@
                             <select id="unit" name="unit" class="value" required>
                                 <option value="">-- Chọn đơn vị --</option>
                                 <c:forEach items="${units}" var="unit">
-                                    <option value="${unit.unit_id}" ${material.unitId == unit.unit_id ? 'selected' : ''}>
-                                        ${unit.unit_name}
-                                    </option>
+                                    <c:if test="${unit.status == 'Hoạt động'}">
+                                        <option value="${unit.unit_id}" ${material.unitId == unit.unit_id ? 'selected' : ''}>
+                                            ${unit.unit_name}
+                                        </option>
+                                    </c:if>
                                 </c:forEach>
                             </select>
                         </div>
