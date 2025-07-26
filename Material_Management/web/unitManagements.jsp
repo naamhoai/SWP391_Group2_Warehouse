@@ -34,7 +34,7 @@
             <tbody>
             <c:forEach var="u" items="${list}" varStatus="status">
                 <tr>
-                    <td>${status.index + 1}</td>
+                    <td>${u.unit_id}</td>
                     <td>${u.unit_name}</td>
                     <td>${u.status}</td>
                     <td>

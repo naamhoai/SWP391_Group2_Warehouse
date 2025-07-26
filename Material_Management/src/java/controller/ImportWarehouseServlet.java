@@ -124,6 +124,18 @@ public class ImportWarehouseServlet extends HttpServlet {
                 int quantity = Integer.parseInt(numbers[i]);
                 String condition = statuses[i];
                 
+               
+                int exportedQuantity = dao.getExportedQuantityByProjectAndMaterial(project, materialId);
+                if (quantity > exportedQuantity) {
+                    String username = user.getFullname();
+                    request.setAttribute("mess", "Số lượng nhập lại (" + quantity + ") vượt quá số lượng đã xuất (" + exportedQuantity + ") cho dự án này!");
+                    request.setAttribute("username", username);
+                    List<String> projectList = dao.getExportedProjects();
+                    request.setAttribute("projectList", projectList);
+                    doGet(request, response);
+                    return;
+                }
+                
                 Boolean update = dao.updateQuantity(materialId, condition, quantity);
                 if (!update) {
                     String username = user.getFullname();

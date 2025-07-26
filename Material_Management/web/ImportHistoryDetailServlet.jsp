@@ -45,6 +45,13 @@
             border: none;
             font-weight: 600;
             cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+        
+        .btn-back:hover {
+            background: #475569;
         }
         .status-badge {
             padding: 4px 12px;
@@ -97,7 +104,7 @@
             </tbody>
         </table>
     </div>
-    <a href="${pageContext.request.contextPath}/importHistoryList" class="btn-back">&larr; Quay lại</a>
+    <button onclick="history.back()" class="btn-back">&larr; Quay lại</button>
 </div>
 </body>
 </html>

@@ -7,6 +7,8 @@ package dao;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import model.*;
 
 /**
@@ -24,7 +26,6 @@ public class UnitConversionDao extends dal.DBContext {
     public UnitConversionDao() {
     }
 
-   
     public List<Unit> getAllUnits(int page, int pageSize) {
         List<Unit> list = new ArrayList<>();
         String sql = "SELECT unit_id, unit_name, status FROM units LIMIT ? OFFSET ?";
@@ -179,8 +180,6 @@ public class UnitConversionDao extends dal.DBContext {
         return list;
     }
 
-   
-
     public List<Category> getAllpre() {
         List<Category> list = new ArrayList<>();
         String sql = "SELECT * FROM categories WHERE parent_id IS NULL";
@@ -201,8 +200,6 @@ public class UnitConversionDao extends dal.DBContext {
         return list;
 
     }
-
-    
 
     public List<Category> getname() {
         List<Category> list = new ArrayList<>();
@@ -225,8 +222,6 @@ public class UnitConversionDao extends dal.DBContext {
         return list;
     }
 
-   
-
     public int getcountPage() {
         String sql = " SELECT COUNT(*) FROM unit_conversion";
         try {
@@ -248,11 +243,6 @@ public class UnitConversionDao extends dal.DBContext {
         return 0;
 
     }
-
-  
-
-
-   
 
     public List<Unit> getnameUnit() {
         List<Unit> list = new ArrayList<>();
@@ -294,10 +284,6 @@ public class UnitConversionDao extends dal.DBContext {
         return list;
     }
 
-   
-
-    
-
     public List<Unit> getSupplierUnits() {
         List<Unit> list = new ArrayList<>();
         String sql = "SELECT DISTINCT u.unit_id, u.unit_name FROM unit_conversion uc "
@@ -315,12 +301,6 @@ public class UnitConversionDao extends dal.DBContext {
         return list;
     }
 
-   
-
-
-
-
-
     public int getUnitIdByNames(String unitName) {
         String sql = "SELECT unit_id FROM units WHERE unit_name = ?";
         try (PreparedStatement st = connection.prepareStatement(sql)) {
@@ -336,12 +316,6 @@ public class UnitConversionDao extends dal.DBContext {
 
     }
 
-  
-
-    
-
-    
-
     public String getUnitNameById(int unitId) {
         String sql = "SELECT unit_name FROM units WHERE unit_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -356,8 +330,6 @@ public class UnitConversionDao extends dal.DBContext {
         return null;
     }
 
-   
-
     public String getUnitName(int unitId) throws SQLException {
         String sql = "SELECT unit_name FROM units WHERE unit_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -371,8 +343,6 @@ public class UnitConversionDao extends dal.DBContext {
         return "";
     }
 
-
-   
     public int countpage(String search, String actionType, String role, String date) {
         int total = 0;
 
@@ -430,14 +400,14 @@ public class UnitConversionDao extends dal.DBContext {
     }
 
     public boolean updateQuantity(int materialId, String condition, int quantityChange) {
-        // Kiểm tra xem record có tồn tại không
+
         String checkSql = "SELECT COUNT(*) FROM inventory WHERE material_id = ? AND material_condition = ?";
         try (PreparedStatement checkPs = connection.prepareStatement(checkSql)) {
             checkPs.setInt(1, materialId);
             checkPs.setString(2, condition);
             ResultSet rs = checkPs.executeQuery();
             if (rs.next() && rs.getInt(1) == 0) {
-                // Nếu chưa có record, tạo mới
+
                 String insertSql = "INSERT INTO inventory (material_id, material_condition, quantity_on_hand) VALUES (?, ?, ?)";
                 try (PreparedStatement insertPs = connection.prepareStatement(insertSql)) {
                     insertPs.setInt(1, materialId);
@@ -446,7 +416,7 @@ public class UnitConversionDao extends dal.DBContext {
                     return insertPs.executeUpdate() > 0;
                 }
             } else {
-                // Nếu đã có record, update
+
                 String updateSql = "UPDATE inventory SET quantity_on_hand = GREATEST(quantity_on_hand + ?, 0) WHERE material_id = ? AND material_condition = ?";
                 try (PreparedStatement updatePs = connection.prepareStatement(updateSql)) {
                     updatePs.setInt(1, quantityChange);
@@ -515,7 +485,6 @@ public class UnitConversionDao extends dal.DBContext {
         return list;
     }
 
-    // Lấy thông tin vật tư theo id
     public Material getMaterialById(int materialId) {
         String sql = "SELECT m.material_id, m.name, u.unit_name FROM materials m JOIN units u ON m.unit_id = u.unit_id WHERE m.material_id = ?";
         try (PreparedStatement st = connection.prepareStatement(sql)) {
@@ -534,7 +503,6 @@ public class UnitConversionDao extends dal.DBContext {
         return null;
     }
 
-    // Thêm một dòng vào bảng import_history
     public void insertImportHistory(ImportHistory history) {
         String sql = "INSERT INTO import_history (roles, reason, delivered_by, received_by, delivery_phone, project_name, material_name, quantity, unit, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement st = connection.prepareStatement(sql)) {
@@ -590,10 +558,10 @@ public class UnitConversionDao extends dal.DBContext {
     public List<ImportHistory> getImportHistoryDetail(int importId) {
         List<ImportHistory> list = new ArrayList<>();
         // Lấy tất cả vật tư có cùng project_name, created_at, reason với import_id này
-        String sql = "SELECT * FROM import_history WHERE project_name = (SELECT project_name FROM import_history WHERE id = ?) " +
-                    "AND DATE(created_at) = (SELECT DATE(created_at) FROM import_history WHERE id = ?) " +
-                    "AND reason = (SELECT reason FROM import_history WHERE id = ?) " +
-                    "ORDER BY id ASC";
+        String sql = "SELECT * FROM import_history WHERE project_name = (SELECT project_name FROM import_history WHERE id = ?) "
+                + "AND DATE(created_at) = (SELECT DATE(created_at) FROM import_history WHERE id = ?) "
+                + "AND reason = (SELECT reason FROM import_history WHERE id = ?) "
+                + "ORDER BY id ASC";
         try (PreparedStatement st = connection.prepareStatement(sql)) {
             st.setInt(1, importId);
             st.setInt(2, importId);
@@ -627,30 +595,30 @@ public class UnitConversionDao extends dal.DBContext {
     public List<ImportHistory> getImportHistoryListFiltered(String projectName, String createdDate, int page, int pageSize) {
         List<ImportHistory> list = new ArrayList<>();
         int offset = (page - 1) * pageSize;
-        
+
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT MIN(id) as id, project_name, MIN(reason) as reason, ");
         sql.append("MIN(created_at) as created_at, MIN(status) as status, COUNT(*) as total_items ");
         sql.append("FROM import_history WHERE 1=1");
-        
+
         List<Object> params = new ArrayList<>();
         int paramIndex = 1;
-        
+
         if (projectName != null && !projectName.trim().isEmpty()) {
             sql.append(" AND project_name LIKE ?");
             params.add("%" + projectName.trim() + "%");
         }
-        
+
         if (createdDate != null && !createdDate.trim().isEmpty()) {
             sql.append(" AND DATE(created_at) = ?");
             params.add(createdDate.trim());
         }
-        
+
         sql.append(" GROUP BY project_name, DATE(created_at), reason ");
         sql.append("ORDER BY MIN(created_at) DESC LIMIT ? OFFSET ?");
         params.add(pageSize);
         params.add(offset);
-        
+
         try (PreparedStatement st = connection.prepareStatement(sql.toString())) {
             for (int i = 0; i < params.size(); i++) {
                 st.setObject(i + 1, params.get(i));
@@ -679,19 +647,19 @@ public class UnitConversionDao extends dal.DBContext {
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT COUNT(DISTINCT CONCAT(project_name, DATE(created_at), reason)) as total ");
         sql.append("FROM import_history WHERE 1=1");
-        
+
         List<Object> params = new ArrayList<>();
-        
+
         if (projectName != null && !projectName.trim().isEmpty()) {
             sql.append(" AND project_name LIKE ?");
             params.add("%" + projectName.trim() + "%");
         }
-        
+
         if (createdDate != null && !createdDate.trim().isEmpty()) {
             sql.append(" AND DATE(created_at) = ?");
             params.add(createdDate.trim());
         }
-        
+
         try (PreparedStatement st = connection.prepareStatement(sql.toString())) {
             for (int i = 0; i < params.size(); i++) {
                 st.setObject(i + 1, params.get(i));
@@ -706,10 +674,47 @@ public class UnitConversionDao extends dal.DBContext {
         return total;
     }
 
+    public int exsit(int unitId) throws SQLException {
+        String sql = "SELECT count(*) as total FROM materials WHERE unit_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, unitId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("total");
+                }
+            }
+        }
+        return 0;
+    }
+
+    public int getExportedQuantityByProjectAndMaterial(String projectName, int materialId) {
+        String sql = "SELECT SUM(em.quantity) as total_exported " +
+                     "FROM export_materials em " +
+                     "JOIN export_forms ef ON em.export_id = ef.export_id " +
+                     "WHERE ef.recipient_name = ? AND em.material_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, projectName);
+            ps.setInt(2, materialId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total_exported");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public static void main(String[] args) {
         UnitConversionDao n = new UnitConversionDao();
-//        List<ImportHistory> jjj = n.getImportHistoryDetail("");
-//        System.out.println(jjj);
+        try {
+           
+            int j = n.exsit(1);
+            System.out.println("int" + j);
+        } catch (SQLException ex) {
+            Logger.getLogger(UnitConversionDao.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 
 }

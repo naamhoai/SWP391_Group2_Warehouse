@@ -18,6 +18,7 @@
     <div class="main-content">
         <div class="header-section">
             <h1 class="page-title">Lịch Sử Giao Dịch Vật Tư</h1>
+            <button onclick="history.back()" class="btn-back">&larr; Quay lại</button>
         </div>
         <div class="content-card">
             <form method="get" action="InventoryHistoryServlet" id="filterForm">

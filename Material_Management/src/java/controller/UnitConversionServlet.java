@@ -8,10 +8,14 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import model.Unit;
 
 @WebServlet(name = "unitConversionSeverlet", urlPatterns = {"/unitConversionSeverlet"})
 public class UnitConversionServlet extends HttpServlet {
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -47,17 +51,25 @@ public class UnitConversionServlet extends HttpServlet {
             throws ServletException, IOException {
         String action = request.getParameter("action");
         UnitConversionDao dao = new UnitConversionDao();
-
-        if ("add".equals(action)) {
-            String unitName = request.getParameter("unitName");
-            if (unitName != null && !unitName.trim().isEmpty()) {
-                dao.addUnit(unitName.trim());
-                request.setAttribute("messUpdate", "Thêm đơn vị thành công!");
+        int unitId = Integer.parseInt(request.getParameter("unitId"));
+        int total;
+        try {
+            total = dao.exsit(unitId);
+            if (total != 0) {
+                request.setAttribute("messUpdate", "Có vật tư vẫn đang dùng đơn vị này.Không được thay đổi!");
+                doGet(request, response);
+                return;
+            } else {
+                if ("toggleStatus".equals(action)) {
+                    dao.toggleUnitStatus(unitId);
+                }
+                response.sendRedirect("unitConversionSeverlet");
             }
-        } else if ("toggleStatus".equals(action)) {
-            int unitId = Integer.parseInt(request.getParameter("unitId"));
-            dao.toggleUnitStatus(unitId);
-        } 
-        response.sendRedirect("unitConversionSeverlet");
+
+        } catch (SQLException ex) {
+            Logger.getLogger(UnitConversionServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
+
 }
