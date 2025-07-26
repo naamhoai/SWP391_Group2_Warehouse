@@ -17,9 +17,7 @@
     </head>
     <body>
         <jsp:include page="sidebar.jsp" />
-
         <div id="main-content">
-            <!-- Welcome header -->
             <div class="welcome-header">
                 <div class="welcome-text">
                     Xin chào, <strong>${user.fullname}</strong>
@@ -39,130 +37,139 @@
                         </div>
                     </div>
                     <div class="user-avatar">
-                        ${sessionScope.user.fullname != null ? sessionScope.user.fullname.charAt(0) : 'A'}
+                        ${user.fullname != null ? user.fullname.charAt(0) : 'A'}
                     </div>
                 </div>
             </div>
-
-            <!-- Dashboard filter -->
             <div class="dashboard-header">
-                <h1>Tổng Quan</h1>
-                <div class="date-filter">
-                    <form action="dashboard" method="get" class="filter-form">
-                        <button type="submit" name="timeFilter" value="today" class="filter-btn ${timeFilter == 'today' ? 'active' : ''}">Hôm Nay</button>
-                        <button type="submit" name="timeFilter" value="week" class="filter-btn ${timeFilter == 'week' ? 'active' : ''}">Tuần</button>
-                        <button type="submit" name="timeFilter" value="month" class="filter-btn ${timeFilter == 'month' ? 'active' : ''}">Tháng</button>
-                        <button type="submit" name="timeFilter" value="year" class="filter-btn ${timeFilter == 'year' ? 'active' : ''}">Năm</button>
-                    </form>
-                </div>
+                <h1>Báo cáo tổng hợp giám đốc</h1>
             </div>
-
-            <!-- Dashboard stats -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background-color: #6dbdf2;"><i class="fas fa-box"></i></div>
-                    <div class="stat-info">
-                        <h3>Tổng Vật Tư</h3>
-                        <p class="stat-number">${totalItems}</p>
-                        <p class="stat-change positive"><i class="fas fa-arrow-up"></i> Đã Cập Nhật</p>
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; margin-bottom: 32px;">
+                <a href="exportFormHistory" style="text-decoration:none;color:inherit;">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #2563eb;"><i class="fas fa-list"></i></div>
+                        <div class="stat-info">
+                            <h3>Tổng số đơn xuất kho</h3>
+                            <p class="stat-number">${totalExportForms}</p>
+                        </div>
                     </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon" style="background-color: #2ecc71;"><i class="fas fa-shopping-cart"></i></div>
-                    <div class="stat-info">
-                        <h3>Yêu Cầu</h3>
-                        <p class="stat-number">${monthlyOrders}</p>
-                        <p class="stat-change positive"><i class="fas fa-arrow-up"></i>
-                            <c:choose>
-                                <c:when test="${timeFilter == 'today'}">Hôm Nay</c:when>
-                                <c:when test="${timeFilter == 'week'}">Tuần Này</c:when>
-                                <c:when test="${timeFilter == 'year'}">Năm Nay</c:when>
-                                <c:otherwise>Tháng Này</c:otherwise>
-                            </c:choose>
-                        </p>
+                </a>
+                <a href="purchaseOrderList" style="text-decoration:none;color:inherit;">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #00b894;"><i class="fas fa-shopping-cart"></i></div>
+                        <div class="stat-info">
+                            <h3>Tổng số đơn mua hàng</h3>
+                            <p class="stat-number">${totalPurchaseOrders}</p>
+                        </div>
                     </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon" style="background-color: #e74c3c;"><i class="fas fa-exclamation-triangle"></i></div>
-                    <div class="stat-info">
-                        <h3>Vật Tư Sắp Hết</h3>
-                        <p class="stat-number">${lowStockItems}</p>
-                        <p class="stat-change negative"><i class="fas fa-arrow-down"></i> Cần Chú Ý</p>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon" style="background-color: #f1c40f;"><i class="fas fa-truck"></i></div>
-                    <div class="stat-info">
-                        <h3>Đang Giao</h3>
-                        <p class="stat-number">${pendingDeliveries}</p>
-                        <p class="stat-change positive"><i class="fas fa-arrow-up"></i> Đang Xử Lý</p>
-                    </div>
-                </div>
+                </a>
             </div>
-
-            <!-- Table low stock -->
-            <div class="table-card">
-                <h3>Vật Tư Sắp Hết</h3>
-                <table>
-                    <thead>
-                        <tr><th>Vật Tư</th><th>Tồn Kho</th><th>Tồn Tối Thiểu</th><th>Trạng Thái</th></tr>
-                    </thead>
-                    <tbody>
-                        <c:forEach items="${lowStockItemsList}" var="item">
-                            <tr>
-                                <td>${item.name}</td>
-                                <td>${item.quantity}</td>
-                                <td>${item.minStock}</td>
-                                <td><span class="status-badge ${item.status == 'Critical' ? 'danger' : 'warning'}">${item.status}</span></td>
-                            </tr>
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; margin-bottom: 32px;">
+                <a href="MaterialListServlet" style="text-decoration:none;color:inherit;">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #f1c40f;"><i class="fas fa-box"></i></div>
+                        <div class="stat-info">
+                            <h3>Tổng vật tư</h3>
+                            <p class="stat-number">${totalItems}</p>
+                        </div>
+                    </div>
+                </a>
+                <a href="purchaseOrderList" style="text-decoration:none;color:inherit;">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #8e44ad;"><i class="fas fa-coins"></i></div>
+                        <div class="stat-info">
+                            <h3>Tổng giá trị đã mua vật tư</h3>
+                            <fmt:formatNumber value="${totalPurchaseValue}" type="number" groupingUsed="true" maxFractionDigits="0" var="formattedTotal"/>
+                            <p class="stat-number">${fn:replace(formattedTotal, ',', '.')} VND</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <%-- 2 phần dưới --%>
+            <div style="margin-bottom: 32px;">
+                <form method="get" action="director" class="chart-filter-form" style="margin-bottom: 18px; display: flex; gap: 12px; align-items: center; background: #f8f9fa; padding: 16px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <input type="hidden" name="chartType" value="combined"/>
+                    <label for="startMonth" style="font-weight: 500; color: #333;">Từ tháng:</label>
+                    <select id="startMonth" name="startMonth" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; background: white; min-width: 80px;">
+                        <c:forEach var="month" begin="1" end="12">
+                            <option value="${month < 10 ? '0' : ''}${month}" ${param.startMonth == (month < 10 ? '0' : '') + month || (empty param.startMonth && month == 1) ? 'selected' : ''}>Tháng ${month}</option>
                         </c:forEach>
+                    </select>
+                    <select id="startYear" name="startYear" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; background: white; min-width: 80px;">
+                        <c:forEach var="year" begin="2020" end="2030">
+                            <option value="${year}" ${param.startYear == year || (empty param.startYear && year == 2025) ? 'selected' : ''}>${year}</option>
+                        </c:forEach>
+                    </select>
+                    <label for="endMonth" style="font-weight: 500; color: #333;">Đến tháng:</label>
+                    <select id="endMonth" name="endMonth" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; background: white; min-width: 80px;">
+                        <c:forEach var="month" begin="1" end="12">
+                            <option value="${month < 10 ? '0' : ''}${month}" ${param.endMonth == (month < 10 ? '0' : '') + month || (empty param.endMonth && month == 7) ? 'selected' : ''}>Tháng ${month}</option>
+                        </c:forEach>
+                    </select>
+                    <select id="endYear" name="endYear" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; background: white; min-width: 80px;">
+                        <c:forEach var="year" begin="2020" end="2030">
+                            <option value="${year}" ${param.endYear == year || (empty param.endYear && year == 2025) ? 'selected' : ''}>${year}</option>
+                        </c:forEach>
+                    </select>
+                    <button type="submit" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                        <i class="fas fa-search" style="margin-right: 6px;"></i>Xem
+                    </button>
+                </form>
+            <!-- BẢNG MUA/XUẤT THEO THÁNG GIỐNG ADMIN -->
+            <div class="table-card">
+                <h3>Bảng Mua/Xuất Vật Tư Theo Tháng</h3>
+                <table>
+                    <thead><tr><th>Tháng</th><th>Số Lượng Mua</th><th>Số Lượng Xuất</th></tr></thead>
+                    <tbody>
+                        <c:choose>
+                            <c:when test="${not empty exportMonthLabels or not empty purchaseMonthLabels}">
+                                <c:if test="${not empty exportMonthLabels}">
+                                    <c:forEach var="i" begin="0" end="${exportMonthLabels.size() - 1}">
+                                        <tr>
+                                            <td>${exportMonthLabels[i]}</td>
+                                            <td>
+                                                <c:choose>
+                                                    <c:when test="${i < purchaseMonthLabels.size() && purchaseMonthLabels[i] == exportMonthLabels[i]}">
+                                                        ${purchaseMonthValues[i]}
+                                                    </c:when>
+                                                    <c:otherwise>0</c:otherwise>
+                                                </c:choose>
+                                            </td>
+                                            <td>${exportMonthValues[i]}</td>
+                                        </tr>
+                                    </c:forEach>
+                                </c:if>
+                                <c:if test="${not empty purchaseMonthLabels}">
+                                    <c:forEach var="i" begin="0" end="${purchaseMonthLabels.size() - 1}">
+                                        <c:set var="found" value="false"/>
+                                        <c:if test="${not empty exportMonthLabels}">
+                                            <c:forEach var="j" begin="0" end="${exportMonthLabels.size() - 1}">
+                                                <c:if test="${purchaseMonthLabels[i] == exportMonthLabels[j]}">
+                                                    <c:set var="found" value="true"/>
+                                                </c:if>
+                                            </c:forEach>
+                                        </c:if>
+                                        <c:if test="${not found}">
+                                            <tr>
+                                                <td>${purchaseMonthLabels[i]}</td>
+                                                <td>${purchaseMonthValues[i]}</td>
+                                                <td>0</td>
+                                            </tr>
+                                        </c:if>
+                                    </c:forEach>
+                                </c:if>
+                            </c:when>
+                            <c:otherwise>
+                                <tr>
+                                    <td colspan="3" style="text-align: center;">Không có dữ liệu.</td>
+                                </tr>
+                            </c:otherwise>
+                        </c:choose>
                     </tbody>
                 </table>
             </div>
 
-            <!-- Inventory summary -->
-            <div class="inventory-summary">
-                <h3>Tổng Quan Kho</h3>
-                <div class="inventory-stats">
-                    <div class="inventory-stat"><span class="label">Còn Hàng:</span><span class="value">${inventoryStats.inStock}</span></div>
-                    <div class="inventory-stat"><span class="label">Sắp Hết:</span><span class="value">${inventoryStats.lowStock}</span></div>
-                    <div class="inventory-stat"><span class="label">Hết Hàng:</span><span class="value">${inventoryStats.outOfStock}</span></div>
-                </div>
-            </div>
-
-            <!-- Charts -->
-            <div class="charts-grid">
-                <div class="chart-card"><h3>Phân Bổ Vật Tư Theo Danh Mục</h3><canvas id="materialCategoryChart"></canvas></div>
-                <div class="chart-card"><h3>Xu Hướng Tồn Kho</h3><canvas id="inventoryTrendChart"></canvas></div>
-            </div>
-
-            <!-- Recent transactions -->
-            <div class="table-card">
-                <h3>Các Giao Dịch Gần Đây</h3>
-                <table>
-                    <thead>
-                        <tr><th>Mã Giao Dịch</th><th>Vật Tư</th><th>Loại</th><th>Số Lượng</th><th>Ngày</th></tr>
-                    </thead>
-                    <tbody>
-                        <c:forEach var="transaction" items="${recentTransactions}">
-                            <tr>
-                                <td>${transaction.id}</td>
-                                <td>${transaction.materialName}</td>
-                                <td>${transaction.type}</td>
-                                <td>${transaction.quantity}</td>
-                                <td><fmt:formatDate value="${transaction.date}" pattern="dd/MM/yyyy HH:mm"/></td>
-                            </tr>
-                        </c:forEach>
-                        <c:if test="${empty recentTransactions}">
-                            <tr><td colspan="5" style="text-align: center;">Không có giao dịch gần đây nào.</td></tr>
-                        </c:if>
-                    </tbody>
-                </table>
-            </div>
-
+         
             <jsp:include page="footer.jsp" />
         </div>
 
@@ -257,7 +264,8 @@
                 updateNotifications();
                 setInterval(updateNotifications, 5000);
             });
-        </script>
+                </script>
+
 
     </body>
 </html>

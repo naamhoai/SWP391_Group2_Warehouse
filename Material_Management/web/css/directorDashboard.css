@@ -639,3 +639,172 @@ td {
         font-size: 0.8rem;
     }
 } 
+
+.director-features {
+    background: #fffbe6;
+    border: 2px solid #ffd700;
+    padding: 24px 20px 18px 20px;
+    margin-bottom: 32px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(255, 215, 0, 0.08);
+    animation: fadeInUp 0.6s;
+}
+.feature-list {
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+.feature-card {
+    background: linear-gradient(135deg, #ffe066 60%, #fffbe6 100%);
+    padding: 22px 32px 18px 32px;
+    border-radius: 10px;
+    font-weight: 600;
+    color: #333;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.10);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 180px;
+    position: relative;
+    transition: transform 0.18s, box-shadow 0.18s;
+    border: 1.5px solid #ffe066;
+}
+.feature-card:hover {
+    background: linear-gradient(135deg, #ffd700 80%, #fffbe6 100%);
+    transform: translateY(-4px) scale(1.04);
+    box-shadow: 0 6px 18px rgba(255, 215, 0, 0.18);
+    color: #222;
+}
+.feature-card i {
+    font-size: 2.1rem;
+    margin-bottom: 10px;
+    color: #e1b800;
+}
+.feature-data {
+    margin-top: 8px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #d35400;
+    background: #fff3cd;
+    border-radius: 8px;
+    padding: 2px 16px;
+    box-shadow: 0 1px 4px rgba(255, 215, 0, 0.08);
+    display: inline-block;
+}
+@media (max-width: 900px) {
+    .feature-list {
+        flex-direction: column;
+        gap: 18px;
+    }
+    .feature-card {
+        min-width: 140px;
+        padding: 18px 16px 14px 16px;
+    }
+} 
+
+.report-header {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #22223b;
+    margin-bottom: 36px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    letter-spacing: 1px;
+    justify-content: center;
+    text-shadow: 0 2px 8px rgba(255,215,0,0.08);
+}
+.report-header i {
+    color: #f7b731;
+    font-size: 3rem;
+    filter: drop-shadow(0 2px 6px #ffe066);
+}
+.report-metrics {
+    display: flex;
+    gap: 36px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+    justify-content: center;
+}
+.metric-card {
+    background: linear-gradient(135deg, #fffbe6 60%, #ffe066 100%);
+    border: 2.5px solid #ffd700;
+    border-radius: 18px;
+    padding: 32px 44px 28px 44px;
+    min-width: 210px;
+    text-align: center;
+    box-shadow: 0 6px 24px 0 rgba(255, 215, 0, 0.13), 0 1.5px 4px 0 rgba(0,0,0,0.04);
+    transition: transform 0.18s, box-shadow 0.18s;
+    position: relative;
+    margin-bottom: 10px;
+}
+.metric-card:hover {
+    transform: translateY(-6px) scale(1.04);
+    box-shadow: 0 12px 32px 0 rgba(255, 215, 0, 0.18), 0 2px 8px 0 rgba(0,0,0,0.06);
+}
+.metric-title {
+    font-size: 1.18rem;
+    color: #636e72;
+    margin-bottom: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+.metric-value {
+    font-size: 2.3rem;
+    font-weight: bold;
+    color: #d35400;
+    text-shadow: 0 2px 8px #ffe06644;
+    margin-bottom: 2px;
+}
+.report-charts {
+    display: flex;
+    gap: 36px;
+    flex-wrap: wrap;
+    margin-bottom: 36px;
+    justify-content: center;
+}
+.chart-card {
+    background: white;
+    border-radius: 14px;
+    padding: 2.2rem 1.5rem 1.5rem 1.5rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+    height: 370px;
+    flex: 1 1 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 400px;
+    max-width: 800px;
+}
+.chart-card h3 {
+    margin: 0 0 1.2rem 0;
+    color: #333;
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+.chart-card.full-width {
+    width: 100%;
+    min-width: 800px;
+    max-width: 1600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+@media (max-width: 1100px) {
+    .report-metrics, .report-charts {
+        flex-direction: column;
+        gap: 22px;
+        align-items: center;
+    }
+    .metric-card {
+        min-width: 160px;
+        padding: 18px 12px;
+    }
+    .chart-card {
+        min-width: 220px;
+        padding: 1.2rem 0.5rem 1rem 0.5rem;
+    }
+} 
