@@ -20,6 +20,10 @@ import com.google.gson.Gson;
 import model.PurchaseOrder;
 import java.util.stream.Collectors;
 import java.util.Comparator;
+import dao.MaterialDAO;
+import dao.SupplierDAO;
+import dao.UserDAO;
+import dao.UnitConversionDao;
 
 @WebServlet(name = "AdminDashboardServlet", urlPatterns = {"/adminDashboard"})
 public class AdminDashboardServlet extends HttpServlet {
@@ -36,7 +40,9 @@ public class AdminDashboardServlet extends HttpServlet {
             int qty = Math.max(0, inv.getQuantityOnHand());
             totalInventoryValue += (long) qty * price;
         }
-        int totalMaterialTypes = materialIds.size();
+        // Lấy tổng số vật tư từ MaterialDAO (chuẩn như MaterialListServlet)
+        MaterialDAO materialDAO = new MaterialDAO();
+        int totalMaterialTypes = materialDAO.getTotalMaterialsForAdmin(null, null, null, null);
         request.setAttribute("totalItems", totalMaterialTypes);
         request.setAttribute("totalInventoryValue", totalInventoryValue);
 
@@ -180,6 +186,31 @@ public class AdminDashboardServlet extends HttpServlet {
         int totalTransactions = requestDAO.countAllRequests();
         request.setAttribute("recentTransactions", recentTransactions);
         request.setAttribute("totalTransactions", totalTransactions);
+
+        // Lấy tổng số nhà cung cấp và trạng thái hợp tác
+        SupplierDAO supplierDAO = new SupplierDAO();
+        int totalSuppliers = supplierDAO.countSuppliers(null, null);
+        int activeSuppliers = supplierDAO.countSuppliers(null, "active"); // Đang hợp tác
+        int terminatedSuppliers = supplierDAO.countSuppliers(null, "terminated"); // Ngừng hợp tác
+        int inactiveSuppliers = supplierDAO.countSuppliers(null, "inactive"); // Chưa hợp tác
+        request.setAttribute("totalSuppliers", totalSuppliers);
+        request.setAttribute("activeSuppliers", activeSuppliers);
+        request.setAttribute("terminatedSuppliers", terminatedSuppliers);
+        request.setAttribute("inactiveSuppliers", inactiveSuppliers);
+
+        // Lấy tổng số tài khoản người dùng và trạng thái hoạt động
+        UserDAO userDAO = new UserDAO();
+        int totalUsers = userDAO.countAllUsers();
+        int activeUsers = userDAO.countActiveUsers();
+        int inactiveUsers = userDAO.countInactiveUsers();
+        request.setAttribute("totalUsers", totalUsers);
+        request.setAttribute("activeUsers", activeUsers);
+        request.setAttribute("inactiveUsers", inactiveUsers);
+
+        // Lấy tổng số đơn vị tính
+        UnitConversionDao unitConversionDao = new UnitConversionDao();
+        int totalUnits = unitConversionDao.countAllUnits();
+        request.setAttribute("totalUnits", totalUnits);
 
         request.getRequestDispatcher("adminDashboard.jsp").forward(request, response);
     }

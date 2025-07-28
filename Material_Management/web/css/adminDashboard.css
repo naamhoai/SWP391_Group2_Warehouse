@@ -410,3 +410,35 @@ body {
     border-color: #2563eb;
     box-shadow: 0 0 0 2px rgba(37,99,235,0.1);
 }
+
+/* Đảm bảo biểu đồ Mua/Xuất Vật Tư Theo Tháng hiển thị */
+.charts-grid.charts-grid-1 .chart-card {
+    display: block !important;
+    visibility: visible !important;
+    height: 700px;
+    margin-bottom: 30px;
+}
+
+.charts-grid.charts-grid-1 .chart-card canvas {
+    display: block !important;
+    visibility: visible !important;
+    height: 600px !important;
+    width: 100% !important;
+}
+
+/* Đảm bảo container biểu đồ có kích thước */
+.charts-grid.charts-grid-1 {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 30px !important;
+    margin-bottom: 30px !important;
+}
+
+/* Tăng chiều cao cho biểu đồ Phân Bổ Yêu Cầu và Mua/Xuất Vật Tư Theo Tháng */
+.charts-grid.charts-grid-1 .chart-card {
+    height: 700px;
+}
+
+.charts-grid.charts-grid-1 .chart-card canvas {
+    height: 600px !important;
+}

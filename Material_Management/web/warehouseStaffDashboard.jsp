@@ -9,7 +9,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Dashboard Nhân Viên Kho</title>
-        <link rel="stylesheet" href="css/warehouseStaffDashboard.css">
+        <link rel="stylesheet" href="css/warehouseDashboard.css">
         <link rel="stylesheet" href="css/sidebar.css">
         <link rel="stylesheet" href="css/header.css"/>
         <link rel="stylesheet" href="css/footer.css"/>
@@ -52,57 +52,32 @@
                 </div>
             </div>
             <div class="stats-grid">
-                <div class="stat-card">
+                <div class="stat-card" style="cursor: pointer;" onclick="window.location.href='materialList'">
                     <div class="stat-icon" style="background-color: #6dbdf2;">
                         <i class="fas fa-box"></i>
                     </div>
                     <div class="stat-info">
                         <h3>Tổng Vật Tư</h3>
-                        <p class="stat-number"></p>
+                        <p class="stat-number">${totalMaterials != null ? totalMaterials : 0}</p>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" style="cursor: pointer;" onclick="window.location.href='inventory'">
                     <div class="stat-icon" style="background-color: #10b981;">
                         <i class="fas fa-warehouse"></i>
                     </div>
                     <div class="stat-info">
                         <h3>Vật Tư Tồn Kho</h3>
-                        <p class="stat-number"></p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon" style="background-color: #e67e22;">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>Cảnh Báo Sắp Hết</h3>
-                        <p class="stat-number"></p>
+                        <p class="stat-number">${totalInventoryItems != null ? totalInventoryItems : 0}</p>
                     </div>
                 </div>
             </div>
             <div class="charts-grid charts-grid-1">
-                <div class="chart-card full-width">
+                <div class="chart-card full-width" style="min-height: 700px; padding: 30px;">
                     <h3>Biểu Đồ Mua/Xuất Vật Tư Theo Tháng</h3>
-                    <canvas id="importExportLineChart"></canvas>
+                    <canvas id="importExportLineChart" style="height: 600px !important;"></canvas>
                 </div>
             </div>
-            <div class="table-card">
-                <h3>Yêu Cầu Xuất/ Nhập Kho Đã Phê Duyệt</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Mã Yêu Cầu</th>
-                            <th>Loại Yêu Cầu</th>
-                            <th>Ngày</th>
-                            <th>Người Phê Duyệt</th>
-                            <th>Trạng Thái</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                    </tbody>
-                </table>
-            </div>
+            <jsp:include page="footer.jsp" />
         </div>
         <script>
             var contextPath = "${pageContext.request.contextPath}";
@@ -181,9 +156,9 @@
 
         <script>
             var importExportMonthLabels = [<c:forEach var="label" items="${importExportMonthLabels}" varStatus="loop">"${label}"<c:if test="${!loop.last}">,</c:if></c:forEach>];
-            var importByMonth = <c:out value="${importByMonthJson}" default="[]"/>;
+                    var importByMonth = <c:out value="${importByMonthJson}" default="[]"/>;
             var exportByMonth = <c:out value="${exportByMonthJson}" default="[]"/>;
-            
+
             var ctxImportExport = document.getElementById('importExportLineChart').getContext('2d');
             var importExportLineChart = new Chart(ctxImportExport, {
                 type: 'bar',

@@ -92,7 +92,7 @@
                         <tr>
                             <td>${h.id}</td>
                             <td>${h.projectName}</td>
-                            <td><fmt:formatDate value="${h.createdAt}" pattern="dd/MM/yyyy"/></td>
+                            <td>${h.createdAt}</td>
                             <td>${h.reason}</td>
                             <td>
                                 <a href="${pageContext.request.contextPath}/ImportHistoryDetailServlet?id=${h.id}" class="btn-action btn-detail">Chi tiết</a>

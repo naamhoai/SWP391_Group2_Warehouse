@@ -12,6 +12,7 @@ import dao.NotificationDAO;
 import dao.RequestDAO;
 import com.google.gson.Gson;
 import dao.InventoryDAO;
+import dao.MaterialDAO;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -47,8 +48,22 @@ public class WarehouseStaffDashboardServlet extends HttpServlet {
                 })
                 .collect(Collectors.toList());
 
-        // ==== Lấy dữ liệu biểu đồ mua/xuất vật tư theo tháng ====
+        // ==== Lấy dữ liệu cho stats ====
+        // Lấy tổng vật tư từ MaterialDAO (giống MaterialListServlet)
+        MaterialDAO materialDAO = new MaterialDAO();
+        int totalMaterials = materialDAO.getTotalMaterialsForAdmin(null, null, null, null);
+        request.setAttribute("totalMaterials", totalMaterials);
+
+        // Lấy tổng vật tư tồn kho từ InventoryDAO
         InventoryDAO inventoryDAO = new InventoryDAO();
+        List<model.Inventory> inventories = inventoryDAO.getInventoryWithMaterialInfo();
+        int totalInventoryItems = 0;
+        for (model.Inventory inv : inventories) {
+            totalInventoryItems += inv.getQuantityOnHand();
+        }
+        request.setAttribute("totalInventoryItems", totalInventoryItems);
+
+        // ==== Lấy dữ liệu biểu đồ mua/xuất vật tư theo tháng ====
         java.time.YearMonth now = java.time.YearMonth.now();
         java.time.YearMonth startYM = now.minusMonths(5);
         java.time.YearMonth endYM = now;
@@ -85,6 +100,8 @@ public class WarehouseStaffDashboardServlet extends HttpServlet {
 
         // Debug: In log để kiểm tra dữ liệu
         System.out.println("=== DEBUG WAREHOUSE STAFF DASHBOARD ===");
+        System.out.println("totalMaterials: " + totalMaterials);
+        System.out.println("totalInventoryItems: " + totalInventoryItems);
         System.out.println("formattedMonthLabels: " + formattedMonthLabels);
         System.out.println("importValues: " + importValues);
         System.out.println("exportValues: " + exportValues);

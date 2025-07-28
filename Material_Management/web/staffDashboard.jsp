@@ -12,6 +12,7 @@
         <link rel="stylesheet" href="css/sidebar.css">
         <link rel="stylesheet" href="css/header.css"/>
         <link rel="stylesheet" href="css/footer.css"/>
+        <link rel="stylesheet" href="css/staffDashboard.css"/>
         <!-- Font Awesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
         <!-- Google Fonts - Roboto -->
@@ -63,16 +64,31 @@
                 <div class="header-left">
                     <h1>Bảng Điều Khiển Nhân Viên</h1>
                 </div>
-                <div class="date-filter">
-                    <form action="staffDashboard" method="get" class="filter-form">
-                        <button type="submit" name="timeFilter" value="today" 
-                                class="filter-btn ${timeFilter == 'today' ? 'active' : ''}">Hôm Nay</button>
-                        <button type="submit" name="timeFilter" value="week" 
-                                class="filter-btn ${timeFilter == 'week' ? 'active' : ''}">Tuần</button>
-                        <button type="submit" name="timeFilter" value="month" 
-                                class="filter-btn ${timeFilter == 'month' ? 'active' : ''}">Tháng</button>
-                        <button type="submit" name="timeFilter" value="year"
-                                class="filter-btn ${timeFilter == 'year' ? 'active' : ''}">Năm</button>
+                <div class="dashboard-filter-container" style="margin-top: 16px; margin-bottom: 24px;">
+                    <form method="GET" action="staffDashboard" class="dashboard-filter-form" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                        <label for="startMonth" class="chart-form-label">Từ tháng:</label>
+                        <select id="startMonth" name="startMonth" class="chart-form-select">
+                            <c:forEach var="month" begin="1" end="12">
+                                <option value="${month < 10 ? '0' : ''}${month}" ${startMonth == month ? 'selected' : ''}>Tháng ${month}</option>
+                            </c:forEach>
+                        </select>
+                        <select id="startYear" name="startYear" class="chart-form-select">
+                            <c:forEach var="year" begin="2020" end="2030">
+                                <option value="${year}" ${startYear == year ? 'selected' : ''}>${year}</option>
+                            </c:forEach>
+                        </select>
+                        <label for="endMonth" class="chart-form-label">Đến tháng:</label>
+                        <select id="endMonth" name="endMonth" class="chart-form-select">
+                            <c:forEach var="month" begin="1" end="12">
+                                <option value="${month < 10 ? '0' : ''}${month}" ${endMonth == month ? 'selected' : ''}>Tháng ${month}</option>
+                            </c:forEach>
+                        </select>
+                        <select id="endYear" name="endYear" class="chart-form-select">
+                            <c:forEach var="year" begin="2020" end="2030">
+                                <option value="${year}" ${endYear == year ? 'selected' : ''}>${year}</option>
+                            </c:forEach>
+                        </select>
+                        <button type="submit" class="chart-form-button" style="height: 36px;">Xem</button>
                     </form>
                 </div>
             </div>
@@ -140,13 +156,13 @@
             </div>
             --%>
 
-            <!-- Charts Grid -->
-            <div class="charts-grid charts-grid-1">
-                <div class="chart-card full-width" style="min-height: 600px; padding: 30px;">
-                    <h3>Biểu Đồ Mua/Xuất Vật Tư Theo Tháng</h3>
-                    <canvas id="importExportLineChart" style="height: 500px !important;"></canvas>
-                </div>
-            </div>
+                         <!-- Charts Grid -->
+             <div class="charts-grid charts-grid-1" style="width: 100%; max-width: none; margin: 0; padding: 0;">
+                 <div class="chart-card full-width" style="min-height: 600px; padding: 30px; width: 100%; margin: 0;">
+                     <h3>Biểu Đồ Mua/Xuất Vật Tư Theo Tháng</h3>
+                     <canvas id="importExportLineChart" style="height: 500px !important; width: 100% !important;"></canvas>
+                 </div>
+             </div>
 
             <!-- Low Stock Items Table -->
             <%--

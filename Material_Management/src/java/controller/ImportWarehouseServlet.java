@@ -123,19 +123,20 @@ public class ImportWarehouseServlet extends HttpServlet {
                 int materialId = Integer.parseInt(namevts[i]);
                 int quantity = Integer.parseInt(numbers[i]);
                 String condition = statuses[i];
-                
-               
-                int exportedQuantity = dao.getExportedQuantityByProjectAndMaterial(project, materialId);
-                if (quantity > exportedQuantity) {
+
+                int remainingQuantity = dao.getRemainingImportQuantity(project, materialId);
+                if (quantity > remainingQuantity) {
                     String username = user.getFullname();
-                    request.setAttribute("mess", "Số lượng nhập lại (" + quantity + ") vượt quá số lượng đã xuất (" + exportedQuantity + ") cho dự án này!");
+                    int exportedQuantity = dao.getExportedQuantityByProjectAndMaterial(project, materialId);
+                    int importedQuantity = dao.getImportedQuantityByProjectAndMaterial(project, materialId);
+                    request.setAttribute("mess", "Số lượng nhập lại (" + quantity + ") vượt quá số lượng còn lại có thể nhập (" + remainingQuantity + "). Đã xuất: " + exportedQuantity + ", Đã nhập lại: " + importedQuantity + " cho dự án này!");
                     request.setAttribute("username", username);
                     List<String> projectList = dao.getExportedProjects();
                     request.setAttribute("projectList", projectList);
                     doGet(request, response);
                     return;
                 }
-                
+
                 Boolean update = dao.updateQuantity(materialId, condition, quantity);
                 if (!update) {
                     String username = user.getFullname();

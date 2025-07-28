@@ -532,7 +532,7 @@ public class UnitConversionDao extends dal.DBContext {
                 + "  MIN(status) as status, \n"
                 + "  COUNT(*) as total_items\n"
                 + "FROM import_history\n"
-                + "GROUP BY project_name, DATE(created_at), reason\n"
+                + "GROUP BY project_name, DATE(created_at), reason, HOUR(created_at), MINUTE(created_at)\n"
                 + "ORDER BY MIN(created_at) DESC;";
         try (PreparedStatement st = connection.prepareStatement(sql)) {
             ResultSet rs = st.executeQuery();
@@ -557,15 +557,19 @@ public class UnitConversionDao extends dal.DBContext {
      */
     public List<ImportHistory> getImportHistoryDetail(int importId) {
         List<ImportHistory> list = new ArrayList<>();
-        // Lấy tất cả vật tư có cùng project_name, created_at, reason với import_id này
+        // Lấy tất cả vật tư có cùng project_name, created_at (đến phút), reason với import_id này
         String sql = "SELECT * FROM import_history WHERE project_name = (SELECT project_name FROM import_history WHERE id = ?) "
                 + "AND DATE(created_at) = (SELECT DATE(created_at) FROM import_history WHERE id = ?) "
+                + "AND HOUR(created_at) = (SELECT HOUR(created_at) FROM import_history WHERE id = ?) "
+                + "AND MINUTE(created_at) = (SELECT MINUTE(created_at) FROM import_history WHERE id = ?) "
                 + "AND reason = (SELECT reason FROM import_history WHERE id = ?) "
                 + "ORDER BY id ASC";
         try (PreparedStatement st = connection.prepareStatement(sql)) {
             st.setInt(1, importId);
             st.setInt(2, importId);
             st.setInt(3, importId);
+            st.setInt(4, importId);
+            st.setInt(5, importId);
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
                 ImportHistory h = new ImportHistory();
@@ -703,6 +707,29 @@ public class UnitConversionDao extends dal.DBContext {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    public int getImportedQuantityByProjectAndMaterial(String projectName, int materialId) {
+        String sql = "SELECT SUM(quantity) as total_imported " +
+                     "FROM import_history " +
+                     "WHERE project_name = ? AND material_name = (SELECT name FROM materials WHERE material_id = ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, projectName);
+            ps.setInt(2, materialId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total_imported");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int getRemainingImportQuantity(String projectName, int materialId) {
+        int exportedQuantity = getExportedQuantityByProjectAndMaterial(projectName, materialId);
+        int importedQuantity = getImportedQuantityByProjectAndMaterial(projectName, materialId);
+        return Math.max(0, exportedQuantity - importedQuantity);
     }
 
     public static void main(String[] args) {

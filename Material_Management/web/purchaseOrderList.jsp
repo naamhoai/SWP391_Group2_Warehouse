@@ -151,20 +151,18 @@
                                 <i class="fas fa-eye"></i> Chi tiết
                             </a>
                             <c:choose>
-                                <c:when test="${order.status eq 'Completed'}">
-                                    <button class="btn btn-warning" style="padding: 5px 10px; font-size: 12px; margin-left:4px; color:#fff;" onclick="showEditWarning('${order.status}')">
-                                        <i class="fas fa-edit"></i> Sửa
-                                    </button>
-                                </c:when>
-                                <c:otherwise>
+                                <c:when test="${order.status eq 'Rejected'}">
                                     <a class="btn btn-warning" style="padding: 5px 10px; font-size: 12px; margin-left:4px; color:#fff;" href="editPurchaseOrder?orderId=${order.purchaseOrderId}">
                                         <i class="fas fa-edit"></i> Sửa
                                     </a>
+                                </c:when>
+                                <c:otherwise>
+                                    <button class="btn btn-warning" style="padding: 5px 10px; font-size: 12px; margin-left:4px; color:#fff;" onclick="showEditWarning('${order.status}')">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </button>
                                 </c:otherwise>
                             </c:choose>
-                            <a class="btn btn-info" style="padding: 5px 10px; font-size: 12px; margin-left:4px; color:#fff;" href="purchaseOrderHistory?orderId=${order.purchaseOrderId}">
-                                <i class="fas fa-history"></i> Lịch sử
-                            </a>
+                            
                         </td>
                     </tr>
                 </c:forEach>
@@ -271,15 +269,28 @@
 
         // Hiển thị thông báo khi không thể sửa đơn
         function showEditWarning(status) {
-            let message = '';
-            if (status === 'Approved' || status === 'Đã duyệt') {
-                message = 'Không thể sửa đơn đã được duyệt!';
-            } else if (status === 'Rejected' || status === 'Từ chối') {
-                message = 'Không thể sửa đơn đã bị từ chối!';
-            } else {
-                message = 'Không thể sửa đơn với trạng thái này!';
+            // Chuyển đổi trạng thái từ tiếng Anh sang tiếng Việt
+            let statusInVietnamese = status;
+            switch(status) {
+                case 'Pending':
+                    statusInVietnamese = 'Chờ duyệt';
+                    break;
+                case 'Approved':
+                    statusInVietnamese = 'Đã duyệt';
+                    break;
+                case 'Rejected':
+                    statusInVietnamese = 'Từ chối';
+                    break;
+                case 'Completed':
+                    statusInVietnamese = 'Hoàn thành';
+                    break;
+                case 'Cancelled':
+                    statusInVietnamese = 'Đã hủy';
+                    break;
+                default:
+                    statusInVietnamese = status; // Giữ nguyên nếu không tìm thấy mapping
             }
-            alert(message);
+            alert('Chỉ có thể chỉnh sửa đơn hàng bị từ chối! Trạng thái hiện tại: ' + statusInVietnamese);
         }
     </script>
     <script>

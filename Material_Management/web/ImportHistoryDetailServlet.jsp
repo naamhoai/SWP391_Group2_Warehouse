@@ -71,7 +71,7 @@
         <h3 style="margin-bottom: 16px;">Thông tin phiếu nhập</h3>
         <div class="info-grid">
             <div><b>Mã phiếu:</b> ${importHistory.id}</div>
-            <div><b>Ngày tạo:</b> <fmt:formatDate value="${importHistory.createdAt}" pattern="dd/MM/yyyy"/></div>
+            <div><b>Ngày tạo:</b> ${importHistory.createdAt}</div>
             <div><b>Tên dự án:</b> ${importHistory.projectName}</div>
             <div><b>Người nhận:</b> ${importHistory.receivedBy}</div>
             <div><b>Lý do:</b> ${importHistory.reason}</div>

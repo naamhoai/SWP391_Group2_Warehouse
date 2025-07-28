@@ -108,19 +108,44 @@ public class StaffDashboardServlet extends HttpServlet {
 
         // ==== Lấy dữ liệu biểu đồ mua/xuất vật tư theo tháng ====
         InventoryDAO inventoryDAO = new InventoryDAO();
-        // Lấy khoảng thời gian mặc định: 6 tháng gần nhất
-        java.time.YearMonth now = java.time.YearMonth.now();
-        java.time.YearMonth startYM = now.minusMonths(5);
-        java.time.YearMonth endYM = now;
-        String startDate = startYM.toString(); // yyyy-MM
-        String endDate = endYM.toString();
-        // Tạo danh sách các tháng
-        java.util.List<String> monthLabels = new ArrayList<>();
+        
+        // Lấy tham số thời gian từ request
+        String startMonth = request.getParameter("startMonth");
+        String startYear = request.getParameter("startYear");
+        String endMonth = request.getParameter("endMonth");
+        String endYear = request.getParameter("endYear");
+        
+        // Tạo startDate và endDate từ tham số
+        String startDate = null;
+        String endDate = null;
+        
+        if (startMonth != null && startYear != null && !startMonth.isEmpty() && !startYear.isEmpty()) {
+            startDate = startYear + "-" + (startMonth.length() == 1 ? "0" + startMonth : startMonth);
+        }
+        if (endMonth != null && endYear != null && !endMonth.isEmpty() && !endYear.isEmpty()) {
+            endDate = endYear + "-" + (endMonth.length() == 1 ? "0" + endMonth : endMonth);
+        }
+        
+        // Nếu không có tham số, sử dụng 6 tháng gần nhất
+        if (startDate == null || startDate.isEmpty()) {
+            java.time.LocalDate now = java.time.LocalDate.now();
+            startDate = now.minusMonths(5).toString().substring(0, 7);
+        }
+        if (endDate == null || endDate.isEmpty()) {
+            java.time.LocalDate now = java.time.LocalDate.now();
+            endDate = now.toString().substring(0, 7);
+        }
+        
+        // Lấy dữ liệu nhập/xuất theo khoảng thời gian
+        List<String> monthLabels = new ArrayList<>();
+        java.time.YearMonth startYM = java.time.YearMonth.parse(startDate);
+        java.time.YearMonth endYM = java.time.YearMonth.parse(endDate);
         for (java.time.YearMonth m = startYM; !m.isAfter(endYM); m = m.plusMonths(1)) {
             monthLabels.add(m.toString());
         }
+        
         // Định dạng tháng sang tiếng Việt
-        java.util.List<String> formattedMonthLabels = new ArrayList<>();
+        List<String> formattedMonthLabels = new ArrayList<>();
         String[] vietnameseMonths = {"T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12"};
         for (String month : monthLabels) {
             String[] parts = month.split("-");
@@ -132,18 +157,40 @@ public class StaffDashboardServlet extends HttpServlet {
                 formattedMonthLabels.add(month);
             }
         }
+        
         Map<String, Integer> importByMonth = inventoryDAO.getTotalImportedByMonthRange(startDate, endDate);
         Map<String, Integer> exportByMonth = inventoryDAO.getTotalExportedByMonthRange(startDate, endDate);
-        java.util.List<Integer> importValues = new ArrayList<>();
-        java.util.List<Integer> exportValues = new ArrayList<>();
+        List<Integer> importValues = new ArrayList<>();
+        List<Integer> exportValues = new ArrayList<>();
         for (String month : monthLabels) {
             importValues.add(importByMonth.getOrDefault(month, 0));
             exportValues.add(exportByMonth.getOrDefault(month, 0));
         }
+        
         Gson gson = new Gson();
         request.setAttribute("importExportMonthLabels", formattedMonthLabels);
         request.setAttribute("importByMonthJson", gson.toJson(importValues));
         request.setAttribute("exportByMonthJson", gson.toJson(exportValues));
+        
+        // Lưu tham số thời gian để hiển thị trên form
+        request.setAttribute("startDate", startDate);
+        request.setAttribute("endDate", endDate);
+        
+        // Tách tháng và năm để hiển thị trên dropdown
+        if (startDate != null && startDate.length() >= 7) {
+            String[] startParts = startDate.split("-");
+            if (startParts.length == 2) {
+                request.setAttribute("startMonth", Integer.parseInt(startParts[1]));
+                request.setAttribute("startYear", Integer.parseInt(startParts[0]));
+            }
+        }
+        if (endDate != null && endDate.length() >= 7) {
+            String[] endParts = endDate.split("-");
+            if (endParts.length == 2) {
+                request.setAttribute("endMonth", Integer.parseInt(endParts[1]));
+                request.setAttribute("endYear", Integer.parseInt(endParts[0]));
+            }
+        }
 
         // Truyền sang JSP
         request.setAttribute("notifications", notifications);

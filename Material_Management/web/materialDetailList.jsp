@@ -128,7 +128,7 @@
                                         <c:forEach items="${materials}" var="material" varStatus="status">
                                             <tr>
                                                 <td><input type="checkbox" name="materialIds" value="${material.materialId}" class="material-checkbox"></td>
-                                                <td>#${material.materialId}</td>
+                                                <td>${material.materialId}</td>
                                                 <td>${material.name}</td>
                                                 <td>${material.categoryName}</td>
                                                 <td>${material.unitName}</td>
